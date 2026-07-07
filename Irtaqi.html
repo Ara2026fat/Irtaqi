@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<!-- منصة ارتق — © جميع الحقوق محفوظة لعرفات الراجحي — Copyright Arafat Al-Rajhi -->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="عرفات الراجحي - Arafat Al-Rajhi">
+<meta name="copyright" content="© جميع الحقوق محفوظة لعرفات الراجحي">
+<title>ارتق — احفظ، راجع، وارتقِ بالدرجات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --purple:#2D1B3D;
+  --purple-mid:#4A2C5E;
+  --purple-light:#6B4380;
+  --purple-pale:#EFE8F2;
+  --copper:#D4823A;
+  --copper-light:#F0A868;
+  --ivory:#FBF3E7;
+  --ivory-2:#F2E6D3;
+  --text:#3D2817;
+  --muted:#8B7355;
+  --white:#FFFFFF;
+  --topbar-bg:rgba(251,243,231,0.92);
+  --card-bg:var(--white);
+  --done-bg:var(--purple-pale);
+}
+body.theme-dark{
+  --ivory:#1C1420;
+  --ivory-2:#28202E;
+  --text:#EDE4E8;
+  --muted:#A895AC;
+  --topbar-bg:rgba(28,20,32,0.92);
+  --card-bg:#241C2A;
+  --done-bg:#33253C;
+}
+.theme-toggle-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;cursor:pointer;transition:transform .15s;
+  flex:0 0 auto;
+}
+.theme-toggle-btn:active{transform:scale(0.9);}
+body.theme-dark .theme-toggle-btn{
+  background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.14);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Samsung Arabic','SamsungOne Arabic','Noto Naskh Arabic','Scheherazade New','Amiri','Traditional Arabic','Tajawal',sans-serif;background:var(--ivory);color:var(--text);overflow-x:hidden;}
+body{max-width:480px;margin:0 auto;position:relative;}
+
+/* ===== SCREENS ===== */
+.screen{position:fixed;inset:0;overflow-y:auto;background:var(--ivory);transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .32s ease;will-change:transform,opacity;}
+.screen.hidden{transform:translateX(-100%);opacity:0;pointer-events:none;}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  background:var(--topbar-bg);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(45,27,61,0.1);
+}
+.brand-wrap{display:flex;align-items:center;gap:8px;}
+.brand-icon{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--purple-light));
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;color:white;font-weight:900;
+  box-shadow:0 3px 10px rgba(45,27,61,0.35);
+}
+.brand-name{font-size:20px;font-weight:700;color:var(--purple);font-family:"Scheherazade New","Amiri",serif;}
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(45,27,61,0.08);border:none;
+  border-radius:999px;padding:7px 14px;
+  font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;
+  color:var(--purple);cursor:pointer;
+}
+
+/* ===== HOME ===== */
+#home-bg{
+  min-height:100vh;
+  background:linear-gradient(170deg,#2D1B3D 0%,#4A2C5E 45%,#170D1F 100%);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.dawn-glow{
+  position:absolute;bottom:0;left:0;right:0;height:260px;
+  background:radial-gradient(ellipse at 50% 100%,rgba(212,130,58,0.35),transparent 70%);
+  pointer-events:none;z-index:0;
+}
+.home-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;margin:12px 16px 6px;position:relative;z-index:2;
+  border:1px solid rgba(212,130,58,0.4);border-radius:20px;
+  background:rgba(255,255,255,0.04);backdrop-filter:blur(6px);
+}
+.home-brand-title{
+  font-family:'Scheherazade New','Amiri',serif;font-size:36px;font-weight:700;
+  color:white;line-height:1;text-shadow:0 0 30px rgba(212,130,58,0.4);
+}
+.home-date-day{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase;}
+.home-date-hijri{font-family:'Amiri',serif;font-size:15px;color:var(--copper-light);margin-top:1px;}
+.home-leaf{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--copper),var(--copper-light));
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 0 16px rgba(212,130,58,0.5);
+}
+.teacher-icon-btn{
+  padding:7px 16px;border-radius:999px;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+  color:rgba(255,255,255,0.85);cursor:pointer;transition:transform .15s;
+  font-family:'Tajawal',sans-serif;white-space:nowrap;
+}
+.teacher-icon-btn:active{transform:scale(0.94);}
+
+.stair-wrap{position:relative;padding:26px 16px 30px;}
+.stair-title{text-align:center;font-size:14px;font-weight:800;color:rgba(255,255,255,0.9);margin-bottom:22px;}
+.stair-line{
+  position:absolute;top:78px;bottom:60px;right:50%;width:2px;
+  background:linear-gradient(180deg,transparent,rgba(45,212,191,0.5) 15%,rgba(45,212,191,0.5) 85%,transparent);
+  z-index:0;
+}
+.stair-card{
+  position:relative;z-index:1;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:transform .2s;margin-bottom:26px;
+}
+.stair-card:last-child{margin-bottom:0;}
+.stair-card:active{transform:scale(0.97);}
+.stair-card.s1{width:78%;margin-right:0;}
+.stair-card.s2{width:88%;margin-right:6%;}
+.stair-card.s3{width:100%;margin-right:0;}
+.stair-num{
+  flex:0 0 auto;width:46px;height:46px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#0D2E29;
+  background:linear-gradient(135deg,#5EEAD4,#2DD4BF);
+  box-shadow:0 6px 16px rgba(45,212,191,0.35);
+  position:relative;
+}
+.stair-progress-ring{position:absolute;inset:-4px;}
+.stair-body{
+  flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(45,212,191,0.25);
+  border-radius:16px;padding:13px 16px;backdrop-filter:blur(6px);
+}
+.stair-name{font-size:16px;font-weight:900;color:white;}
+.stair-sub{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;}
+
+.irtaqi-frame{
+  margin:8px 16px 0;position:relative;z-index:2;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(212,130,58,0.4);
+  border-radius:22px;padding:18px 6px 16px;
+  backdrop-filter:blur(6px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.irtaqi-frame-title{
+  text-align:center;font-size:14px;font-weight:800;color:rgba(255,255,255,0.9);
+  margin-bottom:16px;
+}
+.circles-col{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:18px;padding:0 16px;
+}
+.circle-row{
+  display:flex;flex-direction:row-reverse;align-items:center;justify-content:center;gap:18px;
+  cursor:pointer;transition:transform .2s;width:100%;max-width:340px;
+}
+.circle-row:active{transform:scale(0.96);}
+.circle-outer{
+  position:relative;width:110px;height:110px;flex:0 0 auto;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,0.25));border-radius:50%;
+}
+.circle-outer svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+.circle-ball{
+  position:absolute;inset:12%;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;overflow:hidden;
+}
+.cb-shine{position:absolute;top:5%;left:10%;width:58%;height:44%;background:radial-gradient(ellipse,rgba(255,255,255,0.55) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.cb-shine2{position:absolute;bottom:8%;right:8%;width:30%;height:25%;background:radial-gradient(ellipse,rgba(255,255,255,0.15) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.cb-icon{font-size:34px;line-height:1;position:relative;z-index:2;}
+.circle-name{font-size:12px;font-weight:900;color:rgba(255,255,255,0.9);text-align:center;}
+
+.today-ayah-card{
+  margin:14px 16px 24px;position:relative;z-index:2;
+  background:var(--ivory);border-radius:20px;padding:20px 18px;
+  border:1px solid rgba(212,130,58,0.25);
+}
+.tac-label{font-size:11px;font-weight:800;color:var(--copper);margin-bottom:10px;}
+.tac-text{font-family:'Amiri',serif;font-size:19px;color:var(--text);text-align:center;line-height:1.8;margin-bottom:8px;}
+.tac-source{font-size:11px;color:var(--muted);text-align:center;}
+
+/* ===== شاشة التلاوة ===== */
+.tilawa-hero{
+  background:linear-gradient(145deg,#3D2817,#6B4A2E);
+  padding:24px 20px 28px;text-align:center;position:relative;overflow:hidden;
+}
+.tilawa-hero::before{
+  content:'﴿';position:absolute;font-size:120px;color:rgba(255,255,255,0.04);
+  top:-20px;left:-10px;font-family:'Amiri',serif;pointer-events:none;
+}
+.th-icon{font-size:38px;margin-bottom:8px;}
+.th-title{font-size:20px;font-weight:900;color:#FFF8F0;}
+.th-sub{font-size:12px;color:rgba(255,248,240,0.7);margin-top:4px;}
+
+.plan-wrap{padding:20px 16px;}
+.plan-label{font-size:13px;font-weight:800;color:var(--text);margin-bottom:12px;}
+.plan-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.plan-opt{
+  padding:14px 10px;border-radius:16px;border:2px solid rgba(45,27,61,0.15);
+  background:var(--card-bg);text-align:center;cursor:pointer;transition:all .2s;
+}
+.plan-opt.active{border-color:var(--purple);background:var(--done-bg);box-shadow:0 4px 12px rgba(45,27,61,0.15);}
+.plan-opt-days{font-size:22px;font-weight:900;color:var(--purple);}
+.plan-opt-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.plan-opt-pages{font-size:11px;color:var(--muted);margin-top:1px;}
+.plan-opt.active .plan-opt-sub, .plan-opt.active .plan-opt-pages{color:var(--purple);}
+.plan-start-btn{
+  width:100%;padding:14px;border-radius:14px;
+  background:linear-gradient(135deg,var(--purple),var(--purple-mid));
+  border:none;color:white;font-size:15px;font-weight:800;
+  font-family:'Tajawal',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(45,27,61,0.3);
+}
+
+.days-strip{padding:16px 16px 8px;overflow-x:auto;scrollbar-width:none;}
+.days-strip::-webkit-scrollbar{display:none;}
+.ds-inner{display:flex;gap:8px;width:max-content;}
+.d-pill{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 12px;border-radius:14px;cursor:pointer;transition:all .2s;
+  min-width:60px;border:2px solid transparent;
+}
+.d-pill.done{background:var(--purple);box-shadow:0 4px 12px rgba(45,27,61,0.25);}
+.d-pill.today{background:linear-gradient(135deg,var(--copper),var(--copper-light));box-shadow:0 4px 16px rgba(212,130,58,0.3);}
+.d-pill.future{background:var(--ivory-2);border-color:rgba(45,27,61,0.1);}
+.d-pill.selected{border-color:var(--purple-light)!important;}
+.d-day{font-size:10px;font-weight:700;}
+.d-num{font-size:16px;font-weight:900;}
+.d-check{font-size:12px;}
+.d-pill.done .d-day, .d-pill.done .d-num, .d-pill.done .d-check{color:white;}
+.d-pill.today .d-day, .d-pill.today .d-num{color:white;}
+.d-pill.future .d-day, .d-pill.future .d-num{color:var(--muted);}
+
+.day-card{
+  margin:8px 16px 16px;background:linear-gradient(145deg,#3D2817,#6B4A2E);
+  border-radius:20px;padding:20px;position:relative;overflow:hidden;
+}
+.day-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(212,130,58,0.15),transparent 60%);}
+.dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;}
+.dc-label{font-size:11px;font-weight:700;color:var(--copper-light);letter-spacing:1px;}
+.dc-status{font-size:12px;font-weight:700;}
+.dc-main{background:rgba(255,255,255,0.1);border-radius:14px;padding:16px;margin-bottom:14px;position:relative;}
+.dc-juzz{font-family:'Amiri',serif;font-size:20px;color:#FFF8F0;margin-bottom:6px;line-height:1.6;}
+.dc-surah{font-size:13px;color:var(--copper-light);margin-bottom:4px;}
+.dc-details{display:flex;gap:12px;margin-top:8px;}
+.dc-detail{background:rgba(255,255,255,0.1);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,248,240,0.8);font-weight:700;}
+.dc-progress{margin-bottom:14px;position:relative;}
+.dc-prog-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,248,240,0.6);margin-bottom:6px;}
+.dc-prog-bar{background:rgba(255,255,255,0.15);border-radius:999px;height:8px;overflow:hidden;}
+.dc-prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--copper-light),var(--copper));transition:width .6s ease;}
+.dc-btn{
+  width:100%;padding:13px;border-radius:12px;background:rgba(212,130,58,0.25);
+  border:1px solid rgba(212,130,58,0.4);color:var(--copper-light);font-size:14px;font-weight:800;
+  font-family:'Tajawal',sans-serif;cursor:pointer;position:relative;transition:all .2s;margin-bottom:8px;
+}
+.dc-btn.completed{background:rgba(107,67,128,0.3);border-color:rgba(107,67,128,0.5);color:#D9C5E8;}
+.dc-reset{text-align:center;margin-top:10px;position:relative;font-size:11px;color:rgba(255,248,240,0.4);cursor:pointer;text-decoration:underline;}
+.quran-link{
+  display:block;width:100%;padding:13px;border-radius:12px;margin-bottom:8px;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+  color:#FFF8F0;font-size:13px;font-weight:800;text-align:center;text-decoration:none;
+  font-family:'Tajawal',sans-serif;cursor:pointer;box-sizing:border-box;
+}
+
+/* ===== شاشة الحفظ/المراجعة ===== */
+.hifz-hero{background:linear-gradient(145deg,#2D1B3D,#4A2C5E);padding:24px 20px 0;text-align:center;}
+.hifz-hero-icon{font-size:36px;margin-bottom:6px;}
+.hifz-hero-title{font-size:20px;font-weight:900;color:white;}
+.hifz-hero-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;margin-bottom:18px;}
+.hifz-tabs{display:flex;gap:0;}
+.hifz-tab{
+  flex:1;padding:12px 0;background:none;border:none;font-family:'Tajawal',sans-serif;
+  font-size:14px;font-weight:800;color:rgba(255,255,255,0.55);cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;
+}
+.hifz-tab.active{color:white;border-bottom-color:var(--copper);}
+
+.hifz-setup-card{background:var(--card-bg);border-radius:18px;padding:20px 16px;border:1px solid rgba(0,0,0,0.06);}
+.hifz-setup-title{font-size:16px;font-weight:900;color:var(--text);text-align:center;}
+.hifz-setup-sub{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;margin-bottom:14px;}
+.hifz-day-row{display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid rgba(0,0,0,0.06);}
+.hifz-day-row:last-of-type{border-bottom:none;}
+.hifz-day-name{font-size:13px;font-weight:700;color:var(--text);}
+.hifz-day-input{
+  width:56px;text-align:center;font-size:14px;font-weight:800;padding:6px 4px;border-radius:10px;
+  border:1.5px solid rgba(45,27,61,0.2);background:var(--ivory-2);color:var(--text);font-family:'Tajawal',sans-serif;
+}
+.hifz-save-btn{
+  width:100%;margin-top:16px;padding:13px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,var(--purple),var(--purple-light));
+  color:white;font-size:14px;font-weight:900;cursor:pointer;font-family:'Tajawal',sans-serif;
+}
+.hifz-opt-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.hifz-opt-btn{
+  min-width:44px;padding:10px 6px;border-radius:12px;border:2px solid rgba(45,27,61,0.15);
+  background:var(--card-bg);color:var(--text);font-size:15px;font-weight:800;cursor:pointer;
+  font-family:'Tajawal',sans-serif;transition:all .15s;
+}
+.hifz-opt-btn.small{min-width:36px;padding:8px 4px;font-size:13px;}
+.hifz-opt-btn.active{border-color:var(--purple);background:var(--done-bg);color:var(--purple);}
+
+.hifz-progress-card{background:var(--card-bg);border-radius:18px;padding:16px;border:1px solid rgba(0,0,0,0.06);margin-bottom:14px;}
+.hifz-progress-label{font-size:12px;color:var(--muted);text-align:center;}
+.hifz-progress-numbers{font-size:20px;font-weight:900;color:var(--text);text-align:center;margin:4px 0 10px;}
+.hifz-progress-bar{background:var(--ivory-2);border-radius:999px;height:8px;overflow:hidden;}
+.hifz-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--purple-light));transition:width .4s ease;}
+
+.hifz-today-card{background:linear-gradient(145deg,#2D1B3D,#4A2C5E);border-radius:18px;padding:22px 18px;text-align:center;}
+.hifz-today-label{font-size:12px;color:rgba(255,255,255,0.65);}
+.hifz-today-range{font-size:22px;font-weight:900;color:white;margin:8px 0 4px;}
+.hifz-today-count{font-size:13px;color:var(--copper-light);font-weight:700;margin-bottom:16px;}
+.hifz-done-btn{
+  width:100%;padding:13px;border:none;border-radius:14px;background:var(--copper);
+  color:white;font-size:14px;font-weight:900;cursor:pointer;font-family:'Tajawal',sans-serif;margin-bottom:8px;
+}
+.hifz-share-btn{
+  width:100%;padding:12px;border:1.5px solid rgba(45,27,61,0.2);border-radius:14px;background:none;
+  color:var(--purple);font-size:13px;font-weight:800;cursor:pointer;font-family:'Tajawal',sans-serif;
+}
+.hifz-done-today{
+  background:var(--done-bg);border-radius:18px;padding:24px;text-align:center;font-size:15px;
+  font-weight:800;color:var(--purple);border:1px solid rgba(45,27,61,0.2);margin-bottom:10px;
+}
+.hifz-rest-day{background:var(--ivory-2);border-radius:18px;padding:24px;text-align:center;font-size:14px;font-weight:700;color:var(--muted);}
+.hifz-edit-btn{display:block;width:100%;margin-top:14px;padding:10px;background:none;border:none;color:var(--muted);font-size:12px;text-decoration:underline;cursor:pointer;font-family:'Tajawal',sans-serif;}
+
+.mini-toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:rgba(20,10,25,0.92);color:white;padding:12px 22px;border-radius:999px;
+  font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;
+  pointer-events:none;max-width:85%;text-align:center;white-space:pre-line;
+}
+.share-sheet-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:998;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.share-sheet-overlay.hidden{display:none;}
+.share-sheet-panel{
+  background:var(--card-bg);width:100%;max-width:480px;
+  border-radius:22px 22px 0 0;padding:22px 18px 28px;
+}
+.share-sheet-title{font-size:16px;font-weight:900;color:var(--text);margin-bottom:16px;text-align:center;}
+.share-sheet-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:13px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#25D366,#1DA851);color:white;font-size:14px;font-weight:800;
+  cursor:pointer;font-family:'Tajawal',sans-serif;margin-bottom:8px;
+}
+.share-sheet-btn.generic{background:linear-gradient(135deg,var(--purple),var(--purple-light));}
+
+/* ===== شاشة المعلمين ===== */
+.teacher-hero{background:linear-gradient(145deg,#3D2817,#6B4A2E);padding:24px 20px;text-align:center;}
+.teacher-hero-icon{font-size:36px;margin-bottom:6px;}
+.teacher-hero-title{font-size:20px;font-weight:900;color:white;}
+.teacher-hero-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;}
+.circle-name-badge{
+  display:inline-block;margin-top:12px;padding:6px 18px;border-radius:999px;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+  color:var(--copper-light);font-size:14px;font-weight:800;
+}
+.student-card{
+  background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:12px;
+  border:1px solid rgba(0,0,0,0.06);
+}
+.student-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.student-name{font-size:15px;font-weight:900;color:var(--text);}
+.student-phone{font-size:11px;color:var(--muted);direction:ltr;text-align:right;}
+.student-plan{font-size:12px;color:var(--muted);background:var(--ivory-2);border-radius:10px;padding:8px 10px;margin:8px 0;line-height:1.6;}
+.student-actions{display:flex;gap:8px;}
+.student-actions button{
+  flex:1;padding:9px;border-radius:10px;border:none;font-size:12px;font-weight:800;
+  cursor:pointer;font-family:'Tajawal',sans-serif;
+}
+.sa-msg{background:linear-gradient(135deg,#25D366,#1DA851);color:white;}
+.sa-edit{background:var(--ivory-2);color:var(--text);}
+.sa-del{background:rgba(220,50,50,0.12);color:#B91C1C;}
+.teacher-add-card{
+  background:var(--card-bg);border-radius:16px;padding:16px;margin-bottom:14px;
+  border:1.5px dashed rgba(45,27,61,0.25);
+}
+
+/* ===== الاختبار ===== */
+.quiz-progress-text{font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;}
+.quiz-question-card{
+  background:var(--card-bg);border-radius:18px;padding:22px 18px;
+  border:1px solid rgba(0,0,0,0.06);margin-bottom:16px;
+}
+.quiz-question-text{font-family:'Amiri',serif;font-size:19px;color:var(--text);line-height:2;text-align:center;margin-bottom:6px;}
+.quiz-question-ref{font-size:11px;color:var(--muted);text-align:center;margin-bottom:18px;}
+.quiz-opt{
+  display:block;width:100%;text-align:right;padding:13px 16px;border-radius:12px;
+  border:2px solid rgba(45,27,61,0.15);background:var(--ivory-2);color:var(--text);
+  font-family:'Amiri',serif;font-size:16px;cursor:pointer;margin-bottom:10px;transition:all .2s;
+}
+.quiz-opt.correct{border-color:#16A34A;background:rgba(22,163,74,0.12);color:#16A34A;font-weight:800;}
+.quiz-opt.wrong{border-color:#DC2626;background:rgba(220,38,38,0.12);color:#DC2626;font-weight:800;}
+.quiz-next-btn{
+  width:100%;padding:13px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,var(--purple),var(--purple-light));
+  color:white;font-size:14px;font-weight:900;cursor:pointer;font-family:'Tajawal',sans-serif;
+}
+.quiz-result-card{
+  background:linear-gradient(145deg,#2D1B3D,#4A2C5E);border-radius:20px;padding:30px 20px;
+  text-align:center;margin-bottom:16px;
+}
+.quiz-result-score{font-size:42px;font-weight:900;color:white;}
+.quiz-result-label{font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;}
+
+</style>
+</head>
+<body>
+
+<!-- ==================== الشاشة الرئيسية ==================== -->
+<div class="screen" id="screen-home">
+  <div id="home-bg">
+    <div class="dawn-glow"></div>
+
+    <div class="home-topbar">
+      <div>
+        <div class="home-date-day" id="bar-day"></div>
+        <div class="home-date-hijri" id="bar-miladi"></div>
+      </div>
+      <div style="text-align:center;">
+        <div class="home-brand-title">ارت<span style="color:#2DD4BF;">قِ</span></div>
+      </div>
+      <div class="teacher-icon-btn" onclick="openTeacherScreen()">دخول المعلم / المعلمة</div>
+    </div>
+
+    <div class="stair-wrap">
+      <div class="stair-title">رحلتك مع القرآن</div>
+      <div class="stair-line"></div>
+
+      <div class="stair-card s1" onclick="openTilawaScreen()">
+        <div class="stair-num">
+          <svg class="stair-progress-ring" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <circle cx="27" cy="27" r="24" fill="none" stroke="#2DD4BF" stroke-width="3" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" id="tilawa-ring" transform="rotate(-90 27 27)"/>
+          </svg>
+          ١
+        </div>
+        <div class="stair-body">
+          <div class="stair-name">التلاوة</div>
+          <div class="stair-sub">رحلتك اليومية مع كتاب الله</div>
+        </div>
+      </div>
+
+      <div class="stair-card s2" onclick="openHifzScreen('memo')">
+        <div class="stair-num">
+          <svg class="stair-progress-ring" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <circle cx="27" cy="27" r="24" fill="none" stroke="#2DD4BF" stroke-width="3" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" id="memo-ring" transform="rotate(-90 27 27)"/>
+          </svg>
+          ٢
+        </div>
+        <div class="stair-body">
+          <div class="stair-name">الحفظ</div>
+          <div class="stair-sub">خطتك الأسبوعية لتثبيت الحفظ</div>
+        </div>
+      </div>
+
+      <div class="stair-card s3" onclick="openHifzScreen('review')">
+        <div class="stair-num">
+          <svg class="stair-progress-ring" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+            <circle cx="27" cy="27" r="24" fill="none" stroke="#2DD4BF" stroke-width="3" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" id="review-ring" transform="rotate(-90 27 27)"/>
+          </svg>
+          ٣
+        </div>
+        <div class="stair-body">
+          <div class="stair-name">المراجعة</div>
+          <div class="stair-sub">دوّر على محفوظك بتكرار يناسبك</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="today-ayah-card">
+      <div class="tac-label">📖 آية اليوم</div>
+      <div class="tac-text">«إِنَّ مَعَ الْعُسْرِ يُسْرًا»</div>
+      <div class="tac-source">سورة الشرح — الآية ٦</div>
+    </div>
+
+    <div style="text-align:center;padding:6px 20px 20px;position:relative;z-index:2;font-size:10px;color:rgba(255,255,255,0.35);">
+      © جميع الحقوق محفوظة لمنصة ارتق — عرفات الراجحي
+    </div>
+  </div>
+</div>
+
+<!-- ==================== شاشة التلاوة ==================== -->
+<div class="screen hidden" id="screen-tilawa">
+  <div class="topbar">
+    <button class="back-btn" onclick="closeTilawaScreen()">↩ الرئيسية</button>
+    <div class="brand-wrap">
+      <div class="brand-icon">📿</div>
+      <div class="brand-name" style="font-size:16px;">ارتق</div>
+    </div>
+    <div class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn-tilawa">🌙</div>
+  </div>
+  <div class="tilawa-hero">
+    <div class="th-icon">📖</div>
+    <div class="th-title">ورد التلاوة</div>
+    <div class="th-sub">رحلتك مع ختمة كتاب الله</div>
+  </div>
+  <div id="tilawa-content"></div>
+</div>
+
+<!-- ==================== شاشة الحفظ والمراجعة ==================== -->
+<div class="screen hidden" id="screen-hifz">
+  <div class="topbar">
+    <button class="back-btn" onclick="closeHifzScreen()">↩ الرئيسية</button>
+    <div class="brand-wrap">
+      <div class="brand-icon">📿</div>
+      <div class="brand-name" style="font-size:16px;">ارتق</div>
+    </div>
+    <div class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn-hifz">🌙</div>
+  </div>
+  <div class="hifz-hero">
+    <div class="hifz-hero-icon">🌱</div>
+    <div class="hifz-hero-title">الحفظ والمراجعة</div>
+    <div class="hifz-hero-sub">خطتك الخاصة لتثبيت حفظ القرآن</div>
+    <div class="hifz-tabs">
+      <button class="hifz-tab" id="hifz-tab-review" onclick="switchHifzTab('review')">المراجعة</button>
+      <button class="hifz-tab active" id="hifz-tab-memo" onclick="switchHifzTab('memo')">الحفظ</button>
+      <button class="hifz-tab" id="hifz-tab-quiz" onclick="switchHifzTab('quiz')">🎯 اختبار</button>
+      <button class="hifz-tab" id="hifz-tab-companions" onclick="switchHifzTab('companions')">👥 رفقائي</button>
+    </div>
+  </div>
+  <div id="hifz-content" style="padding:16px 16px 40px;"></div>
+</div>
+
+<!-- ==================== شاشة المعلمين ==================== -->
+<div class="screen hidden" id="screen-teacher">
+  <div class="topbar">
+    <button class="back-btn" onclick="closeTeacherScreen()">↩ الرئيسية</button>
+    <div class="brand-wrap">
+      <div class="brand-icon">📿</div>
+      <div class="brand-name" style="font-size:16px;">ارتق</div>
+    </div>
+    <div class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn-teacher">🌙</div>
+  </div>
+  <div class="teacher-hero">
+    <div class="teacher-hero-icon">👨‍🏫</div>
+    <div class="teacher-hero-title">بوابة المعلمين</div>
+    <div class="teacher-hero-sub">أنشئ حلقتك وتابع تواصلك مع طلابك</div>
+    <div id="teacher-circle-badge"></div>
+  </div>
+  <div id="teacher-content" style="padding:16px 16px 40px;"></div>
+</div>
+
+<div class="mini-toast" id="mini-toast"></div>
+
+<div class="share-sheet-overlay hidden" id="share-sheet-overlay" onclick="closeShareSheet()">
+
+  <div class="share-sheet-panel" id="share-sheet-panel" onclick="event.stopPropagation()"></div>
+</div>
+
+<script>
+// ===================== عام =====================
+function showToast(msg){
+  const t = document.getElementById('mini-toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 2500);
+}
+function getTodayKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+function toggleTheme(){
+  const isDark = !document.body.classList.contains('theme-dark');
+  document.body.classList.toggle('theme-dark', isDark);
+  const icon = isDark ? '☀️' : '🌙';
+  ['theme-btn-tilawa','theme-btn-hifz','theme-btn-teacher'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = icon;
+  });
+  try { localStorage.setItem('irtaqi-theme', isDark ? 'dark' : 'light'); } catch(e){}
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('irtaqi-theme'); } catch(e){}
+  if(saved === 'dark'){
+    document.body.classList.add('theme-dark');
+    ['theme-btn-tilawa','theme-btn-hifz','theme-btn-teacher'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = '☀️';
+    });
+  }
+})();
+
+function getCompanions(){
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem('irtaqi-companions') || 'null'); } catch(e){}
+  return (c && Array.isArray(c) && c.length===3) ? c : [null,null,null];
+}
+function saveCompanions(list){ try { localStorage.setItem('irtaqi-companions', JSON.stringify(list)); } catch(e){} }
+
+let _shareSheetText = '';
+let _shareSheetCompanions = [];
+
+function shareProgress(text){
+  const companions = getCompanions().filter(c => c);
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay){ openGenericShare(text); return; }
+
+  _shareSheetText = text;
+  _shareSheetCompanions = companions;
+
+  let html = '<div class="share-sheet-title">📤 أرسل إنجازك إلى</div>';
+  if(companions.length === 0){
+    html += '<div class="hifz-setup-sub" style="margin-bottom:14px;">ما ضفت رفقاء حفظ بعد — تقدر تضيفهم من تبويب "👥 رفقائي"</div>';
+  } else {
+    companions.forEach((c, idx) => {
+      if(c.phone) html += '<button class="share-sheet-btn" onclick="sendToCompanion(' + idx + ',\'wa\')">📱 ' + c.name + ' — واتساب</button>';
+      if(c.telegram) html += '<button class="share-sheet-btn" style="background:linear-gradient(135deg,#2AABEE,#229ED9);" onclick="sendToCompanion(' + idx + ',\'tg\')">✈️ ' + c.name + ' — تيليجرام</button>';
+    });
+  }
+  html += '<button class="share-sheet-btn generic" onclick="openGenericShareFromSheet()">🌐 مشاركة عامة (تختار بنفسك)</button>';
+  html += '<button class="hifz-edit-btn" onclick="closeShareSheet()">إلغاء</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+function sendToCompanion(idx, via){
+  const c = _shareSheetCompanions[idx];
+  if(!c) return;
+  const fullText = _shareSheetText + '\n\n📿 ارتق | ارتقِ بحفظك يوماً بعد يوم';
+  if(via === 'tg' && c.telegram){
+    copyTextToClipboard(fullText);
+    showToast('تم نسخ الرسالة — الصقها بمحادثة تيليجرام 📋');
+    window.open('https://t.me/' + c.telegram.replace('@',''), '_blank');
+  } else if(c.phone){
+    window.open('https://wa.me/' + c.phone + '?text=' + encodeURIComponent(fullText), '_blank');
+  }
+  closeShareSheet();
+}
+function copyTextToClipboard(text){
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  } catch(e){}
+}
+function openGenericShare(text){
+  const full = text + '\n\n📿 ارتق | ارتقِ بحفظك يوماً بعد يوم';
+  if(navigator.share){
+    navigator.share({text: full}).catch(()=>{});
+  } else {
+    window.open('https://wa.me/?text=' + encodeURIComponent(full), '_blank');
+  }
+}
+function openGenericShareFromSheet(){
+  openGenericShare(_shareSheetText);
+  closeShareSheet();
+}
+function closeShareSheet(){
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(overlay) overlay.classList.add('hidden');
+}
+
+// ===================== محرك الاختبار =====================
+let _quizQuestions = [];
+let _quizCurrentIdx = 0;
+let _quizScore = 0;
+let _quizAnswered = false;
+let _quizNumQuestions = 10;
+
+function getAvailableJuzForQuiz(){
+  const hifz = getHifzState();
+  const memoPages = hifz.memo.position || 0;
+  const juzFromMemo = Math.ceil(memoPages / 20);
+  return Math.max(juzFromMemo, 0);
+}
+function renderQuizTab(wrap){
+  if(_quizQuestions.length > 0 && _quizCurrentIdx < _quizQuestions.length){
+    renderQuizQuestion(wrap);
+    return;
+  }
+  if(_quizQuestions.length > 0 && _quizCurrentIdx >= _quizQuestions.length){
+    renderQuizResult(wrap);
+    return;
+  }
+  renderQuizSetup(wrap);
+}
+function renderQuizSetup(wrap){
+  const availableJuz = getAvailableJuzForQuiz();
+  const availableQuestions = QUIZ_BANK.filter(q => q.juz <= availableJuz || availableJuz === 0);
+  const poolSize = availableJuz === 0 ? QUIZ_BANK.length : availableQuestions.length;
+
+  let countOpts = [5,10,15].filter(n => n <= poolSize || poolSize === 0);
+  if(countOpts.length === 0) countOpts = [Math.min(5, poolSize)];
+
+  let optsHtml = countOpts.map(n =>
+    '<button class="hifz-opt-btn' + (_quizNumQuestions===n?' active':'') + '" onclick="setQuizCount(' + n + ')">' + n + '</button>'
+  ).join('');
+
+  wrap.innerHTML =
+    '<div class="hifz-setup-card">' +
+      '<div class="hifz-setup-title">🎯 اختبار الحفظ</div>' +
+      '<div class="hifz-setup-sub">' +
+        (availableJuz > 0
+          ? 'بناءً على حفظك الحالي (تقريباً ' + availableJuz + ' جزء)، متاح لك ' + poolSize + ' سؤال من بنك الأسئلة'
+          : 'بنك الأسئلة الحالي يغطي بشكل أساسي جزء ٣٠ وبعض آيات الجزء الأول — سجّل تقدمك بالحفظ ليتوسّع نطاق أسئلتك تلقائياً') +
+      '</div>' +
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كم سؤال تبي؟</div>' +
+      '<div class="hifz-opt-row">' + optsHtml + '</div>' +
+      '<button class="hifz-save-btn" onclick="startQuiz()">🎯 ابدأ الاختبار</button>' +
+      '<div class="hifz-setup-sub" style="margin-top:10px;color:var(--copper);">ملاحظة: بنك الأسئلة الحالي أولي (١٨ سؤال) ويحتاج توسيعاً تدريجياً</div>' +
+    '</div>';
+}
+function setQuizCount(n){ _quizNumQuestions = n; renderHifzScreen(); }
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function startQuiz(){
+  const availableJuz = getAvailableJuzForQuiz();
+  let pool = availableJuz > 0 ? QUIZ_BANK.filter(q => q.juz <= availableJuz) : QUIZ_BANK.slice();
+  if(pool.length === 0) pool = QUIZ_BANK.slice();
+  pool = shuffleArray(pool);
+  _quizQuestions = pool.slice(0, Math.min(_quizNumQuestions, pool.length));
+  _quizCurrentIdx = 0;
+  _quizScore = 0;
+  _quizAnswered = false;
+  renderHifzScreen();
+}
+function renderQuizQuestion(wrap){
+  const q = _quizQuestions[_quizCurrentIdx];
+  const optsHtml = q.opts.map((opt, idx) =>
+    '<button class="quiz-opt" id="quiz-opt-' + idx + '" onclick="answerQuiz(' + idx + ')">' + opt + '</button>'
+  ).join('');
+  wrap.innerHTML =
+    '<div class="quiz-progress-text">سؤال ' + (_quizCurrentIdx+1) + ' من ' + _quizQuestions.length + ' · النقاط: ' + _quizScore + '</div>' +
+    '<div class="quiz-question-card">' +
+      '<div class="quiz-question-text">' + q.q + '</div>' +
+      '<div class="quiz-question-ref">' + q.ref + '</div>' +
+      optsHtml +
+    '</div>' +
+    '<button class="quiz-next-btn" id="quiz-next-btn" style="display:none;" onclick="nextQuizQuestion()">التالي ←</button>';
+}
+function answerQuiz(idx){
+  if(_quizAnswered) return;
+  _quizAnswered = true;
+  const q = _quizQuestions[_quizCurrentIdx];
+  const correctEl = document.getElementById('quiz-opt-' + q.correct);
+  if(correctEl) correctEl.classList.add('correct');
+  if(idx !== q.correct){
+    const wrongEl = document.getElementById('quiz-opt-' + idx);
+    if(wrongEl) wrongEl.classList.add('wrong');
+  } else {
+    _quizScore++;
+  }
+  const nextBtn = document.getElementById('quiz-next-btn');
+  if(nextBtn) nextBtn.style.display = 'block';
+}
+function nextQuizQuestion(){
+  _quizCurrentIdx++;
+  _quizAnswered = false;
+  renderHifzScreen();
+}
+function renderQuizResult(wrap){
+  const total = _quizQuestions.length;
+  const pct = Math.round((_quizScore / total) * 100);
+  let msg = pct >= 80 ? '🌟 ممتاز!' : pct >= 50 ? '👍 جيد، واصل المراجعة' : '💪 راجع أكثر وحاول مرة ثانية';
+  wrap.innerHTML =
+    '<div class="quiz-result-card">' +
+      '<div class="quiz-result-score">' + _quizScore + ' / ' + total + '</div>' +
+      '<div class="quiz-result-label">' + msg + '</div>' +
+    '</div>' +
+    '<button class="hifz-save-btn" onclick="retryQuiz()">🔁 اختبار جديد</button>' +
+    '<button class="hifz-share-btn" onclick="shareQuizResult()">📤 شارك نتيجتك</button>';
+}
+function retryQuiz(){
+  _quizQuestions = [];
+  _quizCurrentIdx = 0;
+  _quizScore = 0;
+  renderHifzScreen();
+}
+function shareQuizResult(){
+  const total = _quizQuestions.length;
+  shareProgress('🎯 حصلت على ' + _quizScore + ' من ' + total + ' في اختبار الحفظ');
+}
+
+function renderCompanionsTab(wrap){
+  const companions = getCompanions();
+  let rows = '';
+  for(let i=0;i<3;i++){
+    const c = companions[i] || {name:'', phone:'', telegram:''};
+    rows +=
+      '<div class="hifz-setup-sub" style="margin-top:' + (i===0?'0':'18') + 'px;">رفيق الحفظ ' + (i+1) + '</div>' +
+      '<input type="text" class="hifz-day-input" style="width:100%;margin-bottom:6px;" placeholder="الاسم" id="comp-name-' + i + '" value="' + (c.name||'') + '" />' +
+      '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" placeholder="رقم واتساب مع كود الدولة (اختياري)، مثال: 966501234567" id="comp-phone-' + i + '" value="' + (c.phone||'') + '" />' +
+      '<input type="text" class="hifz-day-input" style="width:100%;" placeholder="معرف تيليجرام (اختياري)، مثال: username" id="comp-telegram-' + i + '" value="' + (c.telegram||'') + '" />';
+  }
+  wrap.innerHTML =
+    '<div class="hifz-setup-card">' +
+      '<div class="hifz-setup-title">👥 رفقاء الحفظ</div>' +
+      '<div class="hifz-setup-sub">أضف من ١ إلى ٣ رفقاء أو معلمك — عبّي واتساب و/أو تيليجرام له (تقدر تعبّي وحدة بس). لما تتم يومك، ترسل له إنجازك بضغطة وحدة</div>' +
+      rows +
+      '<button class="hifz-save-btn" onclick="saveCompanionsForm()">حفظ الرفقاء</button>' +
+    '</div>' +
+    '<div class="hifz-setup-card" style="margin-top:14px;">' +
+      '<div class="hifz-setup-title">📊 باركود إنجازاتي</div>' +
+      '<div class="hifz-setup-sub">باركود واحد يلخّص كل تقدمك (التلاوة، الحفظ، المراجعة) — يقدر معلمك يمسحه ليشوف وضعك فوراً</div>' +
+      '<button class="hifz-save-btn" onclick="generateAchievementsQR()">إنشاء الباركود</button>' +
+      '<div id="qr-result-wrap" style="margin-top:14px;text-align:center;"></div>' +
+    '</div>';
+}
+function saveCompanionsForm(){
+  const list = [];
+  for(let i=0;i<3;i++){
+    const nameEl = document.getElementById('comp-name-'+i);
+    const phoneEl = document.getElementById('comp-phone-'+i);
+    const tgEl = document.getElementById('comp-telegram-'+i);
+    const name = nameEl ? nameEl.value.trim() : '';
+    const phone = phoneEl ? phoneEl.value.trim().replace(/[^0-9]/g,'') : '';
+    const telegram = tgEl ? tgEl.value.trim().replace('@','') : '';
+    list.push((phone || telegram) ? {name: name || ('رفيق ' + (i+1)), phone: phone, telegram: telegram} : null);
+  }
+  saveCompanions(list);
+  showToast('تم حفظ رفقاء الحفظ ✅');
+}
+
+function buildAchievementsSummary(){
+  const hifz = getHifzState();
+  let lines = ['📊 ملخص إنجازاتي في ارتق', ''];
+  if(_tilawaPlan){
+    lines.push('📖 التلاوة: ' + _tilawaDone.length + ' / ' + _tilawaPlan.days + ' يوم من خطة الختمة');
+  }
+  lines.push('🌱 الحفظ: ' + hifz.memo.position + ' / ' + HIFZ_TOTAL_WAJH + ' صفحة');
+  if(hifz.review.program){
+    const p = hifz.review.program;
+    if(p.scopeType === 'surah') lines.push('🔄 المراجعة: سورة ' + SURAH_NAMES[p.surahIdx] + ' (تكرار ' + p.repeatCount + ')');
+    else if(p.scopeType === 'juz' && p.splitMode === 'full') lines.push('🔄 المراجعة: الجزء ' + p.juzNum + ' كاملاً (تكرار ' + p.repeatCount + ')');
+    else lines.push('🔄 المراجعة: صفحة ' + p.position + ' من برنامج نشط');
+  }
+  return lines.join('\n');
+}
+function generateAchievementsQR(){
+  const wrap = document.getElementById('qr-result-wrap');
+  if(!wrap) return;
+  const summary = buildAchievementsSummary();
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(summary);
+  wrap.innerHTML =
+    '<img src="' + qrUrl + '" alt="باركود الإنجازات" style="width:200px;height:200px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);" />' +
+    '<div class="hifz-setup-sub" style="margin-top:10px;">اضغط مطولاً على الصورة لحفظها، وشاركها مع معلمك</div>' +
+    '<div class="student-plan" style="margin-top:10px;text-align:right;white-space:pre-line;">' + summary + '</div>';
+}
+
+// ===================== الرأس (التاريخ) =====================
+const HIJRI_MONTHS = ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+const DAY_NAMES = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+function renderDateBar(){
+  const now = new Date();
+  const dayEl = document.getElementById('bar-day');
+  const miladiEl = document.getElementById('bar-miladi');
+  if(dayEl) dayEl.textContent = 'يوم ' + DAY_NAMES[now.getDay()];
+  if(miladiEl){
+    try {
+      const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day:'numeric', month:'long', year:'numeric'}).format(now);
+      miladiEl.textContent = hijri;
+    } catch(e){
+      miladiEl.textContent = now.toLocaleDateString('ar');
+    }
+  }
+}
+
+// ===================== شاشة التلاوة (نظام الختمة) =====================
+const JUZZ_START = ['الفاتحة','البقرة ١٤٢','البقرة ٢٥٣','آل عمران ٩٢','النساء ٢٤','النساء ١٤٨','المائدة ٨٢','الأنعام ١١١','الأعراف ٨٧','الأنفال ٤١','التوبة ٩٣','هود','يوسف ٥٢','الحجر','الإسراء','الكهف ٧٥','الأنبياء','المؤمنون','الفرقان ٢١','النمل ٥٦','العنكبوت ٤٦','الأحزاب ٣١','يس ٢٨','الزمر ٣٢','فصلت ٤٧','الأحقاف','الذاريات ٣١','المجادلة','الملك','النبأ'];
+const JUZZ_END = ['البقرة ١٤١','البقرة ٢٥٢','آل عمران ٩١','النساء ٢٣','النساء ١٤٧','المائدة ٨١','الأنعام ١١٠','الأعراف ٨٧','الأنفال ٤٠','التوبة ٩٢','هود ٥','يوسف ٥٢','إبراهيم','النحل ١٢٨','الكهف ٧٤','طه ١٣٥','الحج ٧٨','الفرقان ٢٠','النمل ٥٥','العنكبوت ٤٥','الأحزاب ٣٠','يس ٢٧','الزمر ٣١','فصلت ٤٦','الجاثية','الذاريات ٣٠','الحديد','التحريم','المرسلات','الناس'];
+const JUZZ_FIRST_SURAH_MAP = {1:1,2:2,3:2,4:3,5:4,6:4,7:5,8:6,9:7,10:8,11:9,12:11,13:12,14:15,15:17,16:18,17:21,18:23,19:25,20:27,21:29,22:33,23:36,24:39,25:41,26:46,27:51,28:58,29:67,30:78};
+const TILAWA_PLANS = {
+  3:  { label:'٣ أيام', juzzPerDay:10, pagesPerDay:200 },
+  7:  { label:'٧ أيام', juzzPerDay:4,  pagesPerDay:86  },
+  10: { label:'١٠ أيام', juzzPerDay:3, pagesPerDay:60  },
+  30: { label:'٣٠ يوماً', juzzPerDay:1, pagesPerDay:20  },
+};
+let _tilawaPlan = null;
+let _tilawaDone = [];
+let _selectedTilawaDay = 0;
+let _selectedPlanDays = 30;
+
+function openTilawaScreen(){
+  try {
+    const home = document.getElementById('screen-home');
+    const screen = document.getElementById('screen-tilawa');
+    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
+    home.classList.add('hidden');
+    screen.classList.remove('hidden');
+    screen.scrollTop = 0;
+    renderTilawaScreen();
+  } catch(e) {
+    showToast('خطأ: ' + e.message);
+  }
+}
+function closeTilawaScreen(){
+  document.getElementById('screen-tilawa').classList.add('hidden');
+  document.getElementById('screen-home').classList.remove('hidden');
+  updateHomeRings();
+}
+function renderTilawaScreen(){
+  try {
+    const wrap = document.getElementById('tilawa-content');
+    if(!wrap) return;
+    if(!_tilawaPlan) renderTilawaSetup(wrap);
+    else renderTilawaProgress(wrap);
+  } catch(e) {
+    showToast('خطأ في renderTilawaScreen: ' + e.message);
+  }
+}
+function renderTilawaSetup(wrap){
+  const opts = Object.entries(TILAWA_PLANS).map(([days, p]) => {
+    const juzzLabel = p.juzzPerDay === 10 ? '١٠' : p.juzzPerDay === 4 ? '٤' : p.juzzPerDay === 3 ? '٣' : '١';
+    return '<div class="plan-opt ' + (_selectedPlanDays==days?'active':'') + '" onclick="selectTilawaDays(' + days + ')">' +
+      '<div class="plan-opt-days">' + days + '</div>' +
+      '<div class="plan-opt-sub">' + juzzLabel + ' ' + (p.juzzPerDay===1?'جزء':'أجزاء') + ' يومياً</div>' +
+      '<div class="plan-opt-pages">' + p.pagesPerDay + ' صفحة / يوم</div>' +
+    '</div>';
+  }).join('');
+  wrap.innerHTML =
+    '<div class="plan-wrap">' +
+      '<div class="plan-label">اختر هدف الختمة</div>' +
+      '<div class="plan-options">' + opts + '</div>' +
+      '<button class="plan-start-btn" onclick="startTilawaPlan()">📖 ابدأ رحلة الختمة</button>' +
+    '</div>';
+}
+function selectTilawaDays(days){ _selectedPlanDays = days; renderTilawaScreen(); }
+function startTilawaPlan(){
+  _tilawaPlan = { days: _selectedPlanDays, start: new Date().toDateString() };
+  _tilawaDone = [];
+  _selectedTilawaDay = getCurrentTilawaDay();
+  renderTilawaScreen();
+}
+function getCurrentTilawaDay(){
+  if(!_tilawaPlan) return 0;
+  const start = new Date(_tilawaPlan.start);
+  const today = new Date();
+  const diff = Math.floor((today - start) / 86400000);
+  return Math.min(Math.max(diff,0), _tilawaPlan.days - 1);
+}
+function renderTilawaProgress(wrap){
+  const days = _tilawaPlan.days;
+  const plan = TILAWA_PLANS[days];
+  const todayIdx = getCurrentTilawaDay();
+
+  let pillsHTML = '<div class="days-strip"><div class="ds-inner">';
+  for(let i=0;i<days;i++){
+    const isDone = _tilawaDone.includes(i);
+    const isToday = i === todayIdx;
+    const cls = isDone ? 'done' : isToday ? 'today' : 'future';
+    const sel = i === _selectedTilawaDay ? ' selected' : '';
+    pillsHTML += '<div class="d-pill ' + cls + sel + '" onclick="selectTilawaDay(' + i + ')">' +
+      '<div class="d-day">يوم</div><div class="d-num">' + (i+1) + '</div>' +
+      '<div class="d-check">' + (isDone?'✓':isToday?'●':'') + '</div></div>';
+  }
+  pillsHTML += '</div></div>';
+
+  const selIdx = _selectedTilawaDay;
+  const juzzStart = (selIdx * plan.juzzPerDay) + 1;
+  const juzzEnd = Math.min(juzzStart + plan.juzzPerDay - 1, 30);
+  const pageStart = (selIdx * plan.pagesPerDay) + 1;
+  const pageEnd = Math.min(pageStart + plan.pagesPerDay - 1, 604);
+  const isDoneToday = _tilawaDone.includes(selIdx);
+  const isTodaySelected = selIdx === todayIdx;
+  const totalDone = _tilawaDone.length;
+  const pct = Math.round((totalDone / days) * 100);
+  const dayLabel = isTodaySelected ? 'اليوم' : selIdx < todayIdx ? 'يوم ' + (selIdx+1) + ' — مكتمل' : 'يوم ' + (selIdx+1) + ' — قادم';
+  const fromSurah = JUZZ_START[juzzStart-1] || ('الجزء ' + juzzStart);
+  const toSurah = JUZZ_END[juzzEnd-1] || ('الجزء ' + juzzEnd);
+
+  const cardHTML =
+    '<div class="day-card">' +
+      '<div class="dc-top"><div class="dc-label">📖 ' + dayLabel + '</div>' +
+        '<div class="dc-status" style="color:' + (isDoneToday?'#D9C5E8':'rgba(255,248,240,0.5)') + '">' + (isDoneToday?'✓ تم':'') + '</div></div>' +
+      '<div class="dc-main">' +
+        '<div class="dc-juzz">الجزء ' + juzzStart + (juzzEnd>juzzStart?' ← الجزء ' + juzzEnd:'') + '</div>' +
+        '<div class="dc-surah">' + fromSurah + ' ← ' + toSurah + '</div>' +
+        '<div class="dc-details"><div class="dc-detail">من ص ' + pageStart + '</div><div class="dc-detail">إلى ص ' + pageEnd + '</div><div class="dc-detail">' + plan.pagesPerDay + ' صفحة</div></div>' +
+      '</div>' +
+      '<div class="dc-progress"><div class="dc-prog-label"><span>تقدم الختمة</span><span>' + totalDone + ' / ' + days + ' يوم · ' + pct + '٪</span></div>' +
+        '<div class="dc-prog-bar"><div class="dc-prog-fill" style="width:' + pct + '%"></div></div></div>' +
+      '<div class="quran-link" onclick="openQuranCom(' + juzzStart + ')">🌐 اقرأ في Quran.com — مصحف المدينة</div>' +
+      (isTodaySelected ? '<button class="dc-btn ' + (isDoneToday?'completed':'') + '" onclick="markTilawaDayDone()">' + (isDoneToday?'✓ أتممت ورد اليوم':'📖 سجّل إتمام ورد اليوم') + '</button>' : '') +
+      (isDoneToday ? '<button class="hifz-share-btn" onclick="shareTilawaProgress()">📤 شارك إنجازك</button>' : '') +
+      '<div class="dc-reset" onclick="resetTilawaPlan()">إعادة ضبط الجدول</div>' +
+    '</div>';
+
+  wrap.innerHTML = pillsHTML + cardHTML;
+  setTimeout(()=>{
+    const pills = document.querySelector('.ds-inner');
+    const todayPill = pills ? pills.children[todayIdx] : null;
+    if(todayPill) todayPill.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }, 100);
+}
+function selectTilawaDay(idx){ _selectedTilawaDay = idx; renderTilawaScreen(); }
+function openQuranCom(juzzNum){
+  const surah = JUZZ_FIRST_SURAH_MAP[juzzNum] || 1;
+  window.location.href = 'https://quran.com/' + surah;
+}
+function markTilawaDayDone(){
+  const idx = getCurrentTilawaDay();
+  if(!_tilawaDone.includes(idx)){
+    _tilawaDone.push(idx);
+    showToast('✅ بارك الله فيك — سجّلنا ورد اليوم');
+    updateHomeRings();
+  }
+  renderTilawaScreen();
+}
+function shareTilawaProgress(){
+  const days = _tilawaPlan.days;
+  const done = _tilawaDone.length;
+  shareProgress('📖 أتممت ورد التلاوة اليوم (' + done + ' من ' + days + ' يوم في خطة الختمة)');
+}
+function resetTilawaPlan(){
+  if(confirm('هل تريد إعادة ضبط جدول التلاوة؟')){
+    _tilawaPlan = null; _tilawaDone = []; _selectedTilawaDay = 0;
+    renderTilawaScreen();
+    updateHomeRings();
+  }
+}
+
+// ===================== شاشة الحفظ والمراجعة =====================
+const HIFZ_TOTAL_WAJH = 604;
+const HIFZ_WEEKDAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const SURAH_NAMES = ['الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس','هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه','الأنبياء','الحج','المؤمنون','النور','الفرقان','الشعراء','النمل','القصص','العنكبوت','الروم','لقمان','السجدة','الأحزاب','سبأ','فاطر','يس','الصافات','ص','الزمر','غافر','فصلت','الشورى','الزخرف','الدخان','الجاثية','الأحقاف','محمد','الفتح','الحجرات','ق','الذاريات','الطور','النجم','القمر','الرحمن','الواقعة','الحديد','المجادلة','الحشر','الممتحنة','الصف','الجمعة','المنافقون','التغابن','الطلاق','التحريم','الملك','القلم','الحاقة','المعارج','نوح','الجن','المزمل','المدثر','القيامة','الإنسان','المرسلات','النبأ','النازعات','عبس','التكوير','الانفطار','المطففين','الانشقاق','البروج','الطارق','الأعلى','الغاشية','الفجر','البلد','الشمس','الليل','الضحى','الشرح','التين','العلق','القدر','البينة','الزلزلة','العاديات','القارعة','التكاثر','العصر','الهمزة','الفيل','قريش','الماعون','الكوثر','الكافرون','النصر','المسد','الإخلاص','الفلق','الناس'];
+
+// بنك أسئلة الاختبار — بداية أولية بأشهر وأدق الآيات (جزء ٣٠ + آيات مشهورة من الجزء الأول)
+// ملاحظة: هذا بنك جزئي (١٨ سؤال) يُستخدم كبداية، ويحتاج توسيعاً تدريجياً بمصدر موثوق لضمان الدقة الكاملة
+const QUIZ_BANK = [
+  { juz:1, q:'أكمل: ﴿الْحَمْدُ لِلَّهِ رَبِّ...﴾', opts:['الْعَالَمِينَ','الْمُرْسَلِينَ','النَّاسِ أَجْمَعِينَ','الْمُتَّقِينَ'], correct:0, ref:'الفاتحة ٢' },
+  { juz:1, q:'أكمل: ﴿اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ * صِرَاطَ الَّذِينَ...﴾', opts:['أَنْعَمْتَ عَلَيْهِمْ','هَدَيْتَهُمْ','رَحِمْتَهُمْ','اجْتَبَيْتَهُمْ'], correct:0, ref:'الفاتحة ٦-٧' },
+  { juz:1, q:'أكمل: ﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ...﴾ (آية الكرسي)', opts:['الْحَيُّ الْقَيُّومُ','الْعَزِيزُ الْحَكِيمُ','الرَّحْمَٰنُ الرَّحِيمُ','السَّمِيعُ الْعَلِيمُ'], correct:0, ref:'البقرة ٢٥٥' },
+  { juz:30, q:'أكمل: ﴿قُلْ هُوَ اللَّهُ...﴾', opts:['أَحَدٌ','الْوَاحِدُ','الْقَادِرُ','الْعَلِيُّ'], correct:0, ref:'الإخلاص ١' },
+  { juz:30, q:'أكمل: ﴿اللَّهُ الصَّمَدُ * لَمْ يَلِدْ...﴾', opts:['وَلَمْ يُولَدْ','وَلَمْ يَكُنْ لَهُ صَاحِبَةٌ','وَلَمْ يَتَّخِذْ وَلَدًا','وَلَمْ يَكُنْ لَهُ شَرِيكٌ'], correct:0, ref:'الإخلاص ٣' },
+  { juz:30, q:'أكمل: ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِنْ شَرِّ...﴾', opts:['مَا خَلَقَ','الْوَسْوَاسِ الْخَنَّاسِ','النَّفَّاثَاتِ فِي الْعُقَدِ','حَاسِدٍ إِذَا حَسَدَ'], correct:0, ref:'الفلق ١-٢' },
+  { juz:30, q:'أكمل: ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ...﴾', opts:['النَّاسِ','السَّمَاوَاتِ','يَوْمِ الدِّينِ','الْعَالَمِينَ'], correct:0, ref:'الناس ١-٢' },
+  { juz:30, q:'أكمل: ﴿إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ * فَصَلِّ لِرَبِّكَ...﴾', opts:['وَانْحَرْ','وَاشْكُرْ','وَاسْجُدْ','وَاصْبِرْ'], correct:0, ref:'الكوثر ١-٢' },
+  { juz:30, q:'أكمل: ﴿إِذَا جَاءَ نَصْرُ اللَّهِ...﴾', opts:['وَالْفَتْحُ','وَالنَّصْرُ','وَالتَّمْكِينُ','وَالْعِزَّةُ'], correct:0, ref:'النصر ١' },
+  { juz:30, q:'أكمل: ﴿قُلْ يَا أَيُّهَا الْكَافِرُونَ * لَا أَعْبُدُ...﴾', opts:['مَا تَعْبُدُونَ','آلِهَتَكُمْ','مَا تَدْعُونَ','غَيْرَ اللَّهِ'], correct:0, ref:'الكافرون ١-٢' },
+  { juz:30, q:'أكمل: ﴿تَبَّتْ يَدَا أَبِي لَهَبٍ...﴾', opts:['وَتَبَّ','وَخَسِرَ','وَهَلَكَ','وَضَلَّ'], correct:0, ref:'المسد ١' },
+  { juz:30, q:'أكمل: ﴿لِإِيلَافِ قُرَيْشٍ * إِيلَافِهِمْ...﴾', opts:['رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ','فِي أَشْهُرٍ مَعْلُومَاتٍ','مِنْ خَوْفٍ وَجُوعٍ','فِي مَوْسِمِ الْحَجِّ'], correct:0, ref:'قريش ١-٢' },
+  { juz:30, q:'أكمل: ﴿أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ * فَذَٰلِكَ الَّذِي...﴾', opts:['يَدُعُّ الْيَتِيمَ','يَظْلِمُ النَّاسَ','يَنْسَى رَبَّهُ','يُكَذِّبُ بِالْحَقِّ'], correct:0, ref:'الماعون ١-٢' },
+  { juz:30, q:'أكمل: ﴿أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ...﴾', opts:['الْفِيلِ','الرَّسِّ','الْأَيْكَةِ','الْحِجْرِ'], correct:0, ref:'الفيل ١' },
+  { juz:30, q:'أكمل: ﴿وَيْلٌ لِكُلِّ هُمَزَةٍ...﴾', opts:['لُمَزَةٍ','كَذَّابٍ','مُنَافِقٍ','ظَالِمٍ'], correct:0, ref:'الهمزة ١' },
+  { juz:30, q:'أكمل: ﴿وَالْعَصْرِ * إِنَّ الْإِنْسَانَ...﴾', opts:['لَفِي خُسْرٍ','لَظَلُومٌ جَهُولٌ','فِي كَبَدٍ','لَكَفُورٌ'], correct:0, ref:'العصر ١-٢' },
+  { juz:30, q:'أكمل: ﴿أَلْهَاكُمُ التَّكَاثُرُ * حَتَّى...﴾', opts:['زُرْتُمُ الْمَقَابِرَ','جَاءَكُمُ الْمَوْتُ','فَنِيَتْ أَعْمَارُكُمْ','نَسِيتُمُ الْآخِرَةَ'], correct:0, ref:'التكاثر ١-٢' },
+  { juz:30, q:'أكمل: ﴿الْقَارِعَةُ * مَا الْقَارِعَةُ * وَمَا...﴾', opts:['أَدْرَاكَ مَا الْقَارِعَةُ','أَعْلَمَكَ بِالْقَارِعَةِ','أَنْبَأَكَ عَنِ الْقَارِعَةِ','أَخْبَرَكَ بِالْقَارِعَةِ'], correct:0, ref:'القارعة ١-٣' },
+];
+
+let _hifzTab = 'memo';
+let _hifzState = null;
+
+function getHifzState(){
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem('irtaqi-hifz') || 'null'); } catch(e){}
+  if(!s || !s.memo || !s.review){
+    s = {
+      memo: { setup:false, dailyWajh:{0:0,1:0,2:0,3:0,4:0,5:0,6:0}, position:0, log:{} },
+      review: { program:null, history:[], _draftWajh:3, _draftRepeat:3, _draftStart:null, _draftEnd:null }
+    };
+  }
+  if(!s.review.history) s.review.history = [];
+  if(s.review.program === undefined) s.review.program = null;
+  return s;
+}
+function saveHifzState(){ try { localStorage.setItem('irtaqi-hifz', JSON.stringify(_hifzState)); } catch(e){} }
+
+function openHifzScreen(tab){
+  try {
+    const home = document.getElementById('screen-home');
+    const screen = document.getElementById('screen-hifz');
+    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
+    home.classList.add('hidden');
+    screen.classList.remove('hidden');
+    screen.scrollTop = 0;
+    _hifzState = getHifzState();
+    switchHifzTab(tab || 'memo');
+  } catch(e) {
+    showToast('خطأ في openHifzScreen: ' + e.message);
+  }
+}
+function closeHifzScreen(){
+  document.getElementById('screen-hifz').classList.add('hidden');
+  document.getElementById('screen-home').classList.remove('hidden');
+  updateHomeRings();
+}
+function switchHifzTab(tab){
+  _hifzTab = tab;
+  const mEl = document.getElementById('hifz-tab-memo');
+  const rEl = document.getElementById('hifz-tab-review');
+  const cEl = document.getElementById('hifz-tab-companions');
+  const qEl = document.getElementById('hifz-tab-quiz');
+  if(mEl) mEl.classList.toggle('active', tab==='memo');
+  if(rEl) rEl.classList.toggle('active', tab==='review');
+  if(cEl) cEl.classList.toggle('active', tab==='companions');
+  if(qEl) qEl.classList.toggle('active', tab==='quiz');
+  renderHifzScreen();
+}
+function renderHifzScreen(){
+  try {
+    const wrap = document.getElementById('hifz-content');
+    if(!wrap) return;
+    if(_hifzTab === 'memo') renderMemoTab(wrap);
+    else if(_hifzTab === 'companions') renderCompanionsTab(wrap);
+    else if(_hifzTab === 'quiz') renderQuizTab(wrap);
+    else renderReviewTab(wrap);
+  } catch(e) {
+    showToast('خطأ في renderHifzScreen: ' + e.message);
+  }
+}
+function renderMemoTab(wrap){
+  const m = _hifzState.memo;
+  if(!m.setup){
+    const status = m._draftStatus || 'scratch';
+    let daysHtml = '';
+    for(let i=0;i<7;i++){
+      daysHtml += '<div class="hifz-day-row"><div class="hifz-day-name">' + HIFZ_WEEKDAYS[i] + '</div>' +
+        '<input type="number" min="0" max="20" class="hifz-day-input" id="hifz-day-input-' + i + '" value="' + (m.dailyWajh[i]||0) + '" /></div>';
+    }
+    const statusBtns =
+      '<div class="hifz-opt-row">' +
+        '<button class="hifz-opt-btn' + (status==='scratch'?' active':'') + '" style="min-width:0;flex:1;" onclick="setMemoStatus(\'scratch\')">أبدأ من الصفر</button>' +
+        '<button class="hifz-opt-btn' + (status==='prior'?' active':'') + '" style="min-width:0;flex:1;" onclick="setMemoStatus(\'prior\')">عندي حفظ سابق</button>' +
+      '</div>' +
+      '<div class="hifz-opt-row" style="margin-top:8px;">' +
+        '<button class="hifz-opt-btn' + (status==='complete'?' active':'') + '" style="min-width:0;flex:1;" onclick="setMemoStatus(\'complete\')">أكملت حفظ القرآن بالكامل</button>' +
+      '</div>';
+
+    let bodyHtml = '';
+    if(status === 'complete'){
+      bodyHtml = '<div class="hifz-setup-sub" style="margin-top:14px;">ما تحتاج خطة حفظ جديدة — روح مباشرة لتبويب "المراجعة" 🔄</div>' +
+        '<button class="hifz-save-btn" onclick="saveMemoComplete()">تأكيد — أنا حافظ القرآن كاملاً</button>';
+    } else {
+      if(status === 'prior'){
+        bodyHtml += '<div class="hifz-setup-sub" style="margin-top:14px;">كم صفحة حفظت مسبقاً؟ (من أصل ٦٠٤)</div>' +
+          '<input type="number" min="0" max="604" class="hifz-day-input" style="width:100%;" id="hifz-prior-pages" value="' + (m._draftPrior||0) + '" onchange="updateMemoPrior()" />';
+      }
+      bodyHtml += '<div class="hifz-setup-sub" style="margin-top:16px;">حدد كم صفحة (وجه) تحفظ من الجديد كل يوم — اترك ٠ لأيام الراحة</div>' +
+        daysHtml +
+        '<button class="hifz-save-btn" onclick="saveMemoSetup()">حفظ الخطة</button>';
+    }
+
+    wrap.innerHTML =
+      '<div class="hifz-setup-card">' +
+        '<div class="hifz-setup-title">🌱 خطة الحفظ</div>' +
+        '<div class="hifz-setup-sub">وش وضعك الحالي؟</div>' +
+        statusBtns +
+        bodyHtml +
+      '</div>';
+  } else {
+    const todayIdx = new Date().getDay();
+    const todayWajh = m.dailyWajh[todayIdx] || 0;
+    const todayKey = getTodayKey();
+    const doneToday = m.log[todayKey] && m.log[todayKey].done;
+    const fromPage = m.position + 1;
+    const toPage = Math.min(HIFZ_TOTAL_WAJH, m.position + todayWajh);
+    const pct = Math.round((m.position / HIFZ_TOTAL_WAJH) * 100);
+
+    let todayHtml;
+    if(m.position >= HIFZ_TOTAL_WAJH){
+      todayHtml = '<div class="hifz-done-today">🎉 أتممت حفظ القرآن كاملاً! انتقل لتبويب المراجعة 🔄</div>';
+    } else if(todayWajh === 0){
+      todayHtml = '<div class="hifz-rest-day">🌙 اليوم يوم راحة من الحفظ الجديد</div>';
+    } else if(doneToday){
+      todayHtml = '<div class="hifz-done-today">✅ أتممت حفظ اليوم (' + todayWajh + ' ' + (todayWajh===1?'وجه':'أوجه') + ')</div>' +
+        '<button class="hifz-share-btn" onclick="shareMemoProgress()">📤 شارك إنجازك</button>';
+    } else {
+      todayHtml =
+        '<div class="hifz-today-card">' +
+          '<div class="hifz-today-label">مقدار اليوم</div>' +
+          '<div class="hifz-today-range">من صفحة ' + fromPage + ' إلى ' + toPage + '</div>' +
+          '<div class="hifz-today-count">' + todayWajh + ' ' + (todayWajh===1?'وجه':'أوجه') + '</div>' +
+          '<button class="hifz-done-btn" onclick="markMemoDone()">✓ أتممت الحفظ</button>' +
+        '</div>';
+    }
+    wrap.innerHTML =
+      '<div class="hifz-progress-card">' +
+        '<div class="hifz-progress-label">إجمالي المحفوظ</div>' +
+        '<div class="hifz-progress-numbers">' + m.position + ' / ' + HIFZ_TOTAL_WAJH + ' صفحة</div>' +
+        '<div class="hifz-progress-bar"><div class="hifz-progress-fill" style="width:' + pct + '%"></div></div>' +
+      '</div>' +
+      todayHtml +
+      '<button class="hifz-edit-btn" onclick="resetMemoSetup()">✎ تعديل خطة الحفظ</button>';
+  }
+}
+function setMemoStatus(s){ _hifzState.memo._draftStatus = s; renderHifzScreen(); }
+function updateMemoPrior(){
+  const el = document.getElementById('hifz-prior-pages');
+  if(el) _hifzState.memo._draftPrior = Math.max(0, Math.min(604, parseInt(el.value)||0));
+}
+function saveMemoComplete(){
+  const m = _hifzState.memo;
+  m.position = HIFZ_TOTAL_WAJH;
+  m.setup = true;
+  m._draftStatus = null;
+  saveHifzState();
+  renderHifzScreen();
+  updateHomeRings();
+  showToast('بارك الله فيك — أكملت حفظ القرآن 🎉');
+}
+function saveMemoSetup(){
+  const m = _hifzState.memo;
+  for(let i=0;i<7;i++){
+    const el = document.getElementById('hifz-day-input-'+i);
+    m.dailyWajh[i] = el ? Math.max(0, parseInt(el.value)||0) : 0;
+  }
+  if(m._draftStatus === 'prior'){
+    m.position = m._draftPrior || 0;
+  }
+  m.setup = true;
+  m._draftStatus = null; m._draftPrior = null;
+  saveHifzState();
+  renderHifzScreen();
+  showToast('تم حفظ خطة الحفظ ✅');
+}
+function resetMemoSetup(){ _hifzState.memo.setup = false; saveHifzState(); renderHifzScreen(); }
+function markMemoDone(){
+  const m = _hifzState.memo;
+  const todayIdx = new Date().getDay();
+  const todayWajh = m.dailyWajh[todayIdx] || 0;
+  const todayKey = getTodayKey();
+  if(!m.log[todayKey]){
+    m.position = Math.min(HIFZ_TOTAL_WAJH, m.position + todayWajh);
+    m.log[todayKey] = { done:true, wajh:todayWajh };
+    saveHifzState();
+    showToast('بارك الله فيك — تم تسجيل الحفظ 🌱');
+    updateHomeRings();
+  }
+  renderHifzScreen();
+}
+function shareMemoProgress(){
+  const m = _hifzState.memo;
+  const todayIdx = new Date().getDay();
+  const todayWajh = m.dailyWajh[todayIdx] || 0;
+
+  shareProgress('🌱 أتممت حفظ ' + todayWajh + ' ' + (todayWajh===1?'وجه':'أوجه') + ' اليوم (المجموع: ' + m.position + ' / ' + HIFZ_TOTAL_WAJH + ' صفحة)');
+}
+
+function getTodayISO(){
+  const d = new Date();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+function formatDateAr(iso){
+  if(!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  try {
+    return new Intl.DateTimeFormat('ar', {day:'numeric', month:'long', year:'numeric'}).format(d);
+  } catch(e){ return iso; }
+}
+
+function renderReviewTab(wrap){
+  const r = _hifzState.review;
+  const today = getTodayISO();
+  const p = r.program;
+
+  if(p && p.endDate && today > p.endDate){
+    r.history = r.history || [];
+    r.history.push(Object.assign({}, p, { endedReason:'انتهت المدة' }));
+    r.program = null;
+    saveHifzState();
+  }
+
+  if(!r.program){
+    renderReviewSetup(wrap, r);
+    return;
+  }
+
+  // برنامج مجدول لم يبدأ بعد
+  if(today < p.startDate){
+    wrap.innerHTML =
+      '<div class="hifz-rest-day">📅 برنامجك يبدأ يوم ' + formatDateAr(p.startDate) + '</div>' +
+      '<button class="hifz-edit-btn" onclick="cancelReviewProgram()">إلغاء هذا البرنامج</button>';
+    return;
+  }
+
+  renderReviewActive(wrap, p);
+}
+
+function renderReviewSetup(wrap, r){
+  const scope = r._draftScope || 'pages';
+  const scopeBtns = ['pages','juz','surah'].map(s => {
+    const label = s==='pages' ? 'صفحات' : s==='juz' ? 'جزء معيّن' : 'سورة معيّنة';
+    return '<button class="hifz-opt-btn' + (scope===s?' active':'') + '" style="min-width:0;flex:1;" onclick="setReviewScope(\'' + s + '\')">' + label + '</button>';
+  }).join('');
+
+  let scopeDetailHtml = '';
+  if(scope === 'pages'){
+    const memoPos = _hifzState.memo.position;
+    let wajhOpts = [1,2,3,5].map(n =>
+      '<button class="hifz-opt-btn' + (r._draftWajh===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewWajh(' + n + ')">' + n + '</button>'
+    ).join('');
+    let repeatOpts = [1,2,3,4,5,6,7].map(n =>
+      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+    ).join('');
+    scopeDetailHtml =
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كم صفحة عندك محفوظة إجمالاً؟ (مجال المراجعة)</div>' +
+      '<input type="number" min="1" max="604" class="hifz-day-input" style="width:100%;" id="review-total-pages" value="' + (r._draftTotalPages || (memoPos>0?memoPos:604)) + '" onchange="updateReviewTotalPages()" />' +
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كم وجه تراجع بكل جلسة؟</div>' +
+      '<div class="hifz-opt-row" id="review-wajh-opts">' + wajhOpts + '</div>' +
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كم مرة تكرر كل وجه؟</div>' +
+      '<div class="hifz-opt-row" id="review-repeat-opts">' + repeatOpts + '</div>';
+  } else if(scope === 'juz'){
+    let juzOptions = '';
+    for(let i=1;i<=30;i++) juzOptions += '<option value="' + i + '"' + (r._draftJuz==i?' selected':'') + '>الجزء ' + i + '</option>';
+    const splitMode = r._draftSplitMode || 'full';
+    scopeDetailHtml =
+      '<div class="hifz-setup-sub" style="margin-top:16px;">اختر الجزء</div>' +
+      '<select class="hifz-day-input" style="width:100%;" id="review-juz-select" onchange="updateReviewJuz()">' + juzOptions + '</select>' +
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كيف تراجعه؟</div>' +
+      '<div class="hifz-opt-row">' +
+        '<button class="hifz-opt-btn' + (splitMode==='full'?' active':'') + '" style="min-width:0;flex:1;" onclick="setReviewSplitMode(\'full\')">أكرره كاملاً كل يوم</button>' +
+        '<button class="hifz-opt-btn' + (splitMode==='split'?' active':'') + '" style="min-width:0;flex:1;" onclick="setReviewSplitMode(\'split\')">أقسّمه على الأيام</button>' +
+      '</div>';
+    if(splitMode === 'full'){
+      let repeatOpts = [1,2,3,4,5,6,7].map(n =>
+        '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+      ).join('');
+      scopeDetailHtml += '<div class="hifz-setup-sub" style="margin-top:16px;">كم مرة تكرره باليوم؟</div><div class="hifz-opt-row" id="review-repeat-opts">' + repeatOpts + '</div>';
+    } else {
+      const splitAuto = r._draftSplitAuto !== false;
+      scopeDetailHtml +=
+        '<div class="hifz-opt-row" style="margin-top:10px;">' +
+          '<button class="hifz-opt-btn' + (splitAuto?' active':'') + '" style="min-width:0;flex:1;" onclick="setReviewSplitAuto(true)">تلقائي حسب المدة</button>' +
+          '<button class="hifz-opt-btn' + (!splitAuto?' active':'') + '" style="min-width:0;flex:1;" onclick="setReviewSplitAuto(false)">أحدد بنفسي</button>' +
+        '</div>';
+      if(!splitAuto){
+        scopeDetailHtml += '<div class="hifz-setup-sub" style="margin-top:12px;">كم صفحة باليوم؟</div>' +
+          '<input type="number" min="1" max="20" class="hifz-day-input" style="width:100%;" id="review-manual-daily" value="' + (r._draftManualDaily||2) + '" onchange="updateReviewManualDaily()" />';
+      }
+    }
+  } else {
+    let surahOptions = '';
+    for(let i=0;i<114;i++) surahOptions += '<option value="' + i + '"' + (r._draftSurah==i?' selected':'') + '>' + SURAH_NAMES[i] + '</option>';
+    let repeatOpts = [1,2,3,4,5,6,7].map(n =>
+      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+    ).join('');
+    scopeDetailHtml =
+      '<div class="hifz-setup-sub" style="margin-top:16px;">اختر السورة</div>' +
+      '<select class="hifz-day-input" style="width:100%;" id="review-surah-select" onchange="updateReviewSurah()">' + surahOptions + '</select>' +
+      '<div class="hifz-setup-sub" style="margin-top:16px;">كم مرة تكررها باليوم؟</div>' +
+      '<div class="hifz-opt-row" id="review-repeat-opts">' + repeatOpts + '</div>' +
+      '<div class="hifz-setup-sub" style="margin-top:8px;color:var(--copper);">ملاحظة: السور تختلف بطولها كثيراً، فهذا الخيار يكرر السورة كاملة كل يوم بدون تقسيم على صفحات</div>';
+  }
+
+  wrap.innerHTML =
+    '<div class="hifz-setup-card">' +
+      '<div class="hifz-setup-title">🔄 برنامج مراجعة جديد</div>' +
+      '<div class="hifz-setup-sub">اختر مجال المراجعة</div>' +
+      '<div class="hifz-opt-row">' + scopeBtns + '</div>' +
+      scopeDetailHtml +
+      '<div class="hifz-setup-sub" style="margin-top:18px;">من تاريخ</div>' +
+      '<input type="date" class="hifz-day-input" style="width:100%;" id="review-start-date" value="' + (r._draftStart||getTodayISO()) + '" onchange="updateReviewDraftDates()" />' +
+      '<div class="hifz-setup-sub" style="margin-top:12px;">إلى تاريخ (اختياري)</div>' +
+      '<input type="date" class="hifz-day-input" style="width:100%;" id="review-end-date" value="' + (r._draftEnd||'') + '" onchange="updateReviewDraftDates()" />' +
+      '<button class="hifz-save-btn" onclick="startReviewProgram()">ابدأ البرنامج</button>' +
+    '</div>';
+}
+
+function setReviewScope(s){ _hifzState.review._draftScope = s; renderHifzScreen(); }
+function setReviewSplitMode(m){ _hifzState.review._draftSplitMode = m; renderHifzScreen(); }
+function setReviewSplitAuto(b){ _hifzState.review._draftSplitAuto = b; renderHifzScreen(); }
+function updateReviewJuz(){ const el = document.getElementById('review-juz-select'); if(el) _hifzState.review._draftJuz = parseInt(el.value); }
+function updateReviewSurah(){ const el = document.getElementById('review-surah-select'); if(el) _hifzState.review._draftSurah = parseInt(el.value); }
+function updateReviewManualDaily(){ const el = document.getElementById('review-manual-daily'); if(el) _hifzState.review._draftManualDaily = Math.max(1, parseInt(el.value)||2); }
+function updateReviewTotalPages(){ const el = document.getElementById('review-total-pages'); if(el) _hifzState.review._draftTotalPages = Math.max(1, Math.min(604, parseInt(el.value)||604)); }
+function selectReviewWajh(n){
+  _hifzState.review._draftWajh = n;
+  const c = document.getElementById('review-wajh-opts');
+  if(c) [...c.children].forEach(b => b.classList.toggle('active', b.getAttribute('data-val') == n));
+}
+function selectReviewRepeat(n){
+  _hifzState.review._draftRepeat = n;
+  const c = document.getElementById('review-repeat-opts');
+  if(c) [...c.children].forEach(b => b.classList.toggle('active', b.getAttribute('data-val') == n));
+}
+function updateReviewDraftDates(){
+  const s = document.getElementById('review-start-date');
+  const e = document.getElementById('review-end-date');
+  if(s) _hifzState.review._draftStart = s.value;
+  if(e) _hifzState.review._draftEnd = e.value;
+}
+
+function startReviewProgram(){
+  const r = _hifzState.review;
+  const scope = r._draftScope || 'pages';
+  const startEl = document.getElementById('review-start-date');
+  const endEl = document.getElementById('review-end-date');
+  const startDate = (startEl && startEl.value) || getTodayISO();
+  const endDate = (endEl && endEl.value) || null;
+  if(endDate && endDate < startDate){ showToast('تاريخ النهاية لازم يكون بعد تاريخ البداية'); return; }
+
+  const program = { scopeType:scope, startDate:startDate, endDate:endDate, position:0, log:{} };
+
+  if(scope === 'pages'){
+    program.wajhPerSession = r._draftWajh || 3;
+    program.repeatCount = r._draftRepeat || 3;
+    const totalEl = document.getElementById('review-total-pages');
+    program.totalPages = (totalEl && parseInt(totalEl.value)) || r._draftTotalPages || _hifzState.memo.position || 604;
+  } else if(scope === 'juz'){
+    program.juzNum = r._draftJuz || 1;
+    program.splitMode = r._draftSplitMode || 'full';
+    if(program.splitMode === 'full'){
+      program.repeatCount = r._draftRepeat || 3;
+    } else {
+      program.splitAuto = r._draftSplitAuto !== false;
+      program.manualDaily = r._draftManualDaily || 2;
+    }
+  } else {
+    program.surahIdx = r._draftSurah || 0;
+    program.repeatCount = r._draftRepeat || 3;
+  }
+
+  r.program = program;
+  r._draftWajh = null; r._draftRepeat = null; r._draftStart = null; r._draftEnd = null;
+  r._draftScope = null; r._draftJuz = null; r._draftSurah = null; r._draftSplitMode = null; r._draftSplitAuto = null; r._draftManualDaily = null; r._draftTotalPages = null;
+  saveHifzState();
+  renderHifzScreen();
+  showToast('✅ بدأ برنامج المراجعة الجديد');
+}
+
+function renderReviewActive(wrap, p){
+  const todayKey = getTodayKey();
+  const doneToday = p.log[todayKey] && p.log[todayKey].done;
+  const endInfo = p.endDate ? ('ينتهي ' + formatDateAr(p.endDate)) : 'بدون تاريخ نهاية';
+  let rangeLabel, countLabel, progressLabel, progressNumbers, pct;
+
+  if(p.scopeType === 'surah'){
+    rangeLabel = 'سورة ' + SURAH_NAMES[p.surahIdx] + ' كاملة';
+    countLabel = 'كررها ' + p.repeatCount + ' ' + (p.repeatCount===1?'مرة':'مرات') + ' اليوم';
+    const daysDone = Object.keys(p.log).length;
+    progressLabel = 'أيام المراجعة المُتمّة';
+    progressNumbers = daysDone + ' يوم';
+    pct = null;
+  } else if(p.scopeType === 'juz' && p.splitMode === 'full'){
+    rangeLabel = 'الجزء ' + p.juzNum + ' كاملاً';
+    countLabel = 'كرره ' + p.repeatCount + ' ' + (p.repeatCount===1?'مرة':'مرات') + ' اليوم';
+    const daysDone = Object.keys(p.log).length;
+    progressLabel = 'أيام المراجعة المُتمّة';
+    progressNumbers = daysDone + ' يوم';
+    pct = null;
+  } else {
+    // pages أو juz+split — كلاهما يتحرك برقم صفحة داخل نطاق محدد
+    let scopeStart, scopeTotal;
+    if(p.scopeType === 'juz'){
+      scopeStart = (p.juzNum-1) * 20 + 1;
+      scopeTotal = 20;
+    } else {
+      scopeStart = 1;
+      scopeTotal = p.totalPages || 604;
+    }
+    let daily = p.scopeType === 'juz' ? (p.splitAuto ? Math.max(1, Math.ceil(scopeTotal / Math.max(1,(p.endDate ? daysBetween(p.startDate,p.endDate) : 7)))) : p.manualDaily) : p.wajhPerSession;
+    let from = scopeStart + p.position;
+    let to = Math.min(from + daily - 1, scopeStart + scopeTotal - 1);
+    rangeLabel = 'من صفحة ' + from + ' إلى ' + to;
+    countLabel = p.scopeType === 'pages' ? ('كرر كل وجه ' + p.repeatCount + ' ' + (p.repeatCount===1?'مرة':'مرات')) : '';
+    pct = Math.round((p.position / scopeTotal) * 100);
+    progressLabel = 'دورة المراجعة الحالية · ' + endInfo;
+    progressNumbers = p.position + ' / ' + scopeTotal + ' صفحة';
+    p._dailyCache = daily; p._scopeStartCache = scopeStart; p._scopeTotalCache = scopeTotal;
+  }
+
+  let todayHtml;
+  if(doneToday){
+    todayHtml = '<div class="hifz-done-today">✅ أتممت مراجعة اليوم</div>' +
+      '<button class="hifz-share-btn" onclick="shareReviewProgress()">📤 شارك إنجازك</button>';
+  } else {
+    todayHtml =
+      '<div class="hifz-today-card">' +
+        '<div class="hifz-today-label">مراجعة اليوم</div>' +
+        '<div class="hifz-today-range">' + rangeLabel + '</div>' +
+        (countLabel ? '<div class="hifz-today-count">' + countLabel + '</div>' : '<div style="height:10px;"></div>') +
+        '<button class="hifz-done-btn" onclick="markReviewDone()">✓ أتممت المراجعة</button>' +
+      '</div>';
+  }
+
+  let progressHtml = '<div class="hifz-progress-card"><div class="hifz-progress-label">' + progressLabel + '</div>' +
+    '<div class="hifz-progress-numbers">' + progressNumbers + '</div>';
+  if(pct !== null){
+    progressHtml += '<div class="hifz-progress-bar"><div class="hifz-progress-fill" style="width:' + pct + '%"></div></div>';
+  }
+  progressHtml += '</div>';
+
+  wrap.innerHTML = progressHtml + todayHtml +
+    '<button class="hifz-edit-btn" onclick="endReviewProgram()">⏹ إنهاء هذا البرنامج وبدء آخر</button>';
+}
+
+function daysBetween(a,b){
+  const d1 = new Date(a+'T00:00:00'), d2 = new Date(b+'T00:00:00');
+  return Math.max(1, Math.round((d2-d1)/86400000) + 1);
+}
+
+function cancelReviewProgram(){
+  if(confirm('إلغاء هذا البرنامج المجدول؟')){
+    _hifzState.review.program = null;
+    saveHifzState();
+    renderHifzScreen();
+  }
+}
+function endReviewProgram(){
+  if(confirm('هل تريد إنهاء برنامج المراجعة الحالي وبدء برنامج جديد؟')){
+    const r = _hifzState.review;
+    r.history = r.history || [];
+    r.history.push(Object.assign({}, r.program, { endedReason:'أُنهي يدوياً' }));
+    r.program = null;
+    saveHifzState();
+    renderHifzScreen();
+    showToast('تم إنهاء البرنامج — ابدأ برنامجك الجديد');
+  }
+}
+function markReviewDone(){
+  const p = _hifzState.review.program;
+  if(!p) return;
+  const todayKey = getTodayKey();
+  if(p.log[todayKey]) { renderHifzScreen(); return; }
+
+  if(p.scopeType === 'surah' || (p.scopeType==='juz' && p.splitMode==='full')){
+    p.position = (p.position||0) + 1;
+  } else {
+    const daily = p._dailyCache || (p.scopeType==='pages' ? p.wajhPerSession : 2);
+    const scopeTotal = p._scopeTotalCache || (p.scopeType==='juz' ? 20 : (p.totalPages||604));
+    let newPos = p.position + daily;
+    if(newPos >= scopeTotal) newPos = 0;
+    p.position = newPos;
+  }
+  p.log[todayKey] = { done:true };
+  saveHifzState();
+  showToast('بارك الله فيك — تم تسجيل المراجعة 🔄');
+  updateHomeRings();
+  renderHifzScreen();
+}
+function shareReviewProgress(){
+  const p = _hifzState.review.program;
+  if(!p) return;
+  let msg;
+  if(p.scopeType === 'surah') msg = '🔄 راجعت سورة ' + SURAH_NAMES[p.surahIdx] + ' كاملة (' + p.repeatCount + ' مرات) اليوم';
+  else if(p.scopeType === 'juz' && p.splitMode === 'full') msg = '🔄 راجعت الجزء ' + p.juzNum + ' كاملاً (' + p.repeatCount + ' مرات) اليوم';
+  else msg = '🔄 أتممت مراجعتي اليوم في برنامج المراجعة';
+  shareProgress(msg);
+}
+
+// ===================== تحديث حلقات التقدم بالرئيسية =====================
+function updateHomeRings(){
+  const circ = 150.8;
+  // تلاوة
+  const tRing = document.getElementById('tilawa-ring');
+  if(tRing){
+    let pct = 0;
+    if(_tilawaPlan) pct = _tilawaDone.length / _tilawaPlan.days;
+    tRing.setAttribute('stroke-dashoffset', (circ - pct*circ).toFixed(1));
+  }
+  const st = getHifzState();
+  const mRing = document.getElementById('memo-ring');
+  if(mRing){
+    const pct = st.memo.position / HIFZ_TOTAL_WAJH;
+    mRing.setAttribute('stroke-dashoffset', (circ - pct*circ).toFixed(1));
+  }
+  const rRing = document.getElementById('review-ring');
+  if(rRing){
+    let pct = 0;
+    const rp = st.review.program;
+    if(rp){
+      if(rp.scopeType === 'surah' || (rp.scopeType==='juz' && rp.splitMode==='full')){
+        const daysTotal = rp.endDate ? daysBetween(rp.startDate, rp.endDate) : 7;
+        pct = Math.min(1, Object.keys(rp.log).length / daysTotal);
+      } else {
+        const total = rp.scopeType==='juz' ? 20 : (rp.totalPages || st.memo.position || 604);
+        pct = total > 0 ? (rp.position / total) : 0;
+      }
+    }
+    rRing.setAttribute('stroke-dashoffset', (circ - pct*circ).toFixed(1));
+  }
+}
+
+// ===================== بوابة المعلمين =====================
+function getTeacherCircle(){
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem('irtaqi-teacher-circle') || 'null'); } catch(e){}
+  return c || { name:null, students:[] };
+}
+function saveTeacherCircle(c){ try { localStorage.setItem('irtaqi-teacher-circle', JSON.stringify(c)); } catch(e){} }
+
+let _teacherCircle = null;
+let _editingStudentId = null;
+
+function openTeacherScreen(){
+  try {
+    const home = document.getElementById('screen-home');
+    const screen = document.getElementById('screen-teacher');
+    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
+    home.classList.add('hidden');
+    screen.classList.remove('hidden');
+    screen.scrollTop = 0;
+    _teacherCircle = getTeacherCircle();
+    renderTeacherScreen();
+  } catch(e) {
+    showToast('خطأ في openTeacherScreen: ' + e.message);
+  }
+}
+function closeTeacherScreen(){
+  document.getElementById('screen-teacher').classList.add('hidden');
+  document.getElementById('screen-home').classList.remove('hidden');
+}
+function renderTeacherScreen(){
+  try {
+    const badge = document.getElementById('teacher-circle-badge');
+    const wrap = document.getElementById('teacher-content');
+    if(!wrap) return;
+
+    if(!_teacherCircle.name){
+      if(badge) badge.innerHTML = '';
+      wrap.innerHTML =
+        '<div class="hifz-setup-card">' +
+          '<div class="hifz-setup-title">🕌 أنشئ حلقتك</div>' +
+          '<div class="hifz-setup-sub">اختر اسم يميّز حلقتك — مثلاً اسم المسجد أو دار التحفيظ</div>' +
+          '<input type="text" class="hifz-day-input" style="width:100%;" id="circle-name-input" placeholder="مثال: حلقة جامع النور" />' +
+          '<button class="hifz-save-btn" onclick="createTeacherCircle()">إنشاء الحلقة</button>' +
+        '</div>';
+      return;
+    }
+
+    if(badge) badge.innerHTML = '<div class="circle-name-badge">🕌 ' + _teacherCircle.name + '</div>';
+
+    let html = '';
+    html += '<div class="teacher-add-card">' +
+      '<div class="hifz-setup-sub" style="margin-top:0;">إضافة طالب جديد</div>' +
+      '<input type="text" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-name" placeholder="اسم الطالب" />' +
+      '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-phone" placeholder="رقم واتساب مع كود الدولة" />' +
+      '<textarea class="hifz-day-input" style="width:100%;height:60px;margin-bottom:6px;" id="new-student-memo" placeholder="خطة الحفظ المقترحة (مثال: صفحتان يومياً من السبت للأربعاء)"></textarea>' +
+      '<textarea class="hifz-day-input" style="width:100%;height:60px;" id="new-student-review" placeholder="خطة المراجعة المقترحة (مثال: جزء كل ٣ أيام، تكرار ٣ مرات)"></textarea>' +
+      '<button class="hifz-save-btn" onclick="addStudent()">+ إضافة الطالب</button>' +
+    '</div>';
+
+    if(_teacherCircle.students.length > 0){
+      html += '<button class="share-sheet-btn generic" style="margin-bottom:14px;" onclick="messageAllStudents()">📢 راسل جميع الطلاب</button>';
+      _teacherCircle.students.forEach(s => {
+        html +=
+          '<div class="student-card">' +
+            '<div class="student-card-top"><div class="student-name">' + s.name + '</div><div class="student-phone">' + s.phone + '</div></div>' +
+            (s.memoPlan ? '<div class="student-plan">🌱 ' + s.memoPlan + '</div>' : '') +
+            (s.reviewPlan ? '<div class="student-plan">🔄 ' + s.reviewPlan + '</div>' : '') +
+            '<div class="student-actions">' +
+              '<button class="sa-msg" onclick="messageStudent(' + s.id + ')">📱 راسل</button>' +
+              '<button class="sa-edit" onclick="editStudent(' + s.id + ')">✎ تعديل</button>' +
+              '<button class="sa-del" onclick="deleteStudent(' + s.id + ')">🗑 حذف</button>' +
+            '</div>' +
+          '</div>';
+      });
+    } else {
+      html += '<div class="hifz-rest-day">ما فيه طلاب بعد — أضف أول طالب بحلقتك 👆</div>';
+    }
+
+    html += '<button class="hifz-edit-btn" onclick="renameTeacherCircle()">✎ تغيير اسم الحلقة</button>';
+    wrap.innerHTML = html;
+  } catch(e) {
+    showToast('خطأ في renderTeacherScreen: ' + e.message);
+  }
+}
+function createTeacherCircle(){
+  const el = document.getElementById('circle-name-input');
+  const name = el ? el.value.trim() : '';
+  if(!name){ showToast('اكتب اسم الحلقة أولاً'); return; }
+  _teacherCircle.name = name;
+  saveTeacherCircle(_teacherCircle);
+  renderTeacherScreen();
+  showToast('✅ تم إنشاء الحلقة');
+}
+function renameTeacherCircle(){
+  const newName = prompt('اسم الحلقة الجديد:', _teacherCircle.name);
+  if(newName && newName.trim()){
+    _teacherCircle.name = newName.trim();
+    saveTeacherCircle(_teacherCircle);
+    renderTeacherScreen();
+  }
+}
+function addStudent(){
+  const name = (document.getElementById('new-student-name')||{}).value || '';
+  const phone = ((document.getElementById('new-student-phone')||{}).value || '').replace(/[^0-9]/g,'');
+  const memoPlan = (document.getElementById('new-student-memo')||{}).value || '';
+  const reviewPlan = (document.getElementById('new-student-review')||{}).value || '';
+  if(!name.trim() || !phone){ showToast('اكتب اسم الطالب ورقمه على الأقل'); return; }
+
+  if(_editingStudentId !== null){
+    const s = _teacherCircle.students.find(x => x.id === _editingStudentId);
+    if(s){ s.name=name.trim(); s.phone=phone; s.memoPlan=memoPlan.trim(); s.reviewPlan=reviewPlan.trim(); }
+    _editingStudentId = null;
+  } else {
+    _teacherCircle.students.push({ id: Date.now() + Math.floor(Math.random()*100000), name: name.trim(), phone: phone, memoPlan: memoPlan.trim(), reviewPlan: reviewPlan.trim() });
+  }
+  saveTeacherCircle(_teacherCircle);
+  renderTeacherScreen();
+  showToast('✅ تم الحفظ');
+}
+function editStudent(id){
+  const s = _teacherCircle.students.find(x => x.id === id);
+  if(!s) return;
+  _editingStudentId = id;
+  renderTeacherScreen();
+  setTimeout(() => {
+    const nEl = document.getElementById('new-student-name');
+    const pEl = document.getElementById('new-student-phone');
+    const mEl = document.getElementById('new-student-memo');
+    const rEl = document.getElementById('new-student-review');
+    if(nEl) nEl.value = s.name;
+    if(pEl) pEl.value = s.phone;
+    if(mEl) mEl.value = s.memoPlan || '';
+    if(rEl) rEl.value = s.reviewPlan || '';
+  }, 50);
+}
+function deleteStudent(id){
+  if(!confirm('حذف هذا الطالب من الحلقة؟')) return;
+  _teacherCircle.students = _teacherCircle.students.filter(x => x.id !== id);
+  saveTeacherCircle(_teacherCircle);
+  renderTeacherScreen();
+}
+function messageStudent(id){
+  const s = _teacherCircle.students.find(x => x.id === id);
+  if(!s) return;
+  let msg = 'السلام عليكم ' + s.name + '،\n\nخطتك في حلقة ' + _teacherCircle.name + ':\n';
+  if(s.memoPlan) msg += '🌱 الحفظ: ' + s.memoPlan + '\n';
+  if(s.reviewPlan) msg += '🔄 المراجعة: ' + s.reviewPlan + '\n';
+  msg += '\nبالتوفيق 🤍';
+  window.open('https://wa.me/' + s.phone + '?text=' + encodeURIComponent(msg), '_blank');
+}
+function messageAllStudents(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  let html = '<div class="share-sheet-title">📢 راسل كل طلاب الحلقة</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:12px;">اضغط اسم كل طالب لفتح واتساب له بخطته</div>';
+  _teacherCircle.students.forEach(s => {
+    html += '<button class="share-sheet-btn" onclick="messageStudent(' + s.id + ');">📱 ' + s.name + '</button>';
+  });
+  html += '<button class="hifz-edit-btn" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderDateBar();
+  _hifzState = getHifzState();
+  updateHomeRings();
+});
+window.onerror = function(msg, src, line, col, err){
+  alert('خطأ عام:\n' + msg + '\nسطر: ' + line + ' عمود: ' + col);
+  return false;
+};
+</script>
+</body>
+</html>
