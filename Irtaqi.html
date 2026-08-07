@@ -7,6 +7,14 @@
 <meta name="author" content="عرفات الراجحي - Arafat Al-Rajhi">
 <meta name="copyright" content="© جميع الحقوق محفوظة لعرفات الراجحي">
 <title>ارتق — احفظ، راجع، وارتقِ بالدرجات</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F8367">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ارتقِ">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;700;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -63,7 +71,10 @@ body.large-font{zoom:1.15;}
 /* ===== SCREENS ===== */
 .screen{position:fixed;inset:0;overflow-y:auto;background:var(--ivory);transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .32s ease;will-change:transform,opacity;}
 .screen.hidden{transform:translateX(-100%);opacity:0;pointer-events:none;}
+.screen.nav-pulse{animation:navPulse .35s ease;}
+@keyframes navPulse{0%{opacity:1;}40%{opacity:0.55;}100%{opacity:1;}}
 .gate-tier1.hidden,.gate-tier2.hidden{display:none;}
+.bottom-nav.hidden{display:none;}
 
 /* ===== TOPBAR ===== */
 .topbar{
@@ -593,16 +604,18 @@ body.theme-dark .bn-item.active .bn-label{color:#D4AF37;}
   padding:14px 10px;border-radius:16px;border:2px solid rgba(6,78,59,0.15);
   background:var(--card-bg);text-align:center;cursor:pointer;transition:all .2s;
 }
-.plan-opt.active{border-color:var(--purple);background:var(--done-bg);box-shadow:0 4px 12px rgba(6,78,59,0.15);}
+.plan-opt.active{border-color:#D4AF37;background:rgba(212,175,55,0.14);box-shadow:0 4px 12px rgba(212,175,55,0.25);}
 .plan-opt-days{font-size:22px;font-weight:900;color:var(--purple);}
 .plan-opt-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 .plan-opt-pages{font-size:11px;color:var(--muted);margin-top:1px;}
-.plan-opt.active .plan-opt-sub, .plan-opt.active .plan-opt-pages{color:var(--purple);}
+.plan-opt.active .plan-opt-sub, .plan-opt.active .plan-opt-pages{color:#8A6A0A;}
+.plan-opt.active .plan-opt-days{color:#8A6A0A;}
+.plan-opt-custom{grid-column:1/-1;}
 .plan-start-btn{
   width:100%;padding:14px;border-radius:14px;
-  background:linear-gradient(135deg,var(--purple),var(--purple-mid));
-  border:none;color:white;font-size:15px;font-weight:800;
-  font-family:'Tajawal',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(6,78,59,0.3);
+  background:radial-gradient(circle at 35% 30%,#FFE9A8,#F0D878 55%,#D4AF37);
+  border:none;color:#3B2A06;font-size:15px;font-weight:800;
+  font-family:'Tajawal',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(212,175,55,0.35);
 }
 
 .days-strip{padding:16px 16px 8px;overflow-x:auto;scrollbar-width:none;}
@@ -730,14 +743,15 @@ body.theme-dark .reader-error{color:#F08080;}
 .stepper-mini{display:flex;align-items:center;gap:8px;}
 .stepper-mini-btn{
   width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;
-  background:var(--ivory-2);color:var(--purple);font-size:16px;font-weight:900;
+  background:radial-gradient(circle at 35% 30%,#FFE9A8,#F0D878 55%,#D4AF37);color:#3B2A06;font-size:16px;font-weight:900;
   display:flex;align-items:center;justify-content:center;
 }
 .stepper-mini-value{font-size:15px;font-weight:900;color:var(--text);min-width:26px;text-align:center;}
 .hifz-save-btn{
   width:100%;margin-top:16px;padding:13px;border:none;border-radius:14px;
-  background:linear-gradient(135deg,var(--purple),var(--purple-light));
-  color:white;font-size:14px;font-weight:900;cursor:pointer;font-family:'Tajawal',sans-serif;
+  background:radial-gradient(circle at 35% 30%,#FFE9A8,#F0D878 55%,#D4AF37);
+  box-shadow:0 3px 10px rgba(212,175,55,0.35);
+  color:#3B2A06;font-size:14px;font-weight:900;cursor:pointer;font-family:'Tajawal',sans-serif;
 }
 .hifz-opt-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .hifz-opt-btn{
@@ -746,7 +760,7 @@ body.theme-dark .reader-error{color:#F08080;}
   font-family:'Tajawal',sans-serif;transition:all .15s;
 }
 .hifz-opt-btn.small{min-width:36px;padding:8px 4px;font-size:13px;}
-.hifz-opt-btn.active{border-color:var(--purple);background:var(--done-bg);color:var(--purple);}
+.hifz-opt-btn.active{border-color:#D4AF37;background:rgba(212,175,55,0.14);color:#8A6A0A;}
 
 .hifz-progress-card{background:var(--card-bg);border-radius:18px;padding:16px;border:1px solid rgba(0,0,0,0.06);margin-bottom:14px;}
 .hifz-progress-label{font-size:12px;color:var(--muted);text-align:center;}
@@ -1312,14 +1326,14 @@ body[data-persona="institution"] .glass-day-tag{border-radius:8px;}
 }
 .glass-card:active{transform:translateY(1px) scale(.96);box-shadow:0 1px 4px rgba(15,35,70,0.06);}
 .glow-orb{
-  width:52px;height:52px;border-radius:50%;flex-shrink:0;position:relative;z-index:2;
+  width:64px;height:64px;border-radius:50%;flex-shrink:0;position:relative;z-index:2;
   display:flex;align-items:center;justify-content:center;
   background:radial-gradient(circle at 35% 30%,#FFE9A8,#F0D878 55%,#D4AF37);
-  box-shadow:0 0 20px rgba(212,175,55,.4);color:#3B2A06;
+  box-shadow:0 0 22px rgba(212,175,55,.45);color:#3B2A06;
   animation:orbBreathe 2.6s ease-in-out infinite;
   transition:box-shadow .6s ease;
 }
-.glow-orb svg{width:26px;height:26px;position:relative;z-index:2;}
+.glow-orb svg{width:32px;height:32px;position:relative;z-index:2;}
 @keyframes orbBreathe{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
 .glass-card.done .glow-orb{
   background:radial-gradient(circle at 35% 30%,#7FFFD4,#2DD4BF 60%,#0E9F8A);
@@ -1346,9 +1360,13 @@ body.theme-dark .glass-card::before{background:linear-gradient(115deg,rgba(255,2
 
 /* ===== بوابة الدخول الثلاثية ===== */
 .gate-wrap{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px 20px 40px;background:linear-gradient(180deg,#F7FAF8 0%,#FBF8EF 100%);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  padding:28px 20px 20px;background:linear-gradient(180deg,#F7FAF8 0%,#FBF8EF 100%);
 }
+.gate-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;}
+.gate-tagline{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;opacity:0.75;}
+.gate-tagline-row{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#5B7268;}
+.gate-tagline-sep{color:#C9D9D0;font-size:12px;}
 .gate-logo{font-size:44px;margin-bottom:8px;}
 .gate-title{font-family:'Tajawal','Cairo',sans-serif;font-size:26px;font-weight:900;color:#1F3D33;margin-bottom:4px;}
 .gate-sub{font-size:12.5px;color:#5B7268;font-weight:600;margin-bottom:26px;text-align:center;}
@@ -1384,6 +1402,8 @@ body.theme-dark .gate-card{background:rgba(255,255,255,0.06);box-shadow:0 6px 18
 body.theme-dark .gate-card-title{color:#E7F3EC;}
 body.theme-dark .gate-card-sub{color:#8FB0A2;}
 body.theme-dark .gate-card-chev{color:#5E7A6C;}
+body.theme-dark .gate-tagline-row{color:#8FB0A2;}
+body.theme-dark .gate-tagline-sep{color:#3A4E44;}
 body.theme-dark .gtc-btn2{color:#E7F3EC;background:rgba(212,175,55,0.1);border-color:rgba(212,175,55,0.3);}
 body.theme-dark .gtc-back{color:#6FD9B4;}
 </style>
@@ -1460,17 +1480,21 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
       </div>
 
       <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);margin-top:auto;">
-        <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
+        <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · جميع الحقوق محفوظة</div>
         <div class="sig-dua" style="color:var(--muted);">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
+        <div class="sig-powered" style="display:none;">Powered by Irtaqi</div>
       </div>
 
     </div>
   </div>
   </div>
 
-<div class="bottom-nav">
-    <div class="bn-item active" onclick="goHomeScreen()">
+<div class="bottom-nav hidden" id="bottom-nav">
+    <div class="bn-item" onclick="changeUserType()">
       <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span><span class="bn-label" data-i18n="nav_home">الرئيسية</span>
+    </div>
+    <div class="bn-item active" onclick="goHomeScreen()">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><span class="bn-label">لوحتي</span>
     </div>
     <div class="bn-item" onclick="openTeacherScreen()">
       <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2 2 2 0 1 1-4 0 2 2 0 0 1 2-2Z"/><path d="M12 6v3"/><path d="M4 21V13a8 8 0 0 1 16 0v8"/><path d="M4 21h16"/><path d="M9 21v-5a3 3 0 0 1 6 0v5"/></svg></span><span class="bn-label" data-i18n="nav_teachers">المعلمين</span>
@@ -1500,8 +1524,9 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
   </div>
   <div id="tilawa-content"></div>
   <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);">
-    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
+    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · جميع الحقوق محفوظة</div>
     <div class="sig-dua" style="color:var(--muted);">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
+    <div class="sig-powered" style="display:none;">Powered by Irtaqi</div>
   </div>
 </div>
 
@@ -1530,8 +1555,9 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
   </div>
   <div id="hifz-content" style="padding:16px 16px 40px;"></div>
   <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);">
-    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
+    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · جميع الحقوق محفوظة</div>
     <div class="sig-dua" style="color:var(--muted);">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
+    <div class="sig-powered" style="display:none;">Powered by Irtaqi</div>
   </div>
 </div>
 
@@ -1556,8 +1582,9 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
   </div>
   <div id="teacher-content" style="padding:16px 16px 40px;"></div>
   <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);">
-    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
+    <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · جميع الحقوق محفوظة</div>
     <div class="sig-dua" style="color:var(--muted);">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
+    <div class="sig-powered" style="display:none;">Powered by Irtaqi</div>
   </div>
 </div>
 
@@ -1578,7 +1605,7 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
   </div>
   <div id="settings-content" style="padding:16px 16px 40px;"></div>
   <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);">
-    <div class="sig-line1" style="color:var(--muted);" id="sig-line1">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
+    <div class="sig-line1 sig-line1-full" style="color:var(--muted);" id="sig-line1">© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة</div>
     <div class="sig-dua" style="color:var(--muted);" id="sig-dua">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
     <div class="sig-powered" id="sig-powered" style="display:none;">Powered by Irtaqi</div>
   </div>
@@ -1603,6 +1630,7 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
 
 <div class="screen hidden" id="screen-gate">
   <div class="gate-wrap">
+    <div class="gate-content">
     <div class="gate-logo" id="gate-logo-icon">🕌</div>
     <div class="gate-title" data-i18n="gate_title">أهلاً بك في ارتقِ</div>
     <div class="gate-sub" data-i18n="gate_sub">اختر الطريقة التي تناسبك لتبدأ</div>
@@ -1645,6 +1673,13 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
         <button class="gtc-btn2" onclick="selectInstitutionSubtype('center')">مركز قرآني</button>
         <button class="gtc-btn2" onclick="selectInstitutionSubtype('online')">برنامج تحفيظ أونلاين</button>
       </div>
+    </div>
+    </div>
+
+    <div class="sig-footer" style="background:transparent;border-top:1px solid rgba(0,0,0,0.06);margin-top:18px;">
+      <div class="sig-line1" style="color:var(--muted);">© ارتقِ IRTAQI · جميع الحقوق محفوظة</div>
+      <div class="sig-dua" style="color:var(--muted);">غفر الله لمطورها ولمستخدميها وللمسلمين أجمعين</div>
+      <div class="sig-powered" style="display:none;">Powered by Irtaqi</div>
     </div>
   </div>
 </div>
@@ -1843,18 +1878,20 @@ function applyBranding(){
   }
 
   // تذييل الحقوق: في وضع المؤسسة نعرض حقوق المؤسسة + "Powered by IRTAQI"،
-  // وفي الوضع الشخصي نُبقي التذييل الافتراضي كما هو دون تغيير. الدعاء يبقى ظاهرًا دومًا.
+  // وفي الوضع الشخصي: التذييل العادي بدون اسم المطوّر، وتذييل الإعدادات وحده يحتفظ بالاسم الكامل. الدعاء يبقى ظاهرًا دومًا.
   const cfg = getOrgConfig();
   const isOrg = cfg.mode === 'organization' && cfg.activeOrgId;
   const org = isOrg ? (cfg.organizations || []).find(o => o.id === cfg.activeOrgId) : null;
-  const sigLine1 = document.getElementById('sig-line1');
-  const sigPowered = document.getElementById('sig-powered');
+  const sigLine1s = document.querySelectorAll('.sig-line1');
+  const sigLine1Full = document.querySelector('.sig-line1-full');
+  const sigPowereds = document.querySelectorAll('.sig-powered');
   if(isOrg && org){
-    if(sigLine1) sigLine1.textContent = '© ' + new Date().getFullYear() + ' ' + org.name;
-    if(sigPowered) sigPowered.style.display = 'block';
+    for(let i = 0; i < sigLine1s.length; i++){ sigLine1s[i].textContent = '© ' + new Date().getFullYear() + ' ' + org.name; }
+    for(let i = 0; i < sigPowereds.length; i++){ sigPowereds[i].style.display = 'block'; }
   } else {
-    if(sigLine1) sigLine1.textContent = 'جميع الحقوق محفوظة © ارتقِ · All Rights Reserved © IRTAQI · عرفات الراجحي · Arafat AlRajhi';
-    if(sigPowered) sigPowered.style.display = 'none';
+    for(let i = 0; i < sigLine1s.length; i++){ sigLine1s[i].textContent = '© ارتقِ IRTAQI · جميع الحقوق محفوظة'; }
+    if(sigLine1Full) sigLine1Full.textContent = '© ارتقِ IRTAQI · عرفات الراجحي · جميع الحقوق محفوظة';
+    for(let i = 0; i < sigPowereds.length; i++){ sigPowereds[i].style.display = 'none'; }
   }
 }
 
@@ -2393,10 +2430,10 @@ let _selectedPlanDays = 30;
 
 function openTilawaScreen(){
   try {
-    const home = document.getElementById('screen-home');
+    const screens = document.querySelectorAll('.screen');
+    for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
     const screen = document.getElementById('screen-tilawa');
-    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
-    home.classList.add('hidden');
+    if(!screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
     screen.classList.remove('hidden');
     screen.scrollTop = 0;
     renderTilawaScreen();
@@ -2423,23 +2460,52 @@ function renderTilawaScreen(){
   }
 }
 function renderTilawaSetup(wrap){
-  const opts = Object.entries(TILAWA_PLANS).map(([days, p]) => {
+  let opts = '';
+  for(const days in TILAWA_PLANS){
+    const p = TILAWA_PLANS[days];
     const juzzLabel = p.juzzPerDay === 10 ? '١٠' : p.juzzPerDay === 4 ? '٤' : p.juzzPerDay === 3 ? '٣' : '١';
-    return '<div class="plan-opt ' + (_selectedPlanDays==days?'active':'') + '" onclick="selectTilawaDays(' + days + ')">' +
+    opts += '<div class="plan-opt ' + (_selectedPlanDays==days && !_tilawaCustomActive?'active':'') + '" onclick="selectTilawaDays(' + days + ')">' +
       '<div class="plan-opt-days">' + days + '</div>' +
       '<div class="plan-opt-sub">' + juzzLabel + ' ' + (p.juzzPerDay===1?'جزء':'أجزاء') + ' يومياً</div>' +
       '<div class="plan-opt-pages">' + p.pagesPerDay + ' صفحة / يوم</div>' +
     '</div>';
-  }).join('');
+  }
+  const customDays = _tilawaCustomDays || 45;
+  const customPages = Math.ceil(604 / customDays);
+  const customOpt = '<div class="plan-opt plan-opt-custom ' + (_tilawaCustomActive?'active':'') + '" onclick="activateTilawaCustom()">' +
+    (_tilawaCustomActive ?
+      ('<div class="plan-opt-sub" style="margin-bottom:8px;">حدد عدد الأيام بنفسك</div>' +
+      '<div class="stepper-mini" style="justify-content:center;gap:14px;">' +
+        '<button class="stepper-mini-btn" onclick="event.stopPropagation();adjustTilawaCustomDays(-1)">−</button>' +
+        '<div class="stepper-mini-value" style="font-size:20px;">' + customDays + '</div>' +
+        '<button class="stepper-mini-btn" onclick="event.stopPropagation();adjustTilawaCustomDays(1)">+</button>' +
+      '</div>' +
+      '<div class="plan-opt-pages" style="margin-top:8px;">≈ ' + customPages + ' صفحة / يوم</div>')
+    : ('<div class="plan-opt-days" style="font-size:16px;">خطة مخصصة</div>' +
+      '<div class="plan-opt-sub">حدد بنفسك كم يوم تحتاج</div>')
+    ) +
+  '</div>';
   wrap.innerHTML =
     '<div class="plan-wrap">' +
       '<div class="plan-label">اختر هدف الختمة</div>' +
-      '<div class="plan-options">' + opts + '</div>' +
+      '<div class="plan-options">' + opts + customOpt + '</div>' +
       '<button class="plan-start-btn" onclick="startTilawaPlan()">📖 ابدأ رحلة الختمة</button>' +
     '</div>';
 }
-function selectTilawaDays(days){ _selectedPlanDays = days; renderTilawaScreen(); }
+let _tilawaCustomActive = false;
+let _tilawaCustomDays = 45;
+function activateTilawaCustom(){ _tilawaCustomActive = true; renderTilawaScreen(); }
+function adjustTilawaCustomDays(delta){
+  _tilawaCustomDays = Math.max(2, Math.min(604, (_tilawaCustomDays || 45) + delta));
+  renderTilawaScreen();
+}
+function selectTilawaDays(days){ _selectedPlanDays = days; _tilawaCustomActive = false; renderTilawaScreen(); }
 function startTilawaPlan(){
+  if(_tilawaCustomActive){
+    const days = _tilawaCustomDays || 45;
+    TILAWA_PLANS[days] = { label: days + ' يوماً', juzzPerDay: +( (604/days/20.13).toFixed(2) ), pagesPerDay: Math.ceil(604/days) };
+    _selectedPlanDays = days;
+  }
   _tilawaPlan = { days: _selectedPlanDays, start: new Date().toDateString() };
   _tilawaDone = [];
   _selectedTilawaDay = getCurrentTilawaDay();
@@ -2578,10 +2644,10 @@ function saveHifzState(){ try { localStorage.setItem('irtaqi-hifz', JSON.stringi
 
 function openHifzScreen(tab){
   try {
-    const home = document.getElementById('screen-home');
+    const screens = document.querySelectorAll('.screen');
+    for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
     const screen = document.getElementById('screen-hifz');
-    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
-    home.classList.add('hidden');
+    if(!screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
     screen.classList.remove('hidden');
     screen.scrollTop = 0;
     _hifzState = getHifzState();
@@ -2776,10 +2842,11 @@ function batteryHtml(pct){
     '<div class="battery-pct-text">' + pct + '٪</div>' +
     '</div><div class="battery-nub"></div></div>';
 }
+function pad2(n){ n = String(n); return n.length < 2 ? '0' + n : n; }
 function getTodayISO(){
   const d = new Date();
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = pad2(d.getMonth()+1);
+  const dd = pad2(d.getDate());
   return d.getFullYear() + '-' + mm + '-' + dd;
 }
 function formatDateAr(iso){
@@ -3561,7 +3628,7 @@ function lerpColor(c1, c2, t){
   const p1 = c1.match(/\w\w/g).map(x => parseInt(x, 16));
   const p2 = c2.match(/\w\w/g).map(x => parseInt(x, 16));
   const rgb = p1.map((v, i) => Math.round(v + (p2[i] - v) * t));
-  return '#' + rgb.map(v => v.toString(16).padStart(2, '0')).join('');
+  return '#' + rgb.map(v => pad2(v.toString(16))).join('');
 }
 function applyEffortBackground(){
   const bg = document.getElementById('home-bg');
@@ -3677,10 +3744,10 @@ let _settingsView = 'dashboard';
 
 function openSettingsScreen(){
   try {
-    const home = document.getElementById('screen-home');
+    const screens = document.querySelectorAll('.screen');
+    for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
     const screen = document.getElementById('screen-settings');
-    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
-    home.classList.add('hidden');
+    if(!screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
     screen.classList.remove('hidden');
     screen.scrollTop = 0;
     _settingsView = 'dashboard';
@@ -3695,6 +3762,15 @@ function openSettingsFromTeacher(){
     document.getElementById('screen-teacher').classList.add('hidden');
     document.getElementById('screen-settings').classList.remove('hidden');
     _settingsView = 'dashboard';
+    renderSettingsScreen();
+  } catch(e){ showToast('⚠️ تعذّر الانتقال — ' + e.message); }
+}
+function openSettingsSubviewFromTeacher(view){
+  try {
+    forceCloseOverlays();
+    document.getElementById('screen-teacher').classList.add('hidden');
+    document.getElementById('screen-settings').classList.remove('hidden');
+    _settingsView = view;
     renderSettingsScreen();
   } catch(e){ showToast('⚠️ تعذّر الانتقال — ' + e.message); }
 }
@@ -3733,6 +3809,7 @@ function renderSettingsScreen(){
   else if(_settingsView === 'tasbeeh') renderTasbeehView(wrap);
   else if(_settingsView === 'journey') renderJourneyView(wrap);
   else if(_settingsView === 'organization') renderOrganizationView(wrap);
+  else if(_settingsView === 'teacher-activation') renderTeacherActivationView(wrap);
   else if(_settingsView === 'about') renderAboutView(wrap);
   else if(_settingsView === 'org-management') renderOrgManagementHub(wrap);
   else if(_settingsView === 'org-teachers') renderOrgTeachersView(wrap);
@@ -3952,8 +4029,8 @@ function getBadgeLog(){
 }
 function saveBadgeLog(log){ try { localStorage.setItem('irtaqi-badge-log', JSON.stringify(log)); } catch(e){} }
 function isoFromDate(d){
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = pad2(d.getMonth()+1);
+  const dd = pad2(d.getDate());
   return d.getFullYear() + '-' + mm + '-' + dd;
 }
 // ============ رحلتي: الشجرة، الإحصائيات، لوحة الشرف، الجدول الزمني للأوسمة، آية الأسبوع ============
@@ -4499,7 +4576,8 @@ function renderOrganizationView(wrap){
     '</div>' +
     (licensed ? '' :
       '<input type="text" class="hifz-day-input" style="width:100%;margin:8px 0;direction:ltr;text-align:center;" id="license-key-input" placeholder="IRTAQI-XXXX-XXXX-XXXX" />' +
-      '<button class="hifz-save-btn" onclick="activateLicenseKey()">تفعيل</button>'
+      '<button class="hifz-save-btn" onclick="activateLicenseKey()">تفعيل</button>' +
+      '<a href="https://wa.me/966XXXXXXXXX?text=' + encodeURIComponent('السلام عليكم، أرغب في الحصول على مفتاح تفعيل استخدام مؤسسة في تطبيق ارتقِ') + '" target="_blank" class="hifz-edit-btn" style="display:block;text-align:center;margin-top:8px;text-decoration:none;">ما عندك مفتاح؟ تواصل معنا عبر واتساب</a>'
     ) +
   '</div>';
 
@@ -4553,6 +4631,34 @@ function renderOrganizationView(wrap){
   }
   wrap.innerHTML = html;
 }
+function renderTeacherActivationView(wrap){
+  const licensed = hasValidTeacherLicense();
+  const count = (_teacherCircles || []).length;
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openTeacherFromSettings()">→ بوابة المعلمين</button>';
+
+  html += '<div class="hifz-setup-sub" style="margin-top:0;margin-bottom:12px;line-height:1.7;">' +
+    'الحلقة الأولى مجانية لكل معلم ومعلمة. تفعيل حسابك يفتح إنشاء عدد غير محدود من الحلقات.' +
+  '</div>';
+
+  html += '<div class="teacher-add-card">' +
+    '<div class="hifz-setup-sub" style="margin-top:0;">حلقاتك الحالية</div>' +
+    '<div class="hifz-setup-sub" style="margin-top:0;font-size:10.5px;line-height:1.6;">' + count + ' من ' + (licensed ? 'غير محدود' : '1 (مجانًا)') + '</div>' +
+  '</div>';
+
+  html += '<div class="teacher-add-card">' +
+    '<div class="hifz-setup-sub" style="margin-top:0;">مفتاح التفعيل</div>' +
+    '<div class="hifz-setup-sub" style="margin-top:0;font-size:10.5px;line-height:1.6;">' +
+      (licensed ? '✅ مفتاح صالح — حلقات غير محدودة على هذا الجهاز' : 'أدخل مفتاح التفعيل المزوَّد من ارتق') +
+    '</div>' +
+    (licensed ? '' :
+      '<input type="text" class="hifz-day-input" style="width:100%;margin:8px 0;direction:ltr;text-align:center;" id="teacher-license-key-input" placeholder="IRTAQI-XXXX-XXXX-XXXX" />' +
+      '<button class="hifz-save-btn" onclick="activateTeacherLicenseKey()">تفعيل</button>' +
+      '<a href="https://wa.me/966XXXXXXXXX?text=' + encodeURIComponent('السلام عليكم، أرغب في الحصول على مفتاح تفعيل معلم في تطبيق ارتقِ') + '" target="_blank" class="hifz-edit-btn" style="display:block;text-align:center;margin-top:8px;text-decoration:none;">ما عندك مفتاح؟ تواصل معنا عبر واتساب</a>'
+    ) +
+  '</div>';
+
+  wrap.innerHTML = html;
+}
 function hasValidLicense(){
   try { return isValidLicenseKey(localStorage.getItem('irtaqi-license-key') || ''); } catch(e){ return false; }
 }
@@ -4565,7 +4671,9 @@ function isValidLicenseKey(key){
   const body = m[1] + m[2];
   let sum = 0;
   for(let i = 0; i < body.length; i++) sum += body.charCodeAt(i);
-  const expected = (sum % 36).toString(36).toUpperCase().padStart(4, '0');
+  let expectedRaw = (sum % 36).toString(36).toUpperCase();
+  while(expectedRaw.length < 4){ expectedRaw = '0' + expectedRaw; }
+  const expected = expectedRaw;
   return m[3] === expected || m[3] === 'DEMO';
 }
 function activateLicenseKey(){
@@ -4575,6 +4683,17 @@ function activateLicenseKey(){
   try { localStorage.setItem('irtaqi-license-key', key.toUpperCase()); } catch(e){}
   showToast('✅ تم التفعيل');
   renderSettingsScreen();
+}
+function hasValidTeacherLicense(){
+  try { return isValidLicenseKey(localStorage.getItem('irtaqi-teacher-license-key') || ''); } catch(e){ return false; }
+}
+function activateTeacherLicenseKey(){
+  const el = document.getElementById('teacher-license-key-input');
+  const key = el ? el.value.trim() : '';
+  if(!isValidLicenseKey(key)){ showToast('مفتاح غير صالح'); return; }
+  try { localStorage.setItem('irtaqi-teacher-license-key', key.toUpperCase()); } catch(e){}
+  showToast('✅ تم التفعيل — يمكنك الآن إنشاء حلقات غير محدودة');
+  renderTeacherScreen();
 }
 // ============ تصدير نسخة HTML كاملة مخصّصة بهوية المؤسسة (بدون تعديل كود يدويًا) ============
 function exportCustomBrandedCopy(){
@@ -5140,15 +5259,20 @@ function importBackup(event){
 
 function openTeacherScreen(){
   try {
-    const home = document.getElementById('screen-home');
     const screen = document.getElementById('screen-teacher');
-    if(!home || !screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
-    home.classList.add('hidden');
+    if(!screen){ showToast('خطأ: الشاشة غير موجودة'); return; }
+    const alreadyThere = !screen.classList.contains('hidden');
+    const screens = document.querySelectorAll('.screen');
+    for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
     screen.classList.remove('hidden');
     screen.scrollTop = 0;
     _teacherCircles = getTeacherCircles();
     _activeCircleId = null;
     renderTeacherScreen();
+    if(alreadyThere){
+      screen.classList.add('nav-pulse');
+      setTimeout(() => screen.classList.remove('nav-pulse'), 350);
+    }
   } catch(e) {
     showToast('خطأ في openTeacherScreen: ' + e.message);
   }
@@ -5191,7 +5315,10 @@ function renderCirclesList(wrap){
   '</div>';
 
   if(_teacherCircles.length > 0){
-    html += '<div class="hifz-setup-sub" style="margin:4px 2px 10px;">حلقاتك (' + _teacherCircles.length + ')</div>';
+    html += '<div class="hifz-setup-sub" style="margin:4px 2px 10px;display:flex;justify-content:space-between;align-items:center;">' +
+      '<span>حلقاتك (' + _teacherCircles.length + ')</span>' +
+      (hasValidTeacherLicense() ? '' : '<span onclick="openSettingsSubviewFromTeacher(\'teacher-activation\')" style="font-size:10.5px;font-weight:800;color:#B8860B;cursor:pointer;">حالة التفعيل ‹</span>') +
+    '</div>';
     _teacherCircles.forEach(c => {
       html += '<div class="student-card" style="cursor:pointer;" onclick="selectCircle(' + c.id + ')">' +
         '<div class="student-card-top"><div class="student-name">' + (c.icon || '🕌') + ' ' + c.name + '</div><div class="student-phone">' + c.students.length + ' طالب</div></div>' +
@@ -5210,6 +5337,11 @@ function selectCircleIcon(icon){
   }
 }
 function createTeacherCircle(){
+  if(_teacherCircles.length >= 1 && !hasValidTeacherLicense()){
+    openSettingsSubviewFromTeacher('teacher-activation');
+    showToast('الحلقة الأولى مجانية — فعّل حسابك لإنشاء المزيد');
+    return;
+  }
   const el = document.getElementById('circle-name-input');
   const name = el ? el.value.trim() : '';
   if(!name){ showToast('اكتب اسم الحلقة أولاً'); return; }
@@ -6232,15 +6364,22 @@ function applyPersonaVisualIdentity(){
   else document.body.removeAttribute('data-persona');
 }
 function goHomeScreen(){
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  const home = document.getElementById('screen-home');
-  if(home) home.classList.remove('hidden');
-  updateHomeRings();
+  try {
+    const screens = document.querySelectorAll('.screen');
+    for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
+    const home = document.getElementById('screen-home');
+    if(home) home.classList.remove('hidden');
+    updateHomeRings();
+  } catch(e) {
+    showToast('خطأ في goHomeScreen: ' + e.message);
+  }
 }
 function routeToUserType(type, fromGate){
   const gate = document.getElementById('screen-gate');
   const home = document.getElementById('screen-home');
   if(fromGate && gate) gate.classList.add('hidden');
+  const nav = document.getElementById('bottom-nav');
+  if(nav) nav.classList.remove('hidden');
   if(type === 'teacher'){
     if(home) home.classList.add('hidden');
     openTeacherScreen();
@@ -6259,6 +6398,8 @@ function changeUserType(){
   for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
   const gate = document.getElementById('screen-gate');
   if(gate) gate.classList.remove('hidden');
+  const nav = document.getElementById('bottom-nav');
+  if(nav) nav.classList.add('hidden');
   const tier1 = document.getElementById('gate-tier1');
   if(tier1) tier1.classList.remove('hidden');
   const ichoice = document.getElementById('gate-individual-choice');
@@ -6287,6 +6428,8 @@ window.addEventListener('DOMContentLoaded', () => {
     for(let i = 0; i < screens.length; i++){ screens[i].classList.add('hidden'); }
     const gate = document.getElementById('screen-gate');
     if(gate) gate.classList.remove('hidden');
+    const nav = document.getElementById('bottom-nav');
+    if(nav) nav.classList.add('hidden');
   } catch(e){}
   try { applyDirection(); } catch(e){}
   try { applyTranslations(); } catch(e){}
@@ -6310,6 +6453,11 @@ window.onerror = function(msg, src, line, col, err){
   try { showToast('⚠️ حدث خطأ غير متوقع — حاول مرة أخرى'); } catch(e){}
   return false;
 };
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
