@@ -19,6 +19,99 @@
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;700;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#D4AF37;}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   الهوية اللونية حسب المستخدم
+   Per-persona colour identity.
+
+   المشكلة السابقة: الأنثى كان يتغيّر عندها --copper وحده، بينما --gold
+   (دوائر البطاقات والبوابة) و--purple (الترويسة) يبقيان كما هما. فتظهر
+   لها دوائر ذهبية وترويسة زمردية مع لمسة وردية — هوية مختلطة لا مختلفة.
+
+   الآن لكل مستخدم لوحة كاملة متّسقة. الأخضر الزمردي يبقى للذكور، ويحلّ
+   محلّه البنفسجي الخُزامي للإناث، والذهب يصير ذهبًا ورديًا. اللوحة كلها
+   داكنة هادئة تليق بمنصة قرآنية — لا وردي فاقع.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── الطالبة ── */
+body[data-persona="individual-female"]{
+  --purple:#5E3A57;          /* خُزامي داكن بدل الزمردي */
+  --purple-mid:#7A5273;
+  --purple-light:#A98BA3;
+  --purple-pale:#EFE6EE;
+  --gold:#C98A9C;            /* ذهب وردي */
+  --copper:#A85E76;
+  --copper-light:#D9A2B4;
+  --ivory:#FCF8F9;
+  --ivory-2:#F5EBEF;
+  --topbar-bg:#FCF8F9;
+  --done-bg:#EFE6EE;
+}
+/* ── المعلمة ── */
+body[data-persona="teacher-female"]{
+  --purple:#4E2E4A;          /* أعمق قليلًا: للمعلمة وقار زائد */
+  --purple-mid:#6D4667;
+  --purple-light:#9E7E98;
+  --purple-pale:#ECE1EB;
+  --gold:#BE7C90;
+  --copper:#9A5068;
+  --copper-light:#D095A8;
+  --ivory:#FBF7F9;
+  --ivory-2:#F3E8ED;
+  --topbar-bg:#FBF7F9;
+  --done-bg:#ECE1EB;
+}
+/* ── المعلم: نفس هوية الطالب مع تعميق يسير يميّز البوابة ── */
+body[data-persona="teacher-male"]{
+  --purple:#0F4A3A;
+  --purple-mid:#1F8367;
+}
+
+/* التدرّجات الذهبية مكتوبة بألوان صريحة في مواضع كثيرة، فتُعاد هنا
+   لتتبع لوحة المستخدمة بدل بقائها ذهبية. */
+body[data-persona="individual-female"] .gp-icon,
+body[data-persona="teacher-female"] .gp-icon,
+body[data-persona="individual-female"] .dash-card-icon,
+body[data-persona="teacher-female"] .dash-card-icon,
+body[data-persona="individual-female"] .glow-orb,
+body[data-persona="teacher-female"] .glow-orb,
+body[data-persona="individual-female"] .sib-circle,
+body[data-persona="teacher-female"] .sib-circle{
+  background:radial-gradient(circle at 35% 30%,#F6DCE4,#E0AFC0 55%,#C98A9C)!important;
+  color:#4A2233!important;
+  box-shadow:0 3px 10px rgba(201,138,156,0.32)!important;
+}
+/* الترويسات الداكنة كانت بلون زمردي مثبَّت لا متغيّر، فتبقى خضراء عند
+   المعلمة مهما تغيّرت اللوحة. تُعاد هنا بلون خُزامي داكن مكافئ. */
+body[data-persona="individual-female"] .hifz-hero,
+body[data-persona="teacher-female"] .hifz-hero,
+body[data-persona="individual-female"] .teacher-hero,
+body[data-persona="teacher-female"] .teacher-hero,
+body[data-persona="individual-female"] .tilawa-hero,
+body[data-persona="teacher-female"] .tilawa-hero,
+body[data-persona="individual-female"] .settings-hero,
+body[data-persona="teacher-female"] .settings-hero{
+  background:linear-gradient(180deg,#33202F,#231524)!important;
+}
+/* الأزرار والشرائط الذهبية الصريحة تتبع اللوحة كذلك. */
+body[data-persona="individual-female"] .hifz-save-btn,
+body[data-persona="teacher-female"] .hifz-save-btn,
+body[data-persona="individual-female"] .plan-start-btn,
+body[data-persona="teacher-female"] .plan-start-btn,
+body[data-persona="individual-female"] .day-badge,
+body[data-persona="teacher-female"] .day-badge{
+  background:linear-gradient(135deg,#E0AFC0,#C98A9C)!important;
+  color:#3B1E2B!important;
+}
+body[data-persona="individual-female"] .circle-chip,
+body[data-persona="teacher-female"] .circle-chip{
+  color:#E9C3CF!important;border-color:rgba(224,175,192,0.45)!important;
+}
+
+body[data-persona="individual-female"] .home-ornament,
+body[data-persona="teacher-female"] .home-ornament{ color:#A85E76; }
+body[data-persona="individual-female"] :focus-visible,
+body[data-persona="teacher-female"] :focus-visible{ outline-color:#C98A9C; }
 :root{
   --purple:#155F4C;
   --purple-mid:#1F8367;
@@ -188,9 +281,12 @@ body.large-font{zoom:1.15;}
 .dash-card-title{font-size:14px;font-weight:900;color:var(--text);}
 .dash-card-sub{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.4;}
 .dash-card-chev{color:var(--muted);font-size:16px;opacity:0.6;}
-body[data-persona="individual-female"] .dash-card{border-radius:24px;}
-body[data-persona="individual-female"] .dash-card-icon{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
-body[data-persona="individual-female"] .sib-circle{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
+body[data-persona="individual-female"] .dash-card,
+body[data-persona="teacher-female"] .dash-card{border-radius:24px;}
+body[data-persona="individual-female"] .dash-card-icon,
+body[data-persona="teacher-female"] .dash-card-icon{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
+body[data-persona="individual-female"] .sib-circle,
+body[data-persona="teacher-female"] .sib-circle{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
 body[data-persona="institution"] .dash-card{border-radius:10px;}
 body[data-persona="institution"] .dash-card-icon{border-radius:8px;}
 body[data-persona="institution"] .sib-circle{border-radius:10px;}
@@ -217,6 +313,41 @@ body[data-persona="institution"] .sib-circle{border-radius:10px;}
 .srow-icon-journey{background:rgba(212,175,55,0.18);color:#8A6D1F;}
 .srow-icon-spiritual{background:rgba(126,94,168,0.14);color:#6B4F94;}
 .srow-icon-institution{background:rgba(176,110,70,0.14);color:#9A5F3C;}
+.srow-icon-circles{background:rgba(31,131,103,0.14);color:#1F8367;}
+
+/* ═══ شجرة الطلاب ═══ */
+.roster-input{
+  width:52px;text-align:center;font-size:14px;font-weight:900;font-family:inherit;
+  padding:5px 2px;border-radius:9px;border:1px solid rgba(127,127,127,0.22);
+  background:var(--ivory-2);color:var(--text);
+}
+body.theme-dark .roster-input{background:rgba(255,255,255,0.07);color:#fff;}
+.roster-head{cursor:pointer;}
+.tree-summary{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;
+  font-size:11px;color:var(--muted);font-weight:700;margin-bottom:14px;}
+.tree-circle{background:var(--card-bg);border-radius:16px;margin-bottom:10px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(15,35,70,0.05);}
+.tree-circle-head{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;
+  background:rgba(31,131,103,0.07);}
+.tree-caret{color:var(--muted);font-size:12px;flex:0 0 auto;}
+.tree-circle-name{font-size:13px;font-weight:800;color:var(--text);flex:1;min-width:0;}
+.tree-circle-meta{font-size:10.5px;color:var(--muted);font-weight:700;flex:0 0 auto;}
+.tree-empty{padding:14px;text-align:center;font-size:11.5px;color:var(--muted);}
+.tree-student{padding:11px 14px;border-top:1px solid rgba(127,127,127,0.08);}
+.tree-st-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.tree-st-name{font-size:12.5px;font-weight:800;color:var(--text);}
+.tree-st-level{font-size:11px;font-weight:800;color:#1F8367;}
+.tree-st-level.none{color:var(--muted);font-weight:600;}
+.tree-st-ctl{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.tree-st-input{
+  width:56px;text-align:center;font-size:14px;font-weight:900;font-family:inherit;
+  padding:6px 4px;border-radius:10px;border:1px solid rgba(127,127,127,0.22);
+  background:var(--ivory-2);color:var(--text);
+}
+.tree-st-pages{font-size:10.5px;color:var(--muted);font-weight:700;margin-right:auto;}
+body.theme-dark .tree-circle{background:rgba(255,255,255,0.05);}
+body.theme-dark .tree-st-input{background:rgba(255,255,255,0.07);}
+
 .srow-icon-system{background:rgba(127,127,127,0.12);color:var(--muted);}
 .srow-text{flex:1;min-width:0;}
 .srow-label{font-size:13.5px;font-weight:800;color:var(--text);line-height:1.35;}
@@ -1443,6 +1574,24 @@ body.theme-dark .th-icon,body.theme-dark .hifz-hero-icon,body.theme-dark .teache
   background:radial-gradient(circle at 35% 30%,#233830,#16261F);
 }
 
+/* أيقونة الترويسة دائرة ذهبية مثبَّتة في قواعد أخرى، فتُعاد للوحة الأنثى. */
+body[data-persona="individual-female"] .th-icon,
+body[data-persona="teacher-female"] .th-icon,
+body[data-persona="individual-female"] .hifz-hero-icon,
+body[data-persona="teacher-female"] .hifz-hero-icon,
+body[data-persona="individual-female"] .teacher-hero-icon,
+body[data-persona="teacher-female"] .teacher-hero-icon{
+  background:radial-gradient(circle at 35% 30%,#F6DCE4,#E0AFC0 55%,#C98A9C)!important;
+  color:#4A2233!important;
+  box-shadow:0 0 24px rgba(201,138,156,0.45)!important;
+}
+body[data-persona="individual-female"] .settings-hero-sub,
+body[data-persona="teacher-female"] .settings-hero-sub,
+body[data-persona="individual-female"] .teacher-hero-sub,
+body[data-persona="teacher-female"] .teacher-hero-sub,
+body[data-persona="individual-female"] .hifz-hero-sub,
+body[data-persona="teacher-female"] .hifz-hero-sub{ color:#C9A3B6!important; }
+
 /* -- Icon-size harmonization across hero sections (36px baseline) -- */
 .th-icon{font-size:36px;display:flex;align-items:center;justify-content:center;}
 .hifz-hero-icon{display:flex;align-items:center;justify-content:center;}
@@ -1585,6 +1734,49 @@ body.theme-dark .juz-cell.on{color:#5FD3AE;}
 .rp-chip-pct{font-size:13px;font-weight:900;color:var(--copper,#8A6D1F);margin-top:2px;}
 body.theme-dark .rp-chip{background:rgba(255,255,255,0.05);}
 
+/* ═══ كشف الحلقة ═══ */
+.roster-circle{background:var(--card-bg);border-radius:18px;padding:14px;margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(15,35,70,0.05);}
+.roster-head{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;}
+.roster-name{font-size:13.5px;font-weight:900;color:var(--text);}
+.roster-meta{font-size:10.5px;color:var(--muted);font-weight:700;}
+.roster-row{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-top:1px solid rgba(127,127,127,0.10);}
+.roster-student{flex:1;min-width:0;}
+.roster-sname{font-size:12.5px;font-weight:800;color:var(--text);}
+.roster-sjuz{font-size:10.5px;color:var(--muted);margin-top:1px;}
+body.theme-dark .roster-circle{background:rgba(255,255,255,0.05);}
+
+/* ═══ جدول الحلقة (طالب × أيام) ═══ */
+.grid-nav{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.grid-nav .hifz-opt-btn{min-width:0;flex:0 0 auto;padding:6px 12px;font-size:11.5px;}
+.grid-range{flex:1;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted);}
+.grid-week-label{font-size:11.5px;font-weight:800;color:var(--copper,#8A6D1F);margin:12px 0 6px;}
+.grid-wrap{overflow-x:auto;border-radius:14px;border:1px solid rgba(127,127,127,0.14);}
+.grid-table{width:100%;border-collapse:collapse;font-size:11px;}
+.grid-table th{background:var(--ivory-2);padding:6px 4px;font-weight:800;color:var(--text);
+  border-bottom:1px solid rgba(127,127,127,0.16);font-size:10.5px;}
+.gt-date{font-size:9.5px;color:var(--muted);font-weight:700;}
+.grid-table td{padding:5px 4px;text-align:center;border-bottom:1px solid rgba(127,127,127,0.07);}
+.gt-name{text-align:right!important;font-weight:800;min-width:96px;font-size:11px;}
+.gt-juz{font-size:9px;color:var(--muted);font-weight:600;margin-top:1px;}
+/* الخلية رمز واحد: الجدول يُقرأ بمسح بصري لا بقراءة نص في كل خانة. */
+.gc{display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:8px;font-size:11px;font-weight:900;cursor:pointer;}
+.gc-mastered{background:rgba(31,131,103,0.18);color:#1F8367;}
+.gc-partial{background:rgba(212,175,55,0.22);color:#8A6D1F;}
+.gc-weak{background:rgba(190,70,60,0.16);color:#A63D33;}
+.gc-absent{background:rgba(190,70,60,0.10);color:#A63D33;}
+.gc-late{background:rgba(212,175,55,0.14);color:#8A6D1F;}
+.gc-done{background:rgba(31,131,103,0.10);color:#1F8367;}
+.gc-present{background:rgba(127,127,127,0.10);color:var(--muted);}
+.gc-empty{background:transparent;color:rgba(127,127,127,0.35);}
+.grid-legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  margin-top:10px;font-size:10px;color:var(--muted);}
+.grid-legend span{display:flex;align-items:center;gap:4px;}
+.grid-legend b{width:20px;height:20px;font-size:10px;}
+body.theme-dark .grid-table th{background:rgba(255,255,255,0.07);}
+
 /* ═══ جداول الخطط الأسبوعية والشهرية ═══ */
 .sched-tabs{display:flex;gap:8px;margin-bottom:10px;}
 .sched-tab{
@@ -1666,12 +1858,15 @@ body.theme-dark .home-ornament{opacity:0.18;color:var(--copper-light,#D4AF37);}
   overflow:visible;
 }
 /* هوية بصرية حسب الفئة — أنماط مختلفة فعليًا، مو لون فقط */
-body[data-persona="individual-female"] .glass-container{
+body[data-persona="individual-female"] .glass-container,
+body[data-persona="teacher-female"] .glass-container{
   border-radius:32px;
   background:var(--card-bg);
 }
-body[data-persona="individual-female"] .glass-card{border-radius:24px;}
-body[data-persona="individual-female"] .glow-orb{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
+body[data-persona="individual-female"] .glass-card,
+body[data-persona="teacher-female"] .glass-card{border-radius:24px;}
+body[data-persona="individual-female"] .glow-orb,
+body[data-persona="teacher-female"] .glow-orb{border-radius:46% 54% 54% 46% / 50% 46% 54% 50%;}
 body[data-persona="institution"] .glass-container{
   border-radius:14px;background-image:none;background:var(--card-bg);
   border:1.5px solid rgba(31,131,103,0.18);
@@ -2313,7 +2508,9 @@ function getLang(){
 }
 function t(key){
   const lang = getLang();
-  return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.ar[key] || key;
+  const v = (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.ar[key] || key;
+  // النصوص العربية تُخاطَب بصيغة المستخدم. الإنجليزية لا تصريف فيها.
+  return (lang === 'en') ? v : (typeof femize === 'function' ? femize(v) : v);
 }
 function setLang(lang){
   try { localStorage.setItem('irtaqi-lang', lang); } catch(e){}
@@ -2440,7 +2637,7 @@ function applyBranding(){
 function showToast(msg){
   const t = document.getElementById('mini-toast');
   if(!t) return;                       // لا نُسقط الاستدعاء إن غاب العنصر
-  t.textContent = msg;
+  t.textContent = msg;   // اعتراض textContent يتكفّل بالتأنيث
   t.setAttribute('role', 'status');    // يُنطق تلقائيًا لقارئ الشاشة
   t.setAttribute('aria-live', 'polite');
   t.style.opacity = '1';
@@ -3814,6 +4011,9 @@ addEventListener('mushaf:wird-done', function(){
 // ===================== شاشة الحفظ والمراجعة =====================
 const HIFZ_TOTAL_WAJH = 604;
 const HIFZ_WEEKDAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+// عدد آيات كل سورة — يُستخدم للتحقّق من صحّة إدخال المعلم فلا يُسند
+// آية غير موجودة (مثل آية ٩٠ من الفاتحة).
+const SURAH_AYAHS = [7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
 const SURAH_NAMES = ['الفاتحة','البقرة','آل عمران','النساء','المائدة','الأنعام','الأعراف','الأنفال','التوبة','يونس','هود','يوسف','الرعد','إبراهيم','الحجر','النحل','الإسراء','الكهف','مريم','طه','الأنبياء','الحج','المؤمنون','النور','الفرقان','الشعراء','النمل','القصص','العنكبوت','الروم','لقمان','السجدة','الأحزاب','سبأ','فاطر','يس','الصافات','ص','الزمر','غافر','فصلت','الشورى','الزخرف','الدخان','الجاثية','الأحقاف','محمد','الفتح','الحجرات','ق','الذاريات','الطور','النجم','القمر','الرحمن','الواقعة','الحديد','المجادلة','الحشر','الممتحنة','الصف','الجمعة','المنافقون','التغابن','الطلاق','التحريم','الملك','القلم','الحاقة','المعارج','نوح','الجن','المزمل','المدثر','القيامة','الإنسان','المرسلات','النبأ','النازعات','عبس','التكوير','الانفطار','المطففين','الانشقاق','البروج','الطارق','الأعلى','الغاشية','الفجر','البلد','الشمس','الليل','الضحى','الشرح','التين','العلق','القدر','البينة','الزلزلة','العاديات','القارعة','التكاثر','العصر','الهمزة','الفيل','قريش','الماعون','الكوثر','الكافرون','النصر','المسد','الإخلاص','الفلق','الناس'];
 
 // بنك أسئلة الاختبار — بداية أولية بأشهر وأدق الآيات (جزء ٣٠ + آيات مشهورة من الجزء الأول)
@@ -3950,6 +4150,7 @@ function renderMemoSchedule(){
    المشاركة الأصلية.
    ═══════════════════════════════════════════════════════════════════════ */
 function shareText(text, title){
+  text = femize(text);
   // المشاركة الأصلية تحتاج سياقًا آمنًا (https) ولمسة مستخدم حقيقية.
   if(navigator.share){
     navigator.share({ title: title || 'ارتقِ', text: text })
@@ -5315,7 +5516,7 @@ let _teacherCircles = [];
 let _activeCircleId = null;
 let _activeStudentId = null;
 let _editingStudentId = null;
-let _selectedCircleIcon = '🕌';
+let _selectedCircleIcon = '';
 
 function getActiveCircle(){
   return _teacherCircles.find(c => c.id === _activeCircleId) || null;
@@ -5403,6 +5604,10 @@ function renderSettingsScreen(){
   else if(_settingsView === 'usage-guide') renderUsageGuideView(wrap);
   else if(_settingsView === 'received-plan') renderReceivedPlanView(wrap);
   else if(_settingsView === 'hijri-page') renderHijriPage(wrap);
+  else if(_settingsView === 'roster'){
+    if(!persoCan('circles')){ _settingsView = 'dashboard'; renderSettingsDashboard(wrap); }
+    else renderRosterView(wrap);
+  }
   else if(_settingsView === 'org-management') renderOrgManagementHub(wrap);
   else if(_settingsView === 'org-teachers') renderOrgTeachersView(wrap);
   else if(_settingsView === 'org-centers') renderOrgCentersView(wrap);
@@ -5498,6 +5703,13 @@ function buildSettingsGroups(){
         {icon:'grid', label:'إدارة المؤسسة', sub:'المراكز والمعلمون والطلاب', onclick:"openSettingsSubview('org-management')"}
       ]
     } : null,
+    // كشف الحلقة للمعلم فقط — الطالب الفرد لا حلقة له.
+    roster: persoCan('circles') ? {
+      label: 'حلقاتي وطلابي', icon: '', count: 1,
+      items: [
+        {icon:'grid', label:'كشف الطلاب ومقدار الحفظ', sub:'سجّل كم حفظ كل طالب', onclick:"openSettingsSubview('roster')"}
+      ]
+    } : null,
     system: {
       label: t('group_system'), icon: '', count: persoCan('receivePlan') ? 4 : 3,
       items: (persoCan('receivePlan') ? [
@@ -5525,7 +5737,7 @@ const SETTINGS_GROUP_SVG = {
 function renderSettingsDashboard(wrap){
   const groups = buildSettingsGroups();
   // المجموعات غير المتاحة لهذا المستخدم تُحذف من الترتيب قبل الرسم.
-  const order = ['profile','display','journey','spiritual','institution','system']
+  const order = ['profile','display','journey','spiritual','roster','institution','system']
     .filter(function(k){ return !!groups[k]; });
 
   // تخطيط عمودي بدل الشبكة الرباعية:
@@ -5774,7 +5986,7 @@ function renderOrgTeachersView(wrap){
         '<div class="student-card-top"><div class="student-name">' + t.name + '</div><div class="student-phone">' + (t.phone||'') + '</div></div>' +
         '<div class="student-rate">' + toAr(tCircles.length) + ' حلقة · ' + toAr(agg.students) + ' طالب · ' + toAr(agg.today) + ' أنجزوا اليوم</div>';
       if(tCircles.length){
-        html += '<div class="student-plan">🕌 ' + tCircles.map(c => c.name).join('، ') + '</div>';
+        html += '<div class="student-plan">' + tCircles.map(c => c.name).join('، ') + '</div>';
       }
       html += '<div class="hifz-setup-sub" style="margin:8px 0 4px;font-size:11px;">إسناد حلقة لهذا المعلم</div>' +
         '<select class="hifz-day-input" style="width:100%;margin-bottom:8px;" onchange="assignCircleToTeacher(this.value,' + t.id + ')">' +
@@ -6009,7 +6221,7 @@ function renderOrgCentersView(wrap){
         '<div class="student-card-top"><div class="student-name">' + ct.name + '</div></div>' +
         '<div class="student-rate">' + toAr(ctCircles.length) + ' حلقة · ' + toAr(agg.students) + ' طالب · ' + toAr(agg.today) + ' أنجزوا اليوم</div>';
       if(ctCircles.length){
-        html += '<div class="student-plan">🕌 ' + ctCircles.map(c => c.name).join('، ') + '</div>';
+        html += '<div class="student-plan">' + ctCircles.map(c => c.name).join('، ') + '</div>';
       }
       html += '<div class="hifz-setup-sub" style="margin:8px 0 4px;font-size:11px;">إسناد حلقة لهذا المركز</div>' +
         '<select class="hifz-day-input" style="width:100%;margin-bottom:8px;" onchange="assignCircleToCenter(this.value,' + ct.id + ')">' +
@@ -6136,7 +6348,7 @@ function renderOrgStatsView(wrap){
   html += '<div class="timeline-list">';
   getTeacherCircles().forEach(c => {
     const cs = computeCircleStats(c);
-    html += '<div class="timeline-row"><span class="timeline-icon">' + (c.icon||'🕌') + '</span>' +
+    html += '<div class="timeline-row"><span class="timeline-icon">' + (c.icon||'') + '</span>' +
       '<span class="timeline-name">' + c.name + '</span>' +
       '<span class="timeline-date">' + cs.weekCompletedSum + '/' + cs.weekPossible + '</span></div>';
   });
@@ -6320,6 +6532,92 @@ function renderAboutView(wrap){
  * وتعديل الطالب لها يُفقدها معناها.
  */
 /** ضبط إزاحة التاريخ الهجري مع معاينة فورية للنتيجة. */
+/* ═══════════════════════════════════════════════════════════════════════
+   كشف الحلقة — تسجيل مقدار حفظ كل طالب
+   Roster: set how much each student has memorized.
+
+   المقدار يختلف اختلافًا كبيرًا داخل الحلقة الواحدة (جزء عند هذا وخمسة
+   عشر عند ذاك). تسجيله مرة يجعل المقارنة بين الطلاب عادلة: من حفظ جزءًا
+   لا يُقاس بمن حفظ خمسة عشر بالمقياس نفسه.
+   ═══════════════════════════════════════════════════════════════════════ */
+function renderRosterView(wrap){
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+
+  const circles = _teacherCircles || [];
+  if(!circles.length){
+    html += '<div class="hifz-rest-day">لا توجد حلقات بعد — أنشئ حلقة من بوابة المعلمين</div>';
+    wrap.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="hifz-setup-sub" style="margin-top:0;margin-bottom:12px;line-height:1.8;">' +
+    'سجّل هنا مقدار ما حفظه كل طالب. يُبنى عليه جدوله وخطته وتقريره ومقارنته بزملائه.' +
+  '</div>';
+
+  // ملخّص عام قبل التفصيل: يعرف المعلم بلمحة كم طالبًا بقي بلا تسجيل.
+  const allS = circles.reduce(function(a,c){ return a + c.students.length; }, 0);
+  const doneS = circles.reduce(function(a,c){
+    return a + c.students.filter(function(x){ return getStudentJuzMemorized(x) > 0; }).length; }, 0);
+  const allJ = circles.reduce(function(a,c){
+    return a + c.students.reduce(function(b,x){ return b + getStudentJuzMemorized(x); }, 0); }, 0);
+  html += '<div class="tree-summary">' +
+    '<span>' + toAr(circles.length) + ' حلقة</span><span>·</span>' +
+    '<span>' + toAr(allS) + ' طالب</span><span>·</span>' +
+    '<span>سُجّل ' + toAr(doneS) + '</span><span>·</span>' +
+    '<span>' + toAr(allJ) + ' جزءًا مجتمعة</span>' +
+  '</div>';
+
+  circles.forEach(function(c){
+    const total = c.students.length;
+    const sum = c.students.reduce(function(a, s){ return a + getStudentJuzMemorized(s); }, 0);
+    // الحلقات قابلة للطي: معلم بثلاث حلقات لا يريد ثلاثين صفًا مفتوحة دائمًا.
+    const open = !_rosterCollapsed[c.id];
+    html += '<div class="roster-circle">' +
+      '<div class="roster-head" role="button" tabindex="0" onclick="toggleRosterCircle(' + c.id + ')">' +
+        '<span class="tree-caret">' + (open ? '▾' : '▸') + '</span>' +
+        '<span class="roster-name">' + musEsc(c.name) + '</span>' +
+        '<span class="roster-meta">' + toAr(total) + ' ' + (total === 1 ? 'طالب' : 'طلاب') +
+          ' · ' + toAr(sum) + ' جزءًا</span>' +
+      '</div>';
+    if(!open){ html += '</div>'; return; }
+    if(!total){
+      html += '<div class="hifz-rest-day" style="margin:8px 0 0;">لا طلاب في هذه الحلقة بعد</div>';
+    } else {
+      c.students.forEach(function(st){
+        const j = getStudentJuzMemorized(st);
+        html += '<div class="roster-row">' +
+          '<div class="roster-student">' +
+            '<div class="roster-sname">' + musEsc(st.name) + '</div>' +
+            '<div class="roster-sjuz">' + juzMemorizedLabel(j) +
+              (j ? ' · ' + toAr(j * 20) + ' صفحة' : '') + '</div>' +
+          '</div>' +
+          '<div class="stepper-mini">' +
+            '<button class="stepper-mini-btn" aria-label="إنقاص" onclick="adjustStudentJuz(' + c.id + ',' + st.id + ',-1)">−</button>' +
+            // إدخال مباشر: من يحفظ ١٥ جزءًا لا يُعقل أن يضغط + خمس عشرة مرة.
+            '<input class="roster-input" type="number" min="0" max="30" value="' + j + '"' +
+              ' aria-label="أجزاء ' + musEsc(st.name) + '"' +
+              ' onchange="setStudentJuzIn(' + c.id + ',' + st.id + ',this.value)">' +
+            '<button class="stepper-mini-btn" aria-label="زيادة" onclick="adjustStudentJuz(' + c.id + ',' + st.id + ',1)">+</button>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+}
+
+/** يعدّل مقدار حفظ طالب في حلقة بعينها (لا الحلقة النشطة فقط). */
+function adjustStudentJuz(circleId, studentId, delta){
+  const c = (_teacherCircles || []).find(function(x){ return x.id === circleId; });
+  if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; });
+  if(!st) return;
+  st.juzMemorized = Math.max(0, Math.min(30, getStudentJuzMemorized(st) + delta));
+  saveTeacherCircles(_teacherCircles);
+  renderSettingsScreen();
+}
+
 function renderHijriPage(wrap){
   const off = getHijriOffset();
   const now = new Date();
@@ -7333,6 +7631,7 @@ function renderCircleDetail(wrap, circle){
 
     html += buildCircleWeekChart(circle);
 
+    html += '<button class="hifz-save-btn" style="text-align:center;margin-top:10px;" onclick="openCircleGrid(1)">جدول الحلقة — أسبوعي وشهري</button>';
     html += '<button class="hifz-edit-btn" style="text-align:center;margin-top:10px;" onclick="_showComparison=true;renderTeacherScreen();"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1.5M16 5h3a2 2 0 0 1 0 4h-1.5"/><path d="M12 13v4"/><path d="M9 21h6"/><path d="M10 17h4v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2Z"/></svg> مقارنة الطلاب ولوحة الشرف</button>';
 
     if(completedCount === totalStudents){
@@ -7719,6 +8018,389 @@ function cycleAttendance(studentId){
 
    الحالات: 'mastered' أتقن · 'partial' يحتاج تثبيتًا · 'weak' لم يتقن
    ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   جدول الحلقة — أسبوع الأحد→الخميس، وشهر من أربعة أسابيع
+   Circle schedule: Sunday→Thursday week, and a four-week month.
+
+   أسبوع الحلقة ليس أسبوع التقويم: الجمعة والسبت عطلة في أكثر الحلقات،
+   فيُعرض أحد→خميس فقط. عرض سبعة أعمدة يترك عمودين فارغين دائمًا،
+   ويوحي بتقصير ليس واقعًا.
+   ═══════════════════════════════════════════════════════════════════════ */
+var _gridWeeks = 1;      // ١ = أسبوع، ٤ = شهر
+var _gridAnchor = null;  // أحد الأسبوع المعروض
+
+/** يفتح جدول الحلقة في اللوحة المنبثقة. */
+function openCircleGrid(weeks){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  if(!c.students.length){ showToast('أضف طلابًا لتظهر في الجدول'); return; }
+  _gridWeeks = weeks || 1;
+  if(!_gridAnchor) _gridAnchor = circleWeekStart(new Date());
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(overlay) overlay.classList.remove('hidden');
+  renderCircleGrid();
+}
+function setGridWeeks(w){ _gridWeeks = w; renderCircleGrid(); }
+function shiftGridWeek(delta){
+  const d = new Date(_gridAnchor.getTime());
+  d.setDate(d.getDate() + delta * 7);
+  _gridAnchor = d;
+  renderCircleGrid();
+}
+
+function renderCircleGrid(){
+  const panel = document.getElementById('share-sheet-panel');
+  const c = getActiveCircle();
+  if(!panel || !c) return;
+  const weeks = circleMonthWeeks(_gridAnchor, _gridWeeks);
+
+  let html = '<div class="share-sheet-title">جدول ' + c.name + '</div>';
+  html += '<div class="sched-tabs">' +
+    '<button class="sched-tab' + (_gridWeeks===1?' active':'') + '" onclick="setGridWeeks(1)">أسبوع</button>' +
+    '<button class="sched-tab' + (_gridWeeks===4?' active':'') + '" onclick="setGridWeeks(4)">شهر (٤ أسابيع)</button>' +
+  '</div>';
+  html += '<div class="grid-nav">' +
+    '<button class="hifz-opt-btn" onclick="shiftGridWeek(-1)">السابق</button>' +
+    '<span class="grid-range">' + hijriShort(weeks[0].dates[0]) + ' — ' +
+      hijriShort(weeks[weeks.length-1].dates[4]) + '</span>' +
+    '<button class="hifz-opt-btn" onclick="shiftGridWeek(1)">التالي</button>' +
+  '</div>';
+
+  weeks.forEach(function(wk){
+    const rows = buildCircleGrid(c, wk.dates);
+    if(_gridWeeks > 1){
+      html += '<div class="grid-week-label">الأسبوع ' + toAr(wk.index) + ' · ' +
+        hijriShort(wk.dates[0]) + '</div>';
+    }
+    html += '<div class="grid-wrap"><table class="grid-table"><thead><tr><th class="gt-name">الطالب</th>';
+    wk.dates.forEach(function(d, i){
+      html += '<th><div title="' + CIRCLE_WEEK_LABELS[i] + '">' + CIRCLE_WEEK_SHORT[i] + '</div>' +
+        '<div class="gt-date">' + toAr(d.getDate()) + '</div></th>';
+    });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function(row){
+      html += '<tr><td class="gt-name">' + row.student.name +
+        '<div class="gt-juz">' + juzMemorizedLabel(getStudentJuzMemorized(row.student)) + '</div></td>';
+      row.cells.forEach(function(cell){
+        const m = gridCellMark(cell);
+        const tip = cell.assign ? assignmentLabel(cell.assign) : m.title;
+        html += '<td><span class="gc ' + m.cls + '" title="' + tip + '" role="button" tabindex="0"' +
+          ' onclick="openAssignEditor(' + row.student.id + ',\'' + cell.key + '\')">' + m.t + '</span></td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+
+  html += '<div class="grid-legend">' +
+    '<span><b class="gc gc-mastered">أ</b> أتقن</span>' +
+    '<span><b class="gc gc-partial">ث</b> تثبيت</span>' +
+    '<span><b class="gc gc-weak">ل</b> لم يتقن</span>' +
+    '<span><b class="gc gc-absent">غ</b> غائب</span>' +
+    '<span><b class="gc gc-late">ت</b> متأخر</span>' +
+  '</div>';
+  html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="shareCircleGrid()">إرسال الجدول</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+}
+
+/** يحوّل الجدول لنص قابل للإرسال. */
+function shareCircleGrid(){
+  const c = getActiveCircle();
+  if(!c) return;
+  const weeks = circleMonthWeeks(_gridAnchor, _gridWeeks);
+  let msg = 'جدول ' + c.name + '\n——————————————\n';
+  weeks.forEach(function(wk){
+    if(weeks.length > 1) msg += '\nالأسبوع ' + toAr(wk.index) + ':\n';
+    buildCircleGrid(c, wk.dates).forEach(function(row){
+      msg += row.student.name + ': ';
+      msg += row.cells.map(function(cell){ return gridCellMark(cell).t; }).join(' ');
+      msg += '\n';
+    });
+  });
+  msg += '\n(أ أتقن · ث تثبيت · ل لم يتقن · غ غائب · ت متأخر · ✓ أنجز)';
+  shareText(msg, 'جدول ' + c.name);
+}
+
+/* ═══ محرّر التكليف اليومي ═══ */
+var _assignTarget = null;
+
+function openAssignEditor(studentId, dateKey){
+  const c = getActiveCircle();
+  if(!c) return;
+  const s = c.students.find(function(x){ return x.id === studentId; });
+  if(!s) return;
+  _assignTarget = { id: studentId, key: dateKey };
+  const cur = getAssignment(s, dateKey, 'memo');
+  const rev = getAssignment(s, dateKey, 'review');
+  const d = new Date(dateKey);
+
+  let opts = '';
+  for(let i = 0; i < SURAH_NAMES.length; i++){
+    const selM = cur && cur.surahIdx === i ? ' selected' : '';
+    opts += '<option value="' + i + '"' + selM + '>' + SURAH_NAMES[i] +
+      ' (' + toAr(SURAH_AYAHS[i]) + ')</option>';
+  }
+  let optsR = '';
+  for(let i = 0; i < SURAH_NAMES.length; i++){
+    const selR = rev && rev.surahIdx === i ? ' selected' : '';
+    optsR += '<option value="' + i + '"' + selR + '>' + SURAH_NAMES[i] +
+      ' (' + toAr(SURAH_AYAHS[i]) + ')</option>';
+  }
+
+  const panel = document.getElementById('share-sheet-panel');
+  panel.innerHTML =
+    '<div class="share-sheet-title">' + s.name + '</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:12px;">' + hijriShort(d) + ' · ' + planDateAr(d) + '</div>' +
+
+    '<div class="hifz-setup-sub" style="margin-top:0;">الحضور</div>' +
+    '<div class="hifz-opt-row">' +
+      ['present','late','absent'].map(function(a){
+        const lbl = a==='present'?'حاضر':(a==='late'?'متأخر':'غائب');
+        const on = (s.attendance||{})[dateKey] === a ? ' active' : '';
+        return '<button class="hifz-opt-btn' + on + '" style="min-width:0;flex:1;" onclick="setGridAttendance(' +
+          studentId + ',\'' + dateKey + '\',\'' + a + '\')">' + lbl + '</button>';
+      }).join('') +
+    '</div>' +
+
+    '<div class="hifz-setup-sub" style="margin-top:16px;">الحفظ الجديد</div>' +
+    '<select class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="asg-surah">' + opts + '</select>' +
+    '<div style="display:flex;gap:8px;">' +
+      '<input class="hifz-day-input" style="flex:1;" id="asg-from" inputmode="numeric" placeholder="من الآية" value="' + (cur?cur.fromAyah:'') + '">' +
+      '<input class="hifz-day-input" style="flex:1;" id="asg-count" inputmode="numeric" placeholder="عدد الآيات" value="' + (cur?cur.count:'') + '">' +
+    '</div>' +
+
+    '<div class="hifz-setup-sub" style="margin-top:16px;">المراجعة</div>' +
+    '<select class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="asg-r-surah">' + optsR + '</select>' +
+    '<div style="display:flex;gap:8px;">' +
+      '<input class="hifz-day-input" style="flex:1;" id="asg-r-from" inputmode="numeric" placeholder="من الآية" value="' + (rev?rev.fromAyah:'') + '">' +
+      '<input class="hifz-day-input" style="flex:1;" id="asg-r-count" inputmode="numeric" placeholder="عدد الآيات" value="' + (rev?rev.count:'') + '">' +
+    '</div>' +
+
+    '<button class="hifz-save-btn" style="margin-top:14px;" onclick="saveAssignEditor()">حفظ التكليف</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="renderCircleGrid()">→ رجوع للجدول</button>';
+}
+
+function setGridAttendance(studentId, dateKey, att){
+  const c = getActiveCircle();
+  const s = c && c.students.find(function(x){ return x.id === studentId; });
+  if(!s) return;
+  s.attendance = s.attendance || {};
+  s.attendance[dateKey] = (s.attendance[dateKey] === att) ? null : att;
+  if(!s.attendance[dateKey]) delete s.attendance[dateKey];
+  saveTeacherCircles(_teacherCircles);
+  openAssignEditor(studentId, dateKey);
+}
+
+function saveAssignEditor(){
+  if(!_assignTarget) return;
+  const g = function(id){ const e = document.getElementById(id); return e ? e.value : ''; };
+  const key = _assignTarget.key, id = _assignTarget.id;
+
+  const mFrom = g('asg-from').trim(), mCount = g('asg-count').trim();
+  if(mFrom || mCount){
+    const a = makeAssignment(g('asg-surah'), mFrom, mCount);
+    if(a.error){ showToast(a.error); return; }
+    setAssignment(id, key, 'memo', a);
+  } else setAssignment(id, key, 'memo', null);
+
+  const rFrom = g('asg-r-from').trim(), rCount = g('asg-r-count').trim();
+  if(rFrom || rCount){
+    const r = makeAssignment(g('asg-r-surah'), rFrom, rCount);
+    if(r.error){ showToast(r.error); return; }
+    setAssignment(id, key, 'review', r);
+  } else setAssignment(id, key, 'review', null);
+
+  showToast('حُفظ التكليف');
+  renderCircleGrid();
+}
+
+const CIRCLE_WEEK_DAYS = [0, 1, 2, 3, 4];              // الأحد .. الخميس
+const CIRCLE_WEEK_LABELS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+// اختصارات الحرف الواحد المتعارف عليها في جداول الحلقات.
+// القصّ الآلي (slice) كان يعطي «الأ» للأحد وللأربعاء معًا فيلتبسان.
+const CIRCLE_WEEK_SHORT  = ['ح','ن','ث','ر','خ'];
+
+/** أحدُ الأسبوع الذي يقع فيه التاريخ (بداية أسبوع الحلقة). */
+function circleWeekStart(date){
+  const d = new Date(date || new Date());
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - d.getDay());   // getDay()===0 هو الأحد
+  return d;
+}
+
+/** تواريخ أسبوع حلقة واحد (٥ أيام) ابتداءً من أحدٍ معيّن. */
+function circleWeekDates(sundayDate){
+  const out = [];
+  for(let i = 0; i < CIRCLE_WEEK_DAYS.length; i++){
+    const d = new Date(sundayDate.getTime());
+    d.setDate(d.getDate() + i);
+    out.push(d);
+  }
+  return out;
+}
+
+/** أربعة أسابيع متتالية = شهر الحلقة. */
+function circleMonthWeeks(anchorDate, weeks){
+  const n = weeks || 4;
+  const start = circleWeekStart(anchorDate);
+  const out = [];
+  for(let w = 0; w < n; w++){
+    const sun = new Date(start.getTime());
+    sun.setDate(sun.getDate() + w * 7);
+    out.push({ index: w + 1, sunday: sun, dates: circleWeekDates(sun) });
+  }
+  return out;
+}
+
+/**
+ * صفوف جدول الحلقة: طالب × أيام، بحالة كل يوم.
+ * الحالة تجمع الحضور والإنجاز والإتقان والتكليف في خلية واحدة.
+ */
+function buildCircleGrid(circle, dates){
+  if(!circle) return [];
+  return circle.students.map(function(s){
+    const cells = dates.map(function(d){
+      const k = d.toDateString();
+      const att = (s.attendance || {})[k] || null;
+      return {
+        key: k,
+        date: d,
+        attendance: att,
+        done: !!(s.completion || {})[k],
+        mastery: (s.mastery || {})[k] || null,
+        assign: getAssignment(s, k, 'memo'),
+        review: getAssignment(s, k, 'review')
+      };
+    });
+    return { student: s, cells: cells };
+  });
+}
+
+/** رمز مختصر لحالة اليوم في الجدول. */
+function gridCellMark(cell){
+  if(cell.attendance === 'absent') return { t:'غ', cls:'gc-absent', title:'غائب' };
+  if(cell.attendance === 'late')   return { t:'ت', cls:'gc-late',   title:'متأخر' };
+  if(cell.mastery === 'mastered')  return { t:'أ', cls:'gc-mastered', title:'أتقن' };
+  if(cell.mastery === 'partial')   return { t:'ث', cls:'gc-partial',  title:'يحتاج تثبيتًا' };
+  if(cell.mastery === 'weak')      return { t:'ل', cls:'gc-weak',     title:'لم يتقن' };
+  if(cell.done)                    return { t:'✓', cls:'gc-done',     title:'أنجز' };
+  if(cell.attendance === 'present')return { t:'ح', cls:'gc-present',  title:'حاضر' };
+  return { t:'·', cls:'gc-empty', title:'لا سجلّ' };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   التكليف اليومي المُهيكَل — سورة وآية وعدد
+   Structured daily assignment: surah + start ayah + count.
+
+   كانت خطة الطالب نصًّا حرًّا ("صفحتان يومياً")، فلا تُحسب ولا تُقارن ولا
+   يُعرف منها ما أُنجز. صارت بيانات: سورة، وآية بداية، وعدد آيات — فيمكن
+   جمعها أسبوعيًا، وعرضها في جدول، وإرسالها لوليّ الأمر بلا غموض.
+
+   يُخزَّن التكليف في s.assign[dateKey] لكل طالب، بنوعين:
+     memo   — الحفظ الجديد
+     review — المراجعة
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** حدّ آيات السورة، للتحقّق من الإدخال. */
+function surahAyahCount(idx){
+  const n = SURAH_AYAHS[idx];
+  return (typeof n === 'number' && n > 0) ? n : 0;
+}
+
+/**
+ * يبني كائن تكليف صالحًا، أو يرجع null مع سبب الرفض.
+ * لا يُقبل تكليف يتجاوز آخر آية في السورة — وهو أشيع خطأ إدخال.
+ */
+function makeAssignment(surahIdx, fromAyah, count){
+  const si = parseInt(surahIdx, 10);
+  const from = parseInt(fromAyah, 10);
+  const cnt = parseInt(count, 10);
+  if(isNaN(si) || si < 0 || si > 113) return { error:'اختر السورة' };
+  const max = surahAyahCount(si);
+  if(isNaN(from) || from < 1 || from > max)
+    return { error:'رقم الآية خارج سورة ' + SURAH_NAMES[si] + ' (١–' + toAr(max) + ')' };
+  if(isNaN(cnt) || cnt < 1) return { error:'عدد الآيات لا بدّ أن يكون واحدًا فأكثر' };
+  if(from + cnt - 1 > max)
+    return { error:'سورة ' + SURAH_NAMES[si] + ' تنتهي عند الآية ' + toAr(max) };
+  return { surahIdx: si, fromAyah: from, count: cnt, toAyah: from + cnt - 1 };
+}
+
+/** عبارة عربية للتكليف: "البقرة ١–٥ (٥ آيات)". */
+function assignmentLabel(a){
+  if(!a || a.surahIdx === undefined) return '—';
+  const name = SURAH_NAMES[a.surahIdx] || '';
+  const range = a.count === 1 ? toAr(a.fromAyah)
+    : (toAr(a.fromAyah) + '–' + toAr(a.toAyah));
+  const unit = a.count === 1 ? 'آية' : (a.count <= 10 ? 'آيات' : 'آية');
+  return name + ' ' + range + ' (' + toAr(a.count) + ' ' + unit + ')';
+}
+
+/** يقرأ تكليف طالب ليوم بعينه. */
+function getAssignment(student, dateKey, kind){
+  if(!student || !student.assign) return null;
+  const day = student.assign[dateKey];
+  return (day && day[kind]) ? day[kind] : null;
+}
+
+/** يحفظ تكليفًا. kind: 'memo' أو 'review'. */
+function setAssignment(studentId, dateKey, kind, assignment){
+  const c = getActiveCircle();
+  if(!c) return false;
+  const s = c.students.find(function(x){ return x.id === studentId; });
+  if(!s) return false;
+  s.assign = s.assign || {};
+  s.assign[dateKey] = s.assign[dateKey] || {};
+  if(assignment) s.assign[dateKey][kind] = assignment;
+  else delete s.assign[dateKey][kind];
+  saveTeacherCircles(_teacherCircles);
+  return true;
+}
+
+/* ═══ مقدار حفظ الطالب ═══
+   يختلف من طالب لآخر (جزء، جزءان، خمسة، خمسة عشر...). يُسجَّل مرة
+   ويُحدَّث متى تقدّم الطالب، ويُستخدم في المقارنة وفي تقرير وليّ الأمر. */
+function getStudentJuzMemorized(s){
+  const v = s && s.juzMemorized;
+  return (typeof v === 'number' && v >= 0) ? v : 0;
+}
+function setStudentJuzMemorized(studentId, juz){
+  const c = getActiveCircle();
+  if(!c) return;
+  const s = c.students.find(function(x){ return x.id === studentId; });
+  if(!s) return;
+  s.juzMemorized = Math.max(0, Math.min(30, parseInt(juz, 10) || 0));
+  saveTeacherCircles(_teacherCircles);
+  renderTeacherScreen();
+}
+/* حالة طيّ الحلقات في الكشف. نخزّن المطويّة فقط، فالافتراضي مفتوح. */
+var _rosterCollapsed = {};
+function toggleRosterCircle(id){
+  _rosterCollapsed[id] = !_rosterCollapsed[id];
+  renderSettingsScreen();
+}
+
+/** إدخال مباشر لعدد الأجزاء من حقل الكشف. */
+function setStudentJuzIn(circleId, studentId, val){
+  const c = (_teacherCircles || []).find(function(x){ return x.id === circleId; });
+  if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; });
+  if(!st) return;
+  st.juzMemorized = Math.max(0, Math.min(30, parseInt(val, 10) || 0));
+  saveTeacherCircles(_teacherCircles);
+  renderSettingsScreen();
+}
+
+function juzMemorizedLabel(n){
+  const v = parseInt(n, 10) || 0;
+  if(v === 0) return 'لم يُسجَّل';
+  if(v === 30) return 'القرآن كاملًا';
+  if(v === 1) return 'جزء واحد';
+  if(v === 2) return 'جزءان';
+  if(v <= 10) return toAr(v) + ' أجزاء';
+  return toAr(v) + ' جزءًا';
+}
+
 const MASTERY_CYCLE = [null, 'mastered', 'partial', 'weak'];
 const MASTERY_META = {
   'mastered': { label: 'أتقن',            cls: 'mastered' },
@@ -8699,34 +9381,176 @@ function selectUserType(type, gender){
   applyPersonaVisualIdentity();
   routeToUserType(type, true);
 }
+/* اللوحة الكاملة صارت في CSS تحت data-persona، فلا حاجة لضبط متغيّرات
+   منفردة من JavaScript. تُترك الدالة فارغة توافقًا مع الاستدعاءات القائمة،
+   وتُنظَّف أي قيم قديمة كانت مثبَّتة على العنصر الجذر. */
 function applyTeacherGenderAccent(){
-  let gender = null;
-  try { gender = localStorage.getItem('irtaqi-teacher-gender'); } catch(e){}
   const root = document.documentElement;
-  if(gender === 'female'){
-    root.style.setProperty('--copper', '#C98A9C');
-    root.style.setProperty('--copper-light', '#E3AFC0');
-  } else {
-    root.style.removeProperty('--copper');
-    root.style.removeProperty('--copper-light');
-  }
+  root.style.removeProperty('--copper');
+  root.style.removeProperty('--copper-light');
 }
 function applyIndividualGenderAccent(){
-  let type = null, gender = null;
-  try {
-    type = localStorage.getItem('irtaqi-user-type');
-    gender = localStorage.getItem('irtaqi-individual-gender');
-  } catch(e){}
-  if(type !== 'individual') return;
   const root = document.documentElement;
-  if(gender === 'female'){
-    root.style.setProperty('--copper', '#C98A9C');
-    root.style.setProperty('--copper-light', '#E3AFC0');
-  } else {
-    root.style.removeProperty('--copper');
-    root.style.removeProperty('--copper-light');
-  }
+  root.style.removeProperty('--copper');
+  root.style.removeProperty('--copper-light');
 }
+/* ═══════════════════════════════════════════════════════════════════════
+   التذكير والتأنيث — خطاب المستخدمة بصيغتها
+   Gendered address.
+
+   كان الجنس يغيّر اللون والانحناءات فقط، والنصوص كلها بصيغة المذكّر:
+   الطالبة ترى «بارك الله فيك» و«سجّل وردك» و«اقرأ». في العربية هذا ليس
+   تفصيلًا تجميليًا — هو أن يخاطبها التطبيق بصيغة غيرها، فتشعر أنه ليس لها.
+
+   القاعدة: gt(مذكّر, مؤنّث) ترجع الصيغة المناسبة. والأغلب أن الفرق في
+   ضمير المخاطَب (ـك/ـكِ) وصيغة الأمر، فنغطّي الشائع منها صراحةً.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** جنس المستخدم الحالي: 'female' أو 'male'. */
+function userGender(){
+  try {
+    const type = localStorage.getItem('irtaqi-user-type');
+    const g = (type === 'teacher' || type === 'institution')
+      ? localStorage.getItem('irtaqi-teacher-gender')
+      : localStorage.getItem('irtaqi-individual-gender');
+    return g === 'female' ? 'female' : 'male';
+  } catch(e){ return 'male'; }
+}
+function isFem(){ return userGender() === 'female'; }
+
+/** يختار الصيغة حسب جنس المستخدم. */
+function gt(male, female){ return isFem() ? female : male; }
+
+/* اختصارات للكلمات الأكثر تكرارًا في الواجهة. */
+function gYou(){ return gt('ك', 'كِ'); }                       // ضمير المخاطَب
+function gBarak(){ return gt('بارك الله فيك', 'بارك الله فيكِ'); }
+function gWaffaq(){ return gt('وفّقك الله', 'وفّقكِ الله'); }
+function gStudent(){ return gt('طالب', 'طالبة'); }
+function gTeacher(){ return gt('معلم', 'معلمة'); }
+
+/**
+ * يؤنّث نصًّا جاهزًا: يعالج ضمير المخاطَب وصيغ الأمر الشائعة في التطبيق.
+ * يُستعمل للنصوص الكثيرة التي لا يُجدي كتابة صيغتين لكل واحدة منها.
+ * لا يُطبَّق على أسماء الأعلام ولا على نصوص القرآن.
+ */
+const FEM_IMPERATIVES = [
+  ['اقرأ ', 'اقرئي '], ['سجّل ', 'سجّلي '], ['سجل ', 'سجلي '],
+  ['اختر ', 'اختاري '], ['أضف ', 'أضيفي '], ['ثبّت ', 'ثبّتي '],
+  ['ابدأ ', 'ابدئي '], ['حدد ', 'حددي '], ['حدّد ', 'حدّدي '],
+  ['أعد ', 'أعيدي '], ['أدخل ', 'أدخلي '], ['اكتب ', 'اكتبي '],
+  ['تابع ', 'تابعي '], ['راجع ', 'راجعي '], ['احفظ ', 'احفظي '],
+  ['أرسل ', 'أرسلي '], ['شارك ', 'شاركي '], ['الصق ', 'الصقي '],
+  ['اطلب ', 'اطلبي '], ['غيّر ', 'غيّري '], ['صحّح ', 'صحّحي ']
+];
+const FEM_PHRASES = [
+  ['بارك الله فيك', 'بارك الله فيكِ'],
+  ['وفّقك الله', 'وفّقكِ الله'],
+  ['وفقك الله', 'وفقكِ الله'],
+  ['أهلًا بك', 'أهلًا بكِ'],
+  ['أهلاً بك', 'أهلاً بكِ'],
+  ['تقبّل الله منك', 'تقبّل الله منكِ'],
+  ['نسأل الله لك', 'نسأل الله لكِ'],
+  ['يمكنك', 'يمكنكِ'],
+  ['جهازك', 'جهازكِ'],
+  ['تقدّمك', 'تقدّمكِ'],
+  ['تقدمك', 'تقدمكِ'],
+  ['حفظك', 'حفظكِ'],
+  ['خطتك', 'خطتكِ'],
+  ['وردك', 'وردكِ'],
+  ['رحلتك', 'رحلتكِ'],
+  ['بياناتك', 'بياناتكِ'],
+  ['معلمك', 'معلمتكِ'],
+  ['حلقتك', 'حلقتكِ'],
+  ['منهجك', 'منهجكِ'],
+  ['مستواك', 'مستواكِ'],
+  ['عليك', 'عليكِ'],
+  ['لديك', 'لديكِ'],
+  ['بنفسك', 'بنفسكِ'],
+  ['يومك', 'يومكِ'],
+  ['ولدكم', 'ولدكم'],
+  ['زملائك', 'زميلاتكِ'],
+  ['أمرك', 'أمركِ'],
+  ['حسابك', 'حسابكِ'],
+  ['اسمك', 'اسمكِ'],
+  ['شارك', 'شاركي']
+];
+
+/* اعتراض innerHTML على مستوى المستند: كل شاشة تُبنى عبره، فالتغطية
+   تشمل الشاشات الحالية وما يُضاف لاحقًا بلا صيانة. يُفعَّل مرة واحدة،
+   ولا يعمل إطلاقًا للمستخدم الذكر (يُرجع النصّ كما هو بلا كلفة). */
+(function installFemizeHook(){
+  try {
+    const proto = Element.prototype;
+    const desc = Object.getOwnPropertyDescriptor(proto, 'innerHTML');
+    if(!desc || !desc.set) return;
+    Object.defineProperty(proto, 'innerHTML', {
+      configurable: true,
+      enumerable: desc.enumerable,
+      get: desc.get,
+      set: function(v){
+        if(typeof v === 'string' && v && typeof isFem === 'function' && isFem()){
+          try { v = femize(v); } catch(e){}
+        }
+        desc.set.call(this, v);
+      }
+    });
+
+    // بعض النصوص تُكتب عبر textContent لا innerHTML (شريط التاريخ، التحيّة،
+    // بطاقات الإعدادات). نعترضه كذلك، وإلا بقيت تلك المواضع بالمذكّر.
+    const nProto = Node.prototype;
+    const tDesc = Object.getOwnPropertyDescriptor(nProto, 'textContent');
+    if(tDesc && tDesc.set){
+      Object.defineProperty(nProto, 'textContent', {
+        configurable: true,
+        enumerable: tDesc.enumerable,
+        get: tDesc.get,
+        set: function(v){
+          if(typeof v === 'string' && v && typeof isFem === 'function' && isFem()){
+            try { v = femize(v); } catch(e){}
+          }
+          tDesc.set.call(this, v);
+        }
+      });
+    }
+  } catch(e){ /* المتصفح لا يسمح — التطبيق يعمل بالمذكّر */ }
+})();
+
+/* ═══ التطبيق عند حدّ العرض ═══
+   بدل تعديل مئات النصوص يدويًا (وهو ما يتآكل مع أول إضافة)، نعترض
+   المواضع الثلاثة التي يمرّ منها كل نصّ إلى الشاشة: كتابة innerHTML،
+   ورسائل التوست، ونصوص المشاركة. المعالجة مركزية وتشمل ما يُضاف مستقبلًا. */
+function femizeHtml(html){
+  if(!isFem()) return html;
+  return femize(html);
+}
+
+function femize(text){
+  if(!text || !isFem()) return text;
+  let out = String(text);
+  // ملاحظة: كل استبدال أدناه يتجاهل ما تلته كسرة، فمرور النصّ على هذه
+  // الدالة أكثر من مرة لا يُنتج «فيكِِ» بكسرتين.
+  // العبارات أولًا: بعضها يحتوي كلمات تعالجها قائمة الأوامر بعدها.
+  for(let i = 0; i < FEM_PHRASES.length; i++){
+    const m = FEM_PHRASES[i][0], f = FEM_PHRASES[i][1];
+    // نستبدل المذكّر فقط إن لم تتبعه كسرة — فلا يُؤنَّث المؤنَّث مرتين.
+    out = out.replace(new RegExp(m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '(?!\u0650)', 'g'), f);
+  }
+  // كلمة أمر تقف وحدها نصًّا كاملًا («ابدأ» في شريط اللمحة) لا يسبقها
+  // فراغ ولا يتلوها، فلا يلتقطها نمط الفراغين. نعالجها أولًا.
+  for(let i = 0; i < FEM_IMPERATIVES.length; i++){
+    const bare = FEM_IMPERATIVES[i][0].trim();
+    if(out.trim() === bare) return FEM_IMPERATIVES[i][1].trim();
+  }
+  for(let i = 0; i < FEM_IMPERATIVES.length; i++){
+    // الأمر في أول النص أو بعد فراغ/علامة، لا داخل كلمة.
+    const m = FEM_IMPERATIVES[i][0], f = FEM_IMPERATIVES[i][1];
+    if(out.indexOf(m) === 0) out = f + out.slice(m.length);
+    out = out.split(' ' + m).join(' ' + f);
+    out = out.split('>' + m).join('>' + f);
+  }
+  return out;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════
    نموذج الصلاحيات — ما يراه كل نوع مستخدم
    Capability model: what each persona is allowed to see.
@@ -8783,13 +9607,38 @@ function applyPersonaVisualIdentity(){
   if(type === 'institution'){
     persona = 'institution';
   } else if(type === 'teacher'){
-    persona = teacherGender === 'female' ? 'individual-female' : 'individual-male';
+    // المعلم كان يأخذ هوية "فرد"، فلا يتميّز عنه بصريًا إطلاقًا.
+    persona = teacherGender === 'female' ? 'teacher-female' : 'teacher-male';
   } else if(type === 'individual'){
     persona = individualGender === 'female' ? 'individual-female' : 'individual-male';
   }
   if(persona) document.body.setAttribute('data-persona', persona);
   else document.body.removeAttribute('data-persona');
   try { applyPersonaNav(); } catch(e){}
+  try { femizeStaticMarkup(); } catch(e){}
+}
+
+/* النصوص المكتوبة مباشرة في HTML لا تمرّ بـinnerHTML، فتبقى بالمذكّر.
+   نعالجها مرة عند تحديد الهوية، ونضع علامة كي لا تُعالَج مرتين. */
+function femizeStaticMarkup(){
+  if(!isFem()) return;
+  // كل عنصر نصّي داخل الشاشات، عدا المصحف (نصّه قرآن لا يُمسّ) وعدا
+  // الحقول والأزرار التي تُعاد كتابتها ديناميكيًا على أي حال.
+  const sel = '.screen:not(#screen-mushaf) *:not(script):not(style):not(svg):not(path)';
+  const nodes = document.querySelectorAll(sel);
+  for(let i = 0; i < nodes.length; i++){
+    const el = nodes[i];
+    if(el.getAttribute && el.getAttribute('data-fem') === '1') continue;
+    // العقد النصّية المباشرة فقط، حتى لا نُتلف بنية العناصر المتداخلة.
+    for(let k = 0; k < el.childNodes.length; k++){
+      const n = el.childNodes[k];
+      if(n.nodeType === 3 && n.nodeValue && n.nodeValue.trim()){
+        const f2 = femize(n.nodeValue);
+        if(f2 !== n.nodeValue) n.nodeValue = f2;
+      }
+    }
+    if(el.setAttribute) el.setAttribute('data-fem', '1');
+  }
 }
 function goHomeScreen(){
   try {
