@@ -47,24 +47,22 @@ body[data-persona="individual-female"]{
   --topbar-bg:#FCF8F9;
   --done-bg:#EFE6EE;
 }
-/* ── المعلمة ── */
+/* ── المعلمة: نفس لوحة الطالبة تمامًا ──
+   جرّبنا تعميقها درجةً لتمييز المعلمة، فتبيّن أن اللوحة تتبدّل تحت
+   المستخدمة لحظةَ إنشائها أوّل حلقة — وهو تبدّل مربك بلا فائدة.
+   لوحتان فقط إذن: الذكور والإناث. والمعلّم يُميَّز بمحتواه لا بلونه. */
 body[data-persona="teacher-female"]{
-  --purple:#4E2E4A;          /* أعمق قليلًا: للمعلمة وقار زائد */
-  --purple-mid:#6D4667;
-  --purple-light:#9E7E98;
-  --purple-pale:#ECE1EB;
-  --gold:#BE7C90;
-  --copper:#9A5068;
-  --copper-light:#D095A8;
-  --ivory:#FBF7F9;
-  --ivory-2:#F3E8ED;
-  --topbar-bg:#FBF7F9;
-  --done-bg:#ECE1EB;
-}
-/* ── المعلم: نفس هوية الطالب مع تعميق يسير يميّز البوابة ── */
-body[data-persona="teacher-male"]{
-  --purple:#0F4A3A;
-  --purple-mid:#1F8367;
+  --purple:#5E3A57;
+  --purple-mid:#7A5273;
+  --purple-light:#A98BA3;
+  --purple-pale:#EFE6EE;
+  --gold:#C98A9C;
+  --copper:#A85E76;
+  --copper-light:#D9A2B4;
+  --ivory:#FCF8F9;
+  --ivory-2:#F5EBEF;
+  --topbar-bg:#FCF8F9;
+  --done-bg:#EFE6EE;
 }
 
 /* التدرّجات الذهبية مكتوبة بألوان صريحة في مواضع كثيرة، فتُعاد هنا
@@ -1955,6 +1953,114 @@ body.theme-dark .glass-card::before{background:linear-gradient(115deg,rgba(255,2
    أربعة خيارات متساوية الوزن البصري بنقرة واحدة. الشبكة أفضل من القائمة
    هنا لأن الخيارات متوازية لا هرمية: طالب وطالبة ومعلم ومعلمة في مستوى
    واحد، ولا معنى لترتيبها عموديًا كأن بعضها أهمّ من بعض. */
+/* ═══════════════════════════════════════════════════════════════════════
+   الزخرفة الإسلامية — طبقات ثلاث
+   Islamic ornament, in three restrained layers.
+
+   المبدأ: الزخرفة تُؤنس ولا تُزاحم. كل ما هنا شفافيته تحت ١٢٪، ولا
+   يعترض لمسًا (pointer-events:none)، ولا يتحرّك لمن يطلب تقليل الحركة.
+
+   الطبقات:
+     ١. نجمة ثمانية دقيقة تملأ الخلفية — نمط مصحفي كلاسيكي.
+     ٢. قوس محرابي خافت خلف الترويسة.
+     ٣. شريط أرابيسك يُنهي الصفحة (موجود، نُحسّنه).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* الطبقة الأولى: نجمة ثمانية متكرّرة. النجمة الثمانية (خاتم سليمان)
+   من أكثر الأنماط شيوعًا في زخرفة المصاحف، وتتكرّر بلا بداية ولا نهاية
+   — معنى يليق بكتاب لا ينقضي. */
+.home-icons-wrap{ position:relative; }
+.home-icons-wrap::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'>\
+<g fill='none' stroke='%23155F4C' stroke-width='1'>\
+<rect x='18' y='18' width='36' height='36'/>\
+<rect x='18' y='18' width='36' height='36' transform='rotate(45 36 36)'/>\
+<circle cx='36' cy='36' r='3.2'/>\
+</g></svg>");
+  background-size:72px 72px;
+  opacity:0.055;
+  border-radius:28px 28px 0 0;
+}
+body[data-persona="individual-female"] .home-icons-wrap::before,
+body[data-persona="teacher-female"] .home-icons-wrap::before{
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'>\
+<g fill='none' stroke='%235E3A57' stroke-width='1'>\
+<rect x='18' y='18' width='36' height='36'/>\
+<rect x='18' y='18' width='36' height='36' transform='rotate(45 36 36)'/>\
+<circle cx='36' cy='36' r='3.2'/>\
+</g></svg>");
+  opacity:0.07;
+}
+/* المحتوى فوق الزخرفة دائمًا. */
+.home-icons-wrap > *{ position:relative; z-index:1; }
+
+/* الطبقة الثانية: قوس محرابي خلف الترويسة. يُرسم بالتدرّج لا بصورة،
+   فلا يزيد حجم الملف شيئًا. */
+.home-header, .tilawa-hero, .hifz-hero, .teacher-hero, .settings-hero{
+  position:relative; overflow:hidden;
+}
+.home-header::after, .tilawa-hero::after, .hifz-hero::after,
+.teacher-hero::after, .settings-hero::after{
+  content:'';position:absolute;pointer-events:none;
+  left:50%;transform:translateX(-50%);
+  bottom:-42%;width:150%;height:120%;
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 100%, rgba(212,175,55,0.10), transparent 70%),
+    radial-gradient(ellipse 26% 34% at 50% 100%, rgba(212,175,55,0.08), transparent 72%);
+  opacity:.9;
+}
+body[data-persona="individual-female"] .home-header::after,
+body[data-persona="teacher-female"] .home-header::after,
+body[data-persona="individual-female"] .tilawa-hero::after,
+body[data-persona="teacher-female"] .tilawa-hero::after,
+body[data-persona="individual-female"] .hifz-hero::after,
+body[data-persona="teacher-female"] .hifz-hero::after,
+body[data-persona="individual-female"] .teacher-hero::after,
+body[data-persona="teacher-female"] .teacher-hero::after,
+body[data-persona="individual-female"] .settings-hero::after,
+body[data-persona="teacher-female"] .settings-hero::after{
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 100%, rgba(224,175,192,0.13), transparent 70%),
+    radial-gradient(ellipse 26% 34% at 50% 100%, rgba(224,175,192,0.10), transparent 72%);
+}
+
+/* سطر دعوة المعلّم — خافت، لا يزاحم، ويختفي عند إنشاء أوّل حلقة. */
+.home-invite{
+  margin:16px auto 0;text-align:center;cursor:pointer;
+  font-size:11.5px;color:var(--muted);line-height:1.8;
+  padding:10px 14px;border-radius:14px;
+  border:1px dashed rgba(127,127,127,0.22);
+  max-width:300px;transition:border-color .15s ease,background .15s ease;
+}
+.home-invite:hover{border-color:var(--gold);background:rgba(212,175,55,0.05);}
+.home-invite-cta{color:var(--copper);font-weight:800;}
+
+@media (prefers-reduced-motion:reduce){
+  .home-icons-wrap::before{background-attachment:scroll;}
+}
+
+/* ═══ البوابة: شريحتان نصّيتان ═══ */
+.gate-ask{
+  font-size:16px;font-weight:800;color:var(--text);
+  margin:6px 0 18px;text-align:center;letter-spacing:.2px;
+}
+.gate-chips{display:flex;gap:14px;width:100%;max-width:300px;}
+.gchip{
+  flex:1;padding:18px 10px;border-radius:20px;cursor:pointer;text-align:center;
+  font-size:17px;font-weight:900;color:var(--text);
+  background:var(--card-bg);border:2px solid transparent;
+  box-shadow:0 3px 14px rgba(15,35,70,0.07);
+  transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.gchip:active{transform:scale(0.96);}
+.gchip:hover{border-color:#D4AF37;box-shadow:0 5px 18px rgba(212,175,55,0.20);}
+/* شريحة «أختي» تلمّح للوحتها قبل الاختيار، فيعرف المستخدم ما ينتظره. */
+.gchip-f:hover{border-color:#C98A9C;box-shadow:0 5px 18px rgba(201,138,156,0.22);}
+body.theme-dark .gchip{background:rgba(255,255,255,0.06);}
+
 .gate-persona-grid{
   width:100%;max-width:320px;display:grid;grid-template-columns:1fr 1fr;gap:12px;
 }
@@ -2088,6 +2194,12 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
           <div class="hgl-val" id="hgl-streak">—</div>
           <div class="hgl-lbl">أيام متتالية</div>
         </div>
+      </div>
+
+      <!-- الكشف التدريجي: يظهر لمن ليس معلّمًا، ويختفي عند إنشاء أوّل حلقة -->
+      <div class="home-invite" id="home-teacher-invite" role="button" tabindex="0"
+           onclick="openTeacherGateway()">
+        تُدير حلقة تحفيظ؟ <span class="home-invite-cta">افتح بوابة المعلمين</span>
       </div>
 
       <div class="home-ornament home-ornament-bottom" aria-hidden="true">
@@ -2280,24 +2392,22 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
          صارت الآن أربعة خيارات مباشرة بنقرة واحدة. المؤسسات لها مدخل
          مستقلّ تمامًا (openInstitutionGate) لا يظهر هنا إطلاقًا.
          ═══════════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════
+         البوابة — سؤال واحد لا غير
+         The gate asks the one thing that cannot be inferred.
+
+         الدور يُستنتج من الفعل: من أنشأ حلقة فهو معلّم، ومن لم يُنشئ فهو
+         طالب. فلا داعي لسؤاله عنه. أمّا صيغة الخطاب فلا سبيل لاستنتاجها،
+         ولا توجد لوحة "محايدة" — أيّ افتراض يجعل نصف المستخدمين يرون
+         هويّة غيرهم. فهذا وحده ما نسأل عنه.
+
+         والصياغة «كيف نخاطبك» لا «ذكر أم أنثى»: السؤال يشرح سببه بنفسه.
+         ═══════════════════════════════════════════════════════════════════ -->
     <div class="gate-tier1" id="gate-tier1">
-      <div class="gate-persona-grid">
-        <div class="gp-card" role="button" tabindex="0" onclick="selectUserType('individual','male')">
-          <div class="gp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v13"/><path d="M6 17h12"/><path d="M6 21h12a2 2 0 0 1-2-2H6a2 2 0 0 0 0 4Z"/></svg></div>
-          <div class="gp-label">طالب</div>
-        </div>
-        <div class="gp-card" role="button" tabindex="0" onclick="selectUserType('individual','female')">
-          <div class="gp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v13"/><path d="M6 17h12"/><path d="M6 21h12a2 2 0 0 1-2-2H6a2 2 0 0 0 0 4Z"/></svg></div>
-          <div class="gp-label">طالبة</div>
-        </div>
-        <div class="gp-card" role="button" tabindex="0" onclick="selectUserType('teacher','male')">
-          <div class="gp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M7 11v5c0 1.1 2.2 2 5 2s5-.9 5-2v-5"/><path d="M21 8.5V14"/></svg></div>
-          <div class="gp-label">معلم</div>
-        </div>
-        <div class="gp-card" role="button" tabindex="0" onclick="selectUserType('teacher','female')">
-          <div class="gp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M7 11v5c0 1.1 2.2 2 5 2s5-.9 5-2v-5"/><path d="M21 8.5V14"/></svg></div>
-          <div class="gp-label">معلمة</div>
-        </div>
+      <div class="gate-ask">كيف نخاطبك؟</div>
+      <div class="gate-chips">
+        <div class="gchip" role="button" tabindex="0" onclick="enterAs('male')">أخي</div>
+        <div class="gchip gchip-f" role="button" tabindex="0" onclick="enterAs('female')">أختي</div>
       </div>
       <div class="gate-hint">يمكنك تغيير هذا لاحقًا من الإعدادات</div>
     </div>
@@ -2430,7 +2540,7 @@ const TRANSLATIONS = {
     about_author: 'عرفات الراجحي',
     about_dua: 'اللهم اغفر لمطورها ولمستخدميها ولوالديهم وللمسلمين أجمعين',
     gate_title: 'أهلاً بك في ارتقِ',
-    gate_sub: 'اختر الطريقة التي تناسبك لتبدأ',
+    gate_sub: 'رفيقك في حفظ القرآن ومراجعته وتلاوته',
     gate_individual_title: 'استخدام شخصي',
     gate_individual_sub: 'لتلاوتك وحفظك ومراجعتك — سواء كنت طالبًا أو معلمًا تستخدمها لنفسك',
     gate_teacher_title: 'معلم أو معلمة',
@@ -2471,7 +2581,7 @@ const TRANSLATIONS = {
     // الدعاء يُعرض بأصله العربي أوّلًا ثم ترجمته تحته في الواجهة الإنجليزية.
     about_dua_en: 'O Allah, forgive its developer, its users, their parents, and all Muslims.',
     gate_title: 'Welcome to Irtaqi',
-    gate_sub: 'Choose the way that suits you to begin',
+    gate_sub: 'Your companion in memorizing, reviewing, and reciting the Qur\'an',
     gate_individual_title: 'Personal Use',
     gate_individual_sub: 'For your own recitation, memorization, and review — whether a student or a teacher using it for yourself',
     gate_teacher_title: 'Teacher',
@@ -7591,7 +7701,9 @@ function createTeacherCircle(){
   _teacherCircles.push(newCircle);
   saveTeacherCircles(_teacherCircles);
   _activeCircleId = newCircle.id;
-  _selectedCircleIcon = '🕌';
+  _selectedCircleIcon = '';
+  // إنشاء أوّل حلقة هو ما يجعله معلّمًا — لا سؤال سبق ذلك.
+  try { promoteToTeacherIfNeeded(); } catch(e){}
   renderTeacherScreen();
   showToast('تم إنشاء الحلقة');
 }
@@ -9574,6 +9686,68 @@ function getPersonaType(){
  *   'institution' هوية المؤسسة وإدارتها     (مؤسسة فقط)
  *   'receivePlan' استلام خطة من معلم        (فرد فقط — المعلم يولّدها لا يستلمها)
  */
+/* ═══════════════════════════════════════════════════════════════════════
+   الدخول والدور
+   Entry, and how the role is inferred rather than asked.
+
+   enterAs() تحفظ صيغة الخطاب فقط. الدور يبقى 'individual' حتى يُنشئ
+   المستخدم حلقة، فيصير معلّمًا تلقائيًا. لا سؤال، ولا إعلان مسبق.
+   ═══════════════════════════════════════════════════════════════════════ */
+function enterAs(gender){
+  const g = (gender === 'female') ? 'female' : 'male';
+  try {
+    localStorage.setItem('irtaqi-user-type', 'individual');
+    localStorage.setItem('irtaqi-individual-gender', g);
+    localStorage.setItem('irtaqi-teacher-gender', g);   // يُستعمل إن صار معلّمًا
+  } catch(e){}
+  try { applyPersonaVisualIdentity(); } catch(e){}
+  routeToUserType('individual', true);
+  try { renderHomeInvite(); } catch(e){}
+}
+
+/** هل أنشأ المستخدم حلقة؟ هذا وحده ما يجعله معلّمًا. */
+function hasAnyCircle(){
+  try {
+    const c = JSON.parse(localStorage.getItem('irtaqi-teacher-circles') || '[]');
+    return Array.isArray(c) && c.length > 0;
+  } catch(e){ return false; }
+}
+
+/**
+ * يُرقّي المستخدم إلى معلّم عند إنشاء أوّل حلقة.
+ * يُنادى بعد الحفظ، ولا يفعل شيئًا إن كان معلّمًا بالفعل.
+ */
+function promoteToTeacherIfNeeded(){
+  if(!hasAnyCircle()) return;
+  let t = null;
+  try { t = localStorage.getItem('irtaqi-user-type'); } catch(e){}
+  if(t === 'teacher' || t === 'institution') return;
+  try { localStorage.setItem('irtaqi-user-type', 'teacher'); } catch(e){}
+  try { applyPersonaVisualIdentity(); } catch(e){}
+  try { renderHomeInvite(); } catch(e){}
+  showToast('أهلًا بك معلّمًا — ظهرت بوابة المعلمين في الشريط السفلي');
+}
+
+/**
+ * الكشف التدريجي: سطر خافت أسفل الرئيسية يدلّ المعلّم على بوابته.
+ * يختفي بمجرّد أن يُنشئ حلقة، لأن التبويب يصير ظاهرًا دائمًا عندها.
+ * الطالب يتجاهل السطر — سطر واحد لا يزاحم شيئًا ولا يفرض قرارًا.
+ */
+function renderHomeInvite(){
+  const el = document.getElementById('home-teacher-invite');
+  if(!el) return;
+  if(persoCan('circles')){ el.style.display = 'none'; return; }
+  el.style.display = '';
+}
+
+/** يفتح بوابة المعلمين لمن لم يُنشئ حلقة بعد (فلا صلاحية له بعد). */
+function openTeacherGateway(){
+  try { localStorage.setItem('irtaqi-user-type', 'teacher'); } catch(e){}
+  try { applyPersonaVisualIdentity(); } catch(e){}
+  try { renderHomeInvite(); } catch(e){}
+  openTeacherScreen();
+}
+
 function persoCan(capability){
   const type = getPersonaType();
   if(capability === 'circles')     return type === 'teacher' || type === 'institution';
