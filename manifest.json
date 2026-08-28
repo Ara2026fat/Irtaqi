@@ -1,27 +1,16 @@
 {
-  "name": "ارتقِ — منصة حفظ ومراجعة القرآن الكريم",
+  "name": "ارتقِ — حفظ القرآن ومراجعته",
   "short_name": "ارتقِ",
-  "description": "منصة حفظ ومراجعة القرآن الكريم للطلاب والمعلمين والمؤسسات",
-  "start_url": "./Irtaqi.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F7FAF8",
-  "theme_color": "#1F8367",
-  "dir": "rtl",
+  "background_color": "#F8FAF7",
+  "theme_color": "#155F4C",
   "lang": "ar",
+  "dir": "rtl",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
