@@ -1705,6 +1705,136 @@ body.theme-dark{--muted:#8FB0A2;}
    الرسومي، وتكراره مع حركة مستمرة فوقه هو ما كان يسبب الوهج/التكرار اللي شفته. أبقيت
    الانعكاس الثابت، موجة اللمس، والاستجابة المطاطية لأنها إما ثابتة أو تحدث مرة واحدة فقط.
 */
+.home-cards-btn{
+  margin:14px auto 0;max-width:340px;width:100%;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 14px;border-radius:16px;cursor:pointer;
+  background:var(--card-bg);color:var(--text);
+  font-size:12.5px;font-weight:800;
+  box-shadow:0 2px 10px rgba(15,35,70,0.06);
+  border:1px solid transparent;
+  transition:border-color .15s ease,transform .15s ease;
+}
+.home-cards-btn:active{transform:scale(.985);}
+.home-cards-btn:hover{border-color:var(--gold);}
+.home-cards-btn svg{width:17px;height:17px;color:var(--copper);}
+body.theme-dark .home-cards-btn{background:rgba(255,255,255,0.06);}
+
+/* بطاقة التكليف كما يراها الطالب */
+.asg-card{
+  background:var(--ivory-2);border-radius:15px;padding:13px 14px;margin-bottom:10px;
+  border-right:3px solid var(--copper);
+}
+.asg-card-label{font-size:10.5px;color:var(--muted);font-weight:800;margin-bottom:3px;}
+.asg-card-text{font-size:14px;font-weight:800;color:var(--text);line-height:1.7;}
+.asg-card-meta{font-size:10.5px;color:var(--copper);font-weight:700;margin-top:4px;}
+body.theme-dark .asg-card{background:rgba(255,255,255,0.05);}
+
+/* ═══ انكماش المهام المنجَزة ═══
+   المنجَزة تصغر وتخفت فتتراجع بصريًا، والباقية تبقى. العين ترى ما بقي
+   لا ما تمّ — وهذا هو المطلوب من قائمة مهام. ولا شيء يُحذف: الطالب
+   يظلّ يرى إنجازه ويستطيع فتحه. */
+#home-icons-wrap .glass-card{ transform-origin:center; position:relative; }
+.dash-card, #home-icons-wrap .glass-card{ transform-origin:center; }
+.dash-card.is-done, #home-icons-wrap .glass-card.is-done{
+  opacity:.62; transform:scale(.955);
+  filter:saturate(.72);
+}
+.dash-card.is-done .dash-card-icon,
+#home-icons-wrap .glass-card.is-done .glass-icon{ transform:scale(.9); }
+.dash-card.is-done::after{
+  content:'✓';position:absolute;top:10px;inset-inline-start:14px;
+  font-size:13px;font-weight:900;color:#1F8367;opacity:.75;
+}
+body[data-persona="individual-female"] .dash-card.is-done::after,
+body[data-persona="teacher-female"] .dash-card.is-done::after,
+body[data-persona="individual-female"] #home-icons-wrap .glass-card.is-done::after,
+body[data-persona="teacher-female"] #home-icons-wrap .glass-card.is-done::after{ color:#A85E76; }
+/* المهمة الأخيرة الباقية تُبرَز قليلًا. */
+.dash-card.is-only{
+  transform:scale(1.015);
+  box-shadow:0 6px 20px rgba(212,175,55,0.16);
+}
+body[data-persona="individual-female"] .dash-card.is-only,
+body[data-persona="teacher-female"] .dash-card.is-only{
+  box-shadow:0 6px 20px rgba(201,138,156,0.20);
+}
+@media (prefers-reduced-motion:reduce){
+  .dash-card.is-done, .dash-card.is-only,
+  #home-icons-wrap .glass-card.is-done, #home-icons-wrap .glass-card.is-only{ transform:none; }
+}
+
+/* ═══ اقتراح ربط الحفظ بالمراجعة ═══ */
+.link-suggest{
+  background:linear-gradient(160deg,rgba(31,131,103,0.10),rgba(212,175,55,0.10));
+  border:1px solid rgba(31,131,103,0.22);
+  border-radius:20px;padding:16px;margin-bottom:14px;text-align:center;
+}
+.link-suggest-title{font-size:12px;font-weight:800;color:var(--copper);margin-bottom:6px;}
+.link-suggest-text{font-size:13px;line-height:1.9;color:var(--text);font-weight:600;}
+.link-suggest-note{font-size:10.5px;color:var(--muted);margin-top:10px;}
+body[data-persona="individual-female"] .link-suggest,
+body[data-persona="teacher-female"] .link-suggest{
+  background:linear-gradient(160deg,rgba(94,58,87,0.10),rgba(201,138,156,0.13));
+  border-color:rgba(168,94,118,0.26);
+}
+
+/* ═══ صور التكليف ═══ */
+.photo-grid{display:flex;flex-direction:column;gap:10px;max-height:44vh;overflow-y:auto;margin-bottom:12px;}
+/* البطاقة عمود: الصورة ثم سطر بياناتها. كان السطر يختفي لأن الصورة
+   بـobject-fit:cover تملأ الارتفاع كله فتزيحه خارج الإطار. */
+.photo-item{
+  position:relative;border-radius:14px;overflow:hidden;background:var(--ivory-2);
+  display:flex;flex-direction:column;
+}
+.photo-item img{
+  width:100%;display:block;cursor:pointer;
+  height:170px;object-fit:cover;flex:0 0 auto;
+}
+.photo-meta{
+  font-size:10.5px;color:var(--muted);padding:7px 10px;font-weight:700;
+  flex:0 0 auto;text-align:center;
+}
+.photo-del{
+  position:absolute;top:8px;inset-inline-start:8px;
+  background:rgba(190,70,60,0.90);color:#fff;border:none;border-radius:9px;
+  padding:5px 10px;font-size:10.5px;font-weight:800;cursor:pointer;font-family:inherit;
+}
+.photo-add{display:block;text-align:center;cursor:pointer;}
+body.theme-dark .photo-item{background:rgba(255,255,255,0.05);}
+
+/* ═══ محرّر التكليف ═══ */
+.asg-row{display:flex;gap:10px;}
+.asg-field{flex:1;}
+.asg-field label{display:block;font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.asg-field input{
+  width:100%;padding:9px 6px;text-align:center;font-family:inherit;
+  font-size:15px;font-weight:900;color:var(--text);
+  border-radius:11px;border:1px solid rgba(127,127,127,0.22);background:var(--ivory-2);
+}
+.asg-hint{margin-top:8px;font-size:10.5px;color:var(--muted);text-align:center;font-weight:700;}
+.asg-preview{
+  margin-top:12px;padding:12px;border-radius:14px;text-align:center;
+  background:rgba(31,131,103,0.09);color:var(--text);
+  font-size:13px;font-weight:800;line-height:1.7;
+}
+body[data-persona="individual-female"] .asg-preview,
+body[data-persona="teacher-female"] .asg-preview{background:rgba(201,138,156,0.13);}
+body.theme-dark .asg-field input{background:rgba(255,255,255,0.07);color:#fff;}
+
+/* ═══ مركز البطاقات ═══ */
+.cards-hub{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;}
+.hub-item{
+  padding:13px 14px;border-radius:15px;cursor:pointer;
+  background:var(--ivory-2);border:1.5px solid transparent;
+  transition:border-color .14s ease,transform .14s ease;
+}
+.hub-item:active{transform:scale(.985);}
+.hub-item:hover{border-color:var(--gold);}
+.hub-name{font-size:13.5px;font-weight:800;color:var(--text);}
+.hub-sub{font-size:10.5px;color:var(--muted);margin-top:2px;}
+body.theme-dark .hub-item{background:rgba(255,255,255,0.05);}
+
 /* ═══ شبكة اختيار الأجزاء ═══ */
 .juz-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px;}
 .juz-cell{
@@ -1798,6 +1928,10 @@ body.theme-dark .grid-table th{background:rgba(255,255,255,0.07);}
 }
 .sched-table td{padding:8px 6px;text-align:center;border-bottom:1px solid rgba(127,127,127,0.08);}
 .sched-table tr:last-child td{border-bottom:none;}
+.sched-weekhead td{
+  background:rgba(31,131,103,0.10);font-weight:900;font-size:11px;
+  color:var(--copper,#8A6D1F);text-align:center;padding:6px;
+}
 .sched-rest td{color:var(--muted);background:rgba(127,127,127,0.04);}
 .sched-range{font-size:10px;color:var(--muted);}
 body.theme-dark .sched-table th{background:rgba(255,255,255,0.07);}
@@ -2042,6 +2176,132 @@ body[data-persona="teacher-female"] .settings-hero::after{
   .home-icons-wrap::before{background-attachment:scroll;}
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   التصدير إلى PDF
+   PDF export via the browser's own print pipeline.
+
+   لماذا لا مكتبة (jsPDF)؟ لأنها تزيد الملف نحو ٣٠٠ كيلوبايت، وخطوطها
+   العربية تحتاج تضمينًا يزيدها أضعافًا، ويبقى تشكيل النصّ العربي فيها
+   ناقصًا. أمّا محرّك الطباعة في المتصفّح فيعرف العربية ويعرف RTL، وكل
+   جهاز فيه «حفظ كـ PDF» جاهزًا. صفر بايت إضافي وجودة أعلى.
+
+   المشكلة التي كانت: لا قواعد @media print إطلاقًا، فالطباعة تُخرج
+   الشاشة كلها بشريطها وأزرارها. الآن يُطبع #print-area وحده.
+   ═══════════════════════════════════════════════════════════════════════ */
+#print-area{ display:none; }
+
+@media print{
+  /* نُخفي التطبيق كلّه ونُظهر منطقة الطباعة فقط. */
+  body > *{ display:none !important; }
+  #print-area{
+    display:block !important;
+    padding:0;margin:0;color:#000;background:#fff;
+    font-family:'Tajawal','Cairo',sans-serif;
+    direction:rtl;text-align:right;
+  }
+  @page{ size:A4; margin:14mm 12mm; }
+
+  #print-area .pr-head{
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:2px solid #155F4C;padding-bottom:8px;margin-bottom:14px;
+  }
+  #print-area .pr-title{ font-size:17pt;font-weight:900;color:#155F4C;margin:0; }
+  #print-area .pr-brand{ font-size:9pt;color:#555; }
+  #print-area .pr-meta{ font-size:9.5pt;color:#444;margin:0 0 12px;line-height:1.9; }
+  #print-area table{ width:100%;border-collapse:collapse;font-size:9.5pt; }
+  #print-area th{
+    background:#EDF3F0;border:1px solid #B9CFC6;padding:6px 5px;
+    font-weight:800;color:#123;
+  }
+  #print-area td{ border:1px solid #D6E0DB;padding:6px 5px;text-align:center; }
+  #print-area tr{ page-break-inside:avoid; }
+  #print-area thead{ display:table-header-group; }  /* يتكرّر الرأس في كل صفحة */
+  #print-area .pr-rest td{ color:#777;background:#FAFAFA; }
+  #print-area .pr-foot{
+    margin-top:16px;padding-top:8px;border-top:1px solid #CBD5D0;
+    font-size:8.5pt;color:#666;text-align:center;line-height:1.8;
+  }
+  #print-area .pr-sign{
+    margin-top:22px;display:flex;justify-content:space-between;font-size:9pt;color:#444;
+  }
+  #print-area .pr-sign span{ border-top:1px solid #999;padding-top:5px;width:44%;text-align:center; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   الصقل البصري
+   Visual craft: depth, light and motion — used sparingly.
+
+   القاعدة التي التزمتها: كل أثر هنا يخدم الفهم لا الزينة وحدها. الظلّ
+   يقول "هذا فوق ذاك"، واللمعة تقول "هذا معدن لا ورق"، والحركة تقول
+   "استُقبلت لمستك". وكلّها تتوقّف لمن يطلب تقليل الحركة.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── لمعة معدنية على الدوائر الذهبية ──
+   الدائرة المصمتة تبدو ورقًا ملوّنًا. اللمعة المائلة تجعلها معدنًا،
+   وهذا يليق بشارة ارتقِ الذهبية التي هي أصل الهوية. */
+.dash-card-icon, .gp-icon, .glow-orb, .sib-circle,
+.th-icon, .hifz-hero-icon, .teacher-hero-icon{
+  position:relative; overflow:hidden;
+}
+.dash-card-icon::after, .gp-icon::after, .glow-orb::after,
+.th-icon::after, .hifz-hero-icon::after, .teacher-hero-icon::after{
+  content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(135deg,
+    rgba(255,255,255,0.55) 0%,
+    rgba(255,255,255,0.18) 26%,
+    rgba(255,255,255,0) 48%);
+}
+
+/* ── ارتفاع البطاقات عند اللمس ──
+   البطاقة تنزل قليلًا وتفقد ظلّها، كأنها ضُغطت فعلًا. أصدق من تغيّر
+   اللون وحده، ويؤكّد للمستخدم أن اللمسة وصلت. */
+.dash-card, .settings-row, .gchip, .roster-circle, .rp-chip{
+  transition:transform .16s cubic-bezier(.34,1.4,.64,1),
+             box-shadow .16s ease, border-color .16s ease;
+}
+.dash-card:active{ transform:translateY(1px) scale(.985); }
+
+/* ── حدّ علوي مضيء على البطاقات الرئيسية ──
+   خيط رفيع بلون الهوية أعلى البطاقة: يفصلها عن الخلفية بلا إطار ثقيل. */
+.dash-card{ position:relative; }
+.dash-card::before{
+  content:'';position:absolute;top:0;right:14%;left:14%;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.55;border-radius:2px;
+}
+
+/* ── نبض هادئ على ورد اليوم غير المنجَز ──
+   يلفت دون أن يُلحّ: ثلاث نبضات ثم يسكن. */
+@keyframes irtaqiBreathe{
+  0%,100%{ box-shadow:0 0 0 0 rgba(212,175,55,0); }
+  50%    { box-shadow:0 0 0 7px rgba(212,175,55,0.13); }
+}
+.dash-card.is-pending .dash-card-icon{
+  animation:irtaqiBreathe 2.6s ease-in-out 3;
+}
+body[data-persona="individual-female"] .dash-card.is-pending .dash-card-icon,
+body[data-persona="teacher-female"] .dash-card.is-pending .dash-card-icon{
+  animation-name:irtaqiBreatheF;
+}
+@keyframes irtaqiBreatheF{
+  0%,100%{ box-shadow:0 0 0 0 rgba(201,138,156,0); }
+  50%    { box-shadow:0 0 0 7px rgba(201,138,156,0.16); }
+}
+
+/* ── انعكاس تحت شريط اللمحة ──
+   انعكاس خفيف يعطي إحساس السطح المصقول. */
+.home-glance{ position:relative; }
+.home-glance::after{
+  content:'';position:absolute;left:8%;right:8%;bottom:-9px;height:9px;
+  background:linear-gradient(180deg,rgba(0,0,0,0.05),transparent);
+  border-radius:0 0 20px 20px;pointer-events:none;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .dash-card, .settings-row, .gchip, .roster-circle, .rp-chip{ transition:none; }
+  .dash-card.is-pending .dash-card-icon{ animation:none; }
+}
+
 /* ═══ البوابة: شريحتان نصّيتان ═══ */
 .gate-ask{
   font-size:16px;font-weight:800;color:var(--text);
@@ -2194,6 +2454,15 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
           <div class="hgl-val" id="hgl-streak">—</div>
           <div class="hgl-lbl">أيام متتالية</div>
         </div>
+      </div>
+
+      <div class="home-cards-btn" role="button" tabindex="0" onclick="openCardsHub()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="5" width="18" height="14" rx="2"/>
+          <path d="M3 10h18"/><path d="M8 15h4"/>
+        </svg>
+        <span>بطاقات للمشاركة</span>
       </div>
 
       <!-- الكشف التدريجي: يظهر لمن ليس معلّمًا، ويختفي عند إنشاء أوّل حلقة -->
@@ -3478,6 +3747,7 @@ function renderTilawaProgress(wrap){
       (isTodaySelected ? '<button class="dc-btn ' + (isDoneToday?'completed':'') + '" onclick="markTilawaDayDone()">' + (isDoneToday?'✓ أتممت ورد اليوم':'سجّل إتمام ورد اليوم') + '</button>' : '') +
       (isDoneToday ? '<button class="hifz-share-btn" onclick="shareTilawaProgress()">شارك إنجازك</button>' : '') +
       '<button class="hifz-edit-btn" onclick="sharePlanImage(\'tilawa\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg> بطاقة الخطة</button>' +
+      '<button class="hifz-edit-btn" onclick="exportTilawaPlanPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg> جدول الختمة PDF</button>' +
       '<div class="dc-reset" onclick="resetTilawaPlan()">إعادة ضبط الجدول</div>' +
     '</div>';
 
@@ -3500,6 +3770,8 @@ function markTilawaDayDone(){
   renderTilawaScreen();
 }
 function shareTilawaProgress(){
+  // الطالب قد يضغط "شارك إنجازك" قبل أن يبدأ خطة — كان ذلك ينهار بصمت.
+  if(!_tilawaPlan){ showToast('ابدأ خطة الختمة أولًا'); return; }
   const days = _tilawaPlan.days;
   const done = _tilawaDone.length;
   shareProgress('أتممت ورد التلاوة اليوم (' + done + ' من ' + days + ' يوم في خطة الختمة)');
@@ -4195,13 +4467,13 @@ function getHifzState(){
    أيام الراحة تظهر كصفوف أيضًا ولا تُحذف، فالفراغ في الجدول يُقلق.
    ═══════════════════════════════════════════════════════════════════════ */
 const WEEKDAY_AR = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-var _memoSpan = 'week';
+var _memoSpan = 'school';   // الأسبوع الدراسي هو الافتراضي
 
 function setMemoSpan(sp){ _memoSpan = sp; renderMemoSchedule(); }
 
 /** يفتح جدول خطة الحفظ في لوحة مشتركة. */
 function openMemoSchedule(span){
-  _memoSpan = span || 'week';
+  _memoSpan = span || 'school';
   const st = getHifzState();
   if(!st.memo.setup){
     showToast('أعدّ خطة الحفظ أولًا لتظهر في جدول');
@@ -4217,12 +4489,15 @@ function renderMemoSchedule(){
   if(!panel) return;
   const rows = buildMemoSchedule(_memoSpan, new Date());
   const t = memoScheduleTotals(rows);
-  const spanLabel = _memoSpan === 'month' ? 'الشهري' : 'الأسبوعي';
+  const spanLabel = _memoSpan === 'month' ? 'الشهري'
+                  : _memoSpan === 'month4' ? '— أربعة أسابيع'
+                  : 'الأسبوعي';
 
   let html = '<div class="share-sheet-title">جدول الحفظ ' + spanLabel + '</div>';
   html += '<div class="sched-tabs">' +
-    '<button class="sched-tab' + (_memoSpan==='week'?' active':'') + '" onclick="setMemoSpan(\'week\')">أسبوعي</button>' +
-    '<button class="sched-tab' + (_memoSpan==='month'?' active':'') + '" onclick="setMemoSpan(\'month\')">شهري</button>' +
+    '<button class="sched-tab' + (_memoSpan==='school'?' active':'') + '" onclick="setMemoSpan(\'school\')">أسبوع دراسي</button>' +
+    '<button class="sched-tab' + (_memoSpan==='month4'?' active':'') + '" onclick="setMemoSpan(\'month4\')">٤ أسابيع</button>' +
+    '<button class="sched-tab' + (_memoSpan==='month'?' active':'') + '" onclick="setMemoSpan(\'month\')">شهر كامل</button>' +
   '</div>';
 
   html += '<div class="sched-summary">' +
@@ -4234,7 +4509,14 @@ function renderMemoSchedule(){
   html += '<div class="sched-wrap"><table class="sched-table"><thead><tr>' +
     '<th>اليوم</th><th>هجري</th><th>ميلادي</th><th>المقدار</th>' +
   '</tr></thead><tbody>';
+  let _lastWeek = null;
   rows.forEach(function(r){
+    // فاصل بين الأسابيع في العرض متعدّد الأسابيع، وإلا صارت عشرون صفًا
+    // متتابعة بلا معنى ولا يعرف المعلّم أين ينتهي أسبوع ويبدأ آخر.
+    if(_memoSpan === 'month4' && r.week && r.week !== _lastWeek){
+      html += '<tr class="sched-weekhead"><td colspan="4">الأسبوع ' + toAr(r.week) + '</td></tr>';
+      _lastWeek = r.week;
+    }
     html += '<tr class="' + (r.rest ? 'sched-rest' : '') + '">' +
       '<td>' + r.weekday + '</td>' +
       '<td>' + r.hijri + '</td>' +
@@ -4247,6 +4529,7 @@ function renderMemoSchedule(){
   html += '</tbody></table></div>';
 
   html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="shareMemoSchedule()">إرسال الجدول</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportMemoSchedulePdf()">حفظ كـ PDF</button>';
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
   panel.innerHTML = html;
 }
@@ -4281,7 +4564,7 @@ function shareText(text, title){
 function shareMemoSchedule(){
   const rows = buildMemoSchedule(_memoSpan, new Date());
   const t = memoScheduleTotals(rows);
-  let msg = 'جدول الحفظ ' + (_memoSpan === 'month' ? 'الشهري' : 'الأسبوعي') + '\n';
+  let msg = 'جدول الحفظ ' + (_memoSpan === 'month' ? 'الشهري' : _memoSpan === 'month4' ? '— أربعة أسابيع' : 'الأسبوعي') + '\n';
   msg += '——————————————\n';
   rows.forEach(function(r){
     msg += r.weekday + ' ' + r.hijri + ' (' + r.greg + '): ';
@@ -4303,11 +4586,29 @@ function shareMemoSchedule(){
  * @param {Date} startDate
  * @returns {Array} صفوف: التاريخ، اليومان، المقدار، الموضع التراكمي
  */
+/**
+ * الأسبوع الدراسي: الأحد إلى الخميس.
+ * الحلقات تسير على أسبوع دراسي لا على سبعة أيام متصلة، والجمعة والسبت
+ * عطلة. جدول من سبعة أيام يبدأ من اليوم الحالي لا يوافق ورقة المعلّم.
+ */
+function schoolWeekStart(from){
+  const d = new Date((from || new Date()).getTime());
+  d.setHours(0,0,0,0);
+  // نرجع لأقرب أحد سابق (أو اليوم نفسه إن كان أحدًا).
+  const back = d.getDay();          // ٠ = الأحد
+  d.setDate(d.getDate() - back);
+  return d;
+}
+
 function buildMemoSchedule(span, startDate){
   const st = getHifzState();
   const daily = st.memo.dailyWajh || {};
-  const days = span === 'month' ? 30 : 7;
-  const start = startDate ? new Date(startDate) : new Date();
+  // 'school'  : الأحد → الخميس (٥ أيام)
+  // 'month4'  : أربعة أسابيع دراسية (٢٠ يومًا)
+  // 'week'/'month': السلوك القديم (٧ / ٣٠ يومًا) للتوافق
+  const schoolMode = (span === 'school' || span === 'month4');
+  const days = span === 'month' ? 30 : span === 'month4' ? 28 : span === 'school' ? 7 : 7;
+  const start = schoolMode ? schoolWeekStart(startDate) : (startDate ? new Date(startDate) : new Date());
   let pos = Math.round(st.memo.position || 0);
   const rows = [];
 
@@ -4319,9 +4620,12 @@ function buildMemoSchedule(span, startDate){
     const from = pos + 1;
     const to = pos + amount;
     if(amount > 0) pos = to;
+    // في الوضع الدراسي نُسقط الجمعة (٥) والسبت (٦) من الجدول أصلًا.
+    if(schoolMode && (wd === 5 || wd === 6)) continue;
     rows.push({
       date: d,
       iso: isoFromDate(d),
+      week: Math.floor(i / 7) + 1,
       weekday: WEEKDAY_AR[wd],
       hijri: hijriShort(d),
       greg: toAr(d.getDate()) + '/' + toAr(d.getMonth() + 1),
@@ -4576,6 +4880,60 @@ function saveMemoComplete(){
   updateHomeRings();
   showToast('بارك الله فيك — أكملت حفظ القرآن');
 }
+/* ═══════════════════════════════════════════════════════════════════════
+   ربط الحفظ بالمراجعة
+   Linking memorization to review.
+
+   العيب الذي يُصلحه: كان الطالب يضع خطة حفظ ثم يُترك بلا مراجعة. وما
+   يُحفظ اليوم يصير مراجعةَ الغد، فخطة حفظ بلا مراجعة تبني على رمل: يحفظ
+   الجديد وينسى القديم، ثم يظنّ أن المشكلة في حفظه لا في تركه المراجعة.
+
+   والمراجعة أوّل ما يُهمَل، لأن الحفظ الجديد إنجاز ظاهر وهي تكرار لما
+   يظنّه محفوظًا. فلا يكفي أن تكون متاحة — يجب أن تُقترَح.
+
+   القاعدة: نقترح ولا نفرض. الطالب يرى الاقتراح فيقبله أو يتجاهله.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** ما يحفظه الطالب أسبوعيًا بحسب خطته (بالأوجه). */
+function weeklyMemoLoad(){
+  const d = (_hifzState.memo.dailyWajh) || {};
+  let sum = 0;
+  for(let i = 0; i < 7; i++) sum += (d[i] || 0);
+  return sum;
+}
+
+/**
+ * يقترح دورة مراجعة تناسب خطة الحفظ.
+ * المنطق: ما حُفظ يحتاج تثبيتًا دوريًا. من يحفظ كثيرًا يحتاج دورة أقصر،
+ * ومن يحفظ قليلًا تكفيه دورة أطول. والمقترَح يبدأ بما حفظه فعلًا.
+ */
+function suggestReviewFromMemo(){
+  const st = getHifzState();
+  const pages = Math.round(st.memo.position || 0);
+  if(pages < 20) return null;                 // أقل من جزء: لا معنى لدورة بعد
+  const juzDone = Math.max(1, Math.floor(pages / 20));
+  const weekly = weeklyMemoLoad();
+  // كثيف الحفظ يراجع أسرع: تكرار أعلى ونطاق أوسع.
+  const repeat = weekly >= 10 ? 3 : (weekly >= 5 ? 2 : 1);
+  const list = [];
+  for(let i = 1; i <= Math.min(juzDone, 10); i++) list.push(i);
+  return { juzList: list, repeat: repeat, juzDone: juzDone, weekly: weekly };
+}
+
+/** يُنشئ خطة المراجعة المقترحة ويفتحها للطالب. */
+function acceptSuggestedReview(){
+  const sg = suggestReviewFromMemo();
+  if(!sg){ showToast('احفظ جزءًا أولًا لتبدأ دورة مراجعة'); return; }
+  const prog = addReviewProgram({
+    scopeType:'juz', juzList: sg.juzList,
+    splitMode:'split', repeatCount: sg.repeat,
+    startDate: getTodayISO(), position: 0, log: {}
+  });
+  _activeReviewPlanId = prog.id;
+  switchHifzTab('review');
+  showToast('بدأت دورة مراجعة ' + reviewScopeLabel(prog));
+}
+
 function saveMemoSetup(){
   const m = _hifzState.memo;
   if(m._draftStatus === 'prior'){
@@ -4585,7 +4943,13 @@ function saveMemoSetup(){
   m._draftStatus = null; m._draftPrior = null;
   saveHifzState();
   renderHifzScreen();
-  showToast('تم حفظ خطة الحفظ');
+  // بعد حفظ خطة الحفظ نلفت للمراجعة مباشرةً — هذا موضع التذكير الطبيعي.
+  const sg = suggestReviewFromMemo();
+  if(sg && !reviewPrograms().length){
+    showToast('حُفظت خطة الحفظ — وننصحك بدورة مراجعة تُثبّت ما حفظت');
+  } else {
+    showToast('تم حفظ خطة الحفظ');
+  }
 }
 function resetMemoSetup(){ _hifzState.memo.setup = false; saveHifzState(); renderHifzScreen(); }
 function markMemoDone(){
@@ -4722,6 +5086,28 @@ function renderReviewTabInner(wrap){
 }
 
 function renderReviewSetup(wrap, r){
+  // اقتراح مبنيّ على خطة الحفظ يظهر أعلى الإعداد — أسرع من بنائها يدويًا،
+  // ويربط الشقّين اللذين كان الطالب يضعهما منفصلين.
+  let _suggestHtml = '';
+  try {
+    const sg = suggestReviewFromMemo();
+    if(sg && !reviewPrograms().length){
+      _suggestHtml =
+        '<div class="link-suggest">' +
+          '<div class="link-suggest-title">مقترح بناءً على حفظك</div>' +
+          '<div class="link-suggest-text">' +
+            'حفظت ' + toAr(sg.juzDone) + ' ' + (sg.juzDone === 1 ? 'جزءًا' : 'أجزاء') +
+            '، ونقترح مراجعة ' +
+            (sg.juzList.length === 1 ? 'الجزء ' + toAr(sg.juzList[0])
+              : 'الأجزاء ' + toAr(sg.juzList[0]) + '–' + toAr(sg.juzList[sg.juzList.length-1])) +
+            ' بتكرار ' + toAr(sg.repeat) + ' ' + (sg.repeat === 1 ? 'مرة' : 'مرات') + '.' +
+          '</div>' +
+          '<button class="hifz-save-btn" style="margin-top:10px;" onclick="acceptSuggestedReview()">' +
+            'ابدأ الدورة المقترحة</button>' +
+          '<div class="link-suggest-note">أو أعدّ خطتك بنفسك أدناه</div>' +
+        '</div>';
+    }
+  } catch(e){}
   const scope = r._draftScope || 'pages';
   const scopeBtns = ['pages','juz','surah'].map(s => {
     const label = s==='pages' ? 'صفحات' : s==='juz' ? 'جزء معيّن' : 'سورة معيّنة';
@@ -4810,6 +5196,7 @@ function renderReviewSetup(wrap, r){
   }
 
   wrap.innerHTML =
+    _suggestHtml +
     '<div class="hifz-setup-card">' +
       '<div class="hifz-setup-title">برنامج مراجعة جديد</div>' +
       '<div class="hifz-setup-sub">اختر مجال المراجعة</div>' +
@@ -4979,7 +5366,8 @@ function renderReviewActive(wrap, p){
   let todayHtml;
   if(doneToday){
     todayHtml = '<div class="hifz-done-today">أتممت مراجعة اليوم</div>' +
-      '<button class="hifz-share-btn" onclick="shareReviewProgress()">شارك إنجازك</button>';
+      '<button class="hifz-share-btn" onclick="shareReviewProgress()">شارك إنجازك</button>' +
+      '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportReviewPlansPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg> خطط المراجعة PDF</button>';
   } else {
     todayHtml =
       '<div class="hifz-today-card">' +
@@ -5394,6 +5782,28 @@ function updateHomeRings(){
   setText('equal-pct-tilawa', fmtPct(tPct));
   setText('equal-pct-memo', fmtPct(mPct));
   setText('equal-pct-review', fmtPct(rPct));
+
+  /* حالة البطاقات: المنجَزة تنكمش وتخفت، والباقية تبقى بحجمها.
+     هذا يقلّل ما تراه العين بلا أن نحذف مهمة — الطالب الذي أتمّ تلاوته
+     وحفظه يرى مراجعته وحدها بارزة، وهي التي بقيت عليه.
+     والنبض ثلاث مرات على ما لم يُبدأ: يلفت ولا يُلحّ. */
+  try {
+    // البطاقات تُستهدف بمعرّفاتها مباشرةً. (equal-pct-* تخصّ شاشة أخرى.)
+    [['icon-tilawa', tPct], ['icon-memo', mPct], ['icon-review', rPct]]
+      .forEach(function(pair){
+        const card = document.getElementById(pair[0]);
+        if(!card) return;
+        card.classList.toggle('is-pending', pair[1] <= 0);
+        card.classList.toggle('is-done', pair[1] >= 1);
+      });
+    // إن بقيت مهمة واحدة فقط، أبرزناها أكثر — لا لبس فيما ينبغي فعله الآن.
+    const cards = document.querySelectorAll('#home-icons-wrap .glass-card');
+    let remaining = 0;
+    for(let i = 0; i < cards.length; i++) if(!cards[i].classList.contains('is-done')) remaining++;
+    for(let i = 0; i < cards.length; i++){
+      cards[i].classList.toggle('is-only', remaining === 1 && !cards[i].classList.contains('is-done'));
+    }
+  } catch(e){}
 
   // ============ ذكاء لوحة اليوم: الأولوية، الرسائل، الأزرار، الاحتفال ============
   const tDone = tPct >= 0.999;
@@ -6762,8 +7172,18 @@ function renderReceivedPlanView(wrap){
         (plan.c ? (/^\s*حلقة/.test(plan.c) ? musEsc(plan.c) : 'حلقة ' + musEsc(plan.c)) : '') +
       '</div>';
 
-    if(plan.m) html += '<div class="student-plan" style="margin-bottom:8px;"><b>الحفظ:</b> ' + musEsc(plan.m) + '</div>';
-    if(plan.r) html += '<div class="student-plan" style="margin-bottom:8px;"><b>المراجعة:</b> ' + musEsc(plan.r) + '</div>';
+    if(plan.ma || plan.m){
+      html += '<div class="asg-card"><div class="asg-card-label">الحفظ</div>' +
+        '<div class="asg-card-text">' + musEsc(plan.ma ? assignmentLabel(plan.ma) : plan.m) + '</div>' +
+        (plan.ma ? '<div class="asg-card-meta">' + toAr(assignmentCount(plan.ma)) + ' ' + ayahWord(assignmentCount(plan.ma)) + '</div>' : '') +
+      '</div>';
+    }
+    if(plan.ra || plan.r){
+      html += '<div class="asg-card"><div class="asg-card-label">المراجعة</div>' +
+        '<div class="asg-card-text">' + musEsc(plan.ra ? assignmentLabel(plan.ra) : plan.r) + '</div>' +
+        (plan.ra ? '<div class="asg-card-meta">' + toAr(assignmentCount(plan.ra)) + ' ' + ayahWord(assignmentCount(plan.ra)) + '</div>' : '') +
+      '</div>';
+    }
     if(plan.h) html += '<div class="dc-overdue" style="margin-top:10px;">الواجب الحالي: ' + musEsc(plan.h) + '</div>';
     if(!plan.m && !plan.r && !plan.h){
       html += '<div class="hifz-rest-day">الرمز لم يتضمّن خطة بعد — راجع معلمك</div>';
@@ -7163,7 +7583,27 @@ function renderJourneyView(wrap){
     });
     html += '</div>';
   }
+  // بطاقة تقدّم الطالب: ورقة يعلّقها أو يُريها أهله.
+  html += '<button class="hifz-save-btn" style="margin-top:16px;" onclick="exportMyProgressPdf()">بطاقة تقدّمي — حفظ كـ PDF</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="shareMyProgressText()">مشاركة تقدّمي</button>';
   wrap.innerHTML = html;
+}
+
+/** ملخّص نصّي للتقدّم يُرسل في أي تطبيق. */
+function shareMyProgressText(){
+  const st = getHifzState();
+  const badge = getBadgeLog();
+  const streaks = computeStreaks(badge.completeDays || []);
+  const name = getUserName();
+  let m = 'تقدّمي في ارتقِ' + (name ? ' — ' + name : '') + '\n';
+  m += '——————————————\n';
+  m += 'الحفظ: ' + toAr(Math.round(st.memo.position || 0)) + ' من ' + toAr(HIFZ_TOTAL_WAJH) + ' صفحة\n';
+  if(_tilawaPlan) m += 'الختمة: ' + toAr(_tilawaDone.length) + ' من ' + toAr(_tilawaPlan.days) + ' يوم\n';
+  const rp = reviewPrograms().length;
+  if(rp) m += 'خطط المراجعة: ' + toAr(rp) + '\n';
+  m += 'أيام متتالية: ' + toAr(streaks.current) + '\n';
+  m += '——————————————\n' + planDateAr(new Date()) + ' · ' + formatHijri(new Date());
+  shareText(m, 'تقدّمي في ارتقِ');
 }
 function renderWeeklyPlanView(wrap){
   const st = getHifzState();
@@ -7796,7 +8236,11 @@ function renderCircleDetail(wrap, circle){
     html += '<div style="display:flex;gap:8px;margin-bottom:14px;">' +
       '<button class="share-sheet-btn generic" style="flex:1;margin-bottom:0;" onclick="messageAllStudents()">راسل الكل</button>' +
       '<button class="share-sheet-btn" style="flex:1;margin-bottom:0;background:linear-gradient(135deg,var(--purple),var(--purple-light));" onclick="openCircleSheet()">كشف الحلقة</button>' +
-    '</div>';
+    '</div>' +
+    '<div class="home-cards-btn" style="margin-top:0;margin-bottom:14px;" role="button" tabindex="0" onclick="openCardsHub()">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+      '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 15h4"/></svg>' +
+      '<span>بطاقات للمشاركة</span></div>';
 
     if(circle.students.length > 8){
       html += '<input type="text" class="hifz-day-input" id="student-search-input" placeholder="ابحث باسم الطالب…" style="width:100%;margin-bottom:8px;" value="' + (_studentSearch||'') + '" oninput="_studentSearch=this.value;renderTeacherScreen();" />';
@@ -7865,6 +8309,12 @@ function renderCircleDetail(wrap, circle){
             '<button class="sa-del" onclick="deleteStudent(' + s.id + ')">حذف</button>' +
           '</div>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="shareStudentReportImage(' + s.id + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg> مشاركة تقرير مرئي</button>' +
+          '<div style="display:flex;gap:6px;margin-top:8px;">' +
+            '<button class="hifz-edit-btn" style="flex:1;margin-top:0;" onclick="openAssignmentEditor(' + s.id + ',\'memo\')">تكليف حفظ</button>' +
+            '<button class="hifz-edit-btn" style="flex:1;margin-top:0;" onclick="openAssignmentEditor(' + s.id + ',\'review\')">تكليف مراجعة</button>' +
+          '</div>' +
+          '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="openStudentPhotos(' + s.id + ')">' +
+            'الصور' + ((s.photos && s.photos.length) ? ' (' + toAr(s.photos.length) + ')' : '') + '</button>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="sendParentReport(' + s.id + ')">إرسال تقرير لوليّ الأمر</button>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="makePlanCode(' + s.id + ')">توليد رمز الخطة للطالب</button>' +
           '<button class="hifz-save-btn" style="margin-top:8px;" onclick="openStudentProfile(' + s.id + ')">الملف الكامل — واجبات، ملاحظات، خطة، تقويم</button>' +
@@ -8922,6 +9372,691 @@ function planDateAr(v){
 }
 
 // ============ بطاقة الخطة (تلاوة/حفظ/مراجعة) — صورة ملوّنة قابلة للمشاركة، من بيانات حقيقية فقط ============
+/* ═══════════════════════════════════════════════════════════════════════
+   محرّك البطاقات
+   One card engine for every shareable card.
+
+   المبدأ الذي التزمته: البطاقة تُقرأ في ثانيتين على شاشة واتساب مزدحمة.
+   فهي مختصرة عمدًا — رقم واحد كبير، وأربعة صفوف على الأكثر، وشعار.
+   وكل ما زاد على ذلك يُحذف لا يُصغَّر.
+
+   واللون يتبع هوية المستخدم: الأخضر والذهب للذكور، والخُزامي والوردي
+   للإناث. فبطاقة الطالبة تُشبه تطبيقها لا تطبيق غيرها.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** ألوان البطاقة حسب هوية المستخدم الحالي. */
+function cardTheme(){
+  const fem = (typeof isFem === 'function') && isFem();
+  return fem ? {
+    deep:'#4E2E4A', mid:'#6D4667', metal:'#D9A2B4', metalDeep:'#C98A9C',
+    bg1:'#FDF9FA', bg2:'#F7EDF1', ink:'#3B2233', soft:'#8E7285',
+    ring:'rgba(201,138,156,0.16)'
+  } : {
+    deep:'#155F4C', mid:'#1F8367', metal:'#F0D878', metalDeep:'#D4AF37',
+    bg1:'#F7FAF8', bg2:'#FBF8EF', ink:'#1F3D33', soft:'#7C9488',
+    ring:'rgba(31,131,103,0.14)'
+  };
+}
+
+/** يرسم شعار ارتقِ (إن أمكن) وإلا شارة دائرية بديلة. */
+function drawCardLogo(ctx, cx, cy, r, th, cb){
+  let src = null;
+  try {
+    for(let i = 0; i < document.styleSheets.length; i++){
+      let rules; try { rules = document.styleSheets[i].cssRules; } catch(e){ continue; }
+      if(!rules) continue;
+      for(let j = 0; j < rules.length; j++){
+        const t = rules[j].cssText || '';
+        if(t.indexOf('.brand-mark') !== -1 && t.indexOf('data:image/png;base64') !== -1){
+          const m = t.match(/url\(\s*["']?(data:image\/png;base64,[^"')]+)/);
+          if(m) src = m[1];
+          break;
+        }
+      }
+      if(src) break;
+    }
+  } catch(e){}
+
+  function fallback(){
+    // شارة بديلة: دائرة معدنية بحرف الألف — لا تترك البطاقة بلا هوية.
+    const g = ctx.createRadialGradient(cx-r*0.3, cy-r*0.35, r*0.2, cx, cy, r);
+    g.addColorStop(0, '#FFF3D0'); g.addColorStop(0.55, th.metal); g.addColorStop(1, th.metalDeep);
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = th.deep; ctx.textAlign = 'center';
+    ctx.font = '900 ' + Math.round(r*1.1) + 'px Tajawal, sans-serif';
+    ctx.fillText('ا', cx, cy + r*0.38);
+    cb();
+  }
+  if(!src){ fallback(); return; }
+  const img = new Image();
+  img.onload = function(){
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+    ctx.drawImage(img, cx-r, cy-r, r*2, r*2);
+    ctx.restore();
+    cb();
+  };
+  img.onerror = fallback;
+  img.src = src;
+}
+
+/** زخرفة نجمية خفيفة في خلفية البطاقة — نفس نمط الشاشة الرئيسية. */
+function drawCardOrnament(ctx, W, H, th){
+  ctx.save();
+  ctx.globalAlpha = 0.045;
+  ctx.strokeStyle = th.deep; ctx.lineWidth = 1.2;
+  const step = 84;
+  for(let y = 200; y < H - 60; y += step){
+    for(let x = 40; x < W; x += step){
+      ctx.save(); ctx.translate(x, y);
+      ctx.beginPath(); ctx.rect(-17, -17, 34, 34); ctx.stroke();
+      ctx.rotate(Math.PI/4);
+      ctx.beginPath(); ctx.rect(-17, -17, 34, 34); ctx.stroke();
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+}
+
+/**
+ * يبني بطاقة مشاركة موحّدة.
+ * @param {object} o {title, name, big, bigLabel, pct, rows[], note}
+ */
+function buildShareCard(o){
+  const th = cardTheme();
+  const W = 800, H = 1000;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // خلفية متدرّجة + زخرفة
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, th.bg1); bg.addColorStop(1, th.bg2);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  drawCardOrnament(ctx, W, H, th);
+
+  // ترويسة
+  const head = ctx.createLinearGradient(0, 0, W, 190);
+  head.addColorStop(0, th.mid); head.addColorStop(1, th.deep);
+  ctx.fillStyle = head;
+  if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(40, 40, W-80, 190, 28); ctx.fill(); }
+  else ctx.fillRect(40, 40, W-80, 190);
+
+  // خيط معدني أسفل الترويسة
+  const line = ctx.createLinearGradient(0, 0, W, 0);
+  line.addColorStop(0, 'rgba(255,255,255,0)');
+  line.addColorStop(0.5, th.metal);
+  line.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = line; ctx.fillRect(120, 226, W-240, 3);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = th.metal; ctx.font = '700 24px Tajawal, sans-serif';
+  ctx.fillText(o.title || '', W/2, 118);
+  ctx.fillStyle = '#FFFFFF'; ctx.font = '900 36px Tajawal, sans-serif';
+  ctx.fillText(o.name || '', W/2, 168);
+
+  // الرقم الكبير: حلقة تقدّم أو رقم مجرّد
+  const cx = W/2, cy = 400, r = 92;
+  if(typeof o.pct === 'number'){
+    ctx.lineWidth = 17; ctx.lineCap = 'round';
+    ctx.strokeStyle = th.ring;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+    const g = ctx.createLinearGradient(cx-r, cy-r, cx+r, cy+r);
+    g.addColorStop(0, th.metal); g.addColorStop(1, th.metalDeep);
+    ctx.strokeStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.max(0.02, Math.min(1, o.pct))*Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.fillStyle = th.ink; ctx.font = '900 52px Tajawal, sans-serif';
+  ctx.fillText(o.big || '', cx, cy + 14);
+  ctx.font = '700 17px Tajawal, sans-serif'; ctx.fillStyle = th.soft;
+  ctx.fillText(o.bigLabel || '', cx, cy + 48);
+
+  /* الصفوف: يبدأ موضعها أعلى حين تكون أربعة، وإلا تراكمت على التذييل.
+     هذا ما كشفه الفحص البصري: بطاقة بأربعة صفوف وملاحظة كانت تدفع
+     الملاحظة فوق الشعار فيتراكبان. */
+  const _n = Math.min(4, (o.rows || []).length);
+  let ry = _n >= 4 ? 520 : 560;
+  (o.rows || []).slice(0, 4).forEach(function(row){
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    if(ctx.roundRect){ ctx.beginPath(); ctx.roundRect(60, ry, W-120, 66, 18); ctx.fill(); }
+    else ctx.fillRect(60, ry, W-120, 66);
+    ctx.fillStyle = th.ring;
+    ctx.fillRect(W-64, ry+16, 4, 34);
+    ctx.textAlign = 'right'; ctx.fillStyle = th.ink; ctx.font = '800 23px Tajawal, sans-serif';
+    ctx.fillText(row[0], W-92, ry+43);
+    ctx.textAlign = 'left'; ctx.fillStyle = th.mid; ctx.font = '900 23px Tajawal, sans-serif';
+    ctx.fillText(row[1], 92, ry+43);
+    ry += 80;
+  });
+
+  // الملاحظة تُرسم فقط إن بقي لها متّسع فوق التذييل، وإلا حُذفت.
+  // حذفها أفضل من تراكبها مع الشعار.
+  const LOGO_TOP = H - 158;
+  if(o.note && ry + 34 < LOGO_TOP){
+    ctx.textAlign = 'center'; ctx.fillStyle = th.mid;
+    ctx.font = '700 19px Tajawal, sans-serif';
+    ctx.fillText(o.note, W/2, ry + 30);
+  }
+
+  // الشعار والتذييل — يُرسمان بعد تحميل الصورة، ثم تُصدَّر البطاقة.
+  drawCardLogo(ctx, W/2, H-118, 34, th, function(){
+    ctx.textAlign = 'center';
+    ctx.fillStyle = th.ink; ctx.font = '800 20px Tajawal, sans-serif';
+    ctx.fillText('ارتقِ', W/2, H-58);
+    ctx.fillStyle = th.soft; ctx.font = '600 14px Tajawal, sans-serif';
+    ctx.fillText(planDateAr(new Date()) + ' · ' + formatHijri(new Date()), W/2, H-30);
+
+    canvas.toBlob(function(blob){
+      if(!blob){ showToast('تعذّر إنشاء البطاقة — حاول مرة أخرى'); return; }
+      const fn = (o.title || 'بطاقة') + '-' + (o.name || '') + '.png';
+      showCardPreview(blob, fn, o.title || 'بطاقة ارتقِ',
+        (o.title || '') + ' — ' + (o.name || ''));
+    }, 'image/png');
+  });
+}
+
+/**
+ * مركز البطاقات: كل ما يمكن مشاركته في موضع واحد.
+ * بديل تشتيت الأزرار في الشاشات: المستخدم يعرف أين يجدها دائمًا،
+ * والقائمة تتغيّر حسب ما هو متاح له فعلًا لا حسب دوره فحسب.
+ */
+function openCardsHub(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+
+  const items = [];
+  items.push(['نتائجي', 'حصيلتك في الحفظ والانتظام', 'cardMyResults()']);
+  const st = getHifzState();
+  if(st.memo.setup){
+    items.push(['خطة الأسبوع', 'من الأحد إلى الخميس', 'cardWeeklyPlan()']);
+    items.push(['خطة الشهر', 'أربعة أسابيع دراسية', 'cardMonthlyPlan()']);
+  }
+  if(_tilawaPlan) items.push(['خطة الختمة', 'مدّتك وما أنجزت منها', "sharePlanImage('tilawa')"]);
+  if(persoCan('circles')){
+    const c = getActiveCircle();
+    if(c){
+      items.push(['حصيلة الحلقة', c.name, 'cardCircleSummary(' + c.id + ')']);
+      if(c.students.length){
+        items.push(['انتظام طالب', 'اختر الطالب من ملفّه', '__students']);
+      }
+    }
+  }
+
+  let html = '<div class="share-sheet-title">بطاقات للمشاركة</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:12px;">اختر بطاقة تُنشأ صورةً جاهزة للإرسال</div>' +
+    '<div class="cards-hub">';
+  items.forEach(function(it){
+    if(it[2] === '__students'){
+      const c = getActiveCircle();
+      c.students.forEach(function(stu){
+        html += '<div class="hub-item" role="button" tabindex="0" onclick="cardStudentAttendance(' + stu.id + ')">' +
+          '<div class="hub-name">انتظام ' + musEsc(stu.name) + '</div>' +
+          '<div class="hub-sub">حضوره وغيابه وإتقانه</div></div>';
+      });
+      return;
+    }
+    html += '<div class="hub-item" role="button" tabindex="0" onclick="' + it[2] + '">' +
+      '<div class="hub-name">' + it[0] + '</div>' +
+      '<div class="hub-sub">' + it[1] + '</div></div>';
+  });
+  html += '</div>';
+  html += '<button class="hifz-edit-btn" style="margin-top:10px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   صور التكليف
+   Photo attachments for assignments.
+
+   الحاجة: المعلّم يصوّر صفحة المصحف ويحدّد عليها بالقلم موضع الحفظ، أو
+   يرسل شهادة إتقان. الوصف النصّي لا يغني عن صورة يراها الطالب.
+
+   القيد الحاسم: التخزين localStorage وحده، وسعته نحو ٥ ميغابايت لكل
+   نطاق. صورة الجوال الواحدة قد تتجاوز ٣ ميغابايت — أي أن صورة واحدة
+   غير مضغوطة تملأ التخزين وتُسقط بيانات الحلقة كلها.
+
+   فالضغط هنا ليس تحسينًا بل شرط عمل: نُصغّر إلى ٩٠٠ بكسل وjpeg بجودة
+   ٠٫٧، فتصير الصورة نحو ١٠٠ كيلوبايت — تُقرأ بوضوح ولا تُثقل الجهاز.
+   ═══════════════════════════════════════════════════════════════════════ */
+const PHOTO_MAX_DIM = 900;
+const PHOTO_QUALITY = 0.7;
+const PHOTO_MAX_PER_STUDENT = 3;
+
+/**
+ * يضغط صورة إلى حجم آمن للتخزين المحلّي.
+ * @returns Promise<string> صورة بصيغة dataURL
+ */
+function compressImage(file){
+  return new Promise(function(resolve, reject){
+    if(!file || !/^image\//.test(file.type)){ reject(new Error('ليست صورة')); return; }
+    const reader = new FileReader();
+    reader.onerror = function(){ reject(new Error('تعذّرت القراءة')); };
+    reader.onload = function(e){
+      const img = new Image();
+      img.onerror = function(){ reject(new Error('تعذّر فتح الصورة')); };
+      img.onload = function(){
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, PHOTO_MAX_DIM / Math.max(w, h));
+        w = Math.round(w * scale); h = Math.round(h * scale);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';       // خلفية بيضاء للصور الشفافة
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        try { resolve(c.toDataURL('image/jpeg', PHOTO_QUALITY)); }
+        catch(err){ reject(err); }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/** حجم dataURL بالكيلوبايت تقريبًا. */
+function dataUrlKb(d){
+  if(!d) return 0;
+  const b64 = String(d).split(',')[1] || '';
+  return Math.round(b64.length * 0.75 / 1024);
+}
+
+var _photoCtx = null;   // {studentId}
+
+function openStudentPhotos(studentId){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const stu = c.students.find(function(x){ return x.id === studentId; });
+  if(!stu) return;
+  _photoCtx = { studentId: studentId };
+  renderStudentPhotos();
+}
+
+function renderStudentPhotos(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay || !_photoCtx) return;
+  const c = getActiveCircle();
+  const stu = c ? c.students.find(function(x){ return x.id === _photoCtx.studentId; }) : null;
+  if(!stu) return;
+  const photos = stu.photos || [];
+
+  let html = '<div class="share-sheet-title">صور ' + musEsc(stu.name) + '</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:10px;">' +
+      'صوّر صفحة المصحف أو ما يوضّح التكليف — تُحفظ على جهازك فقط.' +
+    '</div>';
+
+  if(photos.length){
+    html += '<div class="photo-grid">';
+    photos.forEach(function(ph, i){
+      html += '<div class="photo-item">' +
+        '<img src="' + ph.data + '" alt="صورة ' + toAr(i+1) + '" onclick="viewPhoto(' + i + ')">' +
+        '<div class="photo-meta">' + planDateAr(ph.at) + ' · ' + toAr(dataUrlKb(ph.data)) + ' ك.ب</div>' +
+        '<button class="photo-del" onclick="deleteStudentPhoto(' + i + ')" aria-label="حذف الصورة">حذف</button>' +
+      '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="hifz-rest-day">لا صور بعد</div>';
+  }
+
+  if(photos.length < PHOTO_MAX_PER_STUDENT){
+    html += '<label class="hifz-save-btn photo-add">' +
+      'إضافة صورة' +
+      '<input type="file" accept="image/*" capture="environment" ' +
+      'style="display:none;" onchange="addStudentPhoto(event)">' +
+    '</label>';
+  } else {
+    html += '<div class="asg-hint">بلغت الحدّ الأقصى (' + toAr(PHOTO_MAX_PER_STUDENT) +
+      ' صور) — احذف صورة لإضافة أخرى</div>';
+  }
+  if(photos.length){
+    html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="sharePhotoToParent()">إرسال الصور لوليّ الأمر</button>';
+  }
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+function addStudentPhoto(evt){
+  const file = evt.target.files && evt.target.files[0];
+  if(!file) return;
+  showToast('جارٍ معالجة الصورة…');
+  compressImage(file).then(function(dataUrl){
+    const c = getActiveCircle();
+    const stu = c ? c.students.find(function(x){ return x.id === _photoCtx.studentId; }) : null;
+    if(!stu) return;
+    stu.photos = stu.photos || [];
+    stu.photos.push({ data: dataUrl, at: getTodayISO() });
+    try {
+      saveTeacherCircles(_teacherCircles);
+    } catch(e){
+      // امتلاء التخزين: نتراجع عن الإضافة بدل أن نفقد بيانات الحلقة.
+      stu.photos.pop();
+      showToast('مساحة الجهاز ممتلئة — احذف صورًا قديمة');
+      renderStudentPhotos();
+      return;
+    }
+    showToast('أُضيفت الصورة (' + toAr(dataUrlKb(dataUrl)) + ' ك.ب)');
+    renderStudentPhotos();
+  }).catch(function(){
+    showToast('تعذّرت إضافة الصورة — جرّب صورة أخرى');
+  });
+}
+
+function deleteStudentPhoto(i){
+  const c = getActiveCircle();
+  const stu = c ? c.students.find(function(x){ return x.id === _photoCtx.studentId; }) : null;
+  if(!stu || !stu.photos) return;
+  stu.photos.splice(i, 1);
+  saveTeacherCircles(_teacherCircles);
+  showToast('حُذفت الصورة');
+  renderStudentPhotos();
+}
+
+/** يعرض الصورة بحجمها الكامل عبر لوحة المعاينة نفسها. */
+function viewPhoto(i){
+  const c = getActiveCircle();
+  const stu = c ? c.students.find(function(x){ return x.id === _photoCtx.studentId; }) : null;
+  if(!stu || !stu.photos || !stu.photos[i]) return;
+  const d = stu.photos[i].data;
+  fetch(d).then(function(r){ return r.blob(); }).then(function(blob){
+    showCardPreview(blob, 'صورة-' + stu.name + '.jpg', 'صورة ' + stu.name, stu.name);
+  }).catch(function(){ showToast('تعذّر عرض الصورة'); });
+}
+
+/** يشارك أحدث صورة مع رسالة لوليّ الأمر. */
+function sharePhotoToParent(){
+  const c = getActiveCircle();
+  const stu = c ? c.students.find(function(x){ return x.id === _photoCtx.studentId; }) : null;
+  if(!stu || !stu.photos || !stu.photos.length) return;
+  const last = stu.photos[stu.photos.length - 1];
+  const txt = 'تكليف ' + stu.name +
+    (stu.memoAssign ? ': ' + assignmentLabel(stu.memoAssign) : '');
+  fetch(last.data).then(function(r){ return r.blob(); }).then(function(blob){
+    if(navigator.share && navigator.canShare){
+      const f = new File([blob], 'تكليف-' + stu.name + '.jpg', { type:'image/jpeg' });
+      if(navigator.canShare({ files:[f] })){
+        navigator.share({ files:[f], text: txt }).catch(function(){});
+        return;
+      }
+    }
+    showCardPreview(blob, 'تكليف-' + stu.name + '.jpg', 'تكليف ' + stu.name, txt);
+  }).catch(function(){ showToast('تعذّرت المشاركة'); });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   التكليف بالسورة والآية
+   Assignments by surah and ayah range.
+
+   كانت خطة الطالب نصًّا حرًّا: «صفحتان يوميًا». وهذا يكفي المعلّم حين
+   يكتب لنفسه، ولا يكفي الطالب حين يفتح المصحف — فأيّ صفحتين؟ ومن أين
+   يبدأ اليوم؟ التكليف الدقيق يجيب: سورة البقرة، من الآية ٢٥٥ إلى ٢٦٠.
+
+   والبيانات كلّها موجودة أصلًا (SURAH_NAMES و SURAH_AYAHS)، فلم يبقَ
+   إلا ربطها بواجهة وتخزينها مع الطالب.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** عدد آيات سورة برقمها (١..١١٤). */
+function surahAyahCount(n){
+  const i = (parseInt(n, 10) || 1) - 1;
+  return SURAH_AYAHS[i] || 0;
+}
+/** اسم سورة برقمها. */
+function surahName(n){
+  const i = (parseInt(n, 10) || 1) - 1;
+  return SURAH_NAMES[i] || '';
+}
+
+/**
+ * يصوغ التكليف عبارةً عربية مقروءة.
+ * يختصر حين يشمل التكليف السورة كلها، فلا يقول «من ١ إلى ٧» لسورة الفاتحة.
+ */
+function assignmentLabel(a){
+  if(!a || !a.surah) return '';
+  const total = surahAyahCount(a.surah);
+  const from = Math.max(1, parseInt(a.from, 10) || 1);
+  const to = Math.min(total, parseInt(a.to, 10) || from);
+  const nm = surahName(a.surah);
+  if(from === 1 && to === total) return 'سورة ' + nm + ' كاملة';
+  if(from === to) return 'سورة ' + nm + ' · الآية ' + toAr(from);
+  const n = to - from + 1;
+  return 'سورة ' + nm + ' · من ' + toAr(from) + ' إلى ' + toAr(to) +
+         ' (' + toAr(n) + ' ' + ayahWord(n) + ')';
+}
+
+/** تمييز «آية» الصحيح: ٣–١٠ جمع، وما فوق مفرد منصوب. */
+function ayahWord(n){
+  if(n === 1) return 'آية';
+  if(n === 2) return 'آيتان';
+  if(n <= 10) return 'آيات';
+  return 'آية';
+}
+
+/** عدد الآيات في التكليف. */
+function assignmentCount(a){
+  if(!a || !a.surah) return 0;
+  const total = surahAyahCount(a.surah);
+  const from = Math.max(1, parseInt(a.from, 10) || 1);
+  const to = Math.min(total, parseInt(a.to, 10) || from);
+  return Math.max(0, to - from + 1);
+}
+
+/* ── محرّر التكليف ── */
+var _asgCtx = null;   // {studentId, kind:'memo'|'review'}
+var _asgDraft = null;
+
+function openAssignmentEditor(studentId, kind){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const stu = c.students.find(function(x){ return x.id === studentId; });
+  if(!stu){ return; }
+  _asgCtx = { studentId: studentId, kind: kind || 'memo' };
+  const cur = (kind === 'review' ? stu.reviewAssign : stu.memoAssign) || null;
+  _asgDraft = cur ? { surah: cur.surah, from: cur.from, to: cur.to }
+                  : { surah: 1, from: 1, to: Math.min(7, surahAyahCount(1)) };
+  renderAssignmentEditor();
+}
+
+function setAsgSurah(v){
+  const n = Math.max(1, Math.min(114, parseInt(v, 10) || 1));
+  _asgDraft.surah = n;
+  // عند تبديل السورة نُعيد المدى لبدايتها، فلا يبقى مدى لا يوجد في السورة الجديدة.
+  _asgDraft.from = 1;
+  _asgDraft.to = Math.min(10, surahAyahCount(n));
+  renderAssignmentEditor();
+}
+function setAsgFrom(v){
+  const total = surahAyahCount(_asgDraft.surah);
+  let n = Math.max(1, Math.min(total, parseInt(v, 10) || 1));
+  _asgDraft.from = n;
+  if(_asgDraft.to < n) _asgDraft.to = n;   // النهاية لا تسبق البداية أبدًا
+  renderAssignmentEditor();
+}
+function setAsgTo(v){
+  const total = surahAyahCount(_asgDraft.surah);
+  let n = Math.max(1, Math.min(total, parseInt(v, 10) || 1));
+  if(n < _asgDraft.from) n = _asgDraft.from;
+  _asgDraft.to = n;
+  renderAssignmentEditor();
+}
+function asgWholeSurah(){
+  _asgDraft.from = 1;
+  _asgDraft.to = surahAyahCount(_asgDraft.surah);
+  renderAssignmentEditor();
+}
+
+function renderAssignmentEditor(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay || !_asgDraft) return;
+  const c = getActiveCircle();
+  const stu = c ? c.students.find(function(x){ return x.id === _asgCtx.studentId; }) : null;
+  const total = surahAyahCount(_asgDraft.surah);
+  const kindLabel = _asgCtx.kind === 'review' ? 'المراجعة' : 'الحفظ';
+
+  let opts = '';
+  for(let i = 1; i <= 114; i++){
+    opts += '<option value="' + i + '"' + (i === _asgDraft.surah ? ' selected' : '') + '>' +
+      toAr(i) + ' · ' + surahName(i) + '</option>';
+  }
+
+  panel.innerHTML =
+    '<div class="share-sheet-title">تكليف ' + kindLabel + ' — ' + (stu ? musEsc(stu.name) : '') + '</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:10px;">حدّد السورة ومدى الآيات</div>' +
+    '<select class="hifz-day-input" style="width:100%;margin-bottom:10px;" onchange="setAsgSurah(this.value)">' + opts + '</select>' +
+    '<div class="asg-row">' +
+      '<div class="asg-field"><label>من الآية</label>' +
+        '<input type="number" min="1" max="' + total + '" value="' + _asgDraft.from + '" onchange="setAsgFrom(this.value)"></div>' +
+      '<div class="asg-field"><label>إلى الآية</label>' +
+        '<input type="number" min="1" max="' + total + '" value="' + _asgDraft.to + '" onchange="setAsgTo(this.value)"></div>' +
+    '</div>' +
+    '<div class="asg-hint">السورة ' + toAr(total) + ' آية · التكليف ' +
+      toAr(assignmentCount(_asgDraft)) + ' ' + ayahWord(assignmentCount(_asgDraft)) + '</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="asgWholeSurah()">السورة كاملة</button>' +
+    '<div class="asg-preview">' + assignmentLabel(_asgDraft) + '</div>' +
+    '<button class="hifz-save-btn" style="margin-top:10px;" onclick="saveAssignment()">حفظ التكليف</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="clearAssignment()">حذف التكليف</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  overlay.classList.remove('hidden');
+}
+
+function saveAssignment(){
+  const c = getActiveCircle();
+  if(!c || !_asgCtx) return;
+  const stu = c.students.find(function(x){ return x.id === _asgCtx.studentId; });
+  if(!stu) return;
+  const a = { surah:_asgDraft.surah, from:_asgDraft.from, to:_asgDraft.to, at:getTodayISO() };
+  if(_asgCtx.kind === 'review') stu.reviewAssign = a; else stu.memoAssign = a;
+  // نُبقي النصّ الحرّ متوافقًا مع التكليف، فلا يظهر للطالب وصفان متعارضان.
+  const lbl = assignmentLabel(a);
+  if(_asgCtx.kind === 'review') stu.reviewPlan = lbl; else stu.memoPlan = lbl;
+  saveTeacherCircles(_teacherCircles);
+  closeShareSheet();
+  renderTeacherScreen();
+  showToast('حُفظ التكليف: ' + lbl);
+}
+
+function clearAssignment(){
+  const c = getActiveCircle();
+  if(!c || !_asgCtx) return;
+  const stu = c.students.find(function(x){ return x.id === _asgCtx.studentId; });
+  if(!stu) return;
+  if(_asgCtx.kind === 'review'){ stu.reviewAssign = null; stu.reviewPlan = ''; }
+  else { stu.memoAssign = null; stu.memoPlan = ''; }
+  saveTeacherCircles(_teacherCircles);
+  closeShareSheet();
+  renderTeacherScreen();
+  showToast('حُذف التكليف');
+}
+
+/* ═══ البطاقات الخمس ═══ */
+
+/** ١. بطاقة النتائج — حصيلة الطالب كلّها في بطاقة. */
+function cardMyResults(){
+  const st = getHifzState();
+  const badge = getBadgeLog();
+  const streaks = computeStreaks(badge.completeDays || []);
+  const memoPct = HIFZ_TOTAL_WAJH > 0 ? (st.memo.position / HIFZ_TOTAL_WAJH) : 0;
+  const rows = [
+    ['الحفظ', toAr(Math.round(st.memo.position || 0)) + ' من ' + toAr(HIFZ_TOTAL_WAJH) + ' صفحة'],
+    ['أيام متتالية', toAr(streaks.current) + ' يوم'],
+    ['أطول سلسلة', toAr(streaks.longest) + ' يوم']
+  ];
+  if(_tilawaPlan) rows.push(['الختمة', toAr(_tilawaDone.length) + ' من ' + toAr(_tilawaPlan.days) + ' يوم']);
+  buildShareCard({
+    title:'نتائجي', name:getUserName() || gt('طالب القرآن','طالبة القرآن'),
+    pct:memoPct, big:toAr(Math.round(memoPct*100)) + '٪', bigLabel:'من القرآن حفظًا',
+    rows:rows, note: streaks.current >= 7 ? 'ما شاء الله — ثبّتك الله' : ''
+  });
+}
+
+/** ٢. بطاقة الخطة الأسبوعية. */
+function cardWeeklyPlan(){
+  const st = getHifzState();
+  if(!st.memo.setup){ showToast('أعدّ خطة الحفظ أولًا'); return; }
+  const rows0 = buildMemoSchedule('school', new Date());
+  const t = memoScheduleTotals(rows0);
+  const work = rows0.filter(function(r){ return !r.rest; });
+  const rows = [
+    ['أيام الحفظ', toAr(t.work) + ' من ' + toAr(rows0.length)],
+    ['المجموع', toAr(t.pages) + ' وجه'],
+    ['يبدأ', rows0.length ? rows0[0].weekday + ' ' + rows0[0].hijri : '—'],
+    ['ينتهي', rows0.length ? rows0[rows0.length-1].weekday + ' ' + rows0[rows0.length-1].hijri : '—']
+  ];
+  buildShareCard({
+    title:'خطة الأسبوع', name:getUserName() || gt('طالب القرآن','طالبة القرآن'),
+    big:toAr(t.pages), bigLabel:'وجه هذا الأسبوع', rows:rows,
+    note: work.length ? ('من الأحد إلى الخميس') : ''
+  });
+}
+
+/** ٣. بطاقة الخطة الشهرية (أربعة أسابيع). */
+function cardMonthlyPlan(){
+  const st = getHifzState();
+  if(!st.memo.setup){ showToast('أعدّ خطة الحفظ أولًا'); return; }
+  const rows0 = buildMemoSchedule('month4', new Date());
+  const t = memoScheduleTotals(rows0);
+  buildShareCard({
+    title:'خطة الشهر', name:getUserName() || gt('طالب القرآن','طالبة القرآن'),
+    big:toAr(t.pages), bigLabel:'وجه في أربعة أسابيع',
+    rows:[
+      ['أيام الحفظ', toAr(t.work) + ' يوم'],
+      ['المعدّل اليومي', toAr(t.work ? Math.round(t.pages / t.work * 10) / 10 : 0) + ' وجه'],
+      ['يعادل', toAr(Math.round(t.pages / 20 * 10) / 10) + ' جزءًا تقريبًا'],
+      ['يبدأ', rows0.length ? rows0[0].weekday + ' ' + rows0[0].hijri : '—']
+    ],
+    note:'أربعة أسابيع دراسية'
+  });
+}
+
+/** ٤. بطاقة الانتظام في الحلقة — للمعلّم عن طالبه. */
+function cardStudentAttendance(id){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const stu = c.students.find(function(x){ return x.id === id; });
+  if(!stu){ showToast('لم يُعثر على الطالب'); return; }
+  const st = computeStudentStats(stu);
+  const m = masteryStats(stu, getWeekKeys());
+  const total = st.presentCount + st.lateCount + st.absentCount;
+  const pct = total > 0 ? (st.presentCount / total) : 0;
+  const rows = [
+    ['الحضور', toAr(st.presentCount) + ' يوم'],
+    ['التأخّر', toAr(st.lateCount) + ' يوم'],
+    ['الغياب', toAr(st.absentCount) + ' يوم']
+  ];
+  if(m.rated) rows.push(['الإتقان', toAr(m.mastered) + ' من ' + toAr(m.rated)]);
+  buildShareCard({
+    title:'الانتظام في ' + c.name, name:stu.name,
+    pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'نسبة الانتظام',
+    rows:rows,
+    note: pct >= 0.9 ? 'منتظم ما شاء الله' : (pct >= 0.7 ? 'انتظام طيّب' : '')
+  });
+}
+
+/** ٥. بطاقة الحلقة كاملة — للمعلّم عن حلقته. */
+function cardCircleSummary(id){
+  const c = _teacherCircles.find(function(x){ return x.id === (id || _activeCircleId); });
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const cs = computeCircleStats(c);
+  const pct = cs.weekPossible > 0 ? (cs.weekCompletedSum / cs.weekPossible) : 0;
+  const juz = c.students.reduce(function(a,x){ return a + getStudentJuzMemorized(x); }, 0);
+  buildShareCard({
+    title:'حصيلة الحلقة', name:c.name,
+    pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'إنجاز هذا الأسبوع',
+    rows:[
+      ['عدد الطلاب', toAr(c.students.length)],
+      ['محفوظ الحلقة', toAr(juz) + ' جزءًا'],
+      ['إنجاز الأسبوع', toAr(cs.weekCompletedSum) + ' من ' + toAr(cs.weekPossible)],
+      ['إنجاز الشهر', toAr(cs.monthCompletedSum) + ' من ' + toAr(cs.monthPossible)]
+    ],
+    note:'بارك الله في طلابها'
+  });
+}
+
 function sharePlanImage(type){
   const brand = getActiveBrand();
   const name = getUserName() || (type === 'tilawa' ? 'قارئ القرآن' : 'حافظ القرآن');
@@ -9232,6 +10367,10 @@ function makePlanCode(id){
     t: getUserName() || '',
     m: s.memoPlan || '',
     r: s.reviewPlan || '',
+    // التكليف المنظَّم يُرسل مع النصّ، ليعرض للطالب مدى الآيات بدقّة
+    // ويُفتح له في المصحف مباشرةً لاحقًا.
+    ma: s.memoAssign || null,
+    ra: s.reviewAssign || null,
     h: (s.homework && !s.homework.done) ? s.homework.text : '',
     d: new Date().toISOString().slice(0, 10)
   });
@@ -9336,8 +10475,8 @@ function buildParentReport(s, c, period){
 
   if(s.memoPlan || s.reviewPlan){
     msg += '——————————————\n';
-    if(s.memoPlan) msg += 'خطة الحفظ: ' + s.memoPlan + '\n';
-    if(s.reviewPlan) msg += 'خطة المراجعة: ' + s.reviewPlan + '\n';
+    if(s.memoAssign || s.memoPlan) msg += 'تكليف الحفظ: ' + (s.memoAssign ? assignmentLabel(s.memoAssign) : s.memoPlan) + '\n';
+    if(s.reviewAssign || s.reviewPlan) msg += 'تكليف المراجعة: ' + (s.reviewAssign ? assignmentLabel(s.reviewAssign) : s.reviewPlan) + '\n';
   }
   if(s.homework && !s.homework.done){
     msg += 'الواجب الحالي: ' + s.homework.text + '\n';
@@ -9373,6 +10512,7 @@ function sendParentReport(id){
       : '<div class="hifz-setup-sub" style="margin-bottom:10px;">لم يُسجَّل رقم وليّ أمر — سيُفتح واتساب لتختار المُرسَل إليه</div>') +
     '<button class="hifz-save-btn" onclick="dispatchParentReport(' + s.id + ',\'week\')">إرسال التقرير الأسبوعي</button>' +
     '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="dispatchParentReport(' + s.id + ',\'month\')">إرسال التقرير الشهري</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportStudentReportPdf(' + s.id + ')">حفظ كـ PDF</button>' +
     '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
   overlay.classList.remove('hidden');
 }
@@ -9441,29 +10581,216 @@ function shareCircleSheetWA(id){
   shareText(text, 'كشف الحلقة');
   closeShareSheet();
 }
-function printCircleSheet(id){
-  const c = _teacherCircles.find(x => x.id === id);
-  if(!c) return;
-  const cstats = computeCircleStats(c);
-  const printArea = document.getElementById('print-area');
-  if(!printArea) return;
-  let rows = '';
-  c.students.forEach((s, i) => {
-    const st = computeStudentStats(s);
-    rows += '<tr><td>' + (i+1) + '</td><td>' + s.name + '</td><td style="direction:ltr;">' + s.phone + '</td>' +
-      '<td>' + (s.memoPlan||'—') + '</td><td>' + (s.reviewPlan||'—') + '</td>' +
-      '<td>' + (st.completionRate !== null ? Math.round(st.completionRate*100) + '%' : '—') + '</td>' +
-      '<td>' + toAr(st.weekCompleted) + '/' + toAr(st.weekTotal) + '</td></tr>';
-  });
-  printArea.innerHTML =
-    '<h1>كشف حلقة: ' + c.name + '</h1>' +
-    '<p>عدد الطلاب: ' + toAr(c.students.length) + ' — إنجاز الأسبوع: ' + toAr(cstats.weekCompletedSum) + '/' + toAr(cstats.weekPossible) +
-    ' — إنجاز الشهر: ' + cstats.monthCompletedSum + '/' + cstats.monthPossible + ' — منصة ' + getActiveBrand().shortName + '</p>' +
-    '<table><thead><tr><th>#</th><th>الاسم</th><th>واتساب</th><th>خطة الحفظ</th><th>خطة المراجعة</th><th>إنجاز عام</th><th>هذا الأسبوع</th></tr></thead>' +
-    '<tbody>' + rows + '</tbody></table>';
+/* ═══════════════════════════════════════════════════════════════════════
+   مولّد مستندات PDF
+   One builder, several documents. Every export goes through here so the
+   header, footer, dates and signature block stay identical everywhere.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/**
+ * يبني مستندًا ويفتح حوار الطباعة/الحفظ كـPDF.
+ * @param {string} title   عنوان المستند
+ * @param {string} meta    سطر معلومات تحت العنوان
+ * @param {string} body    محتوى HTML (جدول عادةً)
+ * @param {boolean} sign   هل نضيف مكان التوقيع؟
+ */
+function exportPdf(title, meta, body, sign){
+  const area = document.getElementById('print-area');
+  if(!area){ showToast('تعذّر تجهيز المستند'); return; }
+  const brand = getActiveBrand();
+  const now = new Date();
+
+  area.innerHTML =
+    '<div class="pr-head">' +
+      '<h1 class="pr-title">' + title + '</h1>' +
+      '<div class="pr-brand">' + (brand && brand.shortName ? brand.shortName : 'ارتقِ') + '</div>' +
+    '</div>' +
+    (meta ? '<div class="pr-meta">' + meta + '</div>' : '') +
+    body +
+    (sign ? '<div class="pr-sign"><span>توقيع المعلّم</span><span>توقيع وليّ الأمر</span></div>' : '') +
+    '<div class="pr-foot">' +
+      'صدر في ' + planDateAr(now) + ' · ' + formatHijri(now) + '<br>' +
+      'ارتقِ · اللهم اغفر لمطورها ولمستخدميها ولوالديهم وللمسلمين أجمعين' +
+    '</div>';
+
   closeShareSheet();
-  setTimeout(() => window.print(), 200);
+  // مهلة قصيرة ليكتمل الرسم قبل فتح الحوار، وإلا طُبعت صفحة فارغة.
+  setTimeout(function(){
+    try { window.print(); }
+    catch(e){ showToast('تعذّر فتح الطباعة — جرّب من قائمة المتصفّح'); }
+  }, 250);
 }
+
+/** جدول الحفظ (أسبوعي/شهري) كمستند. */
+function exportMemoSchedulePdf(){
+  const rows = buildMemoSchedule(_memoSpan, new Date());
+  const t = memoScheduleTotals(rows);
+  const span = _memoSpan === 'month' ? 'الشهري' : _memoSpan === 'month4' ? '— أربعة أسابيع' : 'الأسبوعي';
+  let tb = '<table><thead><tr><th>اليوم</th><th>هجري</th><th>ميلادي</th>' +
+           '<th>المقدار</th><th>من–إلى</th><th>تمّ</th></tr></thead><tbody>';
+  let lw = null;
+  rows.forEach(function(r){
+    if(_memoSpan === 'month4' && r.week && r.week !== lw){
+      tb += '<tr><th colspan="6" style="text-align:right;">الأسبوع ' + toAr(r.week) + '</th></tr>';
+      lw = r.week;
+    }
+    tb += '<tr class="' + (r.rest ? 'pr-rest' : '') + '">' +
+      '<td>' + r.weekday + '</td><td>' + r.hijri + '</td><td>' + r.greg + '</td>' +
+      '<td>' + (r.rest ? 'راحة' : toAr(r.amount) + ' ' + (r.amount === 1 ? 'وجه' : 'أوجه')) + '</td>' +
+      '<td>' + (r.rest ? '—' : toAr(r.from) + '–' + toAr(r.to)) + '</td>' +
+      '<td></td></tr>';   // عمود فارغ ليوقّع فيه الطالب أو المعلّم بخطّ اليد
+  });
+  tb += '</tbody></table>';
+  const meta = 'المجموع: ' + toAr(t.pages) + ' وجه · ' + toAr(t.work) + ' يوم حفظ · ' +
+               toAr(t.rest) + ' يوم راحة';
+  exportPdf('جدول الحفظ ' + span, meta, tb, true);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   مستندات الطالب
+   The student's own documents.
+
+   كان التصدير الورقي كلّه للمعلّم: الطالب لا يملك إلا صورًا ورسائل.
+   لكنّ الطالب يحتاج ورقة أيضًا — يعلّقها على مكتبه، أو يُريها أباه، أو
+   يحملها للحلقة. هذه مستنداته الثلاثة.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** جدول ختمة التلاوة كاملًا: كل يوم وما يُقرأ فيه. */
+function exportTilawaPlanPdf(){
+  if(!_tilawaPlan){ showToast('ابدأ خطة الختمة أولًا'); return; }
+  const days = _tilawaPlan.days;
+  const plan = TILAWA_PLANS[days];
+  if(!plan){ showToast('تعذّر تجهيز الجدول'); return; }
+  const start = new Date(_tilawaPlan.start);
+
+  let tb = '<table><thead><tr><th>اليوم</th><th>هجري</th><th>ميلادي</th>' +
+           '<th>الجزء</th><th>الصفحات</th><th>تمّ</th></tr></thead><tbody>';
+  for(let i = 0; i < days; i++){
+    const d = new Date(start.getTime()); d.setDate(d.getDate() + i);
+    const from = (i * plan.pagesPerDay) + 1;
+    if(from > 604) break;
+    const to = Math.min(from + plan.pagesPerDay - 1, 604);
+    const jf = clampJuzz(Math.floor((from - 1) / PAGES_PER_JUZZ) + 1);
+    const jt = clampJuzz(Math.floor((to - 1) / PAGES_PER_JUZZ) + 1);
+    const done = _tilawaDone.includes(i);
+    tb += '<tr class="' + (done ? '' : 'pr-rest') + '">' +
+      '<td>' + toAr(i + 1) + '</td>' +
+      '<td>' + hijriShort(d) + '</td>' +
+      '<td>' + toAr(d.getDate()) + '/' + toAr(d.getMonth() + 1) + '</td>' +
+      '<td>' + (jf === jt ? toAr(jf) : toAr(jf) + '–' + toAr(jt)) + '</td>' +
+      '<td>' + toAr(from) + '–' + toAr(to) + '</td>' +
+      '<td>' + (done ? '✓' : '') + '</td></tr>';
+  }
+  tb += '</tbody></table>';
+  const meta = 'المدة: ' + toAr(days) + ' يوم · الورد اليومي: نحو ' +
+    toAr(plan.pagesPerDay) + ' صفحة · أنجزت ' + toAr(_tilawaDone.length) + ' من ' + toAr(days);
+  exportPdf('جدول ختمة القرآن', meta, tb, false);
+}
+
+/** خطط المراجعة كلّها في ورقة واحدة. */
+function exportReviewPlansPdf(){
+  const programs = reviewPrograms();
+  if(!programs.length){ showToast('لا توجد خطط مراجعة بعد'); return; }
+  let tb = '<table><thead><tr><th>#</th><th>النطاق</th><th>الصفحات</th>' +
+           '<th>التكرار</th><th>البداية</th><th>المنجز</th></tr></thead><tbody>';
+  programs.forEach(function(pr, i){
+    const total = reviewScopeTotal(pr);
+    const pct = total > 0 ? Math.round((pr.position || 0) / total * 100) : 0;
+    tb += '<tr><td>' + toAr(i + 1) + '</td>' +
+      '<td style="text-align:right;">' + reviewScopeLabel(pr) + '</td>' +
+      '<td>' + toAr(total) + '</td>' +
+      '<td>' + toAr(pr.repeatCount || 1) + '</td>' +
+      '<td>' + planDateAr(pr.startDate) + '</td>' +
+      '<td>' + toAr(pct) + '٪</td></tr>';
+  });
+  tb += '</tbody></table>';
+  exportPdf('خطط المراجعة', 'عدد الخطط الجارية: ' + toAr(programs.length), tb, false);
+}
+
+/** بطاقة تقدّم الطالب: حصيلته في ورقة واحدة. */
+function exportMyProgressPdf(){
+  const st = getHifzState();
+  const badge = getBadgeLog();
+  const streaks = computeStreaks(badge.completeDays || []);
+  const rows = [
+    ['الحفظ', toAr(Math.round(st.memo.position || 0)) + ' من ' + toAr(HIFZ_TOTAL_WAJH) + ' صفحة'],
+    ['خطط المراجعة', toAr(reviewPrograms().length) + ' خطة جارية'],
+    ['خطة الختمة', _tilawaPlan
+      ? (toAr(_tilawaDone.length) + ' من ' + toAr(_tilawaPlan.days) + ' يوم')
+      : 'لم تبدأ بعد'],
+    ['أيام متتالية', toAr(streaks.current)],
+    ['أطول سلسلة', toAr(streaks.longest)],
+    ['أيام مكتملة', toAr((badge.completeDays || []).length)]
+  ];
+  let tb = '<table><tbody>';
+  rows.forEach(function(r){
+    tb += '<tr><th style="width:38%;text-align:right;">' + r[0] + '</th>' +
+          '<td style="text-align:right;">' + r[1] + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  const name = getUserName();
+  exportPdf('بطاقة تقدّمي' + (name ? ' — ' + name : ''),
+            'حصيلتك في ارتقِ حتى تاريخه', tb, false);
+}
+
+/** تقرير طالب واحد لوليّ أمره. */
+function exportStudentReportPdf(id){
+  const c = getActiveCircle();
+  if(!c) return;
+  const s = c.students.find(function(x){ return x.id === id; });
+  if(!s) return;
+  const st = computeStudentStats(s);
+  const m = masteryStats(s, getWeekKeys());
+  const rows = [
+    ['الحلقة', c.name],
+    ['مقدار الحفظ', juzMemorizedLabel(getStudentJuzMemorized(s))],
+    ['إنجاز الأسبوع', toAr(st.weekCompleted) + ' من ' + toAr(st.weekTotal) + ' يوم'],
+    ['الإتقان', m.rated > 0
+      ? (toAr(m.mastered) + ' أتقن · ' + toAr(m.partial) + ' يحتاج تثبيتًا · ' + toAr(m.weak) + ' لم يتقن')
+      : 'لم يُقوَّم بعد'],
+    ['الحضور', toAr(st.presentCount) + ' يوم'],
+    ['التأخّر', toAr(st.lateCount) + ' يوم'],
+    ['الغياب', toAr(st.absentCount) + ' يوم'],
+    ['تكليف الحفظ', s.memoAssign ? assignmentLabel(s.memoAssign) : (s.memoPlan || '—')],
+    ['تكليف المراجعة', s.reviewAssign ? assignmentLabel(s.reviewAssign) : (s.reviewPlan || '—')]
+  ];
+  let tb = '<table><tbody>';
+  rows.forEach(function(r){
+    tb += '<tr><th style="width:34%;text-align:right;">' + r[0] + '</th>' +
+          '<td style="text-align:right;">' + r[1] + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  exportPdf('تقرير متابعة: ' + s.name, 'تقرير أسبوعي عن سير الطالب في الحلقة', tb, true);
+}
+
+/** كشف الحلقة كاملًا. */
+function exportCircleSheetPdf(id){
+  const c = _teacherCircles.find(function(x){ return x.id === id; });
+  if(!c) return;
+  const cs = computeCircleStats(c);
+  let tb = '<table><thead><tr><th>#</th><th>الاسم</th><th>الحفظ</th>' +
+           '<th>خطة الحفظ</th><th>خطة المراجعة</th><th>الأسبوع</th><th>الإتقان</th></tr></thead><tbody>';
+  c.students.forEach(function(s, i){
+    const st = computeStudentStats(s);
+    const m = masteryStats(s, getWeekKeys());
+    tb += '<tr><td>' + toAr(i+1) + '</td>' +
+      '<td style="text-align:right;">' + s.name + '</td>' +
+      '<td>' + (getStudentJuzMemorized(s) ? toAr(getStudentJuzMemorized(s)) + ' جزءًا' : '—') + '</td>' +
+      '<td style="text-align:right;">' + (s.memoAssign ? assignmentLabel(s.memoAssign) : (s.memoPlan || '—')) + '</td>' +
+      '<td style="text-align:right;">' + (s.reviewAssign ? assignmentLabel(s.reviewAssign) : (s.reviewPlan || '—')) + '</td>' +
+      '<td>' + toAr(st.weekCompleted) + '/' + toAr(st.weekTotal) + '</td>' +
+      '<td>' + (m.rated ? toAr(m.mastered) + '/' + toAr(m.rated) : '—') + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  const meta = 'عدد الطلاب: ' + toAr(c.students.length) +
+               ' · إنجاز الأسبوع: ' + toAr(cs.weekCompletedSum) + '/' + toAr(cs.weekPossible) +
+               ' · إنجاز الشهر: ' + toAr(cs.monthCompletedSum) + '/' + toAr(cs.monthPossible);
+  exportPdf('كشف حلقة: ' + c.name, meta, tb, true);
+}
+
+/* الطباعة القديمة كانت تُخرج الشاشة كلها بلا قواعد @media print.
+   تُحوَّل الآن للمولّد المنسَّق نفسه. */
+function printCircleSheet(id){ exportCircleSheetPdf(id); }
 
 // ============ بوابة الدخول الثلاثية ============
 /* توافق خلفي: البوابة صارت بطبقة واحدة، لكن قد يبقى استدعاء قديم
