@@ -6,13 +6,15 @@
 // يمنع ظهور زر "تثبيت التطبيق" على الجوال بلا أي رسالة خطأ مفهومة.
 // البديل: تخزين كل ملف على حدة، وتجاهل الفاشل بدل إسقاط الجميع.
 // ============================================================================
-const CACHE_NAME = 'irtaqi-cache-v2';
+const CACHE_NAME = 'irtaqi-cache-v3';
 
-// الملفات الأساسية التي لا يعمل التطبيق بدونها.
-const CORE = ['./Irtaqi.html'];
+// نقطة الدخول صارت index.html ليعمل الرابط المختصر على GitHub Pages
+// (‎ara2026fat.github.io/Irtaqi/‎). كان الاسم Irtaqi.html فيظهر 404 لمن
+// يفتح المجلد، لأن الخادم يبحث عن index.html ولا يجده.
+const CORE = ['./', './index.html'];
 
 // ملفات مساعدة — مرغوبة لكن غيابها لا يمنع عمل التطبيق.
-const OPTIONAL = ['./manifest.json', './icon-192.png', './icon-512.png', './index.html'];
+const OPTIONAL = ['./manifest.json', './icon-192.png', './icon-512.png', './Irtaqi.html'];
 
 /** يخزّن قائمة ملفات واحدًا واحدًا. يرجع دائمًا وعدًا ناجحًا. */
 function cacheEach(cache, urls) {
@@ -64,7 +66,7 @@ self.addEventListener('fetch', function (event) {
         return res;
       }).catch(function () {
         return caches.match(req).then(function (hit) {
-          return hit || caches.match('./Irtaqi.html');
+          return hit || caches.match('./index.html') || caches.match('./Irtaqi.html');
         });
       })
     );
