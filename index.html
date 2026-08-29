@@ -1814,6 +1814,57 @@ body[data-persona="teacher-female"] .pill-tab.is-active{
 }
 body.theme-dark .pill-tab{background:rgba(255,255,255,0.06);}
 
+/* ═══ زرّ الإملاء الصوتي ═══ */
+.dictate-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+  margin-bottom:8px;padding:9px 12px;border-radius:12px;cursor:pointer;
+  background:rgba(31,131,103,0.09);color:var(--purple-mid,#1F8367);
+  border:1px dashed rgba(31,131,103,0.32);
+  font-size:11.5px;font-weight:800;font-family:inherit;
+  transition:background .15s ease,border-color .15s ease;
+}
+.dictate-btn svg{width:15px;height:15px;flex-shrink:0;}
+.dictate-btn:active{transform:scale(.98);}
+/* أثناء الاستماع: نبض واضح يقول إن الميكروفون مفتوح فعلًا. */
+.dictate-btn.is-listening{
+  background:rgba(190,70,60,0.12);color:#A63D33;border-color:rgba(190,70,60,0.4);
+  border-style:solid;animation:dictatePulse 1.2s ease-in-out infinite;
+}
+@keyframes dictatePulse{
+  0%,100%{ box-shadow:0 0 0 0 rgba(190,70,60,0); }
+  50%    { box-shadow:0 0 0 6px rgba(190,70,60,0.12); }
+}
+body[data-persona="individual-female"] .dictate-btn,
+body[data-persona="teacher-female"] .dictate-btn{
+  background:rgba(201,138,156,0.13);color:#A85E76;border-color:rgba(168,94,118,0.34);
+}
+@media (prefers-reduced-motion:reduce){ .dictate-btn.is-listening{ animation:none; } }
+
+/* ═══ شجرة المجموعات ═══ */
+.tree-group{background:var(--card-bg);border-radius:16px;margin-bottom:10px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(15,35,70,0.05);}
+.tree-group-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding:11px 14px;background:rgba(31,131,103,0.08);}
+.tree-group-name{font-size:13px;font-weight:900;color:var(--text);}
+.tree-group-meta{font-size:10px;color:var(--muted);font-weight:700;}
+.tree-band-edit{display:flex;gap:6px;padding:9px 12px;align-items:center;
+  border-bottom:1px solid rgba(127,127,127,0.10);}
+.tree-band-edit input{padding:6px;border-radius:9px;font-family:inherit;font-size:12px;
+  border:1px solid rgba(127,127,127,0.22);background:var(--ivory-2);color:var(--text);min-width:0;}
+.tree-band-name{flex:1;}
+.tree-band-edit input[type=number]{width:52px;text-align:center;font-weight:800;}
+.tree-student-row{display:flex;align-items:center;gap:8px;padding:10px 14px;
+  border-top:1px solid rgba(127,127,127,0.07);}
+.tree-sr-info{flex:1;min-width:0;}
+.tree-sr-name{display:block;font-size:12.5px;font-weight:800;color:var(--text);}
+.tree-sr-juz{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;}
+.tree-sr-move{padding:6px 8px;border-radius:10px;font-family:inherit;font-size:11px;
+  border:1px solid rgba(127,127,127,0.22);background:var(--ivory-2);color:var(--text);max-width:120px;}
+body[data-persona="individual-female"] .tree-group-head,
+body[data-persona="teacher-female"] .tree-group-head{background:rgba(201,138,156,0.13);}
+body.theme-dark .tree-group{background:rgba(255,255,255,0.05);}
+body.theme-dark .tree-band-edit input,body.theme-dark .tree-sr-move{background:rgba(255,255,255,0.07);color:#fff;}
+
 /* ═══ صور التكليف ═══ */
 .photo-grid{display:flex;flex-direction:column;gap:10px;max-height:44vh;overflow-y:auto;margin-bottom:12px;}
 /* البطاقة عمود: الصورة ثم سطر بياناتها. كان السطر يختفي لأن الصورة
@@ -7098,6 +7149,409 @@ function renderAboutView(wrap){
    عشر عند ذاك). تسجيله مرة يجعل المقارنة بين الطلاب عادلة: من حفظ جزءًا
    لا يُقاس بمن حفظ خمسة عشر بالمقياس نفسه.
    ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   مجموعات الحلقة — التقسيم حسب مستوى الحفظ
+   Circle groups, banded by memorization level.
+
+   الحاجة التي عبّر عنها أرفت: في الحلقة الواحدة من يحفظ جزءًا ومن يحفظ
+   عشرة. ومعلّم يُسمّع لهؤلاء جميعًا في صفٍّ واحد يظلم الطرفين: المتقدّم
+   ينتظر، والمبتدئ يلهث. فيقسّمهم مجموعات متقاربة المستوى.
+
+   والتقسيم يُشتقّ من رقم موجود أصلًا (juzMemorized) لا من إدخال جديد —
+   المعلّم سجّله مرة في الكشف، فلا نسأله عنه ثانية.
+
+   ملاحظة على الأرقام: نطاقات المجموعات مقترحة لا مفروضة، والمعلّم
+   يعدّلها كما شاء لأن حلقته أدرى بحالها من أي افتراض عام.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** النطاقات المقترحة افتراضيًا. */
+const DEFAULT_BANDS = [
+  { name:'المبتدئون',  from:0,  to:1  },
+  { name:'المتوسطون',  from:2,  to:5  },
+  { name:'المتقدّمون', from:6,  to:14 },
+  { name:'الحفّاظ',    from:15, to:30 }
+];
+
+/** مجموعات حلقة، مع إنشائها من النطاقات الافتراضية أوّل مرة. */
+function circleGroups(c){
+  if(!c) return [];
+  if(!Array.isArray(c.groups) || !c.groups.length){
+    c.groups = DEFAULT_BANDS.map(function(b, i){
+      return { id:'g' + (i+1), name:b.name, from:b.from, to:b.to };
+    });
+  }
+  return c.groups;
+}
+
+/** المجموعة التي ينتمي إليها طالب بحسب مستواه. */
+function groupOfStudent(c, st){
+  const j = getStudentJuzMemorized(st);
+  const gs = circleGroups(c);
+  // تخصيص يدوي صريح يتقدّم على النطاق — المعلّم قد يرفع طالبًا لمجموعة أعلى.
+  if(st.groupId){
+    const g = gs.find(function(x){ return x.id === st.groupId; });
+    if(g) return g;
+  }
+  return gs.find(function(g){ return j >= g.from && j <= g.to; }) || gs[gs.length-1];
+}
+
+/** توزيع الطلاب على المجموعات. */
+function groupedStudents(c){
+  const gs = circleGroups(c);
+  const map = {};
+  gs.forEach(function(g){ map[g.id] = []; });
+  (c.students || []).forEach(function(st){
+    const g = groupOfStudent(c, st);
+    if(g) map[g.id].push(st);
+  });
+  return gs.map(function(g){ return { group:g, students:map[g.id] }; });
+}
+
+/** يعيد التوزيع التلقائي: يمسح التخصيص اليدوي ويعتمد المستوى. */
+function autoAssignGroups(){
+  const c = getActiveCircle();
+  if(!c) return;
+  (c.students || []).forEach(function(st){ delete st.groupId; });
+  saveTeacherCircles(_teacherCircles);
+  showToast('أُعيد التوزيع حسب مستوى الحفظ');
+  renderCircleTree();
+}
+
+/** ينقل طالبًا إلى مجموعة بعينها يدويًا. */
+function moveStudentToGroup(studentId, gid){
+  const c = getActiveCircle();
+  if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; });
+  if(!st) return;
+  st.groupId = gid || null;
+  if(!gid) delete st.groupId;
+  saveTeacherCircles(_teacherCircles);
+  renderCircleTree();
+}
+
+function setGroupName(gid, v){
+  const c = getActiveCircle(); if(!c) return;
+  const g = circleGroups(c).find(function(x){ return x.id === gid; });
+  if(!g) return;
+  g.name = String(v || '').trim() || g.name;
+  saveTeacherCircles(_teacherCircles);
+  renderCircleTree();
+}
+function setGroupBand(gid, key, v){
+  const c = getActiveCircle(); if(!c) return;
+  const g = circleGroups(c).find(function(x){ return x.id === gid; });
+  if(!g) return;
+  const n = Math.max(0, Math.min(30, parseInt(v, 10) || 0));
+  g[key] = n;
+  if(g.to < g.from) g.to = g.from;     // النطاق لا ينقلب
+  saveTeacherCircles(_teacherCircles);
+  renderCircleTree();
+}
+function addCircleGroup(){
+  const c = getActiveCircle(); if(!c) return;
+  const gs = circleGroups(c);
+  const last = gs[gs.length-1];
+  gs.push({ id:'g' + (Date.now()%100000), name:'مجموعة ' + toAr(gs.length+1),
+            from: Math.min(30, (last ? last.to : 0) + 1), to: 30 });
+  saveTeacherCircles(_teacherCircles);
+  renderCircleTree();
+}
+function deleteCircleGroup(gid){
+  const c = getActiveCircle(); if(!c) return;
+  if(circleGroups(c).length <= 1){ showToast('لا بدّ من مجموعة واحدة على الأقل'); return; }
+  c.groups = circleGroups(c).filter(function(g){ return g.id !== gid; });
+  (c.students || []).forEach(function(st){ if(st.groupId === gid) delete st.groupId; });
+  saveTeacherCircles(_teacherCircles);
+  showToast('حُذفت المجموعة وأُعيد توزيع طلابها');
+  renderCircleTree();
+}
+
+/** شجرة الحلقة: المجموعات ثم طلابها، مع نقلهم بينها. */
+function renderCircleTree(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const gs = circleGroups(c);
+  const dist = groupedStudents(c);
+  const total = (c.students || []).length;
+  const unset = (c.students || []).filter(function(x){ return getStudentJuzMemorized(x) === 0; }).length;
+
+  let html = '<div class="share-sheet-title">شجرة ' + musEsc(c.name) + '</div>';
+  html += '<div class="tree-summary">' +
+    '<span>' + toAr(total) + ' طالب</span><span>·</span>' +
+    '<span>' + toAr(gs.length) + ' مجموعات</span>' +
+    (unset ? '<span>·</span><span>' + toAr(unset) + ' بلا مستوى</span>' : '') +
+  '</div>';
+
+  if(!total){
+    html += '<div class="hifz-rest-day">لا طلاب بعد — أضفهم من تبويب «أدوات»</div>';
+  }
+  if(unset){
+    html += '<div class="dc-overdue" style="margin-bottom:12px;">' +
+      toAr(unset) + ' من الطلاب بلا مستوى حفظ مسجَّل، فوُضعوا في المجموعة الأولى. ' +
+      'سجّل مستواهم من «كشف الطلاب» ليتوزّعوا صحيحًا.</div>';
+  }
+
+  dist.forEach(function(d){
+    const g = d.group;
+    html += '<div class="tree-group">';
+    html += '<div class="tree-group-head">' +
+      '<span class="tree-group-name">' + musEsc(g.name) + '</span>' +
+      '<span class="tree-group-meta">' + toAr(g.from) + '–' + toAr(g.to) + ' جزءًا · ' +
+        toAr(d.students.length) + ' طالب</span>' +
+    '</div>';
+
+    if(_treeEditBands){
+      html += '<div class="tree-band-edit">' +
+        '<input class="tree-band-name" value="' + musEsc(g.name) + '" aria-label="اسم المجموعة"' +
+          ' onchange="setGroupName(\'' + g.id + '\', this.value)">' +
+        '<input type="number" min="0" max="30" value="' + g.from + '" aria-label="من جزء"' +
+          ' onchange="setGroupBand(\'' + g.id + '\',\'from\', this.value)">' +
+        '<input type="number" min="0" max="30" value="' + g.to + '" aria-label="إلى جزء"' +
+          ' onchange="setGroupBand(\'' + g.id + '\',\'to\', this.value)">' +
+        '<button class="photo-del" style="position:static;" onclick="deleteCircleGroup(\'' + g.id + '\')">حذف</button>' +
+      '</div>';
+    }
+
+    if(!d.students.length){
+      html += '<div class="tree-empty">لا أحد في هذه المجموعة</div>';
+    } else {
+      d.students.forEach(function(st){
+        const j = getStudentJuzMemorized(st);
+        let opts = '';
+        gs.forEach(function(x){
+          opts += '<option value="' + x.id + '"' + (x.id === groupOfStudent(c, st).id ? ' selected' : '') +
+            '>' + musEsc(x.name) + '</option>';
+        });
+        html += '<div class="tree-student-row">' +
+          '<div class="tree-sr-info">' +
+            '<span class="tree-sr-name">' + musEsc(st.name) + '</span>' +
+            '<span class="tree-sr-juz">' + (j ? toAr(j) + ' جزءًا' : 'بلا مستوى') + '</span>' +
+          '</div>' +
+          '<select class="tree-sr-move" aria-label="نقل ' + musEsc(st.name) + '"' +
+            ' onchange="moveStudentToGroup(' + st.id + ', this.value)">' + opts + '</select>' +
+        '</div>';
+      });
+    }
+    html += '</div>';
+  });
+
+  html += '<div style="display:flex;gap:8px;margin-top:12px;">' +
+    '<button class="hifz-edit-btn" style="flex:1;margin-top:0;" onclick="toggleBandEditor()">' +
+      (_treeEditBands ? 'إخفاء تعديل النطاقات' : 'تعديل النطاقات') + '</button>' +
+    '<button class="hifz-edit-btn" style="flex:1;margin-top:0;" onclick="autoAssignGroups()">توزيع تلقائي</button>' +
+  '</div>';
+  if(_treeEditBands){
+    html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="addCircleGroup()">إضافة مجموعة</button>';
+  }
+  html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="openQuickAdd()">إضافة طلاب بسرعة</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportCircleTreePdf()">حفظ الشجرة PDF</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   الإملاء الصوتي
+   Voice dictation for names and phone numbers.
+
+   لماذا يستحق البناء: المعلّم في الحلقة يحمل المصحف بيد والجوّال بأخرى،
+   وكتابة عشرين اسمًا بلوحة عربية على شاشة صغيرة عمل شاقّ. أن يقول
+   «أحمد، سبعة» أسرع كثيرًا.
+
+   وثلاثة قيود واقعية بنيتُ عليها:
+   ١. التعرّف يخطئ في الأسماء العربية أحيانًا — فالنصّ يُدرج في حقل
+      قابل للتحرير لا يُحفظ مباشرة. المعلّم يصحّح قبل الإضافة.
+   ٢. الأرقام تُنطق كلمات («تسعة خمسة») فتُكتب حروفًا — نحوّلها أرقامًا.
+   ٣. الميزة غير متوفّرة في كل متصفّح، فزرّها لا يظهر إلا حين تُدعم.
+   ═══════════════════════════════════════════════════════════════════════ */
+function speechSupported(){
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+var _rec = null, _recTarget = null;
+
+/** كلمات الأعداد العربية إلى أرقام — لأن التعرّف يكتب «سبعة» لا «٧». */
+const AR_WORD_NUM = {
+  'صفر':0,'واحد':1,'واحده':1,'واحدة':1,'اثنين':2,'اثنان':2,'اتنين':2,
+  'ثلاثة':3,'ثلاثه':3,'تلاته':3,'اربعة':4,'اربعه':4,'أربعة':4,'أربعه':4,
+  'خمسة':5,'خمسه':5,'ستة':6,'سته':6,'سبعة':7,'سبعه':7,'ثمانية':8,'ثمانيه':8,
+  'تسعة':9,'تسعه':9,'عشرة':10,'عشره':10,'احد عشر':11,'اثنا عشر':12,
+  'اثني عشر':12,'ثلاثة عشر':13,'اربعة عشر':14,'خمسة عشر':15,'ستة عشر':16,
+  'سبعة عشر':17,'ثمانية عشر':18,'تسعة عشر':19,'عشرين':20,'خمسة وعشرين':25,'ثلاثين':30
+};
+
+/** يحوّل كلمات الأعداد في نصّ منطوق إلى أرقام. */
+function speechNumbers(text){
+  let out = arToNum(String(text || ''));
+  // الأطول أوّلًا حتى لا يُبدَّل «خمسة» داخل «خمسة عشر».
+  Object.keys(AR_WORD_NUM)
+    .sort(function(a,b){ return b.length - a.length; })
+    .forEach(function(w){
+      out = out.split(w).join(String(AR_WORD_NUM[w]));
+    });
+  return out;
+}
+
+/**
+ * يبدأ الاستماع ويكتب النتيجة في حقل.
+ * @param {string} targetId معرّف الحقل
+ * @param {string} mode 'names' أو 'phone'
+ */
+function startDictation(targetId, mode){
+  if(!speechSupported()){ showToast('المتصفّح لا يدعم الإملاء الصوتي'); return; }
+  const el = document.getElementById(targetId);
+  if(!el) return;
+  if(_rec){ try { _rec.stop(); } catch(e){} _rec = null; }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SR();
+  rec.lang = 'ar-SA';
+  rec.continuous = (mode === 'names');   // الأسماء قد تُملى متتابعة
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  _rec = rec; _recTarget = targetId;
+
+  const btn = document.querySelector('[data-dictate="' + targetId + '"]');
+  if(btn) btn.classList.add('is-listening');
+  showToast(mode === 'phone' ? 'انطق الرقم…' : 'انطق الأسماء…');
+
+  rec.onresult = function(ev){
+    let said = '';
+    for(let i = ev.resultIndex; i < ev.results.length; i++){
+      if(ev.results[i].isFinal) said += ev.results[i][0].transcript + ' ';
+    }
+    said = said.trim();
+    if(!said) return;
+    if(mode === 'phone'){
+      // الرقم: أرقام فقط بلا فراغات
+      el.value = (el.value + speechNumbers(said)).replace(/[^0-9]/g, '');
+    } else {
+      // الأسماء: كل جملة سطر مستقلّ، والأعداد تُكتب أرقامًا بعد فاصلة
+      const line = speechNumbers(said).replace(/\s+(\d+)\s*$/, '، $1');
+      el.value = (el.value ? el.value.replace(/\s*$/, '') + '\n' : '') + line;
+    }
+    el.dispatchEvent(new Event('input', { bubbles:true }));
+  };
+  rec.onerror = function(e){
+    if(btn) btn.classList.remove('is-listening');
+    showToast(e && e.error === 'not-allowed'
+      ? 'اسمح بالميكروفون لاستخدام الإملاء'
+      : 'تعذّر الاستماع — جرّب مرة أخرى');
+    _rec = null;
+  };
+  rec.onend = function(){
+    if(btn) btn.classList.remove('is-listening');
+    _rec = null;
+  };
+  try { rec.start(); }
+  catch(e){ if(btn) btn.classList.remove('is-listening'); showToast('تعذّر بدء الإملاء'); }
+}
+
+function stopDictation(){
+  if(_rec){ try { _rec.stop(); } catch(e){} _rec = null; }
+}
+
+/** زرّ إملاء بجانب حقل — لا يُرسم إن لم يدعمه المتصفّح. */
+function dictateBtn(targetId, mode, label){
+  if(!speechSupported()) return '';
+  return '<button type="button" class="dictate-btn" data-dictate="' + targetId + '"' +
+    ' aria-label="' + (label || 'إملاء صوتي') + '"' +
+    ' onclick="startDictation(\'' + targetId + '\',\'' + (mode || 'names') + '\')">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="9" y="2" width="6" height="11" rx="3"/>' +
+    '<path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/><path d="M8 22h8"/></svg>' +
+    '<span>' + (label || 'إملاء') + '</span></button>';
+}
+
+/* ═══ الإضافة السريعة ═══
+   المعلّم يكتب الأسماء دفعةً واحدة (سطر لكل طالب) ثم يعود فيُكمل الأرقام.
+   هذا يطابق ترتيبه الطبيعي: يعرف أسماء طلابه قبل أن يجمع أرقام أوليائهم. */
+function openQuickAdd(){
+  const panel = document.getElementById('share-sheet-panel');
+  if(!panel) return;
+  panel.innerHTML =
+    '<div class="share-sheet-title">إضافة طلاب بسرعة</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:10px;line-height:1.8;">' +
+      'اكتب اسمًا في كل سطر. يمكنك إضافة مستوى الحفظ بعد فاصلة، مثل: عبدالله، ٣' +
+    '</div>' +
+    '<textarea class="hifz-day-input" id="quick-add-names" style="width:100%;height:150px;" ' +
+      'placeholder="عبدالله، ٣&#10;محمد، ١&#10;سعد"></textarea>' +
+    dictateBtn('quick-add-names','names','إملاء الأسماء') +
+    '<button class="hifz-save-btn" style="margin-top:10px;" onclick="runQuickAdd()">إضافة</button>' +
+    '<div class="hifz-setup-sub" style="margin-top:10px;">الأرقام تُضاف لاحقًا من بطاقة كل طالب.</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="renderCircleTree()">→ رجوع للشجرة</button>';
+}
+
+/** يحوّل الأرقام الهندية إلى غربية ليُقرأ ما يكتبه المعلّم بأيّ لوحة مفاتيح. */
+function arToNum(str){
+  const map = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+  return String(str || '').replace(/[٠-٩]/g, function(d){ return map[d]; });
+}
+
+function runQuickAdd(){
+  const el = document.getElementById('quick-add-names');
+  const c = getActiveCircle();
+  if(!el || !c) return;
+  const lines = el.value.split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
+  if(!lines.length){ showToast('اكتب اسمًا واحدًا على الأقل'); return; }
+  let added = 0;
+  lines.forEach(function(line){
+    const parts = line.split(/[،,]/);
+    const name = (parts[0] || '').trim();
+    if(!name) return;
+    const juz = parts.length > 1 ? Math.max(0, Math.min(30, parseInt(arToNum(parts[1]), 10) || 0)) : 0;
+    c.students.push({
+      id: Date.now() + Math.floor(Math.random()*100000) + added,
+      name: name, phone:'', guardianPhone:'',
+      memoPlan:'', reviewPlan:'', juzMemorized: juz,
+      mastery:{}, completion:{}, attendance:{}
+    });
+    added++;
+  });
+  saveTeacherCircles(_teacherCircles);
+  try { promoteToTeacherIfNeeded(); } catch(e){}
+  showToast('أُضيف ' + toAr(added) + ' ' + (added === 1 ? 'طالب' : 'طلاب'));
+  renderCircleTree();
+  try { renderTeacherScreen(); } catch(e){}
+}
+
+/** الشجرة كمستند للطباعة. */
+function exportCircleTreePdf(){
+  const c = getActiveCircle();
+  if(!c) return;
+  const dist = groupedStudents(c);
+  let tb = '';
+  dist.forEach(function(d){
+    tb += '<table style="margin-bottom:12px;"><thead><tr>' +
+      '<th colspan="4" style="text-align:right;">' + d.group.name +
+      ' (' + toAr(d.group.from) + '–' + toAr(d.group.to) + ' جزءًا) — ' +
+      toAr(d.students.length) + ' طالب</th></tr>' +
+      '<tr><th>#</th><th>الاسم</th><th>الحفظ</th><th>واتساب وليّ الأمر</th></tr></thead><tbody>';
+    if(!d.students.length){
+      tb += '<tr><td colspan="4">—</td></tr>';
+    } else {
+      d.students.forEach(function(st, i){
+        const j = getStudentJuzMemorized(st);
+        tb += '<tr><td>' + toAr(i+1) + '</td>' +
+          '<td style="text-align:right;">' + st.name + '</td>' +
+          '<td>' + (j ? toAr(j) + ' جزءًا' : '—') + '</td>' +
+          '<td>' + (st.guardianPhone || st.phone || '—') + '</td></tr>';
+      });
+    }
+    tb += '</tbody></table>';
+  });
+  exportPdf('شجرة حلقة: ' + c.name,
+    'عدد الطلاب: ' + toAr((c.students||[]).length) + ' · المجموعات: ' + toAr(dist.length),
+    tb, true);
+}
+
+var _treeEditBands = false;
+function toggleBandEditor(){ _treeEditBands = !_treeEditBands; renderCircleTree(); }
+
 function renderRosterView(wrap){
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
 
@@ -8284,11 +8738,17 @@ function renderCircleDetail(wrap, circle){
   if(_tl) html += '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;display:flex;align-items:center;gap:6px;" onclick="setAssistantTeacher()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="12" y2="9"/><line x1="7" y1="13" x2="10" y2="13"/><line x1="16" y1="9" x2="16" y2="13"/><line x1="14" y1="11" x2="18" y2="11"/></svg> ' +
     (circle.assistantName ? 'المعلم المساعد: ' + circle.assistantName : 'إضافة معلم مساعد') + '</button>';
 
+  if(_tl) html += '<button class="hifz-save-btn" style="text-align:center;margin-bottom:10px;" onclick="renderCircleTree()">شجرة الحلقة — المجموعات والمستويات</button>';
   if(_tl) html += '<div class="teacher-add-card">' +
     '<div class="hifz-setup-sub" style="margin-top:0;">إضافة طالب جديد</div>' +
     '<input type="text" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-name" placeholder="اسم الطالب" />' +
-    '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-phone" placeholder="رقم واتساب مع كود الدولة" />' +
-    '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-guardian" placeholder="رقم واتساب وليّ الأمر (اختياري)" />' +
+    dictateBtn('new-student-name','names','إملاء الاسم') +
+    // رقم وليّ الأمر أوّلًا: أغلب الصغار بلا جوّال، فهو الرقم الفعليّ للتواصل.
+    '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-guardian" placeholder="واتساب وليّ الأمر" />' +
+    dictateBtn('new-student-guardian','phone','إملاء رقم وليّ الأمر') +
+    '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-phone" placeholder="واتساب الطالب (إن كان لديه)" />' +
+    dictateBtn('new-student-phone','phone','إملاء رقم الطالب') +
+    '<input type="number" min="0" max="30" class="hifz-day-input" style="width:100%;margin-bottom:6px;" id="new-student-juz" placeholder="كم يحفظ من الأجزاء؟" />' +
     '<textarea class="hifz-day-input" style="width:100%;height:60px;margin-bottom:6px;" id="new-student-memo" placeholder="خطة الحفظ المقترحة (مثال: صفحتان يومياً من السبت للأربعاء)"></textarea>' +
     '<textarea class="hifz-day-input" style="width:100%;height:60px;" id="new-student-review" placeholder="خطة المراجعة المقترحة (مثال: جزء كل ٣ أيام، تكرار ٣ مرات)"></textarea>' +
     '<button class="hifz-save-btn" onclick="addStudent()">+ إضافة الطالب</button>' +
@@ -9114,6 +9574,7 @@ function addStudent(){
   const name = (document.getElementById('new-student-name')||{}).value || '';
   const phone = ((document.getElementById('new-student-phone')||{}).value || '').replace(/[^0-9]/g,'');
   const guardian = ((document.getElementById('new-student-guardian')||{}).value || '').replace(/[^0-9]/g,'');
+  const juzVal = Math.max(0, Math.min(30, parseInt((document.getElementById('new-student-juz')||{}).value, 10) || 0));
   const memoPlan = (document.getElementById('new-student-memo')||{}).value || '';
   const reviewPlan = (document.getElementById('new-student-review')||{}).value || '';
   if(!name.trim() || !phone){ showToast('اكتب اسم الطالب ورقمه على الأقل'); return; }
@@ -9121,11 +9582,13 @@ function addStudent(){
   if(_editingStudentId !== null){
     const s = c.students.find(x => x.id === _editingStudentId);
     if(s){ s.name=name.trim(); s.phone=phone; s.guardianPhone=guardian;
+           s.juzMemorized=juzVal;
            s.memoPlan=memoPlan.trim(); s.reviewPlan=reviewPlan.trim(); }
     _editingStudentId = null;
   } else {
     c.students.push({ id: Date.now() + Math.floor(Math.random()*100000), name: name.trim(),
-      phone: phone, guardianPhone: guardian, memoPlan: memoPlan.trim(), reviewPlan: reviewPlan.trim(),
+      phone: phone, guardianPhone: guardian, juzMemorized: juzVal,
+      memoPlan: memoPlan.trim(), reviewPlan: reviewPlan.trim(),
       mastery: {} });
   }
   saveTeacherCircles(_teacherCircles);
