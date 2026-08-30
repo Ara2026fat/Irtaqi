@@ -1814,6 +1814,58 @@ body[data-persona="teacher-female"] .pill-tab.is-active{
 }
 body.theme-dark .pill-tab{background:rgba(255,255,255,0.06);}
 
+/* ═══ الحلقة الأسرية ═══ */
+.usra-member{padding:11px 0;border-top:1px solid rgba(127,127,127,0.09);}
+.usra-member:first-of-type{border-top:none;}
+/* شريط جانبي يميّز الابنة عن الابن بلمحة — الحلقة مختلطة بطبعها. */
+.usra-member{border-right:3px solid rgba(31,131,103,0.35);padding-right:9px;}
+.usra-member.is-f{border-right-color:rgba(201,138,156,0.6);}
+.usra-kin{font-size:10px;font-weight:700;color:var(--muted);
+  background:rgba(127,127,127,0.10);border-radius:7px;padding:1px 6px;}
+.usra-asg{margin:6px 0 0 0;font-size:11.5px;font-weight:700;color:var(--copper);line-height:1.6;}
+.usra-actions{display:flex;gap:8px;align-items:center;margin-top:8px;}
+.usra-juz{width:52px;text-align:center;font-size:14px;font-weight:900;font-family:inherit;
+  padding:6px 4px;border-radius:10px;border:1px solid rgba(127,127,127,0.22);
+  background:var(--ivory-2);color:var(--text);}
+.usra-btn{flex:1;padding:7px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:800;color:var(--purple-mid,#1F8367);
+  background:rgba(31,131,103,0.09);border:1px solid rgba(31,131,103,0.25);}
+body[data-persona="individual-female"] .usra-btn,
+body[data-persona="teacher-female"] .usra-btn{
+  color:#A85E76;background:rgba(201,138,156,0.13);border-color:rgba(168,94,118,0.28);}
+body.theme-dark .usra-juz{background:rgba(255,255,255,0.07);color:#fff;}
+
+/* ═══ الرِّفقة ═══ */
+.rq-head{text-align:center;margin-bottom:14px;}
+.rq-name{font-size:19px;font-weight:900;color:var(--text);}
+.rq-meta{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px;}
+.rq-plan{
+  margin-top:6px;padding:11px;border-radius:13px;text-align:center;
+  background:rgba(31,131,103,0.10);color:var(--text);font-size:14px;font-weight:800;
+}
+body[data-persona="individual-female"] .rq-plan,
+body[data-persona="teacher-female"] .rq-plan{background:rgba(201,138,156,0.15);}
+.rq-member{display:flex;align-items:center;gap:9px;padding:10px 2px;
+  border-top:1px solid rgba(127,127,127,0.09);}
+.rq-member:first-of-type{border-top:none;}
+.rq-check{
+  width:30px;height:30px;flex:0 0 auto;border-radius:50%;cursor:pointer;
+  border:2px solid rgba(127,127,127,0.28);background:transparent;
+  font-size:14px;font-weight:900;color:transparent;font-family:inherit;
+  transition:background .15s ease,border-color .15s ease;
+}
+.rq-check.on{background:#1F8367;border-color:#1F8367;color:#fff;}
+body[data-persona="individual-female"] .rq-check.on,
+body[data-persona="teacher-female"] .rq-check.on{background:#A85E76;border-color:#A85E76;}
+.rq-m-info{flex:1;min-width:0;}
+.rq-m-name{display:block;font-size:13px;font-weight:800;color:var(--text);}
+.rq-m-week{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;}
+.rq-m-wa{font-size:10.5px;font-weight:800;color:#1F8367;text-decoration:none;flex:0 0 auto;}
+body[data-persona="individual-female"] .rq-m-wa,
+body[data-persona="teacher-female"] .rq-m-wa{color:#A85E76;}
+.rq-m-del{background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;
+  padding:0 4px;flex:0 0 auto;font-family:inherit;line-height:1;}
+
 /* ═══ زرّ الإملاء الصوتي ═══ */
 .dictate-btn{
   display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
@@ -2879,7 +2931,7 @@ function juzzPhrase(v){
   const shown = toAr(Number.isInteger(rounded) ? rounded : rounded.toFixed(1));
   const word = rounded < 2 ? 'جزء' : (rounded <= 10 ? 'أجزاء' : 'جزءًا');
   const approx = Number.isInteger(rounded) ? '' : '≈ ';
-  return approx + shown + ' ' + word + ' يومياً';
+  return approx + shown + ' ' + toAr(word) + ' يومياً';
 }
 
 // ============================================================================
@@ -3321,7 +3373,7 @@ function renderQuizSetup(wrap){
   if(countOpts.length === 0) countOpts = [Math.min(5, poolSize)];
 
   let optsHtml = countOpts.map(n =>
-    '<button class="hifz-opt-btn' + (_quizNumQuestions===n?' active':'') + '" onclick="setQuizCount(' + n + ')">' + n + '</button>'
+    '<button class="hifz-opt-btn' + (_quizNumQuestions===n?' active':'') + '" onclick="setQuizCount(' + n + ')">' + toAr(n) + '</button>'
   ).join('');
 
   wrap.innerHTML =
@@ -3421,7 +3473,7 @@ function renderCompanionsTab(wrap, fromSettings){
   for(let i=0;i<3;i++){
     const c = companions[i] || {name:'', phone:'', telegram:''};
     rows +=
-      '<div class="hifz-setup-sub" style="margin-top:' + (i===0?'0':'18') + 'px;">رفيق الحفظ ' + (i+1) + '</div>' +
+      '<div class="hifz-setup-sub" style="margin-top:' + (i===0?'0':'18') + 'px;">' + gt('رفيق','رفيقة') + ' الحفظ ' + toAr(i+1) + '</div>' +
       '<input type="text" class="hifz-day-input" style="width:100%;margin-bottom:6px;" placeholder="الاسم" id="comp-name-' + i + '" value="' + (c.name||'') + '" />' +
       '<input type="tel" class="hifz-day-input" style="width:100%;margin-bottom:6px;" placeholder="رقم واتساب مع كود الدولة (اختياري)، مثال: 966501234567" id="comp-phone-' + i + '" value="' + (c.phone||'') + '" />' +
       '<input type="text" class="hifz-day-input" style="width:100%;" placeholder="معرف تيليجرام (اختياري)، مثال: username" id="comp-telegram-' + i + '" value="' + (c.telegram||'') + '" />';
@@ -3575,7 +3627,7 @@ function renderReaderScreen(){
   _readerSurahList.forEach(s => {
     html += '<div class="reader-surah-item" onclick="openReaderSurah(' + s.number + ')">' +
       '<div class="rsi-num">' + s.number + '</div>' +
-      '<div class="rsi-text"><div class="rsi-name">' + s.name + '</div><div class="rsi-sub">' + (s.englishName || '') + ' · ' + s.numberOfAyahs + ' آية</div></div>' +
+      '<div class="rsi-text"><div class="rsi-name">' + s.name + '</div><div class="rsi-sub">' + (s.englishName || '') + ' · ' + toAr(s.numberOfAyahs) + ' آية</div></div>' +
       '<div class="rsi-chev">‹</div>' +
     '</div>';
   });
@@ -3861,7 +3913,7 @@ function shareTilawaProgress(){
   if(!_tilawaPlan){ showToast('ابدأ خطة الختمة أولًا'); return; }
   const days = _tilawaPlan.days;
   const done = _tilawaDone.length;
-  shareProgress('أتممت ورد التلاوة اليوم (' + done + ' من ' + days + ' يوم في خطة الختمة)');
+  shareProgress('أتممت ورد التلاوة اليوم (' + done + ' من ' + toAr(days) + ' يوم في خطة الختمة)');
 }
 function resetTilawaPlan(){
   if(confirm('هل تريد إعادة ضبط جدول التلاوة؟')){
@@ -4889,7 +4941,7 @@ function renderMemoTab(wrap){
         bodyHtml += '<div class="hifz-setup-sub" style="margin-top:14px;">كم صفحة حفظت مسبقاً؟ (من أصل ٦٠٤)</div>' +
           '<div class="stepper-row">' +
             '<button class="stepper-btn" onclick="adjustPriorPages(-10)">−</button>' +
-            '<div class="stepper-value" id="prior-pages-display">' + priorVal + '</div>' +
+            '<div class="stepper-value" id="prior-pages-display">' + toAr(priorVal) + '</div>' +
             '<button class="stepper-btn" onclick="adjustPriorPages(10)">+</button>' +
           '</div>';
       }
@@ -5069,7 +5121,7 @@ function batteryHtml(pct){
   else if(pct >= 30) color = 'linear-gradient(90deg,#D97706,#FBBF24)';
   return '<div class="battery-wrap" dir="ltr"><div class="battery-body">' +
     '<div class="battery-fill" style="width:' + pct + '%;background:' + color + ';"></div>' +
-    '<div class="battery-pct-text">' + pct + '٪</div>' +
+    '<div class="battery-pct-text">' + toAr(pct) + '٪</div>' +
     '</div><div class="battery-nub"></div></div>';
 }
 function pad2(n){ n = String(n); return n.length < 2 ? '0' + n : n; }
@@ -5208,16 +5260,16 @@ function renderReviewSetup(wrap, r){
     const totalVal = r._draftTotalPages || (memoPos>0?memoPos:604);
     const wajhVal = r._draftWajh || 3;
     let repeatOpts = [1,2,3,4,5,6,7].map(n =>
-      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + toAr(n) + '</button>'
     ).join('');
     scopeDetailHtml =
       '<div class="hifz-setup-sub" style="margin-top:16px;">كم صفحة عندك محفوظة إجمالاً؟ (مجال المراجعة)</div>' +
       '<div class="stepper-row"><button class="stepper-btn" onclick="adjustReviewTotalPages(-10)">−</button>' +
-        '<div class="stepper-value" id="review-total-pages-display">' + totalVal + '</div>' +
+        '<div class="stepper-value" id="review-total-pages-display">' + toAr(totalVal) + '</div>' +
         '<button class="stepper-btn" onclick="adjustReviewTotalPages(10)">+</button></div>' +
       '<div class="hifz-setup-sub" style="margin-top:16px;">كم وجه (صفحة) تراجع بكل جلسة؟</div>' +
       '<div class="stepper-row"><button class="stepper-btn" onclick="adjustReviewWajh(-1)">−</button>' +
-        '<div class="stepper-value" id="review-wajh-display">' + wajhVal + '</div>' +
+        '<div class="stepper-value" id="review-wajh-display">' + toAr(wajhVal) + '</div>' +
         '<button class="stepper-btn" onclick="adjustReviewWajh(1)">+</button></div>' +
       '<div class="hifz-setup-sub" style="margin-top:16px;">كم مرة تكرر كل وجه؟</div>' +
       '<div class="hifz-opt-row" id="review-repeat-opts">' + repeatOpts + '</div>';
@@ -5251,7 +5303,7 @@ function renderReviewSetup(wrap, r){
       '</div>';
     if(splitMode === 'full'){
       let repeatOpts = [1,2,3,4,5,6,7].map(n =>
-        '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+        '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + toAr(n) + '</button>'
       ).join('');
       scopeDetailHtml += '<div class="hifz-setup-sub" style="margin-top:16px;">كم مرة تكرره باليوم؟</div><div class="hifz-opt-row" id="review-repeat-opts">' + repeatOpts + '</div>';
     } else {
@@ -5265,7 +5317,7 @@ function renderReviewSetup(wrap, r){
         const manualVal = r._draftManualDaily||2;
         scopeDetailHtml += '<div class="hifz-setup-sub" style="margin-top:12px;">كم صفحة باليوم؟</div>' +
           '<div class="stepper-row"><button class="stepper-btn" onclick="adjustReviewManualDaily(-1)">−</button>' +
-            '<div class="stepper-value" id="review-manual-daily-display">' + manualVal + '</div>' +
+            '<div class="stepper-value" id="review-manual-daily-display">' + toAr(manualVal) + '</div>' +
             '<button class="stepper-btn" onclick="adjustReviewManualDaily(1)">+</button></div>';
       }
     }
@@ -5273,7 +5325,7 @@ function renderReviewSetup(wrap, r){
     let surahOptions = '';
     for(let i=0;i<114;i++) surahOptions += '<option value="' + i + '"' + (r._draftSurah==i?' selected':'') + '>' + SURAH_NAMES[i] + '</option>';
     let repeatOpts = [1,2,3,4,5,6,7].map(n =>
-      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + n + '</button>'
+      '<button class="hifz-opt-btn small' + (r._draftRepeat===n?' active':'') + '" data-val="' + n + '" onclick="selectReviewRepeat(' + n + ')">' + toAr(n) + '</button>'
     ).join('');
     scopeDetailHtml =
       '<div class="hifz-setup-sub" style="margin-top:16px;">اختر السورة</div>' +
@@ -5720,7 +5772,7 @@ function paintDailySpark(){
     const d = DUA_VERSES[dsDayIndex() % DUA_VERSES.length];
     if(iconEl) iconEl.innerHTML = icons.dua;
     labelEl.textContent = 'دعاء اليوم';
-    textEl.textContent = 'دعاء من سورة رقم ' + d.surah + ' · اضغط للقراءة';
+    textEl.textContent = 'دعاء من سورة رقم ' + toAr(d.surah) + ' · اضغط للقراءة';
     if(actionEl){ actionEl.textContent = 'ادعُ'; actionEl.style.display = 'block'; actionEl.onclick = function(e){ e.stopPropagation(); openReaderScreen(d.surah, d.ayah); }; }
   } else if(mode === 'achievement'){
     const b = getMostRecentBadge();
@@ -6213,6 +6265,8 @@ function renderSettingsScreen(){
   else if(_settingsView === 'usage-guide') renderUsageGuideView(wrap);
   else if(_settingsView === 'received-plan') renderReceivedPlanView(wrap);
   else if(_settingsView === 'hijri-page') renderHijriPage(wrap);
+  else if(_settingsView === 'rifqah') renderRifqahView(wrap);
+  else if(_settingsView === 'usra') renderUsraView(wrap);
   else if(_settingsView === 'roster'){
     if(!persoCan('circles')){ _settingsView = 'dashboard'; renderSettingsDashboard(wrap); }
     else renderRosterView(wrap);
@@ -6294,7 +6348,9 @@ function buildSettingsGroups(){
         {icon:'scroll', label:'خطتي الأسبوعية والشهرية', sub:'حفظك وتلاوتك مجمّعين بالأسبوع والشهر', onclick:"openSettingsSubview('weekly-plan')"},
         {icon:'star', label:'الأوسمة والإنجازات', sub:'ما حققته من ثبات وتقدّم', onclick:"openSettingsSubview('achievements')"},
         {icon:'scroll', label:'سجل النشاط اليومي', sub:'آخر ٣٠ يومًا من رحلتك', onclick:"openSettingsSubview('activity')"},
-        {icon:'network', label:'رفقاء الحفظ', sub:'شارك تقدمك مع من تحب', onclick:"openSettingsSubview('companions')"}
+        {icon:'network', label:'رفقاء الحفظ', sub:'شارك تقدمك مع من تحب', onclick:"openSettingsSubview('companions')"},
+        {icon:'network', label:'الرِّفقة', sub:'احفظوا وردًا واحدًا وتابعوا بعضكم', onclick:"openSettingsSubview('rifqah')"},
+        {icon:'building', label:'الحلقة الأسرية', sub:'حلقة في بيتك لأبنائك وبناتك', onclick:"openSettingsSubview('usra')"}
       ]
     },
     spiritual: {
@@ -6521,13 +6577,13 @@ function renderOrgManagementHub(wrap){
   const stats = computeOrgStats();
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
   html += '<div class="circle-stats-bar" style="margin-bottom:14px;">' +
-    '<div class="csb-item"><span class="csb-num">' + stats.centerCount + '</span><span class="csb-label">مراكز</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(stats.centerCount) + '</span><span class="csb-label">مراكز</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + stats.teacherCount + '</span><span class="csb-label">معلمون</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(stats.teacherCount) + '</span><span class="csb-label">معلمون</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + stats.circleCount + '</span><span class="csb-label">حلقات</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(stats.circleCount) + '</span><span class="csb-label">حلقات</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + stats.totalStudents + '</span><span class="csb-label">طلاب</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(stats.totalStudents) + '</span><span class="csb-label">طلاب</span></div>' +
   '</div>';
   html += '<div class="dash-card" onclick="openSettingsSubview(\'org-centers\')">' +
     '<div class="dash-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + SETTINGS_ITEM_SVG.columns + '</svg></div>' +
@@ -6709,7 +6765,7 @@ function renderOrgActivityDetail(wrap){
   html += '<div class="journey-tree-card" style="text-align:center;">' +
     '<div class="jtc-icon">✦</div>' +
     '<div class="jtc-label">' + act.title + '</div>' +
-    '<div class="jtc-pct">' + act.date + (act.description ? ' · ' + act.description : '') + '</div>' +
+    '<div class="jtc-pct">' + toAr(act.date) + (act.description ? ' · ' + act.description : '') + '</div>' +
   '</div>';
 
   html += '<div class="circle-stats-bar" style="margin:12px 0;"><div class="csb-item"><span class="csb-num">' + (act.participants||[]).length + '</span><span class="csb-label">مسجَّل حتى الآن</span></div></div>';
@@ -6904,7 +6960,7 @@ function renderOrgStudentsView(wrap){
           '<div style="font-weight:900;color:var(--text);">' + r.student.name + '</div>' +
           '<div style="font-size:9.5px;color:var(--muted);margin-top:1px;">' + r.circleName + (r.teacherName !== '—' ? ' · ' + r.teacherName : '') + '</div>' +
         '</div>' +
-        '<div class="alr-count">' + (st.completionRate !== null ? '٪' + Math.round(st.completionRate*100) : '—') + '</div>' +
+        '<div class="alr-count">' + (st.completionRate !== null ? toAr(Math.round(st.completionRate*100)) + '٪' : '—') + '</div>' +
       '</div>';
     });
     html += '</div>';
@@ -6928,14 +6984,14 @@ function renderOrgStudentProfile(wrap){
   html += '<div class="journey-tree-card" style="text-align:center;">' +
     '<div class="jtc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">' + SETTINGS_ITEM_SVG.graduate + '</svg></div>' +
     '<div class="jtc-label">' + s.name + '</div>' +
-    '<div class="jtc-pct">' + circle.name + '</div>' +
+    '<div class="jtc-pct">' + toAr(circle.name) + '</div>' +
   '</div>';
   html += '<div class="circle-stats-bar" style="margin-top:12px;">' +
     '<div class="csb-item"><span class="csb-num" style="unicode-bidi:isolate;">' + (st.completionRate !== null ? Math.round(st.completionRate*100) + '٪' : '—') + '</span><span class="csb-label">إنجاز عام</span></div>' +
     '<div class="csb-sep"></div>' +
     '<div class="csb-item"><span class="csb-num">' + toAr(st.weekCompleted) + '/' + toAr(st.weekTotal) + '</span><span class="csb-label">هذا الأسبوع</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + st.presentCount + '</span><span class="csb-label">أيام حضور</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(st.presentCount) + '</span><span class="csb-label">أيام حضور</span></div>' +
   '</div>';
   if(s.memoPlan) html += '<div class="journey-ayah-card" style="margin-top:12px;"><div class="ca-label">خطة الحفظ</div><div class="ca-text">' + s.memoPlan + '</div></div>';
   if(s.reviewPlan) html += '<div class="journey-ayah-card" style="margin-top:12px;"><div class="ca-label">خطة المراجعة</div><div class="ca-text">' + s.reviewPlan + '</div></div>';
@@ -6947,9 +7003,9 @@ function renderOrgStatsView(wrap){
   const stats = computeOrgStats();
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'org-management\')">→ إدارة المؤسسة</button>';
   html += '<button class="hifz-save-btn" style="margin-top:0;margin-bottom:12px;" onclick="shareInstitutionReportImage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg> مشاركة تقرير مرئي للمؤسسة</button>';
-  html += '<div class="circle-stats-bar"><div class="csb-item"><span class="csb-num">' + stats.teacherCount + '</span><span class="csb-label">معلمون</span></div>' +
-    '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + stats.circleCount + '</span><span class="csb-label">حلقات</span></div>' +
-    '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + stats.totalStudents + '</span><span class="csb-label">طلاب</span></div></div>';
+  html += '<div class="circle-stats-bar"><div class="csb-item"><span class="csb-num">' + toAr(stats.teacherCount) + '</span><span class="csb-label">معلمون</span></div>' +
+    '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + toAr(stats.circleCount) + '</span><span class="csb-label">حلقات</span></div>' +
+    '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + toAr(stats.totalStudents) + '</span><span class="csb-label">طلاب</span></div></div>';
   html += '<div class="circle-stats-bar" style="margin-top:10px;"><div class="csb-item"><span class="csb-num">' + toAr(stats.todayCompleted) + '/' + toAr(stats.totalStudents) + '</span><span class="csb-label">أنجزوا اليوم</span></div>' +
     '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + toAr(stats.weekSum) + '/' + toAr(stats.weekPossible) + '</span><span class="csb-label">هذا الأسبوع</span></div>' +
     '<div class="csb-sep"></div><div class="csb-item"><span class="csb-num">' + toAr(stats.monthSum) + '/' + toAr(stats.monthPossible) + '</span><span class="csb-label">هذا الشهر</span></div></div>';
@@ -6965,7 +7021,7 @@ function renderOrgStatsView(wrap){
   wrap.innerHTML = html;
 }
 function exportOrgCSV(){
-  const rows = [['الحلقة','المعلم','اسم الطالب','الجوال','نسبة الإنجاز العام','إنجاز هذا الأسبوع','إنجاز هذا الشهر']];
+  const rows = [['الحلقة','المعلم',gt('اسم الطالب','اسم الطالبة'),'الجوال','نسبة الإنجاز العام','إنجاز هذا الأسبوع','إنجاز هذا الشهر']];
   getAllOrgStudents().forEach(r => {
     const st = computeStudentStats(r.student);
     rows.push([r.circleName, r.teacherName, r.student.name, r.student.phone,
@@ -7117,7 +7173,7 @@ function renderAboutView(wrap){
   }
   html += '<div class="jtc-label" style="font-size:16px;">' + brand.name + '</div>';
   if(org && org.motto){
-    html += '<div class="jtc-pct" style="margin-top:6px;line-height:1.7;">' + org.motto + '</div>';
+    html += '<div class="jtc-pct" style="margin-top:6px;line-height:1.7;">' + toAr(org.motto) + '</div>';
   } else if(!isOrg){
     html += '<div class="jtc-pct" style="margin-top:6px;line-height:1.7;">رفيقك اليومي لحفظ القرآن ومراجعته وتلاوته، بهدوء واستمرارية.</div>';
   }
@@ -7351,6 +7407,611 @@ function renderCircleTree(){
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
   panel.innerHTML = html;
   overlay.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   الحلقة الأسرية
+   The family halaqah: a mother teaching her own children at home.
+
+   لماذا مستقلّة عن حلقة المسجد:
+   ١. مختلطة بطبعها — أبناء وبنات معًا، وهذا لا تحتمله حلقة المسجد التي
+      تكون للذكور أو للإناث. فبنيتُ لكل فرد جنسًا خاصًّا به.
+   ٢. صلة القرابة تحلّ محلّ رقم وليّ الأمر: الأمّ هي وليّة الأمر، فلا
+      معنى لحقل «واتساب وليّ الأمر» في بيتها.
+   ٣. المقياس مختلف: في البيت لا حضور ولا غياب — الأبناء حاضرون دائمًا.
+      المهمّ هل سمّع اليوم أم لا، وكم يحفظ.
+
+   ولذلك لا يُعاد استعمال نموذج الحلقة هنا، بل نموذج أبسط يشبه البيت.
+   ═══════════════════════════════════════════════════════════════════════ */
+const USRA_KEY = 'irtaqi-usra';
+/** شاشة الحلقة الأسرية. */
+function renderUsraView(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const u = getUsra();
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+
+  if(!u){
+    html += '<div class="hifz-setup-card">' +
+      '<div class="hifz-setup-title">الحلقة الأسرية</div>' +
+      '<div class="hifz-setup-sub" style="line-height:1.9;">' +
+        'حلقة في بيتك: تحفّظ أبناءك وبناتك معًا، لكلٍّ تكليفه ومقدار حفظه. ' +
+        'لا حضور ولا غياب — أهل البيت حاضرون، والمقياس هل سمّع اليوم.' +
+      '</div>' +
+      '<input type="text" class="hifz-day-input" id="usra-name" style="width:100%;margin-top:10px;" placeholder="اسم الحلقة، مثال: حلقة بيتنا" />' +
+      dictateBtn('usra-name','names','إملاء الاسم') +
+      '<button class="hifz-save-btn" style="margin-top:8px;" onclick="createUsra()">إنشاء الحلقة</button>' +
+    '</div>';
+    w.innerHTML = html;
+    return;
+  }
+
+  const st = usraWeekStats();
+  const todayLog = ((u.log||{})[getTodayISO()]) || [];
+  const juz = u.members.reduce(function(a,m){ return a + (m.juz||0); }, 0);
+  const boys = u.members.filter(function(m){ return !m.female; }).length;
+  const girls = u.members.length - boys;
+
+  html += '<div class="rq-head">' +
+    '<div class="rq-name">' + musEsc(u.name) + '</div>' +
+    '<div class="rq-meta">' + toAr(u.members.length) + ' من الأسرة' +
+      (boys && girls ? ' · ' + toAr(boys) + ' ذكور و' + toAr(girls) + ' إناث' : '') +
+      (juz ? ' · ' + toAr(juz) + ' جزءًا' : '') +
+      ' · سمّع اليوم ' + toAr(todayLog.length) +
+    '</div>' +
+  '</div>';
+
+  html += '<div class="hifz-setup-card" style="margin-bottom:12px;">';
+  if(!u.members.length){
+    html += '<div class="hifz-rest-day">لا أحد بعد — أضف أفراد أسرتك أدناه</div>';
+  } else {
+    st.forEach(function(x){
+      const m = x.member;
+      const on = todayLog.indexOf(m.id) >= 0;
+      html += '<div class="usra-member' + (m.female ? ' is-f' : '') + '">' +
+        '<div class="rq-member" style="border-top:none;padding:0;">' +
+          '<button type="button" class="rq-check' + (on ? ' on' : '') + '" ' +
+            'aria-label="تسميع ' + musEsc(m.name) + '" onclick="toggleUsraDone(\'' + m.id + '\')">' +
+            (on ? '✓' : '') + '</button>' +
+          '<div class="rq-m-info">' +
+            '<span class="rq-m-name">' + musEsc(m.name) +
+              ' <span class="usra-kin">' + m.kin + '</span></span>' +
+            '<span class="rq-m-week">' + toAr(x.done) + ' من ' + toAr(x.total) + ' يوم · ' +
+              (m.juz ? toAr(m.juz) + ' جزءًا' : 'بلا مستوى') + '</span>' +
+          '</div>' +
+          '<button type="button" class="rq-m-del" onclick="removeUsraMember(\'' + m.id + '\')" aria-label="حذف">×</button>' +
+        '</div>' +
+        (m.assign ? '<div class="usra-asg">' + assignmentLabel(m.assign) + '</div>' : '') +
+        '<div class="usra-actions">' +
+          '<input class="usra-juz" type="text" inputmode="numeric" value="' + toAr(m.juz||0) + '" ' +
+            'aria-label="أجزاء ' + musEsc(m.name) + '" onchange="setUsraJuz(\'' + m.id + '\', this.value)">' +
+          '<button type="button" class="usra-btn" onclick="openUsraAssign(\'' + m.id + '\')">تكليف</button>' +
+        '</div>' +
+      '</div>';
+    });
+  }
+  html += '</div>';
+
+  // إضافة فرد
+  let kinOpts = '';
+  KINSHIP.forEach(function(k){ kinOpts += '<option value="' + k + '">' + k + '</option>'; });
+  html += '<div class="hifz-setup-card" style="margin-bottom:12px;">' +
+    '<div class="hifz-setup-title" style="font-size:14px;">إضافة فرد</div>' +
+    '<input type="text" class="hifz-day-input" id="usra-m-name" style="width:100%;margin-top:8px;" placeholder="الاسم" />' +
+    dictateBtn('usra-m-name','names','إملاء الاسم') +
+    '<div class="asg-row" style="margin-top:6px;">' +
+      '<div class="asg-field"><label>صلة القرابة</label>' +
+        '<select id="usra-m-kin" class="hifz-day-input" style="width:100%;">' + kinOpts + '</select></div>' +
+      '<div class="asg-field"><label>كم يحفظ؟</label>' +
+        '<input type="text" inputmode="numeric" id="usra-m-juz" value="٠"></div>' +
+    '</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="addUsraMember()">إضافة</button>' +
+  '</div>';
+
+  html += '<button class="hifz-save-btn" onclick="cardUsra()">بطاقة الأسرة للمشاركة</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportUsraPdf()">حفظ كـ PDF</button>';
+  html += '<button class="hifz-edit-btn danger" style="margin-top:8px;" onclick="clearUsra()">حذف الحلقة الأسرية</button>';
+  w.innerHTML = html;
+}
+
+
+const KINSHIP = ['ابن','ابنة','أخ','أخت','زوج','زوجة','والد','والدة','حفيد','حفيدة','قريب','قريبة'];
+
+function getUsra(){
+  try { return JSON.parse(localStorage.getItem(USRA_KEY) || 'null'); }
+  catch(e){ return null; }
+}
+function saveUsra(u){
+  try { localStorage.setItem(USRA_KEY, JSON.stringify(u)); } catch(e){}
+}
+function clearUsra(){
+  if(!confirm('حذف الحلقة الأسرية وكل بياناتها؟')) return;
+  try { localStorage.removeItem(USRA_KEY); } catch(e){}
+  showToast('حُذفت الحلقة الأسرية');
+  renderUsraView();
+}
+
+function createUsra(){
+  const el = document.getElementById('usra-name');
+  const nm = el ? el.value.trim() : '';
+  if(!nm){ showToast('اكتب اسم الحلقة'); return; }
+  saveUsra({ id:'us'+Date.now(), name:nm, members:[], log:{}, createdAt:getTodayISO() });
+  showToast('أُنشئت ' + nm);
+  renderUsraView();
+}
+
+function addUsraMember(){
+  const u = getUsra();
+  if(!u) return;
+  const nEl = document.getElementById('usra-m-name');
+  const kEl = document.getElementById('usra-m-kin');
+  const jEl = document.getElementById('usra-m-juz');
+  const nm = nEl ? nEl.value.trim() : '';
+  if(!nm){ showToast('اكتب الاسم'); return; }
+  const kin = kEl ? kEl.value : 'ابن';
+  // الجنس يُشتقّ من صلة القرابة، فلا نسأل عنه سؤالًا زائدًا.
+  const female = /ة$/.test(kin);
+  u.members.push({
+    id:'um'+Date.now()+u.members.length,
+    name:nm, kin:kin, female:female,
+    juz: Math.max(0, Math.min(30, parseInt(arToNum(jEl ? jEl.value : '0'), 10) || 0)),
+    assign: null
+  });
+  saveUsra(u);
+  showToast('أُضيف ' + nm);
+  renderUsraView();
+}
+
+function removeUsraMember(id){
+  const u = getUsra();
+  if(!u) return;
+  u.members = u.members.filter(function(m){ return m.id !== id; });
+  saveUsra(u);
+  renderUsraView();
+}
+
+function setUsraJuz(id, v){
+  const u = getUsra(); if(!u) return;
+  const m = u.members.find(function(x){ return x.id === id; });
+  if(!m) return;
+  m.juz = Math.max(0, Math.min(30, parseInt(arToNum(v), 10) || 0));
+  saveUsra(u);
+  renderUsraView();
+}
+
+/** تسميع اليوم: الحاضر دائمًا في البيت، فالمقياس هل سمّع أم لا. */
+function toggleUsraDone(id){
+  const u = getUsra(); if(!u) return;
+  const k = getTodayISO();
+  u.log = u.log || {};
+  u.log[k] = u.log[k] || [];
+  const i = u.log[k].indexOf(id);
+  if(i >= 0) u.log[k].splice(i,1); else u.log[k].push(id);
+  saveUsra(u);
+  renderUsraView();
+}
+
+function usraWeekStats(){
+  const u = getUsra();
+  if(!u) return [];
+  const keys = [];
+  for(let i = 0; i < 7; i++){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    keys.push(d.toISOString().slice(0,10));
+  }
+  return (u.members || []).map(function(m){
+    let n = 0;
+    keys.forEach(function(k){ if(((u.log||{})[k] || []).indexOf(m.id) >= 0) n++; });
+    return { member:m, done:n, total:keys.length };
+  });
+}
+
+/** تكليف فرد من الأسرة بسورة وآيات. */
+var _usraAsgId = null;
+function openUsraAssign(id){
+  const u = getUsra(); if(!u) return;
+  const m = u.members.find(function(x){ return x.id === id; });
+  if(!m) return;
+  _asgCtx = null;                         // نغادر سياق الحلقة صراحةً
+  _usraAsgId = id;
+  _asgDraft = m.assign ? { surah:m.assign.surah, from:m.assign.from, to:m.assign.to }
+                       : { surah:1, from:1, to:Math.min(7, surahAyahCount(1)) };
+  renderUsraAssign();
+}
+function renderUsraAssign(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  const u = getUsra();
+  if(!panel || !overlay || !u || !_asgDraft) return;
+  const m = u.members.find(function(x){ return x.id === _usraAsgId; });
+  if(!m) return;
+  const total = surahAyahCount(_asgDraft.surah);
+  let opts = '';
+  for(let i = 1; i <= 114; i++){
+    opts += '<option value="' + i + '"' + (i === _asgDraft.surah ? ' selected' : '') + '>' +
+      toAr(i) + ' · ' + surahName(i) + '</option>';
+  }
+  panel.innerHTML =
+    '<div class="share-sheet-title">تكليف ' + musEsc(m.name) + '</div>' +
+    '<select class="hifz-day-input" style="width:100%;margin-bottom:10px;" onchange="setAsgSurah(this.value);renderUsraAssign();">' + opts + '</select>' +
+    '<div class="asg-row">' +
+      '<div class="asg-field"><label>من الآية</label>' +
+        '<input type="text" inputmode="numeric" value="' + toAr(_asgDraft.from) + '" onchange="setAsgFrom(arToNum(this.value));renderUsraAssign();"></div>' +
+      '<div class="asg-field"><label>إلى الآية</label>' +
+        '<input type="text" inputmode="numeric" value="' + toAr(_asgDraft.to) + '" onchange="setAsgTo(arToNum(this.value));renderUsraAssign();"></div>' +
+    '</div>' +
+    '<div class="asg-hint">السورة ' + toAr(total) + ' آية</div>' +
+    '<div class="asg-preview">' + assignmentLabel(_asgDraft) + '</div>' +
+    '<button class="hifz-save-btn" style="margin-top:10px;" onclick="saveUsraAssign()">حفظ التكليف</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet();renderUsraView();">إغلاق</button>';
+  overlay.classList.remove('hidden');
+}
+function saveUsraAssign(){
+  const u = getUsra(); if(!u) return;
+  const m = u.members.find(function(x){ return x.id === _usraAsgId; });
+  if(!m) return;
+  m.assign = { surah:_asgDraft.surah, from:_asgDraft.from, to:_asgDraft.to, at:getTodayISO() };
+  saveUsra(u);
+  closeShareSheet();
+  showToast('حُفظ تكليف ' + m.name);
+  renderUsraView();
+}
+
+/** بطاقة الأسرة. */
+function cardUsra(){
+  const u = getUsra();
+  if(!u){ showToast('أنشئ الحلقة الأسرية أولًا'); return; }
+  const st = usraWeekStats();
+  const done = st.reduce(function(a,x){ return a + x.done; }, 0);
+  const poss = st.length * 7;
+  const pct = poss > 0 ? done/poss : 0;
+  const juz = u.members.reduce(function(a,m){ return a + (m.juz||0); }, 0);
+  buildShareCard({
+    title:'حلقتنا الأسرية', name:u.name,
+    pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'التزام الأسرة هذا الأسبوع',
+    rows: st.slice(0,3).map(function(x){
+      return [x.member.name + ' · ' + x.member.kin, toAr(x.done) + ' من ' + toAr(x.total) + ' يوم'];
+    }).concat([['محفوظ الأسرة', toAr(juz) + ' جزءًا']]),
+    note:'بارك الله في بيتكم'
+  });
+}
+
+/** الأسرة كمستند. */
+function exportUsraPdf(){
+  const u = getUsra(); if(!u) return;
+  const st = usraWeekStats();
+  let tb = '<table><thead><tr><th>#</th><th>الاسم</th><th>الصلة</th>' +
+    '<th>الحفظ</th><th>التكليف</th><th>الأسبوع</th></tr></thead><tbody>';
+  st.forEach(function(x, i){
+    tb += '<tr><td>' + toAr(i+1) + '</td>' +
+      '<td style="text-align:right;">' + x.member.name + '</td>' +
+      '<td>' + x.member.kin + '</td>' +
+      '<td>' + (x.member.juz ? toAr(x.member.juz) + ' جزءًا' : '—') + '</td>' +
+      '<td style="text-align:right;">' + (x.member.assign ? assignmentLabel(x.member.assign) : '—') + '</td>' +
+      '<td>' + toAr(x.done) + '/' + toAr(x.total) + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  exportPdf('الحلقة الأسرية: ' + u.name,
+    'عدد الأفراد: ' + toAr(u.members.length), tb, false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   الرِّفقة — الحفظ الجماعي
+   Rifqah: a small band of companions memorizing together.
+
+   لماذا مستقلّة عن الخطة الفردية: لأنها كذلك في الواقع. الطالبة قد يكون
+   لها وردها الخاص وتشارك رفيقاتها وردًا آخر متّفقًا عليه، وقد تنقطع
+   الرفقة وتبقى خطتها، أو العكس. ودمجهما يجعل انقطاع إحداهما يُربك الأخرى.
+
+   لماذا الاسم «رِفقة»: «الرفيق قبل الطريق» — الكلمة تحمل معنى الصحبة في
+   السير لا مجرد المعرفة، وتصلح للطالبات والطلاب معًا.
+
+   القيد المعماري: لا خادم. فالرفقة تُنشأ على جهاز واحد وتُشارَك برمز
+   (مثل رمز الخطة)، وكل عضوة تتابع تقدّمها على جهازها وترسله للرفقة
+   بضغطة. تزامن حقيقي يحتاج خادمًا، وهذا أقصى ما يُبنى بلا واحد.
+   ═══════════════════════════════════════════════════════════════════════ */
+const RIFQAH_KEY = 'irtaqi-rifqah';
+/** شاشة الرفقة. */
+function renderRifqahView(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const r = getRifqah();
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+
+  if(!r){
+    html += '<div class="hifz-setup-card">' +
+      '<div class="hifz-setup-title">الرِّفقة</div>' +
+      '<div class="hifz-setup-sub" style="line-height:1.9;">' +
+        (isFem()
+          ? 'تحفظين مع رفيقاتك وردًا واحدًا متّفقًا عليه، وتتابعن التزام بعضكنّ. من ٢ إلى ٥ رفيقات.'
+          : 'تحفظ مع رفقائك وردًا واحدًا متّفقًا عليه، وتتابعون التزام بعضكم. من ٢ إلى ٥ رفقاء.') +
+      '</div>' +
+      '<input type="text" class="hifz-day-input" id="rifqah-name" style="width:100%;margin-top:10px;" placeholder="اسم الرفقة، مثال: رفقة الفجر" />' +
+      dictateBtn('rifqah-name','names','إملاء الاسم') +
+      '<button class="hifz-save-btn" style="margin-top:8px;" onclick="createRifqah()">إنشاء الرفقة</button>' +
+    '</div>';
+    html += '<div class="hifz-setup-card" style="margin-top:14px;">' +
+      '<div class="hifz-setup-title">أو انضمّي لرفقة</div>' +
+      '<div class="hifz-setup-sub">إن وصلك رمز رفقة، الصقيه هنا</div>' +
+      '<textarea class="hifz-day-input" id="rifqah-code-in" style="width:100%;height:90px;font-size:11px;direction:ltr;text-align:left;" placeholder="IRTQ1:..."></textarea>' +
+      '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="applyRifqahCode()">انضمام</button>' +
+    '</div>';
+    w.innerHTML = html;
+    return;
+  }
+
+  const stats = rifqahWeekStats();
+  const todayLog = (r.log && r.log[getTodayISO()]) || [];
+  const doneToday = todayLog.length;
+
+  html += '<div class="rq-head">' +
+    '<div class="rq-name">' + musEsc(r.name) + '</div>' +
+    '<div class="rq-meta">' + toAr(r.members.length) + ' ' + rifqahMemberWord(r.members.length) +
+      (r.members.length ? ' · أتمّ اليوم ' + toAr(doneToday) : '') + '</div>' +
+  '</div>';
+
+  // الورد المشترك
+  html += '<div class="hifz-setup-card" style="margin-bottom:12px;">' +
+    '<div class="hifz-setup-title" style="font-size:14px;">وردنا المشترك</div>';
+  if(r.plan){
+    html += '<div class="rq-plan">' + rifqahPlanText(r.plan) + '</div>';
+  }
+  html += '<div class="asg-row" style="margin-top:8px;">' +
+      // حقل نصّي بلوحة أرقام: type=number يرفض الأرقام الهندية فيُرجع فراغًا،
+      // فيصير «٢» واحدًا. والمعلّمة تكتب بلوحتها العربية غالبًا.
+      '<div class="asg-field"><label>المقدار</label>' +
+        '<input type="text" inputmode="numeric" id="rq-amount" value="' + toAr(r.plan ? r.plan.amount : 1) + '"></div>' +
+      '<div class="asg-field"><label>الوحدة أو النطاق</label>' +
+        '<input type="text" id="rq-scope" value="' + (r.plan && r.plan.scope ? musEsc(r.plan.scope) : '') + '" placeholder="أوجه، أو: سورة النور"></div>' +
+    '</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="saveRifqahPlan()">حفظ الورد</button>' +
+  '</div>';
+
+  // الأعضاء ومتابعة اليوم
+  html += '<div class="hifz-setup-card" style="margin-bottom:12px;">' +
+    '<div class="hifz-setup-title" style="font-size:14px;">' +
+      (isFem() ? 'الرفيقات' : 'الرفقاء') + '</div>';
+  if(!r.members.length){
+    html += '<div class="hifz-rest-day">لا أحد بعد — أضيفي الأسماء أدناه</div>';
+  } else {
+    stats.forEach(function(x){
+      const on = todayLog.indexOf(x.member.id) >= 0;
+      html += '<div class="rq-member">' +
+        '<button type="button" class="rq-check' + (on ? ' on' : '') + '" ' +
+          'aria-label="تسجيل إتمام ' + musEsc(x.member.name) + '" ' +
+          'onclick="markRifqahDone(\'' + x.member.id + '\')">' + (on ? '✓' : '') + '</button>' +
+        '<div class="rq-m-info">' +
+          '<span class="rq-m-name">' + musEsc(x.member.name) + '</span>' +
+          '<span class="rq-m-week">' + toAr(x.done) + ' من ' + toAr(x.total) + ' يوم هذا الأسبوع</span>' +
+        '</div>' +
+        (x.member.phone ? '<a class="rq-m-wa" href="https://wa.me/' + x.member.phone + '" target="_blank" aria-label="مراسلة">واتساب</a>' : '') +
+        '<button type="button" class="rq-m-del" onclick="removeRifqahMember(\'' + x.member.id + '\')" aria-label="حذف">×</button>' +
+      '</div>';
+    });
+  }
+  if(r.members.length < RIFQAH_MAX){
+    html += '<input type="text" class="hifz-day-input" id="rifqah-member" style="width:100%;margin-top:10px;" placeholder="الاسم" />' +
+      '<input type="tel" class="hifz-day-input" id="rifqah-member-phone" style="width:100%;margin-top:6px;" placeholder="واتساب (اختياري)" />' +
+      dictateBtn('rifqah-member','names','إملاء الاسم') +
+      '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="addRifqahMember()">إضافة</button>';
+  } else {
+    html += '<div class="asg-hint">بلغتِ الحدّ الأقصى (' + toAr(RIFQAH_MAX) + ')</div>';
+  }
+  html += '</div>';
+
+  html += '<button class="hifz-save-btn" onclick="cardRifqah()">بطاقة الرفقة للمشاركة</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="messageRifqah()">إرسال تقرير الأسبوع</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="makeRifqahCode()">رمز الانضمام</button>';
+  html += '<button class="hifz-edit-btn danger" style="margin-top:8px;" onclick="clearRifqah()">حذف الرفقة</button>';
+  w.innerHTML = html;
+}
+
+const RIFQAH_MAX = 5;
+
+function getRifqah(){
+  try { return JSON.parse(localStorage.getItem(RIFQAH_KEY) || 'null'); }
+  catch(e){ return null; }
+}
+function saveRifqah(r){
+  try { localStorage.setItem(RIFQAH_KEY, JSON.stringify(r)); } catch(e){}
+}
+function clearRifqah(){
+  try { localStorage.removeItem(RIFQAH_KEY); } catch(e){}
+  showToast(gt('حُذفت الرفقة','حُذفت الرفقة'));
+  renderRifqahView();
+}
+
+/** تسمية الأعضاء حسب جنس المستخدم — رفيقات أو رفقاء. */
+function rifqahMemberWord(n){
+  if(isFem()) return n === 1 ? 'رفيقة' : (n === 2 ? 'رفيقتان' : 'رفيقات');
+  return n === 1 ? 'رفيق' : (n === 2 ? 'رفيقان' : 'رفقاء');
+}
+
+function createRifqah(){
+  const nameEl = document.getElementById('rifqah-name');
+  const nm = nameEl ? nameEl.value.trim() : '';
+  if(!nm){ showToast('اكتب اسمًا للرفقة'); return; }
+  saveRifqah({
+    id: 'rq' + Date.now(),
+    name: nm,
+    members: [],
+    plan: null,
+    log: {},                      // {تاريخ: [أسماء من أتمّت]}
+    createdAt: getTodayISO()
+  });
+  showToast('أُنشئت رفقة ' + nm);
+  renderRifqahView();
+}
+
+function addRifqahMember(){
+  const r = getRifqah();
+  if(!r) return;
+  const el = document.getElementById('rifqah-member');
+  const nm = el ? el.value.trim() : '';
+  if(!nm){ showToast('اكتب الاسم'); return; }
+  if(r.members.length >= RIFQAH_MAX){
+    showToast('الحدّ الأقصى ' + toAr(RIFQAH_MAX) + ' ' + rifqahMemberWord(RIFQAH_MAX));
+    return;
+  }
+  const phEl = document.getElementById('rifqah-member-phone');
+  r.members.push({ id:'m'+Date.now(), name:nm, phone:(phEl? phEl.value.replace(/[^0-9]/g,'') : '') });
+  saveRifqah(r);
+  showToast('أُضيفت ' + nm);
+  renderRifqahView();
+}
+
+function removeRifqahMember(id){
+  const r = getRifqah();
+  if(!r) return;
+  r.members = r.members.filter(function(m){ return m.id !== id; });
+  saveRifqah(r);
+  renderRifqahView();
+}
+
+/** الوحدة موافقة للعدد: وجه / وجهان / أوجه. */
+function unitWord(n, single, dual, plural){
+  if(n === 1) return single;
+  if(n === 2) return dual;
+  if(n <= 10) return plural;
+  return single;
+}
+
+/** نصّ الورد المشترك بصيغة عربية سليمة. */
+function rifqahPlanText(plan){
+  if(!plan) return '';
+  const n = plan.amount;
+  const unit = plan.scope ? plan.scope : unitWord(n, 'وجه', 'وجهان', 'أوجه');
+  // «١ وجه» ركيك؛ العربية تقول «وجه واحد» أو تكتفي بالمثنّى.
+  if(n === 1 && !plan.scope) return 'وجه واحد يوميًا';
+  if(n === 2 && !plan.scope) return 'وجهان يوميًا';
+  return toAr(n) + ' ' + toAr(unit) + ' يوميًا';
+}
+
+/** خطة الرفقة المشتركة — مقدار يومي متّفق عليه ونطاق. */
+function saveRifqahPlan(){
+  const r = getRifqah();
+  if(!r) return;
+  const amt = Math.max(1, parseInt(arToNum((document.getElementById('rq-amount')||{}).value), 10) || 1);
+  const scope = (document.getElementById('rq-scope')||{}).value || '';
+  r.plan = { amount: amt, scope: scope.trim(), startDate: getTodayISO() };
+  saveRifqah(r);
+  showToast('حُفظت خطة الرفقة');
+  renderRifqahView();
+}
+
+/** تسجيل إتمام عضوة لوردها اليوم. */
+function markRifqahDone(memberId){
+  const r = getRifqah();
+  if(!r) return;
+  const k = getTodayISO();
+  r.log = r.log || {};
+  r.log[k] = r.log[k] || [];
+  const i = r.log[k].indexOf(memberId);
+  if(i >= 0) r.log[k].splice(i, 1); else r.log[k].push(memberId);
+  saveRifqah(r);
+  renderRifqahView();
+}
+
+/** إحصاء أسبوع الرفقة: كم يومًا أتمّت كل عضوة. */
+function rifqahWeekStats(){
+  const r = getRifqah();
+  if(!r) return [];
+  const keys = [];
+  for(let i = 0; i < 7; i++){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    keys.push(d.toISOString().slice(0,10));
+  }
+  return (r.members || []).map(function(m){
+    let n = 0;
+    keys.forEach(function(k){ if((r.log[k] || []).indexOf(m.id) >= 0) n++; });
+    return { member:m, done:n, total:keys.length };
+  });
+}
+
+/** رمز مشاركة الرفقة — تلصقه العضوات فتظهر عندهنّ الرفقة نفسها. */
+function makeRifqahCode(){
+  const r = getRifqah();
+  if(!r){ showToast('أنشئ الرفقة أولًا'); return; }
+  const code = planEncode({
+    v: 1, s: r.name, c: 'رفقة',
+    rq: { name:r.name, members:r.members, plan:r.plan }
+  });
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  panel.innerHTML =
+    '<div class="share-sheet-title">رمز رفقة ' + musEsc(r.name) + '</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:10px;">' +
+      'أرسلي هذا الرمز ' + (isFem()?'لرفيقاتك':'لرفقائك') +
+      '، ' + (isFem()?'وتلصقه كل واحدة':'ويلصقه كل واحد') +
+      ' في الإعدادات ← الرفقة، فتظهر عندها الرفقة والخطة نفسها.' +
+    '</div>' +
+    '<textarea class="hifz-day-input" id="plan-code-out" readonly style="width:100%;height:110px;font-size:11px;direction:ltr;text-align:left;">' + code + '</textarea>' +
+    '<button class="hifz-save-btn" style="margin-top:8px;" onclick="copyPlanCode()">نسخ الرمز</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="shareRifqahCodeWA()">إرسال عبر واتساب</button>' +
+    '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  overlay.classList.remove('hidden');
+}
+
+function shareRifqahCodeWA(){
+  const el = document.getElementById('plan-code-out');
+  const r = getRifqah();
+  if(!el || !r) return;
+  const msg = 'انضمّي إلى رفقة «' + r.name + '» في ارتقِ.\n' +
+    'افتحي التطبيق ← الإعدادات ← الرفقة، والصقي الرمز:\n\n' + el.value;
+  shareText(msg, 'رفقة ' + r.name);
+}
+
+/** استلام رفقة من رمز. */
+function applyRifqahCode(){
+  const el = document.getElementById('rifqah-code-in');
+  if(!el) return;
+  const obj = planDecode(el.value);
+  if(!obj || !obj.rq){ showToast('الرمز غير صالح — تأكّدي من نسخه كاملًا'); return; }
+  const cur = getRifqah();
+  saveRifqah({
+    id: 'rq' + Date.now(),
+    name: obj.rq.name || 'رفقة',
+    members: obj.rq.members || [],
+    plan: obj.rq.plan || null,
+    log: (cur && cur.log) || {},
+    createdAt: getTodayISO()
+  });
+  showToast('انضممتِ إلى رفقة ' + (obj.rq.name || ''));
+  renderRifqahView();
+}
+
+/** رسالة تحفيز لكل الرفقة. */
+function messageRifqah(){
+  const r = getRifqah();
+  if(!r || !r.members.length){ showToast('أضيفي الأعضاء أولًا'); return; }
+  const stats = rifqahWeekStats();
+  // لا نسبق الاسم بـ«رفقة» إن بدأ بها أصلًا، فلا يصير «رفقة رفقة الفجر».
+  let m = (/^\s*رفقة/.test(r.name) ? r.name : 'رفقة ' + r.name) + '\n——————————————\n';
+  if(r.plan) m += 'وردنا: ' + rifqahPlanText(r.plan) + '\n\n';
+  stats.forEach(function(x){
+    m += x.member.name + ': ' + toAr(x.done) + ' من ' + toAr(x.total) + ' يوم\n';
+  });
+  m += '——————————————\n' + gt('ثبّتنا الله وإياكم','ثبّتنا الله وإياكنّ');
+  shareText(m, 'رفقة ' + r.name);
+}
+
+/** بطاقة الرفقة المصوّرة. */
+function cardRifqah(){
+  const r = getRifqah();
+  if(!r){ showToast('أنشئي الرفقة أولًا'); return; }
+  const stats = rifqahWeekStats();
+  const totalDone = stats.reduce(function(a,x){ return a + x.done; }, 0);
+  const possible = stats.length * 7;
+  const pct = possible > 0 ? totalDone / possible : 0;
+  buildShareCard({
+    title:'رفقة الحفظ', name:r.name,
+    pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'التزام الرفقة هذا الأسبوع',
+    rows: stats.slice(0,4).map(function(x){
+      return [x.member.name, toAr(x.done) + ' من ' + toAr(x.total) + ' يوم'];
+    }),
+    note: r.plan ? ('الورد: ' + rifqahPlanText(r.plan)) : ''
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -8037,24 +8698,24 @@ function renderJourneyView(wrap){
     '<div class="jtc-icon">' + tree.icon + '</div>' +
     '<div class="jtc-label">' + tree.label + '</div>' +
     '<div class="jtc-bar"><div class="jtc-bar-fill" style="width:' + Math.round(memoPct*100) + '%;"></div></div>' +
-    '<div class="jtc-pct">٪' + Math.round(memoPct*100) + ' من حفظ القرآن</div>' +
+    '<div class="jtc-pct">' + toAr(Math.round(memoPct*100)) + '٪ من حفظ القرآن</div>' +
   '</div>';
 
   html += '<div class="circle-stats-bar" style="margin-top:12px;">' +
-    '<div class="csb-item"><span class="csb-num">' + activeDays + '</span><span class="csb-label">يوم نشاط</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(activeDays) + '</span><span class="csb-label">يوم نشاط</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + badgeData.streaks.longest + '</span><span class="csb-label">أطول سلسلة</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(badgeData.streaks.longest) + '</span><span class="csb-label">أطول سلسلة</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + badgeData.badges.filter(b=>b.earned).length + '</span><span class="csb-label">أوسمة</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(badgeData.badges.filter(b=>b.earned).length) + '</span><span class="csb-label">أوسمة</span></div>' +
   '</div>';
   if(memberSince){
-    html += '<div class="journey-since">عضو في ' + getActiveBrand().shortName + ' منذ ' + memberSince + '</div>';
+    html += '<div class="journey-since">عضو في ' + getActiveBrand().shortName + ' منذ ' + planDateAr(memberSince) + '</div>';
   }
 
   const wa = getWeeklyFeaturedAyah();
   html += '<div class="journey-ayah-card">' +
     '<div class="ca-label">آية هذا الأسبوع</div>' +
-    '<div class="ca-text">سورة رقم ' + wa.surah + ' · الآية ' + wa.ayah + '</div>' +
+    '<div class="ca-text">سورة ' + surahName(wa.surah) + ' · الآية ' + toAr(wa.ayah) + '</div>' +
     '<button class="hifz-save-btn" style="margin-top:8px;" onclick="openReaderScreen(' + wa.surah + ',' + wa.ayah + ')">اقرأها الآن</button>' +
   '</div>';
 
@@ -8129,16 +8790,16 @@ function renderWeeklyPlanView(wrap){
 
   html += '<div class="hifz-setup-sub" style="margin-top:0;">هذا الأسبوع</div>' +
     '<div class="teacher-add-card" style="display:flex;gap:10px;">' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + week.pages + '</div><div style="font-size:11px;color:var(--muted);">صفحة حفظتها</div></div>' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + week.activeDays + '/٧</div><div style="font-size:11px;color:var(--muted);">أيام نشطة</div></div>' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:#D4AF37;">' + tilawaWeek + '</div><div style="font-size:11px;color:var(--muted);">أيام تلاوة</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + toAr(week.pages) + '</div><div style="font-size:11px;color:var(--muted);">صفحة حفظتها</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + toAr(week.activeDays) + '/٧</div><div style="font-size:11px;color:var(--muted);">أيام نشطة</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:#D4AF37;">' + toAr(tilawaWeek) + '</div><div style="font-size:11px;color:var(--muted);">أيام تلاوة</div></div>' +
     '</div>';
 
   html += '<div class="hifz-setup-sub" style="margin-top:16px;">هذا الشهر</div>' +
     '<div class="teacher-add-card" style="display:flex;gap:10px;">' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + month.pages + '</div><div style="font-size:11px;color:var(--muted);">صفحة حفظتها</div></div>' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + month.activeDays + '/٣٠</div><div style="font-size:11px;color:var(--muted);">أيام نشطة</div></div>' +
-      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:#D4AF37;">' + tilawaMonth + '</div><div style="font-size:11px;color:var(--muted);">أيام تلاوة</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + toAr(month.pages) + '</div><div style="font-size:11px;color:var(--muted);">صفحة حفظتها</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:var(--purple);">' + toAr(month.activeDays) + '/٣٠</div><div style="font-size:11px;color:var(--muted);">أيام نشطة</div></div>' +
+      '<div style="flex:1;text-align:center;"><div style="font-size:26px;font-weight:900;color:#D4AF37;">' + toAr(tilawaMonth) + '</div><div style="font-size:11px;color:var(--muted);">أيام تلاوة</div></div>' +
     '</div>';
 
   html += '<div class="hifz-setup-sub" style="margin-top:16px;">موضع الحفظ الحالي</div>' +
@@ -8171,13 +8832,13 @@ function renderActivityHistoryView(wrap){
     list.forEach(e => {
       const count = (e.tilawa?1:0) + (e.memo?1:0) + (e.review?1:0);
       html += '<div class="activity-log-row">' +
-        '<div class="alr-date">' + e.date + '</div>' +
+        '<div class="alr-date">' + planDateAr(e.date) + '</div>' +
         '<div class="alr-icons">' +
           '<span class="alr-icon' + (e.tilawa?' on':'') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.1-4.2-1.6-6.5-1.2v13.4c2.3-.4 4.9.1 6.5 1.2 1.6-1.1 4.2-1.6 6.5-1.2V5.3c-2.3-.4-4.9.1-6.5 1.2z"/><line x1="12" y1="6.5" x2="12" y2="19.9"/></svg></span>' +
           '<span class="alr-icon' + (e.memo?' on':'') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V11"/><path d="M12 11c0-4 3.2-6.5 7.5-6.5 0 4.3-3.2 7.7-7.5 6.5z"/><path d="M12 14.5c0-3.2-2.8-5.3-6.5-5.3 0 3 2.8 5.9 6.5 5.3z"/></svg></span>' +
           '<span class="alr-icon' + (e.review?' on':'') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12a7.5 7.5 0 0 1 13-5"/><path d="M19.5 12a7.5 7.5 0 0 1-13 5"/><path d="M17.5 3.5v3.5h-3.5"/><path d="M6.5 20.5V17h3.5"/></svg></span>' +
         '</div>' +
-        '<div class="alr-count">' + count + '/3</div>' +
+        '<div class="alr-count">' + toAr(count) + '/' + toAr(3) + '</div>' +
       '</div>';
     });
     html += '</div>';
@@ -8374,14 +9035,14 @@ function renderTasbeehView(wrap){
   const inCycle = count % st.target;
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
   html += '<div class="tasbeeh-wrap">' +
-    '<div class="tasbeeh-count">' + count + '</div>' +
-    '<div class="tasbeeh-cycle">' + (cycles > 0 ? cycles + ' × ' + st.target + ' + ' + inCycle : 'حتى ' + st.target) + '</div>' +
+    '<div class="tasbeeh-count">' + toAr(count) + '</div>' +
+    '<div class="tasbeeh-cycle">' + (cycles > 0 ? toAr(cycles) + ' × ' + toAr(st.target) + ' + ' + toAr(inCycle) : 'حتى ' + toAr(st.target)) + '</div>' +
     '<button class="tasbeeh-btn" onclick="tasbeehTap()">اضغط للتسبيح</button>' +
     '<div class="tasbeeh-targets">' +
-      [33,99,100].map(n => '<span class="tasbeeh-target' + (st.target===n?' active':'') + '" onclick="tasbeehSetTarget(' + n + ')">' + n + '</span>').join('') +
+      [33,99,100].map(n => '<span class="tasbeeh-target' + (st.target===n?' active':'') + '" onclick="tasbeehSetTarget(' + n + ')">' + toAr(n) + '</span>').join('') +
     '</div>' +
     '<button class="hifz-edit-btn" onclick="tasbeehReset()">↺ إعادة ضبط عداد اليوم</button>' +
-    '<div class="tasbeeh-lifetime">إجمالي تسبيحك منذ التفعيل: ' + (st.lifetime || 0) + '</div>' +
+    '<div class="tasbeeh-lifetime">إجمالي تسبيحكِ منذ التفعيل: ' + toAr(st.lifetime || 0) + '</div>' +
   '</div>';
   wrap.innerHTML = html;
 }
@@ -8389,11 +9050,11 @@ function renderAchievementsView(wrap){
   const data = computeBadges();
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
   html += '<div class="circle-stats-bar" style="margin-bottom:16px;">' +
-    '<div class="csb-item"><span class="csb-num">' + data.streaks.current + '</span><span class="csb-label">سلسلة حالية</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(data.streaks.current) + '</span><span class="csb-label">سلسلة حالية</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + data.streaks.longest + '</span><span class="csb-label">أطول سلسلة</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(data.streaks.longest) + '</span><span class="csb-label">أطول سلسلة</span></div>' +
     '<div class="csb-sep"></div>' +
-    '<div class="csb-item"><span class="csb-num">' + data.totalDays + '</span><span class="csb-label">أيام مكتملة</span></div>' +
+    '<div class="csb-item"><span class="csb-num">' + toAr(data.totalDays) + '</span><span class="csb-label">أيام مكتملة</span></div>' +
   '</div>';
   html += buildPersonalWeekChart();
   html += '<div class="badge-grid">';
@@ -8717,7 +9378,7 @@ function renderCircleDetail(wrap, circle){
       const medals = ['🥇','🥈','🥉'];
       if(_ov) html += '<div class="circle-rank-card"><div class="crc-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1.5M16 5h3a2 2 0 0 1 0 4h-1.5"/><path d="M12 13v4"/><path d="M9 21h6"/><path d="M10 17h4v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2Z"/></svg> الأوائل</div>';
       ranked.forEach((r, i) => {
-        if(_ov) html += '<div class="crc-row"><span>' + medals[i] + ' ' + r.s.name + '</span><span class="crc-pct">٪' + Math.round(r.stats.completionRate*100) + '</span></div>';
+        if(_ov) html += '<div class="crc-row"><span>' + medals[i] + ' ' + r.s.name + '</span><span class="crc-pct">' + toAr(Math.round(r.stats.completionRate*100)) + '٪</span></div>';
       });
       if(_ov) html += '</div>';
     }
@@ -8941,7 +9602,7 @@ function renderCircleComparison(wrap, circle){
     html += '<div class="activity-log-row" style="align-items:center;cursor:pointer;" onclick="_showComparison=false;_activeStudentId=' + s.id + ';renderTeacherScreen();">' +
       '<div style="font-size:16px;min-width:28px;text-align:center;">' + medal + '</div>' +
       '<div class="alr-date" style="flex:1;font-weight:800;">' + s.name + '</div>' +
-      '<div class="alr-count" style="color:#D4AF37;">٪' + Math.round(r.score*100) + '</div>' +
+      '<div class="alr-count" style="color:#D4AF37;">' + toAr(Math.round(r.score*100)) + '٪</div>' +
     '</div>';
   });
   html += '</div>';
@@ -8953,8 +9614,8 @@ function renderCircleComparison(wrap, circle){
     html += '<div style="padding:10px 8px;' + (i < ranked.length-1 ? 'border-bottom:1px solid rgba(0,0,0,0.06);' : '') + '">' +
       '<div style="font-weight:800;font-size:13px;margin-bottom:6px;">' + s.name + '</div>' +
       '<div style="display:flex;gap:12px;font-size:10.5px;color:var(--muted);flex-wrap:wrap;">' +
-        '<span>حضور: ' + (r.attRate !== null ? '٪'+Math.round(r.attRate*100) : '—') + '</span>' +
-        '<span>انتظام: ' + (r.consistRate !== null ? '٪'+Math.round(r.consistRate*100) : '—') + '</span>' +
+        '<span>حضور: ' + (r.attRate !== null ? toAr(Math.round(r.attRate*100)) + '٪' : '—') + '</span>' +
+        '<span>انتظام: ' + (r.consistRate !== null ? toAr(Math.round(r.consistRate*100)) + '٪' : '—') + '</span>' +
         '<span>مراحل الحفظ: ' + r.stagesDone + '/' + r.stagesTotal + '</span>' +
         '<span>غياب: ' + toAr(r.st.absentCount) + ' يوم</span>' +
       '</div>' +
@@ -10103,6 +10764,8 @@ function openCardsHub(){
   if(_tilawaPlan) items.push(['خطة الختمة', 'مدّتك وما أنجزت منها', 'cardKhatmahPlan()']);
   if(st.memo.setup) items.push(['بطاقة خطة الحفظ', 'جدول أسبوعك في بطاقة', 'cardMemoPlan()']);
   if(reviewPrograms().length) items.push(['بطاقة خطط المراجعة', 'كل خططك الجارية', 'cardReviewPlans()']);
+  if(getRifqah()) items.push(['بطاقة الرفقة', 'التزام رفقتك هذا الأسبوع', 'cardRifqah()']);
+  if(getUsra()) items.push(['بطاقة الأسرة', 'التزام حلقتكم الأسرية', 'cardUsra()']);
   if(persoCan('circles')){
     const c = getActiveCircle();
     if(c){
@@ -10382,6 +11045,7 @@ function openAssignmentEditor(studentId, kind){
   if(!c){ showToast('اختر حلقة أولًا'); return; }
   const stu = c.students.find(function(x){ return x.id === studentId; });
   if(!stu){ return; }
+  _usraAsgId = null;                      // نغادر سياق الأسرة صراحةً
   _asgCtx = { studentId: studentId, kind: kind || 'memo' };
   const cur = (kind === 'review' ? stu.reviewAssign : stu.memoAssign) || null;
   _asgDraft = cur ? { surah: cur.surah, from: cur.from, to: cur.to }
@@ -10395,30 +11059,39 @@ function setAsgSurah(v){
   // عند تبديل السورة نُعيد المدى لبدايتها، فلا يبقى مدى لا يوجد في السورة الجديدة.
   _asgDraft.from = 1;
   _asgDraft.to = Math.min(10, surahAyahCount(n));
-  renderAssignmentEditor();
+  renderActiveAssignEditor();
 }
 function setAsgFrom(v){
   const total = surahAyahCount(_asgDraft.surah);
   let n = Math.max(1, Math.min(total, parseInt(v, 10) || 1));
   _asgDraft.from = n;
   if(_asgDraft.to < n) _asgDraft.to = n;   // النهاية لا تسبق البداية أبدًا
-  renderAssignmentEditor();
+  renderActiveAssignEditor();
 }
 function setAsgTo(v){
   const total = surahAyahCount(_asgDraft.surah);
   let n = Math.max(1, Math.min(total, parseInt(v, 10) || 1));
   if(n < _asgDraft.from) n = _asgDraft.from;
   _asgDraft.to = n;
-  renderAssignmentEditor();
+  renderActiveAssignEditor();
 }
 function asgWholeSurah(){
   _asgDraft.from = 1;
   _asgDraft.to = surahAyahCount(_asgDraft.surah);
+  renderActiveAssignEditor();
+}
+
+/* محرّرا التكليف (الحلقة والأسرة) يتشاركان setAsgSurah وأخواتها، لكن
+   لكلٍّ سياقه. فبدل أن تفترض الدوال محرّر الحلقة، تسأل أيّهما مفتوح.
+   بلا هذا كانت تنهار في الأسرة لأن _asgCtx فارغ هناك. */
+function renderActiveAssignEditor(){
+  if(_usraAsgId && getUsra()){ renderUsraAssign(); return; }
   renderAssignmentEditor();
 }
 
 function renderAssignmentEditor(){
   const panel = document.getElementById('share-sheet-panel');
+  if(!_asgCtx) return;
   const overlay = document.getElementById('share-sheet-overlay');
   if(!panel || !overlay || !_asgDraft) return;
   const c = getActiveCircle();
@@ -11495,6 +12168,16 @@ const FEM_PHRASES = [
   ['عليك', 'عليكِ'],
   ['لديك', 'لديكِ'],
   ['بنفسك', 'بنفسكِ'],
+  // معلّمة الحلقة تُعلّم طالبات. الاستبدال بحارس حتى لا يصير «طالبةة».
+  ['الطلاب', 'الطالبات'],
+  ['طلاب', 'طالبات'],
+  ['الطالب', 'الطالبة'],
+  ['طالبًا', 'طالبةً'],
+  ['طالب', 'طالبة'],
+  ['المعلم', 'المعلمة'],
+  ['معلمك', 'معلمتكِ'],
+  ['ولدكم', 'ابنتكم'],
+  ['بولدكم', 'بابنتكم'],
   ['يومك', 'يومكِ'],
   ['ولدكم', 'ولدكم'],
   ['زملائك', 'زميلاتكِ'],
@@ -11561,8 +12244,11 @@ function femize(text){
   // العبارات أولًا: بعضها يحتوي كلمات تعالجها قائمة الأوامر بعدها.
   for(let i = 0; i < FEM_PHRASES.length; i++){
     const m = FEM_PHRASES[i][0], f = FEM_PHRASES[i][1];
-    // نستبدل المذكّر فقط إن لم تتبعه كسرة — فلا يُؤنَّث المؤنَّث مرتين.
-    out = out.replace(new RegExp(m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '(?!\u0650)', 'g'), f);
+    /* حارسان:
+       (?!\u0650) يمنع تأنيث ما أُنّث (فيكِ لا تصير فيكِِ).
+       (?![ةيات])  يمنع «طالب» من التقاط «طالبة» و«طالبات» فتصير «طالبةة». */
+    out = out.replace(
+      new RegExp(m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '(?!\u0650)(?![ةيًا])', 'g'), f);
   }
   // كلمة أمر تقف وحدها نصًّا كاملًا («ابدأ» في شريط اللمحة) لا يسبقها
   // فراغ ولا يتلوها، فلا يلتقطها نمط الفراغين. نعالجها أولًا.
