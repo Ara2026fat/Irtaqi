@@ -1814,6 +1814,37 @@ body[data-persona="teacher-female"] .pill-tab.is-active{
 }
 body.theme-dark .pill-tab{background:rgba(255,255,255,0.06);}
 
+.show-all-toggle{
+  display:block;width:100%;margin-top:14px;padding:11px;
+  background:none;border:1px dashed rgba(127,127,127,0.28);border-radius:14px;
+  font-family:inherit;font-size:11.5px;font-weight:700;color:var(--muted);cursor:pointer;
+}
+.show-all-toggle:active{transform:scale(.99);}
+
+/* ═══ تنقّل الأيام المبسّط ═══ */
+.day-nav{display:flex;align-items:stretch;gap:8px;margin-bottom:10px;}
+.day-nav-btn{
+  width:46px;flex:0 0 auto;border-radius:14px;cursor:pointer;font-family:inherit;
+  font-size:22px;font-weight:900;color:var(--copper);
+  background:var(--card-bg);border:1px solid rgba(127,127,127,0.14);
+  box-shadow:0 2px 8px rgba(15,35,70,0.05);
+}
+.day-nav-btn:disabled{opacity:.32;cursor:default;}
+.day-nav-cur{
+  flex:1;text-align:center;padding:11px 8px;border-radius:14px;
+  background:var(--card-bg);box-shadow:0 2px 8px rgba(15,35,70,0.05);
+}
+.dnc-top{font-size:14px;font-weight:900;color:var(--text);}
+.dnc-state{font-size:10.5px;font-weight:700;color:var(--muted);margin-top:2px;}
+.day-nav-cur.done .dnc-state{color:#1F8367;}
+.day-nav-cur.today{border:1.5px solid var(--gold);}
+.day-back-today{
+  display:block;width:100%;margin-bottom:10px;padding:9px;border-radius:12px;
+  background:none;border:1px dashed rgba(127,127,127,0.28);
+  font-family:inherit;font-size:11.5px;font-weight:700;color:var(--muted);cursor:pointer;
+}
+body.theme-dark .day-nav-btn,body.theme-dark .day-nav-cur{background:rgba(255,255,255,0.06);}
+
 /* ═══ الحلقة الأسرية ═══ */
 .usra-member{padding:11px 0;border-top:1px solid rgba(127,127,127,0.09);}
 .usra-member:first-of-type{border-top:none;}
@@ -3825,21 +3856,31 @@ function renderTilawaProgress(wrap){
   const plan = TILAWA_PLANS[days];
   const todayIdx = getCurrentTilawaDay();
 
-  let pillsHTML = '<div class="days-strip"><div class="ds-inner">';
-  for(let i=0;i<days;i++){
-    const isDone = _tilawaDone.includes(i);
-    const isToday = i === todayIdx;
-    const cls = isDone ? 'done' : isToday ? 'today' : 'future';
-    const sel = i === _selectedTilawaDay ? ' selected' : '';
-    const stateLabel = isDone ? 'مكتمل' : isToday ? 'اليوم' : 'قادم';
-    pillsHTML += '<div class="d-pill ' + cls + sel + '" role="button" tabindex="0"' +
-      ' aria-pressed="' + (i === _selectedTilawaDay ? 'true' : 'false') + '"' +
-      ' aria-label="يوم ' + toAr(i+1) + ' — ' + stateLabel + '"' +
-      ' onclick="selectTilawaDay(' + i + ')">' +
-      '<div class="d-day">يوم</div><div class="d-num">' + toAr(i+1) + '</div>' +
-      '<div class="d-check">' + (isDone?'✓':isToday?'●':'') + '</div></div>';
+  /* ═══ شريط الأيام: من ثلاثين زرًّا إلى ثلاثة ═══
+     كان الشريط يرسم زرًّا لكل يوم — ثلاثين زرًّا في خطة الشهر، وثلاثمئة
+     وخمسة وستين في خطة السنة. والطالب لا يحتاج إلا يومه، وربما أن يتقدّم
+     أو يتأخّر يومًا. فصارت ثلاثة أزرار: السابق، واليوم المعروض، والتالي.
+     ومن أراد يومًا بعيدًا كتب رقمه. أبسط، وأخفّ على الجهاز أيضًا. */
+  const selIdxNav = _selectedTilawaDay;
+  const isDoneSel = _tilawaDone.includes(selIdxNav);
+  const isTodaySel = selIdxNav === todayIdx;
+  const stateSel = isDoneSel ? 'مكتمل' : isTodaySel ? 'اليوم' : 'قادم';
+  let pillsHTML = '<div class="day-nav">' +
+    '<button type="button" class="day-nav-btn" aria-label="اليوم السابق"' +
+      (selIdxNav <= 0 ? ' disabled' : '') +
+      ' onclick="selectTilawaDay(' + Math.max(0, selIdxNav-1) + ')">‹</button>' +
+    '<div class="day-nav-cur ' + (isDoneSel?'done':isTodaySel?'today':'future') + '">' +
+      '<div class="dnc-top">يوم ' + toAr(selIdxNav+1) + ' من ' + toAr(days) + '</div>' +
+      '<div class="dnc-state">' + stateSel + (isDoneSel ? ' ✓' : '') + '</div>' +
+    '</div>' +
+    '<button type="button" class="day-nav-btn" aria-label="اليوم التالي"' +
+      (selIdxNav >= days-1 ? ' disabled' : '') +
+      ' onclick="selectTilawaDay(' + Math.min(days-1, selIdxNav+1) + ')">›</button>' +
+  '</div>';
+  if(selIdxNav !== todayIdx){
+    pillsHTML += '<button type="button" class="day-back-today" onclick="selectTilawaDay(' + todayIdx + ')">' +
+      'العودة ليوم اليوم</button>';
   }
-  pillsHTML += '</div></div>';
 
   const selIdx = _selectedTilawaDay;
   // الصفحات هي الوحدة الموثوقة (٦٠٤ صفحة، أعداد صحيحة دائمًا). الجزء يُشتق منها.
@@ -3884,9 +3925,10 @@ function renderTilawaProgress(wrap){
       '<div class="quran-link" onclick="openMushafScreen(' + pageStart + ',\'tilawa\')">تصفّح صفحات هذا اليوم</div>' +
       (isTodaySelected ? '<button class="dc-btn ' + (isDoneToday?'completed':'') + '" onclick="markTilawaDayDone()">' + (isDoneToday?'✓ أتممت ورد اليوم':'سجّل إتمام ورد اليوم') + '</button>' : '') +
       (isDoneToday ? '<button class="hifz-share-btn" onclick="shareTilawaProgress()">شارك إنجازك</button>' : '') +
-      '<button class="hifz-edit-btn" onclick="sharePlanImage(\'tilawa\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5" fill="currentColor" stroke="none"/><path d="m21 16-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg> بطاقة الخطة</button>' +
-      '<button class="hifz-edit-btn" onclick="exportTilawaPlanPdf()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg> جدول الختمة PDF</button>' +
-      '<button class="hifz-edit-btn" onclick="cardKhatmahPlan()">بطاقة الختمة للمشاركة</button>' +
+      /* ثلاثة أزرار تصدير متجاورة، اثنان منها يفعلان الشيء نفسه تقريبًا.
+         صارت زرًّا واحدًا يفتح مركز البطاقات الموجود أصلًا — وفيه البطاقة
+         وPDF معًا. زرّ واحد بدل ثلاثة، والوظائف كلها باقية. */
+      '<button class="hifz-edit-btn" onclick="openCardsHub()">مشاركة وتصدير</button>' +
       '<div class="dc-reset" onclick="resetTilawaPlan()">إعادة ضبط الجدول</div>' +
     '</div>';
 
@@ -6248,8 +6290,8 @@ function renderSettingsScreen(){
   if(!wrap) return;
   if(_settingsView === 'companions') renderCompanionsTab(wrap, true);
   else if(_settingsView === 'backup') renderBackupView(wrap);
-  else if(_settingsView === 'achievements') renderAchievementsView(wrap);
-  else if(_settingsView === 'atmosphere') renderAtmosphereSettings(wrap);
+  else if(_settingsView === 'achievements') renderProgressMerged(wrap);
+  else if(_settingsView === 'atmosphere') renderSpiritualMerged(wrap);
   else if(_settingsView === 'tasbeeh') renderTasbeehView(wrap);
   else if(_settingsView === 'journey') renderJourneyView(wrap);
   else if(_settingsView === 'weekly-plan') renderWeeklyPlanView(wrap);
@@ -6261,12 +6303,13 @@ function renderSettingsScreen(){
     else renderOrgManagementView(wrap);
   }
   else if(_settingsView === 'teacher-activation') renderTeacherActivationView(wrap);
-  else if(_settingsView === 'about') renderAboutView(wrap);
+  else if(_settingsView === 'about') renderAboutMerged(wrap);
   else if(_settingsView === 'usage-guide') renderUsageGuideView(wrap);
   else if(_settingsView === 'received-plan') renderReceivedPlanView(wrap);
   else if(_settingsView === 'hijri-page') renderHijriPage(wrap);
   else if(_settingsView === 'rifqah') renderRifqahView(wrap);
   else if(_settingsView === 'usra') renderUsraView(wrap);
+  else if(_settingsView === 'account-page') renderAccountPage(wrap);
   else if(_settingsView === 'roster'){
     if(!persoCan('circles')){ _settingsView = 'dashboard'; renderSettingsDashboard(wrap); }
     else renderRosterView(wrap);
@@ -6281,7 +6324,7 @@ function renderSettingsScreen(){
   else if(_settingsView === 'org-stats') renderOrgStatsView(wrap);
   else if(_settingsView === 'activity') renderActivityHistoryView(wrap);
   else if(_settingsView === 'name-page') renderNamePage(wrap);
-  else if(_settingsView === 'appearance-page') renderAppearancePage(wrap);
+  else if(_settingsView === 'appearance-page') renderAppearanceMerged(wrap);
   else if(_settingsView === 'font-page') renderFontPage(wrap);
   else if(_settingsView === 'language-page') renderLanguagePage(wrap);
   else if(_settingsView && _settingsView.indexOf('group-') === 0) renderSettingsGroupPage(wrap, _settingsView.slice(6));
@@ -6313,78 +6356,80 @@ const SETTINGS_ITEM_SVG = {
   single: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>',
   message: '<path d="M21 11.5a8.4 8.4 0 0 1-8.8 8.4 8.5 8.5 0 0 1-4-1L3 20l1.1-5.2A8.4 8.4 0 1 1 21 11.5Z"/>'
 };
-function buildSettingsGroups(){
-  const isDark = document.body.classList.contains('theme-dark');
-  const isLargeFont = document.body.classList.contains('large-font');
-  let savedFont = 'tajawal';
-  try { savedFont = localStorage.getItem('irtaqi-app-font') || 'tajawal'; } catch(e){}
+/* ═══════════════════════════════════════════════════════════════════════
+   الكشف حسب الحاجة
+   Progressive disclosure: show a thing when it starts to mean something.
 
-  let userName = '';
-  try { userName = localStorage.getItem('irtaqi-user-name') || ''; } catch(e){}
+   المشكلة المقيسة: الطالب الجديد كان يرى ١٣ بندًا وليس عنده ولا بيان
+   واحد. يفتح «خط سير حفظي» فيجد شجرة فارغة، و«الأوسمة» فيجد سجلًّا
+   خاليًا، ويرى «الحلقة الأسرية» وهو طفل في حلقة مسجد.
+
+   القاعدة: البند يظهر إمّا لأن له بيانات، أو لأنه المدخل الوحيد لإنشائها.
+   وما عداه يُؤجَّل حتى يصير له معنى. ولا شيء يُحذف نهائيًا — «أظهر كل
+   الخيارات» يفتحها لمن أرادها.
+
+   وهذا يخدم المقصد الأصلي: أن يبدأ الطالب بالقرآن لا بالإعدادات.
+   ═══════════════════════════════════════════════════════════════════════ */
+function showAllSettings(){
+  try { return localStorage.getItem('irtaqi-show-all') === '1'; } catch(e){ return false; }
+}
+function toggleShowAllSettings(){
+  const v = showAllSettings() ? '0' : '1';
+  try { localStorage.setItem('irtaqi-show-all', v); } catch(e){}
+  renderSettingsScreen();
+  showToast(v === '1' ? 'أُظهرت كل الخيارات' : 'أُخفيت الخيارات غير المستخدمة');
+}
+
+/** هل بدأ المستخدم رحلته فعلًا؟ */
+function hasAnyProgress(){
+  try {
+    const st = getHifzState();
+    return !!_tilawaPlan || st.memo.setup || reviewPrograms().length > 0 ||
+           ((getBadgeLog().completeDays || []).length > 0);
+  } catch(e){ return false; }
+}
+
+function buildSettingsGroups(){
+  const isTeacher = persoCan('circles');
+  const all = showAllSettings();
+  const started = hasAnyProgress();
+
+  // كل بند ومعه شرط ظهوره. الشرط `true` يعني: يظهر دائمًا.
+  const journeyItems = [
+    [started, {icon:'heart',   label:'خط سير حفظي', sub:'شجرتك وأبرز محطاتك', onclick:"openSettingsSubview('journey')"}],
+    [started, {icon:'scroll',  label:'خطتي الأسبوعية والشهرية', sub:'حفظك وتلاوتك مجمّعين', onclick:"openSettingsSubview('weekly-plan')"}],
+    [started, {icon:'star',    label:'الأوسمة والسجل', sub:'إنجازاتك وآخر ٣٠ يومًا', onclick:"openSettingsSubview('achievements')"}],
+    // الرفقة والأسرة مدخلان لإنشاء شيء جديد، فيظهران دائمًا لغير المعلّم.
+    [!isTeacher, {icon:'network', label:'الرِّفقة', sub:'احفظوا وردًا واحدًا وتابعوا بعضكم', onclick:"openSettingsSubview('rifqah')"}],
+    [!!getUsra() || all, {icon:'building', label:'الحلقة الأسرية', sub:'حلقة في بيتك لأبنائك وبناتك', onclick:"openSettingsSubview('usra')"}],
+    [true,    {icon:'crescent',label:'الأجواء والسبحة', sub:'ذكر، الجمعة، رمضان، والعشر', onclick:"openSettingsSubview('atmosphere')"}],
+    [persoCan('receivePlan'), {icon:'scroll', label:'استلام خطة من معلمي', sub:'الصق الرمز لترى منهجك', onclick:"openSettingsSubview('received-plan')"}]
+  ];
+
+  const appItems = [
+    [true,    {icon:'name',       label:'اسمك', sub:'يظهر في بطاقات خططك', onclick:"openSettingsSubview('name-page')"}],
+    [true,    {icon:'appearance', label:'المظهر والخط واللغة', sub:'فاتح أو داكن، وحجم الخط', onclick:"openSettingsSubview('appearance-page')"}],
+    [all,     {icon:'crescent',   label:'تصحيح التاريخ الهجري', sub:'إن اختلف عن تقويم بلدك', onclick:"openSettingsSubview('hijri-page')"}],
+    [started || all, {icon:'cloud', label:'نسخ احتياطي واستعادة', sub:'احفظ بياناتك أو استرجعها', onclick:"openSettingsSubview('backup')"}],
+    [all,     {icon:'door',       label:'نوع الحساب والمؤسسات', sub:'غيّر طريقة استخدامك', onclick:"openSettingsSubview('account-page')"}],
+    [true,    {icon:'info',       label:'عن المنصة والدليل', sub:'معلومات، حقوق، وكيف تستخدمه', onclick:"openSettingsSubview('about')"}]
+  ];
+
+  function keep(list){
+    return list.filter(function(x){ return x[0] || showAllSettings(); })
+               .map(function(x){ return x[1]; });
+  }
 
   return {
-    profile: {
-      label: 'ملفي الشخصي', icon: '', count: 3,
-      items: [
-        {icon:'name', label:'اسمك', sub:'يظهر في بطاقات خططك', onclick:"openSettingsSubview('name-page')"},
-        {icon:'door', label:'نوع الحساب', sub:'غيّر طريقة استخدامك للتطبيق', onclick:"changeUserType()"},
-        {icon:'building', label:'بوابة المؤسسات', sub:'للجمعيات ودور التحفيظ والمراكز', onclick:"openInstitutionGate()"}
-      ]
-    },
-    display: {
-      label: 'المظهر واللغة', icon: 'appearance', count: 5,
-      items: [
-        {icon:'appearance', label:'المظهر', sub:'فاتح أو داكن', onclick:"openSettingsSubview('appearance-page')"},
-        {icon:'font', label:'خط الواجهة', sub:'اختر من عدة خطوط', onclick:"openSettingsSubview('font-page')"},
-        {icon:'largefont', label:'الخط الكبير', sub:'لتسهيل القراءة', onclick:"toggleLargeFont()"},
-        {icon:'globe', label:t('language_label'), sub:'العربية أو English', onclick:"openSettingsSubview('language-page')"},
-        {icon:'crescent', label:'تصحيح التاريخ الهجري', sub:'إن اختلف عن التقويم في بلدك', onclick:"openSettingsSubview('hijri-page')"}
-      ]
-    },
-    journey: {
-      label: 'تقدّمي', icon: '', count: 5,
-      items: [
-        {icon:'heart', label:'خط سير حفظي', sub:'شجرتك وأبرز محطاتك', onclick:"openSettingsSubview('journey')"},
-        {icon:'scroll', label:'خطتي الأسبوعية والشهرية', sub:'حفظك وتلاوتك مجمّعين بالأسبوع والشهر', onclick:"openSettingsSubview('weekly-plan')"},
-        {icon:'star', label:'الأوسمة والإنجازات', sub:'ما حققته من ثبات وتقدّم', onclick:"openSettingsSubview('achievements')"},
-        {icon:'scroll', label:'سجل النشاط اليومي', sub:'آخر ٣٠ يومًا من رحلتك', onclick:"openSettingsSubview('activity')"},
-        {icon:'network', label:'رفقاء الحفظ', sub:'شارك تقدمك مع من تحب', onclick:"openSettingsSubview('companions')"},
-        {icon:'network', label:'الرِّفقة', sub:'احفظوا وردًا واحدًا وتابعوا بعضكم', onclick:"openSettingsSubview('rifqah')"},
-        {icon:'building', label:'الحلقة الأسرية', sub:'حلقة في بيتك لأبنائك وبناتك', onclick:"openSettingsSubview('usra')"}
-      ]
-    },
-    spiritual: {
-      label: t('group_spiritual'), icon: '', count: 2,
-      items: [
-        {icon:'crescent', label:'الأجواء الإيمانية', sub:'ذكر، الجمعة، رمضان، والعشر', onclick:"openSettingsSubview('atmosphere')"},
-        {icon:'beads', label:'السبحة الإلكترونية', sub:'عدّاد تسبيح بسيط', onclick:"openSettingsSubview('tasbeeh')"}
-      ]
-    },
-    // مجموعة المؤسسة تُبنى فقط لمن يملك صلاحيتها — لا تُبنى ثم تُخفى.
-    institution: persoCan('institution') ? {
-      label: t('group_institution'), icon: '', count: 2,
-      items: [
-        {icon:'building', label:'هوية المنصة', sub:'شخصي أم باسم مؤسستك', onclick:"openSettingsSubview('organization')"},
-        {icon:'grid', label:'إدارة المؤسسة', sub:'المراكز والمعلمون والطلاب', onclick:"openSettingsSubview('org-management')"}
+    journey: { label:'رحلتي', icon:'', count:0, items: keep(journeyItems) },
+    circles: isTeacher ? {
+      label:'حلقاتي', icon:'', count:0,
+      items:[
+        {icon:'grid',    label:'كشف الطلاب ومقدار الحفظ', sub:'سجّل كم حفظ كل طالب', onclick:"openSettingsSubview('roster')"},
+        {icon:'network', label:'شجرة الحلقة والمجموعات', sub:'وزّعهم حسب مستوى الحفظ', onclick:"openCircleTreeFromSettings()"}
       ]
     } : null,
-    // كشف الحلقة للمعلم فقط — الطالب الفرد لا حلقة له.
-    roster: persoCan('circles') ? {
-      label: 'حلقاتي وطلابي', icon: '', count: 1,
-      items: [
-        {icon:'grid', label:'كشف الطلاب ومقدار الحفظ', sub:'سجّل كم حفظ كل طالب', onclick:"openSettingsSubview('roster')"}
-      ]
-    } : null,
-    system: {
-      label: t('group_system'), icon: '', count: persoCan('receivePlan') ? 4 : 3,
-      items: (persoCan('receivePlan') ? [
-        {icon:'scroll', label:'استلام خطة من المعلم', sub:'الصق الرمز لترى منهجك المقرّر', onclick:"openSettingsSubview('received-plan')"}
-      ] : []).concat([
-        {icon:'cloud', label:'نسخ احتياطي واستعادة', sub:'احفظ بياناتك أو استرجعها', onclick:"openSettingsSubview('backup')"},
-        {icon:'info', label:'عن المنصة', sub:'معلومات وسياسة الحقوق', onclick:"openSettingsSubview('about')"},
-        {icon:'scroll', label:'دليل الاستخدام', sub:'كيف تبدأ وكيف تستخدم كل قسم', onclick:"openSettingsSubview('usage-guide')"}
-      ])
-    }
+    app: { label:'التطبيق', icon:'', count:0, items: keep(appItems) }
   };
 }
 function switchSettingsGroup(key){
@@ -6402,7 +6447,11 @@ const SETTINGS_GROUP_SVG = {
 function renderSettingsDashboard(wrap){
   const groups = buildSettingsGroups();
   // المجموعات غير المتاحة لهذا المستخدم تُحذف من الترتيب قبل الرسم.
-  const order = ['profile','display','journey','spiritual','roster','institution','system']
+  // العدّاد يُشتقّ من العناصر فلا يتباعد عن الحقيقة عند أي إضافة.
+  Object.keys(groups).forEach(function(k){
+    if(groups[k]) groups[k].count = groups[k].items.length;
+  });
+  const order = ['journey','circles','app']
     .filter(function(k){ return !!groups[k]; });
 
   // تخطيط عمودي بدل الشبكة الرباعية:
@@ -6441,6 +6490,9 @@ function renderSettingsDashboard(wrap){
     '</div>';
   });
   html += '</div>';
+  // مفتاح الهروب: لا شيء يُحذف نهائيًا — من أراد الخيارات كلها وجدها.
+  html += '<button class="show-all-toggle" onclick="toggleShowAllSettings()">' +
+    (showAllSettings() ? 'إخفاء الخيارات غير المستخدمة' : 'أظهر كل الخيارات') + '</button>';
   wrap.innerHTML = html;
 }
 function renderSettingsGroupPage(wrap, key){
@@ -6487,6 +6539,91 @@ function renderNamePage(wrap){
   '</div>';
   wrap.innerHTML = html;
 }
+/* ═══ صفحات مدمجة بتبويبات ═══
+   بدل ثلاث بطاقات للمظهر والخط واللغة، بطاقة واحدة بثلاث شرائح. ونفس
+   الأسلوب للأوسمة والسجل، ولـ«عن المنصة» والدليل. الشرائح مبنيّة أصلًا
+   في لوحة الحلقة، فنعيد استعمالها بلا كود جديد. */
+var _subTab = {};
+function setSubTab(page, key){ _subTab[page] = key; renderSettingsScreen(); }
+function subTabsHtml(page, tabs, def){
+  const cur = _subTab[page] || def;
+  return '<div class="pill-tabs">' + tabs.map(function(t){
+    return '<button type="button" class="pill-tab' + (t[0]===cur?' is-active':'') +
+      '" onclick="setSubTab(\'' + page + '\',\'' + t[0] + '\')">' + t[1] + '</button>';
+  }).join('') + '</div>';
+}
+
+/** المظهر والخط واللغة في صفحة واحدة. */
+function renderAppearanceMerged(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const cur = _subTab['appearance'] || 'theme';
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+  html += subTabsHtml('appearance', [['theme','المظهر'],['font','الخط'],['lang','اللغة']], 'theme');
+  const holder = document.createElement('div');
+  if(cur === 'theme') renderAppearancePage(holder);
+  else if(cur === 'font') renderFontPage(holder);
+  else renderLanguagePage(holder);
+  // نُسقط زرّ الرجوع الداخلي، فالخارجي أعلاه يكفي.
+  // نُسقط أيّ رابط رجوع داخليّ (زرًّا كان أو رابطًا)، فالخارجي أعلاه يكفي
+    // وإلا ظهر للمستخدم رابطا رجوع متجاوران.
+    const inner = holder.innerHTML
+      .replace(/<button[^>]*onclick="openSettingsSubview\('[a-z-]+'\)"[^>]*>[^<]*<\/button>/g, '')
+      .replace(/<div class="settings-back[^"]*"[\s\S]*?<\/div>/, '');
+  w.innerHTML = html + inner;
+}
+
+/** الأوسمة وسجل النشاط في صفحة واحدة. */
+function renderProgressMerged(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const cur = _subTab['prog'] || 'badges';
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+  html += subTabsHtml('prog', [['badges','الأوسمة'],['log','سجل النشاط']], 'badges');
+  const holder = document.createElement('div');
+  if(cur === 'badges') renderAchievementsView(holder); else renderActivityView(holder);
+  // نُسقط أيّ رابط رجوع داخليّ (زرًّا كان أو رابطًا)، فالخارجي أعلاه يكفي
+    // وإلا ظهر للمستخدم رابطا رجوع متجاوران.
+    const inner = holder.innerHTML
+      .replace(/<button[^>]*onclick="openSettingsSubview\('[a-z-]+'\)"[^>]*>[^<]*<\/button>/g, '')
+      .replace(/<div class="settings-back[^"]*"[\s\S]*?<\/div>/, '');
+  w.innerHTML = html + inner;
+}
+
+/** الأجواء والسبحة في صفحة واحدة. */
+function renderSpiritualMerged(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const cur = _subTab['spirit'] || 'atmos';
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+  html += subTabsHtml('spirit', [['atmos','الأجواء'],['beads','السبحة']], 'atmos');
+  const holder = document.createElement('div');
+  if(cur === 'atmos') renderAtmosphereSettings(holder); else renderTasbeehView(holder);
+  // نُسقط أيّ رابط رجوع داخليّ (زرًّا كان أو رابطًا)، فالخارجي أعلاه يكفي
+    // وإلا ظهر للمستخدم رابطا رجوع متجاوران.
+    const inner = holder.innerHTML
+      .replace(/<button[^>]*onclick="openSettingsSubview\('[a-z-]+'\)"[^>]*>[^<]*<\/button>/g, '')
+      .replace(/<div class="settings-back[^"]*"[\s\S]*?<\/div>/, '');
+  w.innerHTML = html + inner;
+}
+
+/** عن المنصة والدليل في صفحة واحدة. */
+function renderAboutMerged(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  const cur = _subTab['about'] || 'about';
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+  html += subTabsHtml('about', [['about','عن المنصة'],['guide','دليل الاستخدام']], 'about');
+  const holder = document.createElement('div');
+  if(cur === 'about') renderAboutView(holder); else renderUsageGuideView(holder);
+  // نُسقط أيّ رابط رجوع داخليّ (زرًّا كان أو رابطًا)، فالخارجي أعلاه يكفي
+    // وإلا ظهر للمستخدم رابطا رجوع متجاوران.
+    const inner = holder.innerHTML
+      .replace(/<button[^>]*onclick="openSettingsSubview\('[a-z-]+'\)"[^>]*>[^<]*<\/button>/g, '')
+      .replace(/<div class="settings-back[^"]*"[\s\S]*?<\/div>/, '');
+  w.innerHTML = html + inner;
+}
+
 function renderAppearancePage(wrap){
   const isDark = document.body.classList.contains('theme-dark');
   let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'group-display\')">→ المظهر واللغة</button>';
@@ -7403,6 +7540,7 @@ function renderCircleTree(){
     html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="addCircleGroup()">إضافة مجموعة</button>';
   }
   html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="openQuickAdd()">إضافة طلاب بسرعة</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="cardCircleTree()">بطاقة الشجرة للمشاركة</button>';
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportCircleTreePdf()">حفظ الشجرة PDF</button>';
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
   panel.innerHTML = html;
@@ -7657,6 +7795,68 @@ function saveUsraAssign(){
   renderUsraView();
 }
 
+/** الرِّفقة كمستند للطباعة. */
+function exportRifqahPdf(){
+  const r = getRifqah();
+  if(!r){ showToast('أنشئ الرفقة أولًا'); return; }
+  const st = rifqahWeekStats();
+  let tb = '<table><thead><tr><th>#</th><th>الاسم</th><th>أيام الالتزام</th><th>واتساب</th></tr></thead><tbody>';
+  st.forEach(function(x, i){
+    tb += '<tr><td>' + toAr(i+1) + '</td>' +
+      '<td style="text-align:right;">' + x.member.name + '</td>' +
+      '<td>' + toAr(x.done) + ' / ' + toAr(x.total) + '</td>' +
+      '<td>' + (x.member.phone || '—') + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  exportPdf('رفقة: ' + r.name,
+    (r.plan ? 'الورد المشترك: ' + rifqahPlanText(r.plan) + ' · ' : '') +
+    toAr(r.members.length) + ' ' + rifqahMemberWord(r.members.length), tb, false);
+}
+
+/** انتظام طالب كمستند. */
+function exportStudentAttendancePdf(id){
+  const c = getActiveCircle();
+  if(!c) return;
+  const stu = c.students.find(function(x){ return x.id === id; });
+  if(!stu) return;
+  const st = computeStudentStats(stu);
+  const m = masteryStats(stu, getWeekKeys());
+  const total = st.presentCount + st.lateCount + st.absentCount;
+  const pct = total > 0 ? Math.round(st.presentCount / total * 100) : 0;
+  const rows = [
+    ['الحلقة', c.name],
+    ['نسبة الانتظام', toAr(pct) + '٪'],
+    ['أيام الحضور', toAr(st.presentCount)],
+    ['أيام التأخّر', toAr(st.lateCount)],
+    ['أيام الغياب', toAr(st.absentCount)],
+    ['الإتقان', m.rated ? (toAr(m.mastered) + ' من ' + toAr(m.rated)) : 'لم يُقوَّم بعد']
+  ];
+  let tb = '<table><tbody>';
+  rows.forEach(function(r){
+    tb += '<tr><th style="width:38%;text-align:right;">' + r[0] + '</th>' +
+      '<td style="text-align:right;">' + r[1] + '</td></tr>';
+  });
+  tb += '</tbody></table>';
+  exportPdf('انتظام: ' + stu.name, 'سجلّ الحضور والإتقان', tb, true);
+}
+
+/** بطاقة شجرة الحلقة. */
+function cardCircleTree(){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const dist = groupedStudents(c);
+  const total = (c.students || []).length;
+  const juz = (c.students || []).reduce(function(a,x){ return a + getStudentJuzMemorized(x); }, 0);
+  buildShareCard({
+    title:'شجرة الحلقة', name:c.name,
+    big:toAr(total), bigLabel:gt('طالب في الحلقة','طالبة في الحلقة'),
+    rows: dist.filter(function(d){ return d.students.length; }).slice(0,4).map(function(d){
+      return [d.group.name, toAr(d.students.length) + ' · ' + toAr(d.group.from) + '–' + toAr(d.group.to) + ' جزءًا'];
+    }),
+    note: juz ? ('محفوظ الحلقة ' + toAr(juz) + ' جزءًا') : ''
+  });
+}
+
 /** بطاقة الأسرة. */
 function cardUsra(){
   const u = getUsra();
@@ -7712,6 +7912,36 @@ function exportUsraPdf(){
    ═══════════════════════════════════════════════════════════════════════ */
 const RIFQAH_KEY = 'irtaqi-rifqah';
 /** شاشة الرفقة. */
+/** صفحة الحساب: نوع الحساب وبوابة المؤسسات في موضع واحد. */
+function renderAccountPage(wrap){
+  const w = wrap || document.getElementById('settings-content');
+  if(!w) return;
+  let html = '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;margin-bottom:14px;" onclick="openSettingsSubview(\'dashboard\')">→ الإعدادات</button>';
+  html += '<div class="hifz-setup-card">' +
+    '<div class="hifz-setup-title">نوع الحساب</div>' +
+    '<div class="hifz-setup-sub">أنت الآن: ' +
+      (persoCan('institution') ? 'مؤسسة' : (persoCan('circles') ? gt('معلم','معلمة') : gt('طالب','طالبة'))) +
+    '</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:10px;" onclick="changeUserType()">تغيير صيغة الخطاب</button>' +
+  '</div>';
+  html += '<div class="hifz-setup-card" style="margin-top:12px;">' +
+    '<div class="hifz-setup-title">بوابة المؤسسات</div>' +
+    '<div class="hifz-setup-sub">للجمعيات ودور التحفيظ والمراكز والبرامج الأونلاين</div>' +
+    '<button class="hifz-edit-btn" style="margin-top:10px;" onclick="openInstitutionGate()">فتح بوابة المؤسسات</button>' +
+  '</div>';
+  w.innerHTML = html;
+}
+
+/** شجرة الحلقة من الإعدادات — تحتاج حلقة نشطة. */
+function openCircleTreeFromSettings(){
+  if(!_teacherCircles || !_teacherCircles.length){
+    showToast('أنشئ حلقة أولًا من بوابة المعلمين');
+    return;
+  }
+  if(!_activeCircleId) _activeCircleId = _teacherCircles[0].id;
+  renderCircleTree();
+}
+
 function renderRifqahView(wrap){
   const w = wrap || document.getElementById('settings-content');
   if(!w) return;
@@ -7801,6 +8031,7 @@ function renderRifqahView(wrap){
 
   html += '<button class="hifz-save-btn" onclick="cardRifqah()">بطاقة الرفقة للمشاركة</button>';
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="messageRifqah()">إرسال تقرير الأسبوع</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="exportRifqahPdf()">حفظ كـ PDF</button>';
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="makeRifqahCode()">رمز الانضمام</button>';
   html += '<button class="hifz-edit-btn danger" style="margin-top:8px;" onclick="clearRifqah()">حذف الرفقة</button>';
   w.innerHTML = html;
@@ -8709,7 +8940,7 @@ function renderJourneyView(wrap){
     '<div class="csb-item"><span class="csb-num">' + toAr(badgeData.badges.filter(b=>b.earned).length) + '</span><span class="csb-label">أوسمة</span></div>' +
   '</div>';
   if(memberSince){
-    html += '<div class="journey-since">عضو في ' + getActiveBrand().shortName + ' منذ ' + planDateAr(memberSince) + '</div>';
+    html += '<div class="journey-since">عضو في ' + getActiveBrand().shortName + (memberSince ? ' منذ ' + planDateAr(memberSince) : '') + '</div>';
   }
 
   const wa = getWeeklyFeaturedAyah();
@@ -9499,6 +9730,8 @@ function renderCircleDetail(wrap, circle){
           '</div>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="openStudentPhotos(' + s.id + ')">' +
             'الصور' + ((s.photos && s.photos.length) ? ' (' + toAr(s.photos.length) + ')' : '') + '</button>' +
+          '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="cardStudentAttendance(' + s.id + ')">بطاقة الانتظام</button>' +
+          '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="exportStudentAttendancePdf(' + s.id + ')">انتظامه PDF</button>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="sendParentReport(' + s.id + ')">إرسال تقرير لوليّ الأمر</button>' +
           '<button class="hifz-edit-btn" style="margin-top:6px;" onclick="makePlanCode(' + s.id + ')">توليد رمز الخطة للطالب</button>' +
           '<button class="hifz-save-btn" style="margin-top:8px;" onclick="openStudentProfile(' + s.id + ')">الملف الكامل — واجبات، ملاحظات، خطة، تقويم</button>' +
