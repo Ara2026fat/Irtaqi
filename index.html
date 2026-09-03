@@ -1982,6 +1982,43 @@ body.theme-dark #screen-mushaf .mus-msg b{color:#141C17;}
   color:#20180B;font-family:inherit;font-size:12px;font-weight:700;
   padding:7px 14px;cursor:pointer;white-space:nowrap;}
 
+/* ═══ أفعال شاشة التلاوة ═══
+   فعلٌ رئيسٌ واحد يملأ العرض، وصفٌّ ثانويٌّ أصغر تحته. التمييز بالحجم
+   واللون لا بالنصّ وحده — فالعين تعرف أين تذهب قبل أن تقرأ. */
+.tl-main{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  width:100%;padding:15px 14px;margin-bottom:8px;border-radius:18px;cursor:pointer;
+  font-family:inherit;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--copper));
+  color:#3B2A06;box-shadow:0 4px 14px rgba(212,175,55,0.28);
+  transition:transform .14s ease;
+}
+.tl-main:active{transform:scale(.985);}
+.tl-main svg{width:22px;height:22px;margin-bottom:2px;}
+.tl-main-t{font-size:15px;font-weight:900;}
+.tl-main-s{font-size:11px;opacity:.75;font-weight:700;}
+.tl-row{display:flex;gap:8px;margin-bottom:10px;}
+.tl-sub{
+  flex:1;padding:11px 8px;border-radius:14px;cursor:pointer;font-family:inherit;
+  font-size:12px;font-weight:800;color:var(--text);
+  background:rgba(255,255,255,0.55);border:1px solid rgba(127,127,127,0.16);
+}
+.tl-sub:active{transform:scale(.97);}
+body[data-persona="individual-female"] .tl-main,
+body[data-persona="teacher-female"] .tl-main{
+  background:linear-gradient(135deg,#E0AFC0,#C98A9C);color:#3B1E2B;
+  box-shadow:0 4px 14px rgba(201,138,156,0.30);
+}
+body.theme-dark .tl-sub{background:rgba(255,255,255,0.07);}
+
+/* ═══ طبقة الشبح ═══ */
+#musSheet{ position:relative; }
+.pt-ghost{
+  position:absolute; margin:0; z-index:2; pointer-events:none;
+  backface-visibility:hidden;
+}
+@media (prefers-reduced-motion:reduce){ .pt-ghost{ display:none !important; } }
+
 /* الصفحة تُهيّأ للحركة: طبقة رسم مستقلّة تمنع التقطيع. */
 #musPage{ backface-visibility:hidden; }
 @media (prefers-reduced-motion:reduce){
@@ -4163,12 +4200,27 @@ function renderTilawaProgress(wrap){
       })() +
       '<div class="dc-progress"><div class="dc-prog-label"><span>تقدم الختمة</span><span>' + toAr(totalDone) + ' / ' + toAr(days) + ' يوم · <span style="unicode-bidi:isolate;">' + toAr(pct) + '٪</span></span></div>' +
         '<div class="dc-prog-bar"><div class="dc-prog-fill" style="width:' + pct + '%"></div></div></div>' +
-      '<div class="quran-link" onclick="openReaderScreen(JUZZ_FIRST_SURAH_MAP[' + juzzStart + '] || 1)">اقرأ داخل ارتق</div>' +
-      // زرّ الورد يفتح الورد المستحقّ (أقدم يوم لم يُنجَز)، لا الصفحة المعروضة.
-      // أمّا تصفّح يوم بعينه فيبقى متاحًا من زرّ "تصفّح هذه الصفحة" أدناه.
-      '<div class="quran-link quran-link-main" onclick="openTilawaWird()">' +
-        (isTodaySelected ? 'اقرأ ورد اليوم في المصحف' : 'اقرأ الورد المستحقّ في المصحف') + '</div>' +
-      '<div class="quran-link" onclick="openMushafScreen(' + pageStart + ',\'tilawa\')">تصفّح صفحات هذا اليوم</div>' +
+      /* ═══ ترتيب أوضح ═══
+         كانت ثلاثة روابط متشابهة النصّ والشكل، ولا يعرف القارئ أيّها
+         يفتح ماذا: «اقرأ داخل ارتق» و«اقرأ ورد اليوم في المصحف»
+         و«تصفّح صفحات هذا اليوم».
+
+         صارت: فعلٌ رئيسٌ واحد كبير بأيقونة مصحف — وهو المقصود في
+         تسعٍ من كل عشر مرّات — ثم صفٌّ ثانويّ صغير لما دونه. */
+      '<button class="tl-main" onclick="openTilawaWird()">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M6 17h12"/>' +
+        '<path d="M9 7h6M9 10h6"/></svg>' +
+        '<span class="tl-main-t">' +
+          (isTodaySelected ? 'افتح المصحف — ورد اليوم' : 'افتح المصحف — الورد المستحقّ') +
+        '</span>' +
+        '<span class="tl-main-s">من صفحة ' + toAr(pageStart) + ' إلى ' + toAr(pageEnd) + '</span>' +
+      '</button>' +
+      '<div class="tl-row">' +
+        '<button class="tl-sub" onclick="openMushafScreen(' + pageStart + ',\'tilawa\')">تصفّح هذا اليوم</button>' +
+        '<button class="tl-sub" onclick="openReaderScreen(JUZZ_FIRST_SURAH_MAP[' + juzzStart + '] || 1)">قراءة بالنصّ</button>' +
+      '</div>' +
       (isTodaySelected ? '<button class="dc-btn ' + (isDoneToday?'completed':'') + '" onclick="markTilawaDayDone()">' + (isDoneToday?'✓ أتممت ورد اليوم':'سجّل إتمام ورد اليوم') + '</button>' : '') +
       (isDoneToday ? '<button class="hifz-share-btn" onclick="shareTilawaProgress()">شارك إنجازك</button>' : '') +
       /* ثلاثة أزرار تصدير متجاورة، اثنان منها يفعلان الشيء نفسه تقريبًا.
@@ -4358,7 +4410,8 @@ function musRender(j){
     html += '<div class="ln' + (isText ? '' : ' mid') + '">' + out + '</div>';
   });
 
-  page.classList.remove('settled');
+  /* لا نُخفي الصفحة هنا: الشبح يغطّي التبديل بجسمه، وأيّ خفوتٍ للأصل
+     يُقرأ رمشةً فتعود المشكلة من حيث أُغلقت. (شرط وحدة الشبح.) */
   page.innerHTML = html + musFrame();
   /* في المصحف المطبوع تقعان داخل إطار، فسطورُهما موسَّطةٌ لا ممدودة */
   page.classList.toggle('framed', _musPage <= 2);
@@ -4368,6 +4421,9 @@ function musRender(j){
   document.getElementById('musSurah').textContent = names.join(' · ') || '—';
   document.getElementById('musPageNo').textContent = 'صفحة ' + arNum(j.page || _musPage);
   musFit();
+  page.classList.add('settled');
+  // الحركة تنطلق من هنا لا بمؤقّت — فتنتظر جهوز المحتوى مهما بطأت الشبكة.
+  try { PageTurn.commit(); } catch(e){}
 }
 
 /* الإطار: طبقةٌ فارغة، وحدُّها في CSS — فلا تُمدّ ولا تُشوَّه */
@@ -4554,67 +4610,130 @@ function musToggleBare(){
 
 /* ═══ قلبُ الورقة من الحافّة ═══ */
 /* ═══════════════════════════════════════════════════════════════════════
-   انتقال الصفحة — بلا رمشة عين
-   Smooth page transition.
+   تقليب الصفحات بطبقة الشبح — وحدة من منصة زاحم
+   Ghost-layer page turn.
 
-   المشكلة: كان `musRender` يكتب innerHTML مباشرةً، فتختفي الصفحة وتظهر
-   الأخرى في إطار واحد — وميضٌ يقطع القراءة ويُشعر أنك تُحرّك شيئًا.
+   لماذا استبدلت نسختي السابقة: كانت تُخفي الصفحة ١٦٥ms ثم تُبدّل المحتوى
+   وهي مخفيّة. وهذا سليم بشرط أن يكون التبديل فوريًّا (البيانات في الذاكرة).
+   فإن جاء المحتوى من الشبكة — وهو الغالب هنا — رُفع الستار عن الصفحة
+   القديمة نفسها، ثم بُدّلت فجأةً حين تصل البيانات. أي أن الرمشة تنتقل
+   ولا تزول.
 
-   الآلية (ثلاث خطوات، ٣٦٠ جزءًا من الثانية إجمالًا):
-     ١. الصفحة الحالية تنزلق وتخفت في اتجاه القلب  (١٦٠ms)
-     ٢. يُبدَّل المحتوى والصفحة مخفيّة تمامًا — لا أحد يرى التبديل
-     ٣. الصفحة الجديدة تدخل من الجهة المقابلة وتظهر  (٢٠٠ms)
-
-   ولماذا الاتجاه معكوس: المصحف عربيّ يُقلَّب من اليسار، فالصفحة التالية
-   تدخل من اليسار كالورق تمامًا.
-
-   وثلاثة احترازات:
-     · قفل يمنع تداخل قلبتين متسارعتين فتتشوّه الصفحة.
-     · `will-change` يُعلم المتصفّح فيهيّئ طبقة رسم مسبقًا، فلا تقطّع.
-     · `prefers-reduced-motion` يُلغيها كليًّا لمن يطلب تقليل الحركة.
+   الفكرة البديلة: نسخة مطابقة («شبح») تُثبَّت فوق الصفحة وتُخفي التبديل
+   بجسمها لا بالشفافية. فالأصل لا يخفت أبدًا، والحركة تنطلق من آخر دالة
+   الرسم لا بمؤقّت — فتنتظر جهوز المحتوى يقينًا مهما بطأت الشبكة.
    ═══════════════════════════════════════════════════════════════════════ */
-var _musTurning = false;
+var PageTurn = (function(){
+  "use strict";
 
-function musAnimatePage(step, apply){
-  const el = document.getElementById('musPage');
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(!el || reduce || _musTurning){ apply(); return; }
+  var PAGE_ID = 'musPage', SHEET_ID = 'musSheet';
+  var OUT_MS = 240, IN_MS = 240, SHIFT = '6%', SAFETY_MS = 1800;
 
-  _musTurning = true;
-  // step>0 = التالية: تخرج الحالية يمينًا وتدخل الجديدة من اليسار.
-  const out = step > 0 ? '-6%' : '6%';
-  const inn = step > 0 ? '6%'  : '-6%';
+  var _busy = false, _ghost = null, _timer = null, _dir = 0;
 
-  el.style.willChange = 'transform, opacity';
-  el.style.transition = 'transform .16s cubic-bezier(.4,0,1,1), opacity .16s ease';
-  el.style.transform = 'translateX(' + out + ')';
-  el.style.opacity = '0';
+  function reduced(){
+    return !!(window.matchMedia &&
+              window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
 
-  setTimeout(function(){
-    apply();                                   // التبديل والصفحة مخفيّة
-    el.style.transition = 'none';
-    el.style.transform = 'translateX(' + inn + ')';
-    // إطار واحد ليثبت الوضع الجديد قبل بدء الدخول.
-    requestAnimationFrame(function(){
+  function cleanup(){
+    clearTimeout(_timer);
+    if(_ghost && _ghost.parentNode) _ghost.parentNode.removeChild(_ghost);
+    _ghost = null; _busy = false; _dir = 0;
+  }
+
+  return {
+    configure: function(o){
+      o = o || {};
+      if(o.pageId)  PAGE_ID  = o.pageId;
+      if(o.sheetId) SHEET_ID = o.sheetId;
+      if(o.shift)   SHIFT    = o.shift;   /* افتراضيًّا 6% */
+      return this;
+    },
+
+    busy: function(){ return _busy; },
+
+    /**
+     * يلتقط الشبح، ثمّ يستدعي apply.
+     * @param {number}   step   موجب = التالية، سالب = السابقة
+     * @param {Function} apply  ما يُبدّل المحتوى. قد يكون غيرَ متزامن.
+     */
+    begin: function(step, apply){
+      var el    = document.getElementById(PAGE_ID),
+          sheet = document.getElementById(SHEET_ID);
+
+      /* لا عنصر، أو تقليلُ حركة، أو قلبةٌ جارية: نُبدّل مباشرةً.
+         الوظيفةُ أهمُّ من الزينة. */
+      if(!el || !sheet || reduced() || _busy){ apply(); return; }
+
+      _busy = true;
+      _dir  = step > 0 ? 1 : -1;
+
+      var g = el.cloneNode(true);
+      g.removeAttribute('id');
+      g.className = el.className + ' pt-ghost';
+      /* يُثبَّت موضعًا بموضعٍ فوق الأصل، وإلا رآه القارئ يقفز */
+      g.style.width  = el.offsetWidth  + 'px';
+      g.style.height = el.offsetHeight + 'px';
+      g.style.left   = el.offsetLeft   + 'px';
+      g.style.top    = el.offsetTop    + 'px';
+      sheet.appendChild(g);
+      _ghost = g;
+
+      /* شبكةُ أمان: إن لم يصل المحتوى (انقطاعٌ مثلًا) لا يبقى الشبح معلّقًا */
+      _timer = setTimeout(cleanup, SAFETY_MS);
+
+      apply();
+    },
+
+    /** تُستدعى في آخر دالّة الرسم: المحتوى جاهز، فتبدأ الحركة الآن. */
+    commit: function(){
+      var el = document.getElementById(PAGE_ID), g = _ghost;
+      if(!el || !g) return;
+
+      var sign = SHIFT.replace(/^-/, '');
+      var out  = _dir > 0 ? '-' + sign : sign;   /* التالية: تخرج الحاليّة يسارًا */
+      var inn  = _dir > 0 ? sign : '-' + sign;
+
+      el.style.willChange = 'transform';
+      el.style.transition = 'none';
+      el.style.transform  = 'translateX(' + inn + ')';
+
+      /* إطاران متداخلان. بإطارٍ واحد يدمج المتصفّح التغييرين
+         فلا تظهر حركةٌ أصلًا — وهذا أدقُّ ما في الوحدة. */
       requestAnimationFrame(function(){
-        el.style.transition = 'transform .2s cubic-bezier(0,0,.2,1), opacity .2s ease';
-        el.style.transform = 'translateX(0)';
-        el.style.opacity = '1';
-        setTimeout(function(){
-          el.style.willChange = '';
-          el.style.transition = '';
-          _musTurning = false;
-        }, 210);
+        requestAnimationFrame(function(){
+          g.style.transition = 'transform ' + OUT_MS + 'ms cubic-bezier(.4,0,1,1), '
+                             + 'opacity ' + OUT_MS + 'ms ease';
+          g.style.transform  = 'translateX(' + out + ')';
+          g.style.opacity    = '0';
+
+          /* الأصلُ لا يخفت البتّة — كلُّ خفوتٍ يُقرأ رمشة */
+          el.style.transition = 'transform ' + IN_MS + 'ms cubic-bezier(0,0,.2,1)';
+          el.style.transform  = 'translateX(0)';
+
+          setTimeout(function(){
+            el.style.willChange = '';
+            el.style.transition = '';
+            el.style.transform  = '';
+            cleanup();
+          }, IN_MS + 10);
+        });
       });
-    });
-  }, 165);
-}
+    },
+
+    /** للطوارئ: إلغاءُ قلبةٍ عالقة. */
+    reset: cleanup
+  };
+})();
+
+PageTurn.configure({ pageId:'musPage', sheetId:'musSheet' });
 
 function musTurn(step){
   var h = document.getElementById('musHint');
   if(h) h.classList.remove('show');
-  if(_musTurning) return;                      // يمنع تداخل القلبات
-  musAnimatePage(step, function(){ mushafGo(step); });
+  if(PageTurn.busy()) return;
+  PageTurn.begin(step, function(){ mushafGo(step); });
 }
 
 /* ═══ «وقفتُ هنا» ═══
@@ -13642,7 +13761,11 @@ window.onerror = function(msg, src, line, col, err){
 // عند الفشل. نكتفي الآن بتسجيل صامت، ونخبر المستخدم فقط عند توفر تحديث فعلي.
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then((reg) => {
+    /* النطاق مقيّد بمجلد ارتقِ صراحةً. السبب: على github.io تشترك كل
+       التطبيقات في نطاق واحد، فعامل خدمة مسجَّل بجذر النطاق في تطبيق آخر
+       قد يعترض مجلدنا ويخدم محتواه بدل محتوانا. التقييد يمنع العكس أيضًا:
+       ارتقِ لا يعترض غيره. */
+    navigator.serviceWorker.register('sw.js', { scope: './' }).then((reg) => {
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if(!nw) return;
@@ -13654,6 +13777,26 @@ if('serviceWorker' in navigator){
         });
       });
     }).catch(() => { /* التطبيق يعمل طبيعيًا بدون عامل خدمة — لا داعي لإزعاج المستخدم */ });
+
+    /* حارس التعارض: إن كان الذي يتحكّم بالصفحة عاملَ خدمةٍ من مجلدٍ آخر
+       (تطبيق ثانٍ على النطاق نفسه)، ألغيناه وأعدنا التحميل مرّةً واحدة.
+       بلا هذا قد يخدم تطبيقٌ آخر محتواه مكان ارتقِ، ولا يعرف المستخدم
+       سببًا لذلك ولا حيلةً فيه. */
+    try {
+      const ctrl = navigator.serviceWorker.controller;
+      if(ctrl && ctrl.scriptURL.indexOf(location.pathname.replace(/[^/]*$/, '')) === -1){
+        if(!sessionStorage.getItem('irtaqi-sw-reset')){
+          sessionStorage.setItem('irtaqi-sw-reset', '1');
+          navigator.serviceWorker.getRegistrations().then(function(rs){
+            let changed = false;
+            rs.forEach(function(r){
+              if(r.scope.indexOf('/Irtaqi/') === -1){ r.unregister(); changed = true; }
+            });
+            if(changed) location.reload();
+          });
+        }
+      }
+    } catch(e){}
   });
 }
 </script>
