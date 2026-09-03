@@ -1831,6 +1831,200 @@ body.theme-dark .pill-tab{background:rgba(255,255,255,0.06);}
 .stu-pg-info{flex:1;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted);}
 body.theme-dark .stu-pg-btn{background:rgba(255,255,255,0.06);}
 
+/* ═══ المصحف (النسخة المحدَّثة) ═══ */
+#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#2E9A45;--mband2:#1B6B2F;
+  --medge:#12551F;--mhair:#5FB06B;--mfs:23px;
+  display:flex;flex-direction:column;overflow:hidden;}
+#screen-mushaf .mus-head{flex:0 0 auto;padding:8px 16px 5px;display:flex;
+  align-items:baseline;justify-content:space-between;font-size:12px;color:var(--muted);}
+#screen-mushaf .mus-surah{font-family:'Amiri',serif;font-size:15px;color:var(--text);}
+#screen-mushaf .mus-sheet{flex:1 1 auto;overflow:auto;display:flex;
+  justify-content:center;align-items:flex-start;padding:4px 8px;}
+#screen-mushaf .mus-page{width:100%;max-width:540px;background:var(--mpage);
+  border:5px solid var(--mband2);border-radius:4px;padding:22px 18px;
+  box-shadow:0 1px 2px rgba(20,40,30,.05),0 8px 26px rgba(20,40,30,.09);}
+#screen-mushaf .ln{display:flex;justify-content:space-between;align-items:center;
+  direction:rtl;line-height:1.95;font-size:var(--mfs);white-space:nowrap;color:var(--mink);}
+#screen-mushaf .ln.mid{justify-content:center;gap:.3em;}
+#screen-mushaf .ln w{display:inline-block;}
+/* الفاتحةُ وأولُ البقرة في المصحف داخل إطار:
+   سطورٌ موسَّطةٌ متقاربة، وعمودٌ أضيق، والكتلةُ في وسط الورقة لا في أعلاها. */
+#screen-mushaf .mus-sheet.framed-sheet{align-items:stretch;}
+#screen-mushaf .mus-page.framed{
+  padding:26px 22px;
+  display:flex;flex-direction:column;justify-content:center;}
+#screen-mushaf .mus-page.framed .ln{
+  justify-content:center;gap:.3em;
+  line-height:1.72;max-width:80%;margin-inline:auto;}
+#screen-mushaf .mus-page.framed .band{margin:0 0 6px;}
+#screen-mushaf .mus-page.framed .ln.mid{margin-bottom:4px;}
+/* ═══ أدواتُ القراءة ═══ */
+/* وضعُ التلاوة: لا شيء بين القارئ والورقة — واللمسُ يُظهر الأدوات ويُخفيها */
+#screen-mushaf .mus-head,
+#screen-mushaf .mus-wird,
+#screen-mushaf .mus-marks,
+#screen-mushaf .mus-foot,
+#screen-mushaf .topbar{
+  transition:opacity .28s ease, max-height .28s ease, padding .28s ease, margin .28s ease;}
+#screen-mushaf.bare .mus-head,
+#screen-mushaf.bare .mus-wird,
+#screen-mushaf.bare .mus-marks,
+#screen-mushaf.bare .mus-foot,
+#screen-mushaf.bare .topbar{
+  opacity:0;max-height:0;padding-top:0;padding-bottom:0;
+  margin-top:0;margin-bottom:0;overflow:hidden;pointer-events:none;border-top-width:0;}
+#screen-mushaf.bare .mus-sheet{padding-top:calc(6px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(6px + env(safe-area-inset-bottom,0px));}
+/* إطارُ الورقة: خطٌّ أخضرُ عريضٌ يحصر، ورفيعٌ يهدّئ.
+   حدودٌ حقيقية لا رسمٌ ممدود — فلا تدخل النصَّ مهما طالت الصفحة. */
+/* الورقةُ تُقاس وهي محجوبة، ثم تُكشف مستقرّة — فلا يقفز النصُّ تحت العين */
+#screen-mushaf .mus-page{opacity:0;transition:opacity .22s ease;}
+#screen-mushaf .mus-page.settled{opacity:1;}
+#screen-mushaf .mus-sheet{min-height:1px;}
+/* تلميحةُ اللمس: طبقةٌ عائمة لا تزحزح شيئًا */
+#screen-mushaf .mus-hint{
+  position:absolute;left:50%;bottom:16%;transform:translateX(-50%);
+  background:rgba(20,30,24,.82);color:#F7F3EC;font-size:12.5px;
+  padding:9px 16px;border-radius:999px;pointer-events:none;
+  opacity:0;transition:opacity .4s ease;z-index:5;white-space:nowrap;}
+#screen-mushaf .mus-hint.show{opacity:1;}
+#screen-mushaf .mus-page{position:relative;}
+#screen-mushaf .mus-frame{
+  position:absolute;inset:7px;pointer-events:none;
+  border:1.4px solid var(--mhair);border-radius:2px;}
+#screen-mushaf .mus-tools{display:flex;align-items:center;gap:7px;}
+/* ═══ حافّتا القلب ═══ الثلثان الجانبيّان للقلب، والوسطُ للاتّساع */
+#screen-mushaf .mus-sheet{position:relative;}
+#screen-mushaf .mus-edge{position:absolute;top:0;bottom:0;width:22%;border:0;padding:0;
+  background:transparent;cursor:pointer;z-index:4;display:flex;align-items:center;
+  -webkit-tap-highlight-color:transparent;}
+#screen-mushaf .mus-edge.right{right:0;justify-content:flex-end;}
+#screen-mushaf .mus-edge.left{left:0;justify-content:flex-start;}
+#screen-mushaf .mus-chev{width:34px;height:34px;border-radius:50%;margin:0 6px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;
+  color:var(--gold);background:rgba(255,255,255,.55);border:1px solid rgba(176,138,46,.22);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  opacity:0;transition:opacity .3s ease;}
+#screen-mushaf .mus-edge:active .mus-chev{opacity:1;}
+#screen-mushaf:not(.bare) .mus-chev{opacity:.5;}
+#screen-mushaf.bare .mus-edge{width:26%;}
+/* ═══ وقفتُ هنا ═══ */
+#screen-mushaf .mus-resume{display:flex;align-items:center;gap:9px;margin:6px 14px 0;
+  padding:11px 13px;border-radius:15px;font-size:13.5px;
+  background:linear-gradient(160deg,rgba(255,255,255,.94),rgba(255,252,244,.8));
+  border:1px solid rgba(176,138,46,.25);
+  box-shadow:0 4px 14px rgba(120,90,42,.12),0 1px 0 rgba(255,255,255,.95) inset;}
+#screen-mushaf .mus-resume-txt{flex:1;min-width:0;color:var(--text);}
+#screen-mushaf .mus-resume button{background:var(--gold);border:0;border-radius:10px;
+  color:#20180B;font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 15px;cursor:pointer;}
+#screen-mushaf .mus-resume button.ghost{background:transparent;color:var(--muted);padding:7px 9px;}
+#screen-mushaf .mus-tool{background:none;border:1px solid rgba(127,127,127,.24);
+  border-radius:9px;padding:5px 9px;cursor:pointer;line-height:1;
+  color:var(--text);font-family:inherit;font-size:12px;}
+#screen-mushaf .mus-tool.on{background:rgba(201,150,58,.16);border-color:var(--gold);}
+#screen-mushaf .mus-tool svg{display:block;width:15px;height:15px;}
+#screen-mushaf .mus-marks{flex:0 0 auto;display:flex;gap:6px;overflow-x:auto;
+  padding:0 12px 6px;scrollbar-width:none;}
+#screen-mushaf .mus-marks::-webkit-scrollbar{display:none;}
+#screen-mushaf .mus-marks b{font-size:11px;color:var(--muted);font-weight:600;
+  align-self:center;white-space:nowrap;}
+#screen-mushaf .mus-mark{background:rgba(201,150,58,.12);border:1px solid rgba(201,150,58,.3);
+  border-radius:8px;padding:4px 10px;font-size:12px;color:var(--text);
+  font-family:inherit;cursor:pointer;white-space:nowrap;}
+#screen-mushaf .mus-mark.cur{background:var(--gold);color:#20180B;font-weight:700;}
+#screen-mushaf .band{position:relative;margin:2px 0;line-height:0;}
+#screen-mushaf .band svg{display:block;width:100%;height:auto;}
+#screen-mushaf .band .inner{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;color:var(--mink);font-size:calc(var(--mfs)*.86);
+  line-height:1.6;white-space:nowrap;pointer-events:none;}
+#screen-mushaf .mus-foot{flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;gap:11px;padding:7px 12px calc(9px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid rgba(127,127,127,.14);}
+#screen-mushaf .mus-foot button{background:none;border:1px solid rgba(127,127,127,.24);
+  border-radius:10px;font-family:inherit;font-size:13px;color:var(--text);
+  padding:8px 15px;cursor:pointer;}
+#screen-mushaf .mus-foot button:active{transform:scale(.96);}
+#screen-mushaf .mus-no{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+#screen-mushaf .mus-no input{width:52px;text-align:center;font:inherit;font-size:14px;
+  color:var(--text);border:1px solid rgba(127,127,127,.24);border-radius:8px;
+  padding:5px 2px;background:var(--card-bg);}
+#screen-mushaf .mus-msg{padding:34px 24px;text-align:center;color:#4A5A50;
+  font-size:13.5px;line-height:2;}
+#screen-mushaf .mus-msg b{display:block;font-size:15px;color:#1A2E22;margin-bottom:8px;}
+/* ═══ الوضعان الداكنان: تُخفَّت الورقة ولا يُمسّ رسمُها ═══
+   ورقُ المصحف أبيضُ في المطبوع، لكنّ بياضًا كاملًا في الظلام يُتعب العين.
+   فيُخفَّت السطوع ويبقى التباينُ عاليًا — والحبرُ حبرٌ والخرطوشُ خرطوش. */
+body.theme-dark #screen-mushaf{--mpage:#DCD6C6;--mink:#0A0A08;
+  --mband1:#27823B;--mband2:#175A28;--medge:#0E441A;--mhair:#4E9257;}
+body.mode-obsidian #screen-mushaf{--mpage:#C4BCA8;--mink:#0A0A08;
+  --mband1:#216F33;--mband2:#134B22;--medge:#0C3915;--mhair:#417B49;}
+/* نغمةُ الورق: تُختار من المصحف نفسه ولا يُذهب لأجلها إلى الإعدادات.
+   وهي تغلب وضعَ التطبيق، لأنّ القراءة لها ضوؤها. */
+#screen-mushaf.tone-light{--mpage:#FFFEF9;--mink:#000;
+  --mband1:#2E9A45;--mband2:#1B6B2F;--medge:#12551F;--mhair:#5FB06B;}
+#screen-mushaf.tone-warm{--mpage:#F3E9D2;--mink:#1A1206;
+  --mband1:#2A8E40;--mband2:#18632B;--medge:#104C1C;--mhair:#57A660;}
+#screen-mushaf.tone-dark{--mpage:#C4BCA8;--mink:#0A0A08;
+  --mband1:#216F33;--mband2:#134B22;--medge:#0C3915;--mhair:#417B49;}
+body.theme-dark #screen-mushaf .mus-page{
+  box-shadow:0 1px 2px rgba(0,0,0,.30),0 10px 30px rgba(0,0,0,.42);}
+body.theme-dark #screen-mushaf .mus-msg{color:#3A473F;}
+body.theme-dark #screen-mushaf .mus-msg b{color:#141C17;}
+#screen-mushaf .mus-msg button{margin-top:14px;background:var(--gold);border:0;
+  border-radius:10px;color:#20180B;font-family:inherit;font-size:13px;font-weight:700;
+  padding:9px 20px;cursor:pointer;}
+/* شريطُ الوِرد: يظهر إن كان الفتحُ من الخطّة */
+#screen-mushaf .mus-wird{flex:0 0 auto;margin:0 10px 5px;padding:7px 12px;
+  border-radius:10px;background:rgba(201,150,58,.11);
+  border:1px solid rgba(201,150,58,.26);display:flex;align-items:center;
+  justify-content:center;gap:12px;font-size:12px;color:var(--text);text-align:center;}
+#screen-mushaf .mus-wird button{background:var(--gold);border:0;border-radius:9px;
+  color:#20180B;font-family:inherit;font-size:12px;font-weight:700;
+  padding:7px 14px;cursor:pointer;white-space:nowrap;}
+
+/* الصفحة تُهيّأ للحركة: طبقة رسم مستقلّة تمنع التقطيع. */
+#musPage{ backface-visibility:hidden; }
+@media (prefers-reduced-motion:reduce){
+  #musPage{ transition:none !important; transform:none !important; opacity:1 !important; }
+}
+
+/* أيقونات خطّية: ترث لون محيطها فتتبع اللوحتين تلقائيًا. */
+.ic-svg{ color:inherit; }
+.badge-icon .ic-svg{ width:26px;height:26px; }
+.crc-row .ic-svg{ color:var(--copper); }
+.icon-choice.ic-pick{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:13px;cursor:pointer;
+  background:var(--ivory-2);border:1.5px solid transparent;color:var(--muted);
+  margin:0 4px 4px 0;transition:border-color .14s ease,color .14s ease;
+}
+.icon-choice.ic-pick.selected{border-color:var(--gold);color:var(--copper);
+  background:rgba(212,175,55,0.10);}
+body[data-persona="individual-female"] .icon-choice.ic-pick.selected,
+body[data-persona="teacher-female"] .icon-choice.ic-pick.selected{
+  background:rgba(201,138,156,0.14);}
+body.theme-dark .icon-choice.ic-pick{background:rgba(255,255,255,0.06);}
+
+/* ═══ لوحة الورد ═══ */
+.wp-ring{text-align:center;margin:6px 0 10px;}
+.wp-pct{font-size:34px;font-weight:900;color:var(--copper);line-height:1.1;}
+.wp-sub{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:2px;}
+.wp-bar{height:8px;border-radius:99px;background:rgba(127,127,127,0.14);overflow:hidden;}
+.wp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--copper));
+  transition:width .35s ease;}
+.wp-msg{margin-top:12px;padding:13px 14px;border-radius:15px;
+  font-size:13px;line-height:1.9;font-weight:700;text-align:center;color:var(--text);}
+.wp-done{background:rgba(31,131,103,0.12);}
+.wp-good{background:rgba(212,175,55,0.14);}
+.wp-behind{background:rgba(212,175,55,0.12);}
+.wp-calm{background:var(--ivory-2);}
+.wp-note{margin-top:9px;padding:11px;border-radius:13px;text-align:center;
+  font-size:11.5px;line-height:1.8;color:var(--copper);
+  background:rgba(212,175,55,0.10);border:1px solid rgba(212,175,55,0.28);}
+body[data-persona="individual-female"] .wp-done,
+body[data-persona="teacher-female"] .wp-done{background:rgba(168,94,118,0.13);}
+.mus-wird span[role=button]{cursor:pointer;}
+
 /* ═══ معالج بناء الحلقة ═══ */
 .wz-body{min-height:300px;display:flex;flex-direction:column;justify-content:center;text-align:center;}
 .wz-q{font-size:15px;font-weight:800;color:var(--text);margin-bottom:12px;}
@@ -2738,19 +2932,18 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
 <!-- ==================== شاشة صفحة المصحف الشريف ==================== -->
 <div class="screen hidden" id="screen-mushaf">
   <div class="topbar">
-    <button class="back-btn" onclick="closeMushafScreen()">↩ رجوع</button>
-    <div class="brand-name" style="font-size:14px;" id="mus-page-label">صفحة —</div>
+    <button class="back-btn" onclick="closeMushaf()">↩ رجوع</button>
   </div>
   <div class="mus-head">
     <span class="mus-surah" id="musSurah">—</span>
     <span class="mus-tools">
       <span id="musPageNo"></span>
       <button class="mus-tool" id="musTone" type="button" onclick="musNextTone()"
-              aria-label="تغيير لون الورق">◐</button>
+              title="نغمةُ الورق">◐</button>
       <button class="mus-tool" id="musAwake" type="button" onclick="musToggleAwake()"
-              aria-label="إبقاء الشاشة مضاءة أثناء القراءة">☀</button>
+              title="إبقاء الشاشة مضاءة">☀</button>
       <button class="mus-tool" id="musMarkBtn" type="button" onclick="musToggleMark()"
-              aria-label="إضافة علامة على هذه الصفحة">
+              title="علامة حفظ">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
@@ -2758,16 +2951,27 @@ body.theme-dark .gtc-back{color:#6FD9B4;}
       </button>
     </span>
   </div>
+  <div class="mus-resume" id="musResume" style="display:none;">
+    <span class="mus-resume-txt" id="musResumeTxt">—</span>
+    <button type="button" onclick="musGoResume()">تابِع</button>
+    <button type="button" class="ghost" onclick="musHideResume()">✕</button>
+  </div>
   <div class="mus-marks" id="musMarks" style="display:none;"></div>
   <div class="mus-wird" id="musWird" style="display:none;"></div>
   <div class="mus-sheet" id="musSheet">
     <div class="mus-page" id="musPage"><div class="mus-msg">…يُحمَّل</div></div>
+    <!-- حافّتان تُلمسان فتُقلَّب الورقة، والوسطُ يُلمس فتتّسع الصفحة.
+         الاتجاهُ كالمصحف الورقيّ: الحافّةُ اليسرى تمضي إلى التالية. -->
+    <button class="mus-edge right" type="button" onclick="musTurn(-1)" aria-label="السابقة">
+      <span class="mus-chev">›</span></button>
+    <button class="mus-edge left" type="button" onclick="musTurn(1)" aria-label="التالية">
+      <span class="mus-chev">‹</span></button>
   </div>
   <div class="mus-hint" id="musHint">المس الصفحة لإظهار الأدوات</div>
   <div class="mus-foot">
-    <button type="button" onclick="mushafGo(-1)" aria-label="الصفحة السابقة">السابق</button>
-    <span class="mus-no"><input id="musJump" inputmode="numeric" aria-label="اذهب إلى صفحة" value="١"> / ٦٠٤</span>
-    <button type="button" onclick="mushafGo(1)" aria-label="الصفحة التالية">التالي</button>
+    <button type="button" onclick="musTurn(-1)">السابق</button>
+    <span class="mus-no"><input id="musJump" inputmode="numeric" value="1"> / ٦٠٤</span>
+    <button type="button" onclick="musTurn(1)">التالي</button>
   </div>
 </div>
 
@@ -4009,22 +4213,56 @@ function resetTilawaPlan(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   قارئ المصحف الشريف — منقول من منصة زاحم لأوراد المسلم اليومية
-   مصحف المدينة النبوية ١٤٤١هـ (QCF4) · رواية حفص عن عاصم
-   بخط عثمان طه · إنتاج مُجمّع الملك فهد لطباعة المصحف الشريف
-   البيانات والخط يُستدعيان من مصدرهما الحيّ ولا يُعاد توزيعهما داخل ارتقِ.
+   قارئ المصحف الشريف — النسخة المحدَّثة من منصة زاحم
+   مصحف المدينة النبوية ١٤٤١هـ (QCF4) · رواية حفص · بخط عثمان طه
+   الجديد فيها: قلب الصفحة بلمس الحافّتين، واستئناف من حيث وقف القارئ،
+   وتحميل مسبق للصفحة التالية، وحفظ حجم الخط لكل صفحة على حدة.
    ═══════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   وصلات التوافق مع ارتقِ — الدوال الخمس التي طلب تغييرها
+   The five integration points, mapped to Irtaqi's own equivalents.
 
-/* ═══ ما كانت الشاشة تستعيره من التطبيق الأمّ ═══ */
-var _MUS_LANG = (document.documentElement.lang || 'ar').slice(0,2);
+   ١. zxOnly            → إظهار شاشة واحدة (نستعمل منطق ارتقِ في التنقّل)
+   ٢. arNum             → toAr الموجودة أصلًا
+   ٣. showToast         → موجودة في ارتقِ (مع تأنيث تلقائي)
+   ٤. markQuranDayDone  → تسجيل ورد التلاوة في خطة الختمة
+   ٥. renderQuranScreen → إعادة رسم شاشة التلاوة
+   ═══════════════════════════════════════════════════════════════════════ */
+function zxOnly(id){
+  const screens = document.querySelectorAll('.screen');
+  for(let i = 0; i < screens.length; i++) screens[i].classList.add('hidden');
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('hidden');
+  // شريط تنقّل التطبيق يُخفى داخل المصحف: للقارئ شريطه الخاصّ.
+  const nav = document.getElementById('bottom-nav');
+  if(nav){
+    if(id === 'screen-mushaf') nav.classList.add('hidden');
+    else nav.classList.remove('hidden');
+  }
+}
+
+/** arNum اسم زاحِم، وtoAr اسمها في ارتقِ. */
+function arNum(v){ return toAr(v); }
+
+/** إتمام ورد اليوم: يُسجَّل في خطة الختمة عبر الجسر المبنيّ سابقًا. */
+function markQuranDayDone(){
+  try { dispatchEvent(new CustomEvent('mushaf:wird-done')); } catch(e){}
+}
+
+/** إعادة رسم شاشة التلاوة بعد التسجيل. */
+function renderQuranScreen(){
+  try { if(typeof renderTilawaScreen === 'function') renderTilawaScreen(); } catch(e){}
+}
+
+/** طبقة الترجمة: ارتقِ عربيّ أوّلًا، فنُرجع النصّ كما هو. */
+var ZahimI18n = { t:function(k){ return k; }, applyTo:function(){}, lang:function(){ return 'ar'; } };
 
 /* ═══════════════════════════════════════════════════════════
    المصحف — مصحف المدينة النبوية، الإصدار الرابع ١٤٤١هـ
    البياناتُ من نسخةٍ عندنا (MIT)، والخطُّ يُستدعى من مصدره ولا يُستضاف.
    ═══════════════════════════════════════════════════════════ */
-// مصدرا بيانات الصفحات: مستودع أرفت أولًا، ثم المستودع الأصلي
-// (MohamadHajjRabee) احتياطًا. وجود مصدرين يعني أن تعطّل أحدهما لا
-// يُعطّل المصحف على الطلاب.
+// مصدران: مستودع أرفت أوّلًا ثم الأصلي احتياطًا، فتعطّل أحدهما
+// لا يُعطّل المصحف على الطلاب.
 var MUS_DATA  = 'https://raw.githubusercontent.com/Ara2026fat/quran-qcf4/main/pages';
 var MUS_DATA2 = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/pages';
 var MUS_CDN  = 'https://cdn.jsdelivr.net/gh/MohamadHajjRabee/quran-qcf4@main/fonts-woff2';
@@ -4036,22 +4274,6 @@ var _musPage = 1, _musFonts = {}, _musFrom = 0, _musTo = 0, _musCache = {};
 /* ما قُرئ يبقى محفوظًا، فلا يُطلب مرّةً أخرى.
    نحفظ آخر ستّين صفحة — أكثرُ من ذلك يملأ مساحةَ التخزين. */
 var MUS_KEEP = 60;
-
-/**
- * يجلب صفحة مصحف من المصدر الأساسي، ويسقط للاحتياطي عند الفشل.
- * كل مواضع الجلب تمرّ من هنا حتى لا يبقى مصدر واحد بلا احتياط.
- */
-function musFetchPage(n){
-  var file = '/' + musPad(n) + '.json';
-  return fetch(MUS_DATA + file)
-    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-    .catch(function(){
-      return fetch(MUS_DATA2 + file).then(function(r){
-        if(!r.ok) throw new Error(r.status); return r.json();
-      });
-    });
-}
-
 function musDisk(){
   try{ return JSON.parse(localStorage.getItem(MUS_CK) || '{}'); }catch(e){ return {}; }
 }
@@ -4073,6 +4295,18 @@ function musSave(n, j){
 }
 
 function musPad(n){ return ('00' + n).slice(-3); }
+
+/** يجلب صفحة من المصدر الأساسي ثم الاحتياطي. كل الجلب يمرّ من هنا. */
+function musFetchPage(n){
+  var file = '/' + musPad(n) + '.json';
+  return fetch(MUS_DATA + file)
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .catch(function(){
+      return fetch(MUS_DATA2 + file).then(function(r){
+        if(!r.ok) throw new Error(r.status); return r.json();
+      });
+    });
+}
 function musEsc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* اسمُ الخطّ في البيانات بلا لاحقة، وملفُّه قد يحملها — فنعطي الاحتمالين */
@@ -4132,7 +4366,7 @@ function musRender(j){
   if(sh) sh.classList.toggle('framed-sheet', _musPage <= 2);
   var names = (j.surahs || []).map(function(x){ return x.name_arabic || x.name; }).filter(Boolean);
   document.getElementById('musSurah').textContent = names.join(' · ') || '—';
-  document.getElementById('musPageNo').textContent = 'صفحة ' + toAr(j.page || _musPage);
+  document.getElementById('musPageNo').textContent = 'صفحة ' + arNum(j.page || _musPage);
   musFit();
 }
 
@@ -4140,10 +4374,36 @@ function musRender(j){
 function musFrame(){ return '<div class="mus-frame" aria-hidden="true"></div>'; }
 
 /* القياسُ يُحسب من عرض الورقة — فلا يفيض السطر ولا يقصر */
+/* حجمُ الخطّ المحسوب لكلّ صفحة يُخزَّن، فلا يُعاد البحثُ الثنائيّ عند كلّ زيارة.
+   المفتاحُ يحمل عرضَ الشاشة، فإن دار الجهازُ أُعيد الحساب. */
+var MUS_FS = 'irtaqi-mushaf-fs';
+var _musFS = null;
+function musFsMap(){
+  if(_musFS) return _musFS;
+  try{ _musFS = JSON.parse(localStorage.getItem(MUS_FS) || '{}'); }catch(e){ _musFS = {}; }
+  return _musFS;
+}
+function musFsKey(n){ return n + '@' + Math.round(window.innerWidth); }
+function musFsSave(n, v){
+  var m = musFsMap(); m[musFsKey(n)] = +v.toFixed(2);
+  var ks = Object.keys(m);
+  if(ks.length > 260) ks.slice(0, 60).forEach(function(k){ delete m[k]; });
+  try{ localStorage.setItem(MUS_FS, JSON.stringify(m)); }catch(e){}
+}
+
 function musFit(){
   _musW = window.innerWidth;
   var page = document.getElementById('musPage');
   var sheet = document.getElementById('musSheet');
+
+  // قياسٌ محفوظ؟ يُطبَّق فورًا وتُكشف الورقة بلا انتظار
+  var cached = musFsMap()[musFsKey(_musPage)];
+  if(cached){
+    page.style.setProperty('--mfs', cached + 'px');
+    page.classList.add('settled');
+    return;
+  }
+
   var run = function(){
     if(!page.getElementsByClassName('ln').length) return;
     var lo = 11, hi = 34, best = 11, box = page.clientWidth - 24;
@@ -4167,10 +4427,12 @@ function musFit(){
       page.style.setProperty('--mfs', cap.toFixed(2) + 'px');
     }
     page.classList.add('settled');   /* استقرّ القياس، فتُكشف الورقة */
+    var fin = parseFloat(page.style.getPropertyValue('--mfs'));
+    if(fin > 0) musFsSave(_musPage, fin);
   };
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(run).catch(run);
-  else setTimeout(run, 400);
-  setTimeout(run, 900);
+  else setTimeout(run, 240);
+  setTimeout(run, 620);
 }
 
 function musOffline(n){
@@ -4183,17 +4445,28 @@ function musOffline(n){
     + '<br><button type="button" onclick="musLoad(' + n + ')">أعِد المحاولة</button></div>';
 }
 
+/* جلبٌ صامتٌ للصفحات المجاورة */
+function musPrefetch(n){
+  if(n < 1 || n > 604) return;
+  if(_musCache[n] || musDisk()[n]) return;
+  if(navigator.onLine === false) return;
+  musFetchPage(n)
+    .then(function(j){ if(j){ _musCache[n] = j; musSave(n, j); } })
+    .catch(function(){});
+}
+
 function musLoad(n){
   n = Math.max(1, Math.min(604, n | 0));
   _musPage = n;
+  musSaveResume(n);
   document.getElementById('musJump').value = n;
   try{ localStorage.setItem(MUS_KEY, String(n)); }catch(e){}
   musWird();
   try{ musDrawMarks(); }catch(e){}
 
-  if(_musCache[n]){ musRender(_musCache[n]); return; }
+  if(_musCache[n]){ musRender(_musCache[n]); musPrefetch(n+1); musPrefetch(n-1); return; }
   var saved = musDisk()[n];
-  if(saved){ _musCache[n] = saved; musRender(saved); return; }
+  if(saved){ _musCache[n] = saved; musRender(saved); musPrefetch(n+1); musPrefetch(n-1); return; }
 
   var lp = document.getElementById('musPage');
   lp.classList.add('settled');
@@ -4204,9 +4477,11 @@ function musLoad(n){
     .then(function(j){
       _musCache[n] = j; musSave(n, j);
       if(_musPage === n) musRender(j);
-      /* نجلب التاليةَ بهدوء، فلا ينتظر القارئ عند التقليب */
-      var nx = n + 1;
-      if(nx <= 604 && !_musCache[nx] && !musDisk()[nx]){
+      /* نجلب المجاورتين بهدوء — التاليةَ والسابقة — فلا ينتظر القارئ عند التقليب
+         في الاتجاهين، ولا عند العودة إلى ما قرأ */
+      musPrefetch(n + 1); musPrefetch(n - 1); musPrefetch(n + 2);
+      var nx = 0;
+      if(false){
         musFetchPage(nx)
           .then(function(k){ if(k){ _musCache[nx] = k; musSave(nx, k); } })
           .catch(function(){});
@@ -4248,6 +4523,113 @@ function musToggleBare(){
   setTimeout(musFit, 320);
 }
 
+/* ═══ قلبُ الورقة من الحافّة ═══ */
+/* ═══════════════════════════════════════════════════════════════════════
+   انتقال الصفحة — بلا رمشة عين
+   Smooth page transition.
+
+   المشكلة: كان `musRender` يكتب innerHTML مباشرةً، فتختفي الصفحة وتظهر
+   الأخرى في إطار واحد — وميضٌ يقطع القراءة ويُشعر أنك تُحرّك شيئًا.
+
+   الآلية (ثلاث خطوات، ٣٦٠ جزءًا من الثانية إجمالًا):
+     ١. الصفحة الحالية تنزلق وتخفت في اتجاه القلب  (١٦٠ms)
+     ٢. يُبدَّل المحتوى والصفحة مخفيّة تمامًا — لا أحد يرى التبديل
+     ٣. الصفحة الجديدة تدخل من الجهة المقابلة وتظهر  (٢٠٠ms)
+
+   ولماذا الاتجاه معكوس: المصحف عربيّ يُقلَّب من اليسار، فالصفحة التالية
+   تدخل من اليسار كالورق تمامًا.
+
+   وثلاثة احترازات:
+     · قفل يمنع تداخل قلبتين متسارعتين فتتشوّه الصفحة.
+     · `will-change` يُعلم المتصفّح فيهيّئ طبقة رسم مسبقًا، فلا تقطّع.
+     · `prefers-reduced-motion` يُلغيها كليًّا لمن يطلب تقليل الحركة.
+   ═══════════════════════════════════════════════════════════════════════ */
+var _musTurning = false;
+
+function musAnimatePage(step, apply){
+  const el = document.getElementById('musPage');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!el || reduce || _musTurning){ apply(); return; }
+
+  _musTurning = true;
+  // step>0 = التالية: تخرج الحالية يمينًا وتدخل الجديدة من اليسار.
+  const out = step > 0 ? '-6%' : '6%';
+  const inn = step > 0 ? '6%'  : '-6%';
+
+  el.style.willChange = 'transform, opacity';
+  el.style.transition = 'transform .16s cubic-bezier(.4,0,1,1), opacity .16s ease';
+  el.style.transform = 'translateX(' + out + ')';
+  el.style.opacity = '0';
+
+  setTimeout(function(){
+    apply();                                   // التبديل والصفحة مخفيّة
+    el.style.transition = 'none';
+    el.style.transform = 'translateX(' + inn + ')';
+    // إطار واحد ليثبت الوضع الجديد قبل بدء الدخول.
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        el.style.transition = 'transform .2s cubic-bezier(0,0,.2,1), opacity .2s ease';
+        el.style.transform = 'translateX(0)';
+        el.style.opacity = '1';
+        setTimeout(function(){
+          el.style.willChange = '';
+          el.style.transition = '';
+          _musTurning = false;
+        }, 210);
+      });
+    });
+  }, 165);
+}
+
+function musTurn(step){
+  var h = document.getElementById('musHint');
+  if(h) h.classList.remove('show');
+  if(_musTurning) return;                      // يمنع تداخل القلبات
+  musAnimatePage(step, function(){ mushafGo(step); });
+}
+
+/* ═══ «وقفتُ هنا» ═══
+   المصحفُ الورقيّ يُترك مفتوحًا على صفحته. وهذا مثلُه: كلُّ صفحةٍ تُفتح
+   تُحفظ مع وقتها، فإذا عاد القارئُ وجد سطرًا يعيده حيث كان — لا قائمةَ
+   علاماتٍ يبحث فيها. والعلاماتُ تبقى لمن أراد أن يُعلّم مواضعَ بعينها. */
+var MUS_RESUME = 'irtaqi-mushaf-resume';
+function musSaveResume(n){
+  try{ localStorage.setItem(MUS_RESUME, JSON.stringify({ p:n, t:Date.now() })); }catch(e){}
+}
+function musReadResume(){
+  try{ var d = JSON.parse(localStorage.getItem(MUS_RESUME) || 'null');
+       return (d && d.p) ? d : null; }catch(e){ return null; }
+}
+function musSince(ms){
+  var m = Math.floor((Date.now() - ms) / 60000);
+  if(m < 2)  return 'قبل قليل';
+  if(m < 60) return 'قبل ' + arNum(m) + ' دقيقة';
+  var h = Math.floor(m / 60);
+  if(h < 24) return 'قبل ' + arNum(h) + ' ساعة';
+  var d = Math.floor(h / 24);
+  return d === 1 ? 'أمس' : ('قبل ' + arNum(d) + ' يوم');
+}
+function musShowResume(){
+  var bar = document.getElementById('musResume'), d = musReadResume();
+  if(!bar) return;
+  if(!d || d.p === _musPage){ bar.style.display = 'none'; return; }
+  document.getElementById('musResumeTxt').textContent =
+    (function(){ try{ return ZahimI18n.t('وقفتَ عند صفحة'); }catch(e){ return 'وقفتَ عند صفحة'; } })()
+    + ' ' + arNum(d.p);
+  bar.style.display = 'flex';
+  try{ ZahimI18n.applyTo(bar); }catch(e){}
+}
+function musHideResume(){
+  var bar = document.getElementById('musResume');
+  if(bar) bar.style.display = 'none';
+}
+function musGoResume(){
+  var bar = document.getElementById('musResume');
+  var p = bar ? parseInt(bar.getAttribute('data-p'), 10) : 0;
+  musHideResume();
+  if(p) musLoad(p);
+}
+
 /* ═══ علاماتُ الحفظ ═══
    المصحفُ الورقيّ يُوضع فيه شريط، وهذا مثلُه: صفحاتٌ تُعلَّم ويُقفز إليها. */
 var MUS_BM = 'irtaqi-mushaf-marks';
@@ -4274,7 +4656,7 @@ function musDrawMarks(){
   bar.style.display = 'flex';
   bar.innerHTML = '<b>علاماتك</b>' + a.map(function(n){
     return '<button class="mus-mark' + (n === _musPage ? ' cur' : '')
-         + '" type="button" onclick="musLoad(' + n + ')">' + toAr(n) + '</button>';
+         + '" type="button" onclick="musLoad(' + n + ')">' + arNum(n) + '</button>';
   }).join('');
 }
 
@@ -4392,8 +4774,8 @@ function fillDaySpan(){
     if(!cur || parseInt(cur.getAttribute('data-from'),10) !== from) return;
     var one = (a.name === b.name && a.aya === b.aya);
     cur.textContent = one
-      ? (a.name + ' ' + toAr(a.aya))
-      : (a.name + ' ' + toAr(a.aya) + ' ← ' + b.name + ' ' + toAr(b.aya));
+      ? (a.name + ' ' + arNum(a.aya))
+      : (a.name + ' ' + arNum(a.aya) + ' ← ' + b.name + ' ' + arNum(b.aya));
   }).catch(function(){});
 }
 
@@ -4405,14 +4787,92 @@ function musWird(){
   var all  = _musTo - _musFrom + 1;
   var atEnd = _musPage >= _musTo;
   bar.style.display = 'flex';
-  bar.innerHTML = '<span>وِرد اليوم · ' + toAr(done) + ' من ' + toAr(all) + ' صفحة</span>'
+  // الشريط يفتح لوحة الورد عند لمسه — منها يعود القارئ لورده ويرى حاله.
+  bar.innerHTML = '<span onclick="openWirdPanel()" role="button" tabindex="0">' +
+      'وِرد اليوم · ' + arNum(done) + ' من ' + arNum(all) + ' صفحة</span>'
     + (atEnd ? '<button type="button" onclick="musDone()">أتممت الوِرد</button>' : '');
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   لوحة الورد
+   The wird panel: where the reader stands, and how to get back.
+
+   طلب أرفت: بعد أن يحدّد القارئ ورده، تكون هناك لوحة يعود منها إليه،
+   وتُريه إن كان متأخّرًا — **بتحفيز لا بلوم**.
+
+   القاعدة التي التزمتها في الصياغة: لا كلمة تُشعر بالذنب. المتأخّر يُقال
+   له «بقيت لك صفحات» لا «تأخّرت»، ومن انقطع يُقال له «عُد» لا «فاتك».
+   والمقصد أن يفتح المصحف، لا أن يشعر بالتقصير فيتركه.
+   ═══════════════════════════════════════════════════════════════════════ */
+function openWirdPanel(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+
+  const inWird = !!(_musFrom && _musTo);
+  const all = inWird ? (_musTo - _musFrom + 1) : 0;
+  const done = inWird ? Math.min(Math.max(_musPage - _musFrom + 1, 0), all) : 0;
+  const left = Math.max(0, all - done);
+  const pct = all > 0 ? done / all : 0;
+
+  // حال الطالب في خطة الختمة كلها، لا في ورد اليوم وحده.
+  let overdue = 0, dueDay = null;
+  try {
+    overdue = (typeof tilawaOverdueCount === 'function') ? tilawaOverdueCount() : 0;
+    dueDay = (typeof tilawaDueDay === 'function') ? tilawaDueDay() : null;
+  } catch(e){}
+
+  // الرسالة تتبع الحال، وكلها إيجابية.
+  let msg, tone;
+  if(!inWird){
+    msg = 'تصفّح المصحف كما تشاء — ومتى أردت وردك، ابدأه من شاشة التلاوة.';
+    tone = 'calm';
+  } else if(done >= all){
+    msg = 'أتممت ورد اليوم بحمد الله. سجّله لتنتقل لورد الغد.';
+    tone = 'done';
+  } else if(overdue > 0){
+    msg = 'بقيت لك ' + toAr(left) + ' ' + pageWord(left) +
+          ' في هذا الورد. وكل صفحة تُقرأ خير — ابدأ من حيث وقفت.';
+    tone = 'behind';
+  } else if(pct >= 0.5){
+    msg = 'قطعت أكثر من نصف وردك. بقيت ' + toAr(left) + ' ' + pageWord(left) + ' فقط.';
+    tone = 'good';
+  } else {
+    msg = 'بقيت لك ' + toAr(left) + ' ' + pageWord(left) + '. وفّقك الله.';
+    tone = 'calm';
+  }
+
+  let html = '<div class="share-sheet-title">وردك اليوم</div>';
+  if(inWird){
+    html += '<div class="wp-ring"><div class="wp-pct">' + toAr(Math.round(pct*100)) + '٪</div>' +
+      '<div class="wp-sub">' + toAr(done) + ' من ' + toAr(all) + ' صفحة</div></div>' +
+      '<div class="wp-bar"><div class="wp-fill" style="width:' + Math.round(pct*100) + '%;"></div></div>';
+  }
+  html += '<div class="wp-msg wp-' + tone + '">' + msg + '</div>';
+
+  if(overdue > 0){
+    html += '<div class="wp-note">لديك ' + toAr(overdue) + ' ' +
+      (overdue === 1 ? 'ورد سابق' : 'أوراد سابقة') + ' — نبدأ بأقدمها، وكل يوم تُتمّه يقرّبك.</div>';
+  }
+
+  if(inWird){
+    html += '<button class="hifz-save-btn" style="margin-top:12px;" onclick="closeShareSheet();musLoad(' +
+      Math.max(_musFrom, Math.min(_musTo, _musPage)) + ');">العودة للقراءة</button>';
+    if(done >= all){
+      html += '<button class="hifz-save-btn" style="margin-top:8px;" onclick="closeShareSheet();musDone();">سجّل إتمام الورد</button>';
+    } else {
+      html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet();musLoad(' + _musFrom + ');">من أول الورد</button>';
+    }
+  } else {
+    html += '<button class="hifz-save-btn" style="margin-top:12px;" onclick="closeShareSheet();closeMushaf();">اذهب لورد اليوم</button>';
+  }
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">متابعة القراءة</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
 function musDone(){
-  /* في التطبيق الأمّ يُسجَّل الوِرد في الختمة — وهنا يُطلق حدثًا يلتقطه المضيف */
-  try{ dispatchEvent(new CustomEvent('mushaf:wird-done',
-       {detail:{from:_musFrom, to:_musTo, page:_musPage}})); }catch(e){}
+  try{ if(typeof markQuranDayDone === 'function') markQuranDayDone(); }catch(e){}
   _musFrom = _musTo = 0;
   musWird();
   closeMushaf();
@@ -4434,6 +4894,8 @@ function openMushaf(from, to){
     try{ last = parseInt(localStorage.getItem(MUS_KEY), 10) || 0; }catch(e){}
     if(last >= from && last <= to) start = last;
   }
+  /* وإن كان آخرُ موضعٍ خارجَ مدى الوِرد، لم يُفتح عليه ولكن يُعرض سطرُ العودة —
+     فمن كان يقرأ في موضعٍ آخر لا يُجبَر على البدء من أوّل الوِرد. */
 
   document.querySelectorAll('.screen').forEach(function(x){
     if(x.id !== 'screen-mushaf'){ x.classList.add('hidden'); }
@@ -4443,11 +4905,35 @@ function openMushaf(from, to){
   scr.classList.add('bare');
   musApplyTone();
   scr.scrollTop = 0;
+  // يُقرأ الموضعُ قبل التحميل، لأنّ التحميلَ يكتب موضعًا جديدًا فوقه
+  var _res = musReadResume();
   musLoad(start);
   musHint();
+  setTimeout(function(){
+    if(_res && _res.p !== start){
+      var bar = document.getElementById('musResume');
+      if(bar){
+        document.getElementById('musResumeTxt').textContent =
+          (function(){ try{ return ZahimI18n.t('وقفتَ عند صفحة'); }catch(e){ return 'وقفتَ عند صفحة'; } })()
+          + ' ' + arNum(_res.p);
+        bar.style.display = 'flex';
+        bar.setAttribute('data-p', _res.p);
+        setTimeout(function(){ if(bar) bar.style.display = 'none'; }, 9000);
+      }
+    }
+  }, 500);
 }
 
-function closeMushaf(){ closeMushafScreen(); }
+function closeMushaf(){
+  musReleaseAwake();
+  // في ارتقِ نعود للشاشة التي فُتح منها المصحف (التلاوة غالبًا)،
+  // لا لشاشة قرآن ثابتة كما في زاحِم.
+  const back = (typeof _musReturnScreen !== 'undefined' && _musReturnScreen) ? _musReturnScreen : 'tilawa';
+  const target = document.getElementById('screen-' + back);
+  zxOnly(target ? ('screen-' + back) : 'screen-home');
+  if(back === 'tilawa') renderQuranScreen();
+}
+/* closeMushafScreen و navMushafPage معرّفتان في جسر التلاوة أدناه. */
 
 /* التكبيرُ بإصبعين يُطلق resize أيضًا — فكان القياسُ يُعاد
    فتصغر الصفحةُ تحت الإصبع. الآن لا يُعاد إلا إن تغيّر عرضُ الشاشة فعلًا. */
@@ -5882,7 +6368,7 @@ function paintDailySpark(){
     const completedToday = c.students.filter(s => s.completion && s.completion[today]).length;
     if(iconEl) iconEl.innerHTML = icons.circle;
     labelEl.textContent = 'حلقتك';
-    textEl.textContent = (c.icon ? c.icon + ' ' : '') + c.name + ' — ' + toAr(completedToday) + '/' + toAr(c.students.length) + ' أنجزوا اليوم';
+    textEl.innerHTML = circleIcon(c.icon, 15) + musEsc(c.name) + ' — ' + toAr(completedToday) + '/' + toAr(c.students.length) + ' أنجزوا اليوم';
     if(actionEl){ actionEl.textContent = 'افتح'; actionEl.style.display = 'block'; actionEl.onclick = function(e){ e.stopPropagation(); openTeacherScreen(); }; }
   }
 }
@@ -8139,6 +8625,57 @@ function exportUsraPdf(){
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   أيقونات الأوسمة والمراتب — خطوط بدل الإيموجي
+   Line icons replacing four emoji, for reasons of meaning not rendering:
+
+     🕋 الكعبة    — كانت تُنقر كأيقونة زينة، والأولى ألّا تُتّخذ رمزًا تزيينيًّا
+     👑 التاج     — رمز مُلك وكِبْر، لا يليق بحافظ القرآن
+     🏆 الكأس     — رمز تنافس رياضيّ، والحفظ ليس سباقًا
+     🥇🥈🥉 الميداليات — تجعل الطلاب يتنافسون على المركز لا على القرآن
+
+   البدائل: وسام هادئ، ودائرة برقم المرتبة، ونجمة ثمانية، ومحراب — كلها
+   خطوط بلا ذوات أرواح، وتتبع لون الهوية تلقائيًا (currentColor).
+   ═══════════════════════════════════════════════════════════════════════ */
+const ICON_PATHS = {
+  ribbon:  '<circle cx="12" cy="9" r="5"/><path d="M9 13.5 7 21l5-2.5L17 21l-2-7.5"/>',
+  rank1:   '<circle cx="12" cy="10" r="6"/><path d="M11 8h1v5"/><path d="M9 20l3-2 3 2"/>',
+  rank2:   '<circle cx="12" cy="10" r="6"/><path d="M10 8.5a2 2 0 1 1 3 1.7L10 13h4"/><path d="M9 20l3-2 3 2"/>',
+  rank3:   '<circle cx="12" cy="10" r="6"/><path d="M10 8h3l-2 2h.5a1.8 1.8 0 1 1-1.5 3"/><path d="M9 20l3-2 3 2"/>',
+  niche:   '<path d="M6 21V10a6 6 0 0 1 12 0v11"/><path d="M4 21h16"/><path d="M12 7v3"/>',
+  crescent:'<path d="M17 17A8 8 0 1 1 12 4a6.5 6.5 0 0 0 5 13Z"/>',
+  book:    '<path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M6 17h12"/><path d="M9 7h6M9 10h6"/>',
+  lantern: '<path d="M9 3h6"/><path d="M10 3v2M14 3v2"/><rect x="7" y="5" width="10" height="13" rx="3"/><path d="M9 21h6"/><path d="M12 9v6"/>',
+  flame:   '<path d="M12 21a5 5 0 0 0 5-5c0-4-5-8-5-13 0 0-5 4-5 9a5 5 0 0 0 2 4"/>',
+  lock:    '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
+};
+
+/** يرسم أيقونة خطّية بالحجم المطلوب، تتبع لون محيطها. */
+function icon(name, size){
+  const d = ICON_PATHS[name];
+  if(!d) return '';
+  const px = size || 20;
+  return '<svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" ' +
+    'style="width:' + px + 'px;height:' + px + 'px;display:inline-block;vertical-align:-2px;">' +
+    d + '</svg>';
+}
+
+/**
+ * أيقونة الحلقة. الحلقات القديمة تحمل إيموجي مخزَّنًا، والجديدة تحمل
+ * مفتاحًا. نعرض الاثنين بلا ترحيل قسريّ لبيانات المعلّم.
+ */
+function circleIcon(v, size){
+  if(!v) return '';
+  if(ICON_PATHS[v]) return icon(v, size || 16) + ' ';
+  return v + ' ';                      // إيموجي قديم — يبقى كما اختاره
+}
+
+/** أيقونة المرتبة الأولى والثانية والثالثة. */
+function rankIcon(i, size){
+  return icon(['rank1','rank2','rank3'][i] || 'ribbon', size);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    الرِّفقة — الحفظ الجماعي
    Rifqah: a small band of companions memorizing together.
 
@@ -9389,8 +9926,8 @@ function computeBadges(){
     {id:'reviewhero', icon:'🔁', name:'بطل المراجعة', desc:'راجعت بانتظام وثبّت محفوظك', earned: reviewStrong},
     {id:'memohero', icon:'🌱', name:'بطل الحفظ', desc:'حفظت نصف القرآن أو أكثر', earned: memoPct >= 0.5},
     {id:'tilawahero', icon:'📖', name:'بطل التلاوة', desc:'أكملت ختمة كاملة من البداية للنهاية', earned: tilawaComplete},
-    {id:'consistencyhero', icon:'🏆', name:'بطل الثبات', desc:'حققت سلسلة ٣٠ يومًا في تاريخك', earned: streaks.longest >= 30},
-    {id:'lifetime', icon:'👑', name:'إنجاز العمر', desc:'مائة يوم إنجاز كامل عبر رحلتك', earned: completeDays.length >= 100}
+    {id:'consistencyhero', icon:icon('ribbon',26), name:'بطل الثبات', desc:'حققت سلسلة ٣٠ يومًا في تاريخك', earned: streaks.longest >= 30},
+    {id:'lifetime', icon:icon('lantern',26), name:'إنجاز العمر', desc:'مائة يوم إنجاز كامل عبر رحلتك', earned: completeDays.length >= 100}
   ];
   const earnedCount = badges.filter(b => b.earned).length;
   badges.push({id:'golden', icon:'✨', name:'الطالب الذهبي', desc:'حصلت على خمسة أوسمة أو أكثر', earned: earnedCount >= 5});
@@ -9539,7 +10076,7 @@ function renderAchievementsView(wrap){
   html += '<div class="badge-grid">';
   data.badges.forEach(b => {
     html += '<div class="badge-tile' + (b.earned ? ' earned' : '') + '">' +
-      '<div class="badge-icon">' + (b.earned ? b.icon : '🔒') + '</div>' +
+      '<div class="badge-icon">' + (b.earned ? b.icon : icon('lock',24)) + '</div>' +
       '<div class="badge-name">' + b.name + '</div>' +
       '<div class="badge-desc">' + b.desc + '</div>' +
     '</div>';
@@ -9756,7 +10293,8 @@ function renderCirclesList(wrap){
     '<div class="hifz-setup-sub" style="margin-top:0;">أنشئ حلقة جديدة</div>' +
     '<input type="text" class="hifz-day-input" style="width:100%;margin-bottom:8px;" id="circle-name-input" placeholder="مثال: حلقة جامع النور" />' +
     '<div class="icon-picker" id="icon-picker">' +
-      ['🕌','📖','🌙','⭐','🌿','🕋'].map(ic => '<span class="icon-choice' + (ic===_selectedCircleIcon?' selected':'') + '" onclick="selectCircleIcon(\'' + ic + '\')">' + ic + '</span>').join('') +
+      // أيقونات خطّية بدل الإيموجي: حُذفت الكعبة لأنها كانت تُنقر كزينة.
+      ['niche','lantern','ribbon','crescent','book'].map(k => '<span class="icon-choice ic-pick' + (k===_selectedCircleIcon?' selected':'') + '" data-ic="' + k + '" onclick="selectCircleIcon(\'' + k + '\')">' + icon(k,20) + '</span>').join('') +
     '</div>' +
     '<button class="hifz-save-btn" onclick="createTeacherCircle()">+ إنشاء الحلقة</button>' +
   '</div>';
@@ -9768,7 +10306,7 @@ function renderCirclesList(wrap){
     '</div>';
     _teacherCircles.forEach(c => {
       html += '<div class="student-card" style="cursor:pointer;" onclick="selectCircle(' + c.id + ')">' +
-        '<div class="student-card-top"><div class="student-name">' + (c.icon ? c.icon + ' ' : '') + c.name + '</div><div class="student-phone">' + toAr(c.students.length) + ' طالب</div></div>' +
+        '<div class="student-card-top"><div class="student-name">' + circleIcon(c.icon, 16) + musEsc(c.name) + '</div><div class="student-phone">' + toAr(c.students.length) + ' طالب</div></div>' +
       '</div>';
     });
   } else {
@@ -9776,11 +10314,15 @@ function renderCirclesList(wrap){
   }
   wrap.innerHTML = html;
 }
-function selectCircleIcon(icon){
-  _selectedCircleIcon = icon;
+/* كان الوسيط اسمه `icon` فيحجب دالة icon()، والمطابقة كانت بنصّ العنصر
+   وهو الآن رسم SVG لا نصّ. صار التمييز بسمة data-ic. */
+function selectCircleIcon(key){
+  _selectedCircleIcon = key;
   const picker = document.getElementById('icon-picker');
   if(picker){
-    picker.querySelectorAll('.icon-choice').forEach(el => el.classList.toggle('selected', el.textContent === icon));
+    picker.querySelectorAll('.icon-choice').forEach(function(el){
+      el.classList.toggle('selected', el.getAttribute('data-ic') === key);
+    });
   }
 }
 function createTeacherCircle(){
@@ -9856,7 +10398,8 @@ function renderCircleDetail(wrap, circle){
       .sort((a,b) => b.stats.completionRate - a.stats.completionRate)
       .slice(0, 3);
     if(ranked.length){
-      const medals = ['🥇','🥈','🥉'];
+      // مراتب هادئة بدل الميداليات: الترتيب يبقى والتنافس الرياضيّ يزول.
+      const medals = [rankIcon(0,17), rankIcon(1,17), rankIcon(2,17)];
       if(_ov) html += '<div class="circle-rank-card"><div class="crc-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:-2px;margin-left:4px;"><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5a2 2 0 0 0 0 4h1.5M16 5h3a2 2 0 0 1 0 4h-1.5"/><path d="M12 13v4"/><path d="M9 21h6"/><path d="M10 17h4v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2Z"/></svg> الأوائل</div>';
       ranked.forEach((r, i) => {
         if(_ov) html += '<div class="crc-row"><span>' + medals[i] + ' ' + r.s.name + '</span><span class="crc-pct">' + toAr(Math.round(r.stats.completionRate*100)) + '٪</span></div>';
@@ -10090,7 +10633,8 @@ function renderCircleComparison(wrap, circle){
   }
 
   const ranked = circle.students.map(s => ({s, r: computeStudentScore(s)})).sort((a,b) => b.r.score - a.r.score);
-  const medals = ['🥇','🥈','🥉'];
+  // مراتب هادئة بدل الميداليات: الترتيب يبقى والتنافس الرياضيّ يزول.
+      const medals = [rankIcon(0,17), rankIcon(1,17), rankIcon(2,17)];
 
   html += '<div class="activity-log-list" style="margin-top:12px;">';
   ranked.forEach((entry, i) => {
@@ -10546,38 +11090,10 @@ function gridCellMark(cell){
    ═══════════════════════════════════════════════════════════════════════ */
 
 /** حدّ آيات السورة، للتحقّق من الإدخال. */
-function surahAyahCount(idx){
-  const n = SURAH_AYAHS[idx];
-  return (typeof n === 'number' && n > 0) ? n : 0;
-}
+/* surahAyahCount و assignmentLabel معرّفتان في نظام التكليف أدناه.
+   تنبيه: نسخة زاحِم كانت تستقبل فهرسًا يبدأ من صفر، ونسختنا تستقبل رقم
+   السورة يبدأ من واحد. إبقاء الاثنتين فخّ يُزيح كل السور بواحد. */
 
-/**
- * يبني كائن تكليف صالحًا، أو يرجع null مع سبب الرفض.
- * لا يُقبل تكليف يتجاوز آخر آية في السورة — وهو أشيع خطأ إدخال.
- */
-function makeAssignment(surahIdx, fromAyah, count){
-  const si = parseInt(surahIdx, 10);
-  const from = parseInt(fromAyah, 10);
-  const cnt = parseInt(count, 10);
-  if(isNaN(si) || si < 0 || si > 113) return { error:'اختر السورة' };
-  const max = surahAyahCount(si);
-  if(isNaN(from) || from < 1 || from > max)
-    return { error:'رقم الآية خارج سورة ' + SURAH_NAMES[si] + ' (١–' + toAr(max) + ')' };
-  if(isNaN(cnt) || cnt < 1) return { error:'عدد الآيات لا بدّ أن يكون واحدًا فأكثر' };
-  if(from + cnt - 1 > max)
-    return { error:'سورة ' + SURAH_NAMES[si] + ' تنتهي عند الآية ' + toAr(max) };
-  return { surahIdx: si, fromAyah: from, count: cnt, toAyah: from + cnt - 1 };
-}
-
-/** عبارة عربية للتكليف: "البقرة ١–٥ (٥ آيات)". */
-function assignmentLabel(a){
-  if(!a || a.surahIdx === undefined) return '—';
-  const name = SURAH_NAMES[a.surahIdx] || '';
-  const range = a.count === 1 ? toAr(a.fromAyah)
-    : (toAr(a.fromAyah) + '–' + toAr(a.toAyah));
-  const unit = a.count === 1 ? 'آية' : (a.count <= 10 ? 'آيات' : 'آية');
-  return name + ' ' + range + ' (' + toAr(a.count) + ' ' + unit + ')';
-}
 
 /** يقرأ تكليف طالب ليوم بعينه. */
 function getAssignment(student, dateKey, kind){
@@ -11514,6 +12030,14 @@ function assignmentLabel(a){
   const n = to - from + 1;
   return 'سورة ' + nm + ' · من ' + toAr(from) + ' إلى ' + toAr(to) +
          ' (' + toAr(n) + ' ' + ayahWord(n) + ')';
+}
+
+/** تمييز «صفحة» الصحيح: ٣–١٠ جمع، وما فوق مفرد. «١٨ صفحات» خطأ. */
+function pageWord(n){
+  if(n === 1) return 'صفحة';
+  if(n === 2) return 'صفحتان';
+  if(n <= 10) return 'صفحات';
+  return 'صفحة';
 }
 
 /** تمييز «آية» الصحيح: ٣–١٠ جمع، وما فوق مفرد منصوب. */
