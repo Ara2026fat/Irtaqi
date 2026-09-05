@@ -8,6 +8,8 @@
 <meta name="copyright" content="© جميع الحقوق محفوظة لعرفات الراجحي">
 <title>ارتق — احفظ، راجع، وارتقِ بالدرجات</title>
 <link rel="manifest" href="manifest.json">
+<!-- ملفّ المحاكاة: لا يفعل شيئًا إلّا بطلبٍ صريح (‎?demo=1‎ أو IrtaqiDemo.seed) -->
+<script defer src="demo.js"></script>
 <meta name="theme-color" content="#1F8367">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -904,7 +906,17 @@ body.theme-dark .rights-dua{color:var(--copper-light,#D4AF37);}
   margin:8px 16px 16px;background:linear-gradient(145deg,#33685A,#1B3830);
   border-radius:20px;padding:20px;position:relative;overflow:hidden;
 }
-.day-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(212,175,55,0.15),transparent 60%);}
+/* ═══ عطل حقيقي أُصلح هنا ═══
+   طبقة زخرفية بـinset:0 تغطّي البطاقة كاملةً. وبلا pointer-events:none
+   كانت **تبتلع كل نقرة** فلا تصل لأزرار «افتح المصحف» تحتها — والأزرار
+   سليمة تمامًا وتعمل إن نودي عليها برمجيًّا، ولهذا لم يكشفها أيّ اختبار
+   يستدعي الدوال مباشرةً. كشفها الضغط الحقيقيّ وحده.
+   والدرس: كل ::before أو ::after بـposition:absolute فوق محتوى تفاعليّ
+   يحتاج pointer-events:none، وإلا حجبه. */
+.day-card::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 20% 20%,rgba(212,175,55,0.15),transparent 60%);
+}
 .dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;}
 .dc-label{font-size:11px;font-weight:700;color:var(--copper-light);letter-spacing:1px;}
 .dc-status{font-size:12px;font-weight:700;}
@@ -1981,6 +1993,78 @@ body.theme-dark #screen-mushaf .mus-msg b{color:#141C17;}
 #screen-mushaf .mus-wird button{background:var(--gold);border:0;border-radius:9px;
   color:#20180B;font-family:inherit;font-size:12px;font-weight:700;
   padding:7px 14px;cursor:pointer;white-space:nowrap;}
+
+/* ═══ مساحة للشريط السفليّ ═══
+   الشريط ثابت فوق كل شيء، فآخر عنصر في أيّ شاشة تُمرَّر يقع تحته ولا
+   يُضغط. و.screen بـposition:fixed فلا ينفع padding-bottom وحده — نضيف
+   عنصرًا فارغًا في آخر البطاقة يدفع ما قبله فوق الشريط.
+   كشفه elementFromPoint لا العين: العنصر يُرى ولا يُلمس. */
+.nav-clear{ height:92px; flex:0 0 auto; pointer-events:none; }
+
+/* فاصل بلا نقطة: النقطة تلتبس بالصفر العربي «٠». */
+.sep{display:inline-block;width:10px;}
+.sep-dot{display:inline-block;width:1px;height:9px;background:currentColor;
+  opacity:.28;margin:0 7px;vertical-align:-1px;}
+
+/* ═══ الهدف والميزان ═══ */
+.gl-ring{text-align:center;padding:14px;border-radius:18px;margin-bottom:10px;}
+.gl-pct{font-size:34px;font-weight:900;line-height:1.1;}
+.gl-label{font-size:12.5px;font-weight:800;margin-top:3px;}
+.st-done{background:rgba(31,131,103,0.14);color:#1F8367;}
+.st-ahead{background:rgba(31,131,103,0.11);color:#1F8367;}
+.st-ontrack{background:rgba(212,175,55,0.14);color:#8A6D1F;}
+.st-behind{background:rgba(190,70,60,0.11);color:#A63D33;}
+.st-none{background:rgba(127,127,127,0.10);color:var(--muted);}
+.gl-bar{position:relative;height:10px;border-radius:99px;
+  background:rgba(127,127,127,0.14);overflow:visible;}
+.gl-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--copper));}
+/* الخطّ يشير للمتوقَّع اليوم — فيرى المعلّم الفجوة لا الرقم وحده. */
+.gl-mark{position:absolute;top:-4px;width:2px;height:18px;background:var(--text);opacity:.55;border-radius:2px;}
+.gl-legend{font-size:10px;color:var(--muted);text-align:center;margin-top:6px;}
+.bm-group{margin-bottom:12px;}
+.bm-g-head{font-size:12px;font-weight:900;color:var(--copper);margin-bottom:6px;}
+.bm-row{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:11px 12px;border-radius:14px;background:var(--ivory-2);margin-bottom:6px;cursor:pointer;}
+.bm-name{font-size:13px;font-weight:800;color:var(--text);}
+.bm-juz{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;}
+.bm-state{font-size:10.5px;font-weight:800;padding:6px 10px;border-radius:10px;
+  text-align:center;flex:0 0 auto;}
+.bm-pct{display:block;font-size:12px;font-weight:900;margin-top:1px;}
+.room-track{display:inline-block;font-size:9.5px;font-weight:800;padding:2px 7px;
+  border-radius:8px;margin-right:6px;vertical-align:1px;}
+body.theme-dark .bm-row{background:rgba(255,255,255,0.05);}
+
+/* ═══ غرفة الحلقة ═══ */
+.room-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;}
+.room-row{background:var(--ivory-2);border-radius:15px;padding:11px 12px;}
+.room-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.room-name{font-size:13.5px;font-weight:800;color:var(--text);min-width:0;}
+.room-lvl{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;}
+.room-att{
+  flex:0 0 auto;padding:7px 12px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:800;border:1px solid rgba(127,127,127,0.22);
+  background:transparent;color:var(--muted);
+}
+.room-att.att-present{background:rgba(31,131,103,0.14);color:#1F8367;border-color:transparent;}
+.room-att.att-late{background:rgba(212,175,55,0.18);color:#8A6D1F;border-color:transparent;}
+.room-att.att-absent{background:rgba(190,70,60,0.13);color:#A63D33;border-color:transparent;}
+.room-asg{
+  margin-top:7px;padding:8px 10px;border-radius:11px;font-size:11.5px;font-weight:700;
+  color:var(--copper);background:rgba(212,175,55,0.10);
+  border:1px solid rgba(212,175,55,0.24);cursor:pointer;line-height:1.7;
+}
+.room-open{display:block;font-size:10px;color:var(--muted);margin-top:2px;}
+.room-acts{display:flex;gap:6px;margin-top:8px;}
+.room-chk{
+  flex:1;padding:8px 4px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:800;color:var(--muted);
+  background:rgba(255,255,255,0.6);border:1px solid rgba(127,127,127,0.16);
+}
+.room-chk.on{background:rgba(31,131,103,0.14);color:#1F8367;border-color:transparent;}
+body[data-persona="individual-female"] .room-chk.on,
+body[data-persona="teacher-female"] .room-chk.on{background:rgba(168,94,118,0.15);color:#A85E76;}
+body.theme-dark .room-row{background:rgba(255,255,255,0.05);}
+body.theme-dark .room-chk{background:rgba(255,255,255,0.07);}
 
 /* ═══ أفعال شاشة التلاوة ═══
    فعلٌ رئيسٌ واحد يملأ العرض، وصفٌّ ثانويٌّ أصغر تحته. التمييز بالحجم
@@ -4230,7 +4314,9 @@ function renderTilawaProgress(wrap){
       '<div class="dc-reset" onclick="resetTilawaPlan()">إعادة ضبط الجدول</div>' +
     '</div>';
 
-  wrap.innerHTML = pillsHTML + cardHTML;
+  /* الفاصل خارج البطاقة: البطاقة overflow:hidden فتقصّ أيّ عنصر بداخلها،
+     ووضعه خارجها هو ما يدفع المحتوى فعليًّا فوق الشريط السفليّ. */
+  wrap.innerHTML = pillsHTML + cardHTML + '<div class="nav-clear" aria-hidden="true"></div>';
   setTimeout(()=>{
     const pills = document.querySelector('.ds-inner');
     const todayPill = pills ? pills.children[todayIdx] : null;
@@ -4930,6 +5016,18 @@ function fillDaySpan(){
 /* شريطُ الوِرد: يظهر إن فُتح المصحفُ من الخطّة */
 function musWird(){
   var bar = document.getElementById('musWird');
+
+  /* سياق التكليف يتقدّم على ورد التلاوة: المعلّم فتح المصحف لطالبٍ بعينه،
+     فالشريط يعرض تكليفه وزرّ إنجازه لا ورد المعلّم الشخصيّ. */
+  if(_assignCtx){
+    var d = _musPage - _assignCtx.from + 1;
+    var n = _assignCtx.to - _assignCtx.from + 1;
+    bar.style.display = 'flex';
+    bar.innerHTML = '<span>' + musEsc(_assignCtx.label) + '</span>' +
+      '<button type="button" onclick="markAssignDone()">تمّ إنجازه</button>';
+    return;
+  }
+
   if(!_musFrom || !_musTo){ bar.style.display = 'none'; return; }
   var done = Math.min(Math.max(_musPage - _musFrom + 1, 0), _musTo - _musFrom + 1);
   var all  = _musTo - _musFrom + 1;
@@ -5074,6 +5172,7 @@ function openMushaf(from, to){
 
 function closeMushaf(){
   musReleaseAwake();
+  _assignCtx = null;          // لا يتسرّب سياق طالب إلى جلسة أخرى
   // في ارتقِ نعود للشاشة التي فُتح منها المصحف (التلاوة غالبًا)،
   // لا لشاشة قرآن ثابتة كما في زاحِم.
   const back = (typeof _musReturnScreen !== 'undefined' && _musReturnScreen) ? _musReturnScreen : 'tilawa';
@@ -8330,6 +8429,491 @@ function openStudentMore(id){
   overlay.classList.remove('hidden');
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   ربط التكليف بالمصحف
+   Linking an assignment to the actual mushaf page.
+
+   ما طلبه أرفت (ورآه في «رتّل»): يختار المعلّم سورةً وآياتٍ، فيُفتح موضعها
+   في مصحف ارتقِ نفسه — لا وصفًا نصّيًّا يبحث عنه الطالب بيده.
+
+   ما نحتاجه لذلك: صفحة بداية كل سورة في مصحف المدينة (٦٠٤ صفحة).
+   الجدول أدناه من المصحف المطبوع، والتقدير داخل السورة خطّيّ: نقسّم
+   صفحاتها على آياتها. وهذا يُصيب الصفحة أو يجاورها بصفحة، ويكفي لفتح
+   الموضع — والقارئ يرى الآية أمامه فيستقرّ.
+   ═══════════════════════════════════════════════════════════════════════ */
+const SURAH_START_PAGE = [
+  1,2,50,77,106,128,151,177,187,208,221,235,249,255,262,267,282,293,305,312,
+  322,332,342,350,359,367,377,385,391,404,411,415,418,428,434,440,446,453,458,467,
+  477,483,489,496,499,502,507,511,515,518,520,523,526,528,531,534,537,542,545,549,
+  551,553,554,556,558,560,562,564,566,568,570,572,574,575,577,578,580,582,583,585,
+  586,587,587,589,590,591,591,592,593,594,595,595,596,596,597,597,598,598,599,599,
+  600,600,601,601,602,602,603,603,604,604,604,604
+];
+
+/** صفحة بداية سورة برقمها. */
+function surahStartPage(n){
+  const i = (parseInt(n, 10) || 1) - 1;
+  return SURAH_START_PAGE[i] || 1;
+}
+
+/** صفحة نهاية سورة (بداية التالية ناقصًا واحدًا). */
+function surahEndPage(n){
+  const i = parseInt(n, 10) || 1;
+  if(i >= 114) return 604;
+  return Math.max(surahStartPage(i), surahStartPage(i + 1));
+}
+
+/**
+ * الصفحة التي تقع فيها آيةٌ من سورة — تقدير خطّيّ داخل السورة.
+ * يُصيب الصفحة أو يجاورها بواحدة، والقارئ يرى الآية فيستقرّ.
+ */
+function ayahPage(surah, ayah){
+  const from = surahStartPage(surah);
+  const to   = surahEndPage(surah);
+  const total = surahAyahCount(surah) || 1;
+  const a = Math.max(1, Math.min(total, parseInt(ayah, 10) || 1));
+  const span = Math.max(0, to - from);
+  return from + Math.floor(span * (a - 1) / total);
+}
+
+/** يفتح المصحف على موضع تكليف الطالب، ويحدّ نطاقه بصفحات التكليف. */
+function openAssignInMushaf(studentId){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const st = c.students.find(function(x){ return x.id === studentId; });
+  if(!st || !st.memoAssign){ showToast('لا يوجد تكليف محدَّد لهذا الطالب'); return; }
+  const a = st.memoAssign;
+  const p1 = ayahPage(a.surah, a.from);
+  const p2 = ayahPage(a.surah, a.to);
+  // نضع سياق التكليف ليعرضه شريط المصحف ويسجّل الإنجاز عند إتمامه.
+  _assignCtx = { studentId: studentId, label: assignmentLabel(a), from: p1, to: p2 };
+  _musReturnScreen = 'teacher';
+  closeShareSheet();
+  openMushaf(p1, p2);
+  showToast(assignmentLabel(a));
+}
+
+var _assignCtx = null;
+
+/** يسجّل إنجاز التكليف من داخل المصحف. */
+function markAssignDone(){
+  if(!_assignCtx) return;
+  const c = getActiveCircle();
+  const st = c ? c.students.find(function(x){ return x.id === _assignCtx.studentId; }) : null;
+  if(!st){ showToast('تعذّر التسجيل'); return; }
+  const k = todayKey();
+  st.roomMemo = st.roomMemo || {}; st.roomMemo[k] = true;
+  st.completion = st.completion || {}; st.completion[k] = true;
+  st.assignLog = st.assignLog || {};
+  st.assignLog[k] = _assignCtx.label;
+  saveTeacherCircles(_teacherCircles);
+  showToast('تمّ إنجاز: ' + _assignCtx.label);
+  _assignCtx = null;
+  closeMushaf();
+  try { renderAttendanceRoom(); } catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ميزان الطالب — الهدف والمسار
+   The student benchmark: goal, expected pace, and where he actually stands.
+
+   ما طلبه أرفت: أداة تُظهر حال الطالب بوضوح — متقدّم، أو على الخطة، أو
+   متأخّر — وتحديد الهدف الذي نريد بلوغه معه.
+
+   المنطق: الهدف مقدارٌ وموعد. منهما يُشتقّ **الإيقاع المتوقَّع**، ومنه
+   يُقاس أين ينبغي أن يكون اليوم. ثم نقارن بما حفظ فعلًا.
+
+   ولماذا لا نقارن الطلاب ببعضهم: لأن التفاوت بينهم طبيعيّ ومقصود —
+   قسّمناهم مستوياتٍ لهذا السبب. فالمقارنة هنا **بين الطالب وخطّته هو**،
+   لا بينه وبين زميله. وهذا أعدل وأدعى للاستمرار.
+
+   وهامش التساهل ٥٪: من سبق خطّته بيومٍ ليس «متقدّمًا» ومن تأخّر بيوم
+   ليس «متأخّرًا» — والتصنيف الحادّ يُقلق بلا سبب.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** تمييز «جزء» الصحيح: ١ جزء · ٢ جزءان · ٣–١٠ أجزاء · ١١+ جزءًا. */
+function juzWord(n){
+  if(n === 1) return 'جزء';
+  if(n === 2) return 'جزءان';
+  if(n <= 10) return 'أجزاء';
+  return 'جزءًا';
+}
+
+/** هدف الطالب: {juz, weeks, startISO, startJuz} */
+function getStudentGoal(st){
+  return (st && st.goal) || null;
+}
+
+function setStudentGoal(studentId, juz, weeks){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; }); if(!st) return;
+  const j = Math.max(1, Math.min(30, parseInt(arToNum(juz), 10) || 1));
+  const w = Math.max(1, Math.min(260, parseInt(arToNum(weeks), 10) || 1));
+  st.goal = { juz: j, weeks: w, startISO: getTodayISO(),
+              startJuz: getStudentJuzMemorized(st) };
+  saveTeacherCircles(_teacherCircles);
+  showToast('هدف ' + st.name + ': ' + toAr(j) + ' ' + juzWord(j) +
+            ' في ' + toAr(w) + ' ' + (w === 1 ? 'أسبوع' : w === 2 ? 'أسبوعان' : w <= 10 ? 'أسابيع' : 'أسبوعًا'));
+  renderGoalPanel(studentId);
+}
+
+function clearStudentGoal(studentId){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; }); if(!st) return;
+  delete st.goal;
+  saveTeacherCircles(_teacherCircles);
+  renderGoalPanel(studentId);
+}
+
+/**
+ * موضع الطالب من هدفه.
+ * @returns {null|{pct,expected,actual,gained,target,weeksLeft,state,label,cls,diff}}
+ */
+function planStatus(st){
+  const g = getStudentGoal(st);
+  if(!g) return null;
+  const now = getStudentJuzMemorized(st);
+  const gained = Math.max(0, now - (g.startJuz || 0));   // ما أُنجز منذ وضع الهدف
+  const target = Math.max(1, g.juz);
+  const start = new Date(g.startISO);
+  const daysGone = Math.max(0, Math.round((Date.now() - start.getTime()) / 86400000));
+  const daysAll = g.weeks * 7;
+  const timePct = Math.min(1, daysGone / Math.max(1, daysAll));
+  const expected = target * timePct;                      // ما ينبغي أن يكون أنجزه
+  const actual = gained;
+  const pct = Math.round(Math.min(1, actual / target) * 100);
+  const diff = actual - expected;
+
+  // الهامش نسبةٌ من الهدف لا رقمٌ ثابت، فيناسب الهدف الصغير والكبير.
+  const tol = Math.max(0.35, target * 0.05);
+  let state, label, cls;
+  if(actual >= target){ state = 'done'; label = 'بلغ الهدف'; cls = 'st-done'; }
+  else if(diff > tol){ state = 'ahead'; label = 'متقدّم على خطّته'; cls = 'st-ahead'; }
+  else if(diff < -tol){ state = 'behind'; label = 'متأخّر عن خطّته'; cls = 'st-behind'; }
+  else { state = 'ontrack'; label = 'على الخطّة'; cls = 'st-ontrack'; }
+
+  return {
+    pct: pct, expected: Math.round(expected * 10) / 10, actual: actual,
+    target: target, weeksLeft: Math.max(0, Math.ceil((daysAll - daysGone) / 7)),
+    state: state, label: label, cls: cls, diff: Math.round(diff * 10) / 10
+  };
+}
+
+/** حالة الطالب مختصرةً للعرض بجانب اسمه. */
+function onTrack(st){
+  const p = planStatus(st);
+  return p ? p.label : null;
+}
+
+/** لوحة الهدف لطالب. */
+function renderGoalPanel(studentId){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === studentId; }); if(!st) return;
+  const g = getStudentGoal(st);
+  const ps = planStatus(st);
+  const now = getStudentJuzMemorized(st);
+
+  let html = '<div class="share-sheet-title">هدف ' + musEsc(st.name) + '</div>';
+  html += '<div class="hifz-setup-sub" style="margin-bottom:12px;">يحفظ الآن ' +
+    (now ? toAr(now) + ' ' + juzWord(now) : 'لا شيء بعد') + '</div>';
+
+  if(ps){
+    html += '<div class="gl-ring ' + ps.cls + '">' +
+      '<div class="gl-pct">' + toAr(ps.pct) + '٪</div>' +
+      '<div class="gl-label">' + ps.label + '</div>' +
+    '</div>';
+    html += '<div class="gl-bar"><div class="gl-fill" style="width:' + ps.pct + '%"></div>' +
+      '<div class="gl-mark" style="right:' + Math.round(Math.min(100, ps.expected / ps.target * 100)) + '%"></div></div>';
+    html += '<div class="gl-legend">الخطّ يشير إلى ما ينبغي بلوغه اليوم</div>';
+    html += '<div class="tree-summary" style="margin-top:12px;">' +
+      '<span>أنجز ' + toAr(ps.actual) + '</span><span class="sep-dot"></span>' +
+      '<span>المتوقَّع ' + toAr(ps.expected) + '</span><span class="sep-dot"></span>' +
+      '<span>الهدف ' + toAr(ps.target) + '</span>' +
+      (ps.weeksLeft ? '<span class="sep-dot"></span><span>بقي ' + toAr(ps.weeksLeft) + ' أسبوعًا</span>' : '') +
+    '</div>';
+  } else {
+    html += '<div class="hifz-rest-day">لم يُحدَّد هدف بعد</div>';
+  }
+
+  html += '<div class="asg-row" style="margin-top:14px;">' +
+    '<div class="asg-field"><label>الهدف (أجزاء)</label>' +
+      '<input type="text" inputmode="numeric" id="gl-juz" value="' + toAr(g ? g.juz : 1) + '"></div>' +
+    '<div class="asg-field"><label>خلال (أسابيع)</label>' +
+      '<input type="text" inputmode="numeric" id="gl-weeks" value="' + toAr(g ? g.weeks : 12) + '"></div>' +
+  '</div>';
+  html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="setStudentGoal(' + st.id +
+    ', document.getElementById(\'gl-juz\').value, document.getElementById(\'gl-weeks\').value)">' +
+    (g ? 'تحديث الهدف' : 'حدّد الهدف') + '</button>';
+  if(g) html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="clearStudentGoal(' + st.id + ')">حذف الهدف</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="renderAttendanceRoom()">→ غرفة الحلقة</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/* ═══ ميزان المستوى ═══
+   يعرض المستويات، وفي كل مستوى طلابه وحالة كلٍّ منهم من خطّته. */
+function openLevelBenchmark(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  const c = getActiveCircle(); if(!c){ showToast('اختر حلقة أولًا'); return; }
+  const dist = groupedStudents(c);
+
+  let html = '<div class="share-sheet-title">ميزان ' + musEsc(c.name) + '</div>' +
+    '<div class="hifz-setup-sub" style="margin-bottom:12px;line-height:1.8;">' +
+      'كلّ طالب يُقاس بخطّته هو لا بزملائه — فالتفاوت بين المستويات مقصود.' +
+    '</div>';
+
+  let none = 0;
+  dist.forEach(function(d){
+    if(!d.students.length) return;
+    html += '<div class="bm-group"><div class="bm-g-head">' + musEsc(d.group.name) + '</div>';
+    d.students.forEach(function(st){
+      const ps = planStatus(st);
+      if(!ps) none++;
+      html += '<div class="bm-row" role="button" tabindex="0" onclick="renderGoalPanel(' + st.id + ')">' +
+        '<div class="bm-name">' + musEsc(st.name) +
+          '<span class="bm-juz">' + toAr(getStudentJuzMemorized(st)) + ' جزءًا</span></div>' +
+        (ps
+          ? '<div class="bm-state ' + ps.cls + '">' + ps.label +
+            '<span class="bm-pct">' + toAr(ps.pct) + '٪</span></div>'
+          : '<div class="bm-state st-none">حدّد هدفه</div>') +
+      '</div>';
+    });
+    html += '</div>';
+  });
+  if(none){
+    html += '<div class="wp-note">' + toAr(none) + ' من الطلاب بلا هدف محدَّد — اضغط اسم الطالب لتحديده.</div>';
+  }
+  html += '<button class="hifz-edit-btn" style="margin-top:10px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   غرفة الحضور
+   The attendance room: one screen for the whole session.
+
+   ما يحتاجه المعلّم في الحلقة، والحلقة تمرّ سريعًا:
+     حضور · حفظ · مراجعة · المقرّر المطلوب · أُنجز أم لا · تأخّر
+
+   وكان هذا مبعثرًا: الحضور في بطاقة الطالب، والإتقان في أخرى، والتكليف
+   في لوحة ثالثة. فالمعلّم يفتح ويُغلق ثلاث مرّات لكلّ طالب — وعنده
+   عشرون. الغرفة تجمعها في صفٍّ واحد لكلّ طالب، بلمسات لا بفتحٍ وإغلاق.
+
+   والمستوى يُعرض بجانب الاسم دائمًا، فالمعلّم يعرف لمن يُسمّع قبل أن يبدأ.
+   ═══════════════════════════════════════════════════════════════════════ */
+var _roomGroup = 'all';   // تصفية بالمستوى
+
+function openAttendanceRoom(){
+  const c = getActiveCircle();
+  if(!c){ showToast('اختر حلقة أولًا'); return; }
+  if(!c.students.length){ showToast('أضف طلابك أولًا من «بناء الحلقة»'); return; }
+  renderAttendanceRoom();
+}
+
+function setRoomGroup(g){ _roomGroup = g; renderAttendanceRoom(); }
+
+/** حالة اليوم لطالب: حضور، حفظ، مراجعة. */
+function roomState(st){
+  const k = todayKey();
+  return {
+    att:  (st.attendance && st.attendance[k]) || null,
+    memo: !!(st.roomMemo && st.roomMemo[k]),
+    rev:  !!(st.roomRev && st.roomRev[k])
+  };
+}
+
+/** يدوّر الحضور: حاضر ← متأخّر ← غائب ← بلا. */
+function roomCycleAtt(id){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === id; }); if(!st) return;
+  const k = todayKey();
+  const order = [null, 'present', 'late', 'absent'];
+  st.attendance = st.attendance || {};
+  const cur = st.attendance[k] || null;
+  const nx = order[(order.indexOf(cur) + 1) % order.length];
+  if(nx) st.attendance[k] = nx; else delete st.attendance[k];
+  saveTeacherCircles(_teacherCircles);
+  renderAttendanceRoom();
+}
+
+/** يقلب إنجاز الحفظ أو المراجعة لليوم. */
+function roomToggle(id, which){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === id; }); if(!st) return;
+  const k = todayKey();
+  const field = which === 'memo' ? 'roomMemo' : 'roomRev';
+  st[field] = st[field] || {};
+  if(st[field][k]) delete st[field][k]; else st[field][k] = true;
+  // إنجاز الحفظ يُسجَّل في الإنجاز العام أيضًا، فلا يُدخل المعلّم الشيء مرّتين.
+  if(which === 'memo'){
+    st.completion = st.completion || {};
+    if(st.roomMemo[k]) st.completion[k] = true; else delete st.completion[k];
+  }
+  saveTeacherCircles(_teacherCircles);
+  renderAttendanceRoom();
+}
+
+/** تقييم الأداء: نسبة من الحضور والإنجاز والإتقان معًا. */
+function performanceScore(st){
+  /* لا نقيس بأسبوعٍ يبدأ من السبت: يوم السبت نفسه يعطي مفتاحًا واحدًا،
+     فيصير تقييم كلّ الطلاب «لم يبدأ» مهما كان سجلّهم — وهو ما كشفته
+     المحاكاة. نقيس آخر أربعة عشر يومًا: مدّة كافية لحكمٍ عادل، وقريبة
+     بما يكفي لتعكس حال الطالب اليوم لا قبل شهر. */
+  const keys = [];
+  for(let i = 0; i < 14; i++){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    keys.push(d.toDateString());
+  }
+  let att = 0, done = 0, rated = 0, mastered = 0;
+  keys.forEach(function(k){
+    const a = (st.attendance || {})[k];
+    if(a === 'present') att += 1; else if(a === 'late') att += 0.5;
+    if((st.completion || {})[k]) done++;
+    const m = (st.mastery || {})[k];
+    if(m){ rated++; if(m === 'mastered') mastered++; }
+  });
+  /* المقام أيّام انعقاد الحلقة لا أيّام التقويم: الجمعة والسبت عطلة،
+     فقسمتها على أربعة عشر تظلم كلّ طالب بخمسي درجته. */
+  let meetDays = 0;
+  keys.forEach(function(k){ if((st.attendance || {})[k] !== undefined) meetDays++; });
+  const n = Math.max(1, meetDays);
+  const pAtt  = att / n;
+  const pDone = done / n;
+  const pMast = rated ? (mastered / rated) : 0;
+  // الحضور وحده لا يكفي، والإتقان أثقلها لأنه ثمرة الحفظ لا مجرّد حضوره.
+  const score = Math.round((pAtt * 0.25 + pDone * 0.35 + pMast * 0.40) * 100);
+  let label, cls;
+  if(score >= 85){ label = 'ممتاز'; cls = 'exc'; }
+  else if(score >= 70){ label = 'جيد جدًا'; cls = 'vg'; }
+  else if(score >= 50){ label = 'جيد'; cls = 'gd'; }
+  else if(rated || done || att){ label = 'يحتاج متابعة'; cls = 'lw'; }
+  else { label = 'لم يبدأ'; cls = 'na'; }
+  return { score: score, label: label, cls: cls, rated: rated };
+}
+
+function renderAttendanceRoom(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  const c = getActiveCircle(); if(!c) return;
+  const gs = circleGroups(c);
+  const dist = groupedStudents(c);
+
+  let list = [];
+  dist.forEach(function(d){
+    if(_roomGroup === 'all' || _roomGroup === d.group.id){
+      d.students.forEach(function(st){ list.push({ st: st, g: d.group }); });
+    }
+  });
+
+  const k = todayKey();
+  const present = c.students.filter(function(x){ return (x.attendance||{})[k] === 'present'; }).length;
+  const late    = c.students.filter(function(x){ return (x.attendance||{})[k] === 'late'; }).length;
+  const absent  = c.students.filter(function(x){ return (x.attendance||{})[k] === 'absent'; }).length;
+  const doneN   = c.students.filter(function(x){ return (x.roomMemo||{})[k]; }).length;
+
+  let html = '<div class="share-sheet-title">غرفة الحلقة — ' + musEsc(c.name) + '</div>';
+  // لا نعرض القيم الصفرية: الصفر العربي نقطة، فيلتبس بالفاصل ولا يفيد.
+  const bits = [];
+  if(present) bits.push('حاضر ' + toAr(present));
+  if(late)    bits.push('متأخّر ' + toAr(late));
+  if(absent)  bits.push('غائب ' + toAr(absent));
+  if(doneN)   bits.push('سمّع ' + toAr(doneN));
+  html += '<div class="tree-summary">' +
+    (bits.length
+      ? bits.map(function(x){ return '<span>' + x + '</span>'; }).join('<span class="sep-dot"></span>')
+      : '<span>لم يُسجَّل شيء بعد اليوم</span>') +
+  '</div>';
+
+  // تصفية بالمستوى
+  html += '<div class="pill-tabs">' +
+    '<button type="button" class="pill-tab' + (_roomGroup==='all'?' is-active':'') +
+      '" onclick="setRoomGroup(\'all\')">الكل</button>' +
+    gs.map(function(g){
+      return '<button type="button" class="pill-tab' + (_roomGroup===g.id?' is-active':'') +
+        '" onclick="setRoomGroup(\'' + g.id + '\')">' + musEsc(g.name) + '</button>';
+    }).join('') + '</div>';
+
+  if(!list.length){
+    html += '<div class="hifz-rest-day">لا طلاب في هذا المستوى</div>';
+  }
+
+  html += '<div class="room-list">';
+  list.forEach(function(row){
+    const st = row.st, s2 = roomState(st);
+    const juz = getStudentJuzMemorized(st);
+    const asg = st.memoAssign ? assignmentLabel(st.memoAssign) : (st.memoPlan || '');
+    const attCls = s2.att || 'none';
+    const attTxt = s2.att === 'present' ? 'حاضر' : s2.att === 'late' ? 'متأخّر'
+                 : s2.att === 'absent' ? 'غائب' : 'الحضور';
+    html += '<div class="room-row">' +
+      '<div class="room-top">' +
+        '<div class="room-name" role="button" tabindex="0" onclick="renderGoalPanel(' + st.id + ')">' +
+          musEsc(st.name) +
+          (function(){ const ps = planStatus(st);
+            return ps ? '<span class="room-track ' + ps.cls + '">' + ps.label + '</span>' : ''; })() +
+          /* الفاصل «·» يُرسم نقطةً، والصفر العربي «٠» نقطةٌ أيضًا — فهما
+             متطابقان بصريًّا. «المبتدئون · ١ جزءًا» تُقرأ «المبتدئون ١٠».
+             فنفصل بفراغٍ منسَّق لا بنقطة كلّما جاور الفاصلُ رقمًا. */
+          '<span class="room-lvl">' + musEsc(row.g.name) +
+            (juz ? '<span class="sep"></span>' + toAr(juz) + ' ' +
+                   juzWord(juz) : '') +
+          '</span>' +
+        '</div>' +
+        '<button type="button" class="room-att att-' + attCls + '" ' +
+          'onclick="roomCycleAtt(' + st.id + ')">' + attTxt + '</button>' +
+      '</div>' +
+      (asg ? '<div class="room-asg" ' +
+        (st.memoAssign ? 'role="button" tabindex="0" onclick="openAssignInMushaf(' + st.id + ')"' : '') +
+        '>' + musEsc(asg) +
+        (st.memoAssign ? '<span class="room-open">افتح في المصحف</span>' : '') + '</div>' : '') +
+      '<div class="room-acts">' +
+        '<button type="button" class="room-chk' + (s2.memo?' on':'') +
+          '" onclick="roomToggle(' + st.id + ',\'memo\')">' +
+          (s2.memo ? '✓ ' : '') + 'الحفظ</button>' +
+        '<button type="button" class="room-chk' + (s2.rev?' on':'') +
+          '" onclick="roomToggle(' + st.id + ',\'rev\')">' +
+          (s2.rev ? '✓ ' : '') + 'المراجعة</button>' +
+        '<button type="button" class="room-chk mast" onclick="cycleMastery(' + st.id + ');renderAttendanceRoom();">' +
+          (function(){ const m = (st.mastery||{})[todayKey()];
+            return m === 'mastered' ? '✓ أتقن' : m === 'partial' ? 'تثبيت' : m === 'weak' ? 'لم يتقن' : 'التقويم'; })() +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+
+  html += '<button class="hifz-save-btn" style="margin-top:10px;" onclick="openLevelBenchmark()">ميزان المستويات والأهداف</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="sendRoomSummary()">إرسال ملخّص اليوم</button>';
+  html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/** ملخّص اليوم للحلقة كلها. */
+function sendRoomSummary(){
+  const c = getActiveCircle(); if(!c) return;
+  const k = todayKey();
+  let m = 'حلقة ' + c.name + ' — ' + planDateAr(new Date()) + '\n——————————————\n';
+  groupedStudents(c).forEach(function(d){
+    if(!d.students.length) return;
+    m += '\n' + d.group.name + ':\n';
+    d.students.forEach(function(st){
+      const a = (st.attendance||{})[k];
+      const tag = a === 'present' ? 'حاضر' : a === 'late' ? 'متأخّر' : a === 'absent' ? 'غائب' : '—';
+      const done = (st.roomMemo||{})[k] ? ' · سمّع' : '';
+      m += '  ' + st.name + ': ' + tag + done + '\n';
+    });
+  });
+  m += '——————————————\nبارك الله فيهم';
+  shareText(m, 'ملخّص الحلقة');
+}
+
 /** شجرة الحلقة: المجموعات ثم طلابها، مع نقلهم بينها. */
 function renderCircleTree(){
   const panel = document.getElementById('share-sheet-panel');
@@ -8471,7 +9055,7 @@ function renderUsraView(wrap){
     '<div class="rq-name">' + musEsc(u.name) + '</div>' +
     '<div class="rq-meta">' + toAr(u.members.length) + ' من الأسرة' +
       (boys && girls ? ' · ' + toAr(boys) + ' ذكور و' + toAr(girls) + ' إناث' : '') +
-      (juz ? ' · ' + toAr(juz) + ' جزءًا' : '') +
+      (juz ? ' · ' + toAr(juz) + ' ' + juzWord(juz) : '') +
       ' · سمّع اليوم ' + toAr(todayLog.length) +
     '</div>' +
   '</div>';
@@ -8492,7 +9076,7 @@ function renderUsraView(wrap){
             '<span class="rq-m-name">' + musEsc(m.name) +
               ' <span class="usra-kin">' + m.kin + '</span></span>' +
             '<span class="rq-m-week">' + toAr(x.done) + ' من ' + toAr(x.total) + ' يوم · ' +
-              (m.juz ? toAr(m.juz) + ' جزءًا' : 'بلا مستوى') + '</span>' +
+              (m.juz ? toAr(m.juz) + ' ' + juzWord(m.juz) : 'بلا مستوى') + '</span>' +
           '</div>' +
           '<button type="button" class="rq-m-del" onclick="removeUsraMember(\'' + m.id + '\')" aria-label="حذف">×</button>' +
         '</div>' +
@@ -8730,7 +9314,7 @@ function cardCircleTree(){
     rows: dist.filter(function(d){ return d.students.length; }).slice(0,4).map(function(d){
       return [d.group.name, toAr(d.students.length) + ' · ' + toAr(d.group.from) + '–' + toAr(d.group.to) + ' جزءًا'];
     }),
-    note: juz ? ('محفوظ الحلقة ' + toAr(juz) + ' جزءًا') : ''
+    note: juz ? ('محفوظ الحلقة ' + toAr(juz) + ' ' + juzWord(juz)) : ''
   });
 }
 
@@ -8748,7 +9332,7 @@ function cardUsra(){
     pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'التزام الأسرة هذا الأسبوع',
     rows: st.slice(0,3).map(function(x){
       return [x.member.name + ' · ' + x.member.kin, toAr(x.done) + ' من ' + toAr(x.total) + ' يوم'];
-    }).concat([['محفوظ الأسرة', toAr(juz) + ' جزءًا']]),
+    }).concat([['محفوظ الأسرة', toAr(juz) + ' ' + juzWord(juz)]]),
     note:'بارك الله في بيتكم'
   });
 }
@@ -10571,6 +11155,7 @@ function renderCircleDetail(wrap, circle){
   if(_tl) html += '<button class="hifz-edit-btn" style="text-align:right;margin-top:0;display:flex;align-items:center;gap:6px;" onclick="setAssistantTeacher()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="7" y1="9" x2="12" y2="9"/><line x1="7" y1="13" x2="10" y2="13"/><line x1="16" y1="9" x2="16" y2="13"/><line x1="14" y1="11" x2="18" y2="11"/></svg> ' +
     (circle.assistantName ? 'المعلم المساعد: ' + circle.assistantName : 'إضافة معلم مساعد') + '</button>';
 
+  if(_st) html += '<button class="hifz-save-btn" style="text-align:center;margin-bottom:10px;" onclick="openAttendanceRoom()">غرفة الحلقة — الحضور والتسميع</button>';
   if(_tl) html += '<button class="hifz-save-btn" style="text-align:center;margin-bottom:8px;" onclick="openCircleWizard()">بناء الحلقة — أضف طلابك بثلاث خطوات</button>';
   if(_tl) html += '<button class="hifz-edit-btn" style="text-align:center;margin-bottom:10px;" onclick="renderCircleTree()">شجرة الحلقة — المجموعات والمستويات</button>';
   if(_tl) html += '<div class="teacher-add-card">' +
@@ -12481,7 +13066,7 @@ function cardCircleSummary(id){
     pct:pct, big:toAr(Math.round(pct*100)) + '٪', bigLabel:'إنجاز هذا الأسبوع',
     rows:[
       ['عدد الطلاب', toAr(c.students.length)],
-      ['محفوظ الحلقة', toAr(juz) + ' جزءًا'],
+      ['محفوظ الحلقة', toAr(juz) + ' ' + juzWord(juz)],
       ['إنجاز الأسبوع', toAr(cs.weekCompletedSum) + ' من ' + toAr(cs.weekPossible)],
       ['إنجاز الشهر', toAr(cs.monthCompletedSum) + ' من ' + toAr(cs.monthPossible)]
     ],
