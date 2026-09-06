@@ -2006,6 +2006,110 @@ body.theme-dark #screen-mushaf .mus-msg b{color:#141C17;}
 .sep-dot{display:inline-block;width:1px;height:9px;background:currentColor;
   opacity:.28;margin:0 7px;vertical-align:-1px;}
 
+/* ═══ اللصق الذكيّ ═══ */
+.wz-paste-row{display:flex;gap:6px;margin-bottom:8px;}
+.wz-paste-row .dictate-btn{margin-bottom:0;flex:1;}
+.wz-paste{
+  flex:1;padding:9px 12px;border-radius:12px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:800;color:var(--copper);
+  background:rgba(212,175,55,0.10);border:1px dashed rgba(212,175,55,0.4);
+}
+#wz-preview{margin-top:4px;}
+.pv-head{font-size:11px;font-weight:800;color:#1F8367;margin-bottom:6px;text-align:center;}
+.pv-list{background:var(--ivory-2);border-radius:12px;padding:8px 10px;}
+.pv-row{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;
+  padding:3px 0;color:var(--text);font-weight:700;}
+.pv-j{color:var(--copper);font-weight:800;}
+.pv-more{font-size:10px;color:var(--muted);text-align:center;margin-top:4px;}
+body[data-persona="individual-female"] .pv-head,
+body[data-persona="teacher-female"] .pv-head{color:#A85E76;}
+body.theme-dark .pv-list{background:rgba(255,255,255,0.06);}
+
+/* ═══ القائمة المضغوطة ═══ */
+.room-list{display:flex;flex-direction:column;gap:5px;max-height:56vh;overflow-y:auto;}
+.rl-row{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:13px;
+  background:var(--ivory-2);cursor:pointer;transition:transform .12s ease;
+}
+.rl-row:active{transform:scale(.99);}
+.rl-body{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer;}
+/* العلامة: خضراء حاضر · حمراء غائب · صفراء متأخّر · فارغة لم يُسجَّل */
+.rl-mark{
+  width:34px;height:34px;flex:0 0 auto;border-radius:50%;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:900;
+  border:2px solid rgba(127,127,127,0.26);background:transparent;color:transparent;
+  transition:background .14s ease,border-color .14s ease;
+}
+.rl-mark.mk-ok{background:#1F8367;border-color:#1F8367;color:#fff;}
+.rl-mark.mk-no{background:#BE463C;border-color:#BE463C;color:#fff;}
+.rl-mark.mk-late{background:#D4AF37;border-color:#D4AF37;color:#3B2A06;}
+.rl-tools{display:flex;gap:6px;margin-bottom:8px;}
+.rl-tools button{
+  flex:1;padding:9px 6px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11px;font-weight:800;color:var(--muted);
+  background:var(--ivory-2);border:1px solid rgba(127,127,127,0.16);
+}
+body.theme-dark .rl-tools button{background:rgba(255,255,255,0.06);}
+.rl-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+.rl-done{background:#1F8367;}
+.rl-wait{background:rgba(127,127,127,0.3);}
+.rl-abs{background:rgba(190,70,60,0.5);}
+.rl-info{flex:1;min-width:0;}
+.rl-name{display:block;font-size:13.5px;font-weight:800;color:var(--text);}
+.rl-meta{display:block;font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;}
+.rl-att{font-size:10.5px;font-weight:800;padding:5px 9px;border-radius:9px;flex:0 0 auto;
+  background:rgba(127,127,127,0.10);color:var(--muted);}
+.rl-att.att-present{background:rgba(31,131,103,0.14);color:#1F8367;}
+.rl-att.att-late{background:rgba(212,175,55,0.18);color:#8A6D1F;}
+.rl-att.att-absent{background:rgba(190,70,60,0.12);color:#A63D33;}
+body.theme-dark .rl-row{background:rgba(255,255,255,0.05);}
+
+/* ═══ وضع التسميع ═══ */
+.rc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.rc-back{background:none;border:none;font-family:inherit;font-size:12px;font-weight:800;
+  color:var(--muted);cursor:pointer;padding:6px 2px;}
+.rc-nav{display:flex;gap:6px;}
+.rc-arrow{width:38px;height:38px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:19px;font-weight:900;color:var(--copper);
+  background:var(--ivory-2);border:1px solid rgba(127,127,127,0.14);}
+.rc-name{font-size:24px;font-weight:900;color:var(--text);text-align:center;}
+.rc-sub{font-size:11px;color:var(--muted);font-weight:700;text-align:center;margin-top:3px;}
+.rc-track{padding:2px 8px;border-radius:8px;font-size:10px;}
+.rc-asg{margin-top:14px;padding:16px 14px;border-radius:16px;text-align:center;cursor:pointer;
+  background:rgba(212,175,55,0.12);border:1px solid rgba(212,175,55,0.3);}
+.rc-asg-empty{background:rgba(127,127,127,0.07);border-color:rgba(127,127,127,0.2);}
+.rc-asg-t{font-size:16px;font-weight:900;color:var(--text);line-height:1.7;}
+.rc-asg-s{font-size:10.5px;color:var(--muted);margin-top:4px;}
+.rc-att-row{display:flex;gap:6px;margin-top:12px;}
+.rc-att{flex:1;padding:11px 4px;border-radius:12px;cursor:pointer;font-family:inherit;
+  font-size:12px;font-weight:800;color:var(--muted);
+  background:var(--ivory-2);border:1.5px solid transparent;}
+.rc-att.att-present.on{background:rgba(31,131,103,0.16);color:#1F8367;border-color:#1F8367;}
+.rc-att.att-late.on{background:rgba(212,175,55,0.2);color:#8A6D1F;border-color:#D4AF37;}
+.rc-att.att-absent.on{background:rgba(190,70,60,0.14);color:#A63D33;border-color:#BE463C;}
+.rc-acts{display:flex;gap:8px;margin-top:10px;}
+.rc-act{flex:1;padding:16px 8px;border-radius:16px;cursor:pointer;font-family:inherit;
+  background:var(--ivory-2);border:1.5px solid transparent;text-align:center;}
+.rc-act.on{background:rgba(31,131,103,0.13);border-color:rgba(31,131,103,0.35);}
+.rc-act-t{display:block;font-size:15px;font-weight:900;color:var(--text);}
+.rc-act-s{display:block;font-size:10px;color:var(--muted);margin-top:3px;}
+.rc-mast-row{display:flex;gap:6px;margin-top:10px;}
+.rc-mast{flex:1;padding:11px 4px;border-radius:12px;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:800;color:var(--muted);
+  background:var(--ivory-2);border:1.5px solid transparent;}
+.rc-mast.m-mastered.on{background:rgba(31,131,103,0.16);color:#1F8367;border-color:#1F8367;}
+.rc-mast.m-partial.on{background:rgba(212,175,55,0.2);color:#8A6D1F;border-color:#D4AF37;}
+.rc-mast.m-weak.on{background:rgba(190,70,60,0.14);color:#A63D33;border-color:#BE463C;}
+.rc-more{display:flex;gap:6px;margin-top:14px;}
+.rc-more button{flex:1;padding:9px 4px;border-radius:11px;cursor:pointer;font-family:inherit;
+  font-size:11px;font-weight:800;color:var(--muted);background:none;
+  border:1px solid rgba(127,127,127,0.2);}
+body[data-persona="individual-female"] .rc-act.on,
+body[data-persona="teacher-female"] .rc-act.on{
+  background:rgba(168,94,118,0.14);border-color:rgba(168,94,118,0.35);}
+body.theme-dark .rc-arrow,body.theme-dark .rc-att,
+body.theme-dark .rc-act,body.theme-dark .rc-mast{background:rgba(255,255,255,0.06);}
+
 /* ═══ الهدف والميزان ═══ */
 .gl-ring{text-align:center;padding:14px;border-radius:18px;margin-bottom:10px;}
 .gl-pct{font-size:34px;font-weight:900;line-height:1.1;}
@@ -8291,11 +8395,19 @@ function renderWizard(){
     const target = parseInt(arToNum(_wz.count), 10) || 0;
     const have = _wz.names.length;
     html += '<div class="wz-body">' +
-      '<div class="wz-q">اكتب الأسماء — اسمًا في كل سطر</div>' +
-      '<textarea class="hifz-day-input" id="wz-names" style="width:100%;height:170px;" ' +
-        'oninput="_wz.namesRaw=this.value" ' +
-        'placeholder="أحمد&#10;محمد&#10;عبدالله">' + (_wz.namesRaw || '') + '</textarea>' +
-      dictateBtn('wz-names','names','إملاء الأسماء') +
+      '<div class="wz-q">الصق قائمتك — أو اكتبها، أو أملِها صوتًا</div>' +
+      '<div class="wz-hint" style="margin:0 0 8px;">' +
+        'انسخها من واتساب كما هي: الترقيم والشرطات والأرقام كلّها مفهومة.' +
+      '</div>' +
+      '<textarea class="hifz-day-input" id="wz-names" style="width:100%;height:150px;" ' +
+        'oninput="_wz.namesRaw=this.value; previewPaste();" ' +
+        'placeholder="١- أحمد المطيري ٨ أجزاء&#10;٢- محمد الشهري - ٣&#10;٣- سعد">' +
+        (_wz.namesRaw || '') + '</textarea>' +
+      '<div class="wz-paste-row">' +
+        dictateBtn('wz-names','names','إملاء') +
+        '<button type="button" class="wz-paste" onclick="pasteFromClipboard()">لصق من الحافظة</button>' +
+      '</div>' +
+      '<div id="wz-preview"></div>' +
       '<div class="wz-hint" id="wz-count-hint">' +
         (target ? ('المطلوب ' + toAr(target) + ' — اكتب ما تيسّر') : '') + '</div>' +
       '<button class="hifz-save-btn" style="margin-top:10px;" onclick="wizToSort()">التالي: التصنيف</button>' +
@@ -8346,33 +8458,175 @@ function wizToNames(){
 }
 
 /** يحوّل الأسماء المكتوبة إلى طلاب. */
+/* ═══════════════════════════════════════════════════════════════════════
+   اللصق الذكيّ
+   Smart paste: read the teacher's list however he already has it.
+
+   الملاحظة التي بُني عليها: معلّم الحلقة نادرًا ما يكتب الأسماء من رأسه.
+   عنده رسالةُ واتساب من إدارة المسجد، أو ورقةُ كشفٍ مطبوعة، أو جدولٌ في
+   تطبيقٍ آخر. فالكتابة اليدويّة آخرُ ما يلجأ إليه — وكنّا جعلناها الطريق
+   الوحيد.
+
+   فالمحلّل يقبل ما يجده كما هو:
+     ١- أحمد المطيري          ← ترقيم عربيّ أو لاتينيّ، نقطة أو شرطة
+     أحمد المطيري ٨ أجزاء     ← المستوى منطوقًا
+     أحمد - 8                 ← شرطة وأرقام لاتينيّة
+     أحمد، ٨                  ← الصيغة التي نكتبها نحن
+     • أحمد                   ← نقاط التعداد
+     أحمد 0501234567          ← رقم جوّال يُلتقط ولا يُخلط بالمستوى
+
+   والقاعدة الحاسمة في التمييز: رقمٌ من ٩ خانات فأكثر جوّال، وما دون
+   الثلاثين مستوى. فلا يصير «٠٥٠١٢٣٤٥٦٧» ثلاثين جزءًا.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/** يزيل التشكيل وعلامات التعداد والترقيم من أوّل السطر. */
+function stripListMarkers(line){
+  var t = String(line || '');
+  t = t.replace(/[\u064B-\u0652\u0670]/g, '');          // التشكيل
+  t = t.replace(/^[\s\u200f\u200e]*/, '');              // محارف الاتجاه
+  t = t.replace(/^[-–—•*·●◦▪]+\s*/, '');                  // نقاط التعداد
+  t = t.replace(/^[\d\u0660-\u0669]+\s*[-.):\u060C]\s*/, ''); // ١- أو 1. أو ٢)
+  return t.trim();
+}
+
+/**
+ * يقرأ سطرًا واحدًا ويُخرج {name, juz, phone} — أو null إن لم يكن اسمًا.
+ */
+function parseStudentLine(line){
+  var t = stripListMarkers(line);
+  if(!t) return null;
+
+  // سطور ليست أسماءً: عناوين ورؤوس جداول شائعة في الكشوف.
+  /* رؤوس الكشوف تُلصق مع الأسماء دائمًا. نستبعد السطر إن كان رأسًا
+     مجرّدًا، أو إن بدأ بكلمةٍ لا تكون اسمًا («كشف حلقة الفجر»). */
+  if(/^(الاسم|اسم الطالب|م|#|رقم|الطلاب|كشف|الحلقة|المستوى|الجوال|ملاحظات|التاريخ|اليوم)\s*$/.test(t)) return null;
+  /* \b لا يعمل مع العربية في JS — حدود الكلمات فيه للحروف اللاتينية.
+     فنقارن الكلمة الأولى صراحةً. */
+  var w0 = t.split(/\s+/)[0];
+  if(['كشف','قائمة','أسماء','اسماء','جدول','حلقة','الحلقة','مسجد','تقرير','بسم'].indexOf(w0) >= 0) return null;
+
+  var out = { name:'', juz:0, phone:'' };
+  var work = arToNum(t);
+
+  // الجوّال أوّلًا: تسع خانات فأكثر، وقد يبدأ بـ+ أو ٠٥.
+  var ph = work.match(/(\+?\d[\d\s-]{8,}\d)/);
+  if(ph){
+    out.phone = ph[1].replace(/[^\d+]/g, '');
+    work = work.replace(ph[1], ' ');
+  }
+
+  // المستوى: رقم صغير (١..٣٠)، وقد تتبعه كلمة «جزء/أجزاء».
+  var jz = work.match(/(?:^|[\s,،\-–|])(\d{1,2})\s*(?:جزء|جزءًا|جزءا|أجزاء|اجزاء|ج)?(?=$|[\s,،\-–|])/);
+  if(jz && parseInt(jz[1],10) <= 30){
+    out.juz = parseInt(jz[1], 10);
+    work = work.replace(jz[0], ' ');
+  }
+
+  // ما بقي هو الاسم: نُنظّفه من الفواصل والشرطات والأرقام المتبقّية.
+  var name = work.replace(/[0-9]/g, ' ')
+                 .replace(/(?:جزء|جزءًا|جزءا|أجزاء|اجزاء)/g, ' ')
+                 .replace(/[،,\-–—|:]+/g, ' ')
+                 .replace(/\s+/g, ' ')
+                 .trim();
+  if(name.length < 2) return null;                    // حرفٌ واحد ليس اسمًا
+  if(!/[\u0621-\u064A]/.test(name)) return null;      // لا حروف عربيّة
+  out.name = name;
+  return out;
+}
+
+/** يقرأ نصًّا كاملًا ويُخرج قائمة طلاب بلا تكرار. */
+function parseStudentList(text){
+  var lines = String(text || '').split(/[\n\r]+/);
+  var out = [], seen = {};
+  lines.forEach(function(l){
+    var r = parseStudentLine(l);
+    if(!r) return;
+    var k = r.name.replace(/\s+/g,'');
+    if(seen[k]) return;                               // تكرارٌ في اللصق
+    seen[k] = 1;
+    out.push(r);
+  });
+  return out;
+}
+
+/** لصق مباشر من حافظة الجهاز — يوفّر على المعلّم الضغط المطوّل. */
+function pasteFromClipboard(){
+  const el = document.getElementById('wz-names');
+  if(!el) return;
+  if(!navigator.clipboard || !navigator.clipboard.readText){
+    showToast('اضغط مطوّلًا داخل المربّع ثم «لصق»');
+    el.focus();
+    return;
+  }
+  navigator.clipboard.readText().then(function(t){
+    if(!t){ showToast('الحافظة فارغة'); return; }
+    el.value = (el.value ? el.value.replace(/\s*$/,'') + '\n' : '') + t;
+    _wz.namesRaw = el.value;
+    previewPaste();
+    const n = parseStudentList(el.value).length;
+    showToast(n ? ('فُهم ' + toAr(n) + ' اسمًا') : 'لم أجد أسماءً في الملصوق');
+  }).catch(function(){
+    showToast('اضغط مطوّلًا داخل المربّع ثم «لصق»');
+    el.focus();
+  });
+}
+
+/** معاينة اللصق: يرى المعلّم ما فُهم قبل الإضافة. */
+function previewPaste(){
+  var el = document.getElementById('wz-names');
+  var box = document.getElementById('wz-preview');
+  if(!el || !box) return;
+  var rows = parseStudentList(el.value);
+  if(!rows.length){ box.innerHTML = ''; return; }
+  var withJuz = rows.filter(function(r){ return r.juz > 0; }).length;
+  var withPh  = rows.filter(function(r){ return r.phone; }).length;
+  box.innerHTML =
+    '<div class="pv-head">فُهم ' + toAr(rows.length) + ' ' +
+      (rows.length === 1 ? 'اسم' : rows.length === 2 ? 'اسمان' : 'أسماء') +
+      (withJuz ? '<span class="sep"></span>' + toAr(withJuz) + ' بمستواه' : '') +
+      (withPh ? '<span class="sep"></span>' + toAr(withPh) + ' برقمه' : '') +
+    '</div>' +
+    '<div class="pv-list">' + rows.slice(0,6).map(function(r){
+      return '<div class="pv-row"><span>' + musEsc(r.name) + '</span>' +
+        (r.juz ? '<span class="pv-j">' + toAr(r.juz) + ' ' + juzWord(r.juz) + '</span>' : '') +
+      '</div>';
+    }).join('') +
+    (rows.length > 6 ? '<div class="pv-more">و' + toAr(rows.length - 6) + ' غيرهم…</div>' : '') +
+    '</div>';
+}
+
 function wizToSort(){
   const el = document.getElementById('wz-names');
   const raw = el ? el.value : (_wz.namesRaw || '');
   const c = getActiveCircle();
   if(!c) return;
-  const lines = raw.split('\n').map(function(x){ return x.trim(); }).filter(Boolean);
-  if(!lines.length){ showToast('اكتب اسمًا واحدًا على الأقل'); return; }
-  let added = 0;
-  lines.forEach(function(line){
-    // نقبل «أحمد، ٣» أيضًا، فمن كتب المستوى لا نُجبره على خطوة التصنيف.
-    const parts = line.split(/[،,]/);
-    const nm = (parts[0] || '').trim();
-    if(!nm) return;
-    const j = parts.length > 1 ? Math.max(0, Math.min(30, parseInt(arToNum(parts[1]), 10) || 0)) : 0;
+  const rows = parseStudentList(raw);
+  if(!rows.length){ showToast('لم أجد أسماءً — الصق القائمة أو اكتبها'); return; }
+
+  let added = 0, sorted = 0;
+  rows.forEach(function(r){
     c.students.push({
       id: Date.now() + Math.floor(Math.random()*100000) + added,
-      name: nm, phone:'', guardianPhone:'', juzMemorized: j,
-      _sorted: j > 0 ? true : false,
-      memoPlan:'', reviewPlan:'', mastery:{}, completion:{}, attendance:{}
+      name: r.name,
+      phone: '',
+      guardianPhone: r.phone || '',
+      juzMemorized: r.juz,
+      // من جاء بمستواه لا يُوقَف في خطوة التصنيف — أدخله مرّةً وكفى.
+      _sorted: r.juz > 0,
+      memoPlan:'', reviewPlan:'',
+      mastery:{}, completion:{}, attendance:{}, roomMemo:{}, roomRev:{}
     });
+    if(r.juz > 0) sorted++;
     added++;
   });
   saveTeacherCircles(_teacherCircles);
   try { promoteToTeacherIfNeeded(); } catch(e){}
-  _wz.step = 3;
-  showToast('أُضيف ' + toAr(added) + ' — صنّفهم الآن');
-  renderWizard();
+
+  const left = added - sorted;
+  showToast('أُضيف ' + toAr(added) + (sorted ? ' · صُنّف ' + toAr(sorted) + ' تلقائيًا' : ''));
+  // لا نفتح التصنيف إن كان الجميع مصنَّفًا — لا نُوقفه بلا سبب.
+  if(left > 0){ _wz.step = 3; renderWizard(); }
+  else { closeShareSheet(); renderCircleTree(); }
   try { renderTeacherScreen(); } catch(e){}
 }
 
@@ -8727,6 +8981,36 @@ function roomState(st){
   };
 }
 
+/** يعلّم كلّ من في التصفية الحاليّة حاضرًا. */
+function markAllPresent(){
+  const c = getActiveCircle(); if(!c) return;
+  const k = todayKey();
+  let n = 0;
+  groupedStudents(c).forEach(function(d){
+    if(_roomGroup !== 'all' && _roomGroup !== d.group.id) return;
+    d.students.forEach(function(st){
+      st.attendance = st.attendance || {};
+      if(st.attendance[k] !== 'present'){ st.attendance[k] = 'present'; n++; }
+    });
+  });
+  saveTeacherCircles(_teacherCircles);
+  showToast('عُلّم ' + toAr(n) + ' حاضرًا — علّم الغائبين بلمسة');
+  renderAttendanceRoom();
+}
+
+/** يمسح حضور اليوم للمعروضين. */
+function clearAllAttendance(){
+  const c = getActiveCircle(); if(!c) return;
+  const k = todayKey();
+  groupedStudents(c).forEach(function(d){
+    if(_roomGroup !== 'all' && _roomGroup !== d.group.id) return;
+    d.students.forEach(function(st){ if(st.attendance) delete st.attendance[k]; });
+  });
+  saveTeacherCircles(_teacherCircles);
+  showToast('مُسح حضور اليوم');
+  renderAttendanceRoom();
+}
+
 /** يدوّر الحضور: حاضر ← متأخّر ← غائب ← بلا. */
 function roomCycleAtt(id){
   const c = getActiveCircle(); if(!c) return;
@@ -8843,47 +9127,46 @@ function renderAttendanceRoom(){
     html += '<div class="hifz-rest-day">لا طلاب في هذا المستوى</div>';
   }
 
+  /* ═══ صفّ مضغوط: الاسم والحالة فقط ═══
+     كان كلّ طالب يحمل ستّة عناصر — وعشرون طالبًا يعني مئة وعشرين عنصرًا
+     في الشاشة. والمعلّم لا يفعل الستّة: هو يُسمّع واحدًا الآن والباقون
+     ينتظرون. فالقائمة تُعرض للنظر، والعمل يقع في بطاقة الطالب وحده. */
+  /* الغالب أن يحضر أكثرهم، فتعليم الجميع ثم استثناء الغائبين أسرع من
+     تعليم كلّ حاضرٍ على حدة. */
+  html += '<div class="rl-tools">' +
+    '<button type="button" onclick="markAllPresent()">تعليم الجميع حاضرين</button>' +
+    '<button type="button" onclick="clearAllAttendance()">مسح حضور اليوم</button>' +
+  '</div>';
   html += '<div class="room-list">';
   list.forEach(function(row){
     const st = row.st, s2 = roomState(st);
     const juz = getStudentJuzMemorized(st);
-    const asg = st.memoAssign ? assignmentLabel(st.memoAssign) : (st.memoPlan || '');
+    const ps = planStatus(st);
     const attCls = s2.att || 'none';
     const attTxt = s2.att === 'present' ? 'حاضر' : s2.att === 'late' ? 'متأخّر'
-                 : s2.att === 'absent' ? 'غائب' : 'الحضور';
-    html += '<div class="room-row">' +
-      '<div class="room-top">' +
-        '<div class="room-name" role="button" tabindex="0" onclick="renderGoalPanel(' + st.id + ')">' +
-          musEsc(st.name) +
-          (function(){ const ps = planStatus(st);
-            return ps ? '<span class="room-track ' + ps.cls + '">' + ps.label + '</span>' : ''; })() +
-          /* الفاصل «·» يُرسم نقطةً، والصفر العربي «٠» نقطةٌ أيضًا — فهما
-             متطابقان بصريًّا. «المبتدئون · ١ جزءًا» تُقرأ «المبتدئون ١٠».
-             فنفصل بفراغٍ منسَّق لا بنقطة كلّما جاور الفاصلُ رقمًا. */
-          '<span class="room-lvl">' + musEsc(row.g.name) +
-            (juz ? '<span class="sep"></span>' + toAr(juz) + ' ' +
-                   juzWord(juz) : '') +
-          '</span>' +
-        '</div>' +
-        '<button type="button" class="room-att att-' + attCls + '" ' +
-          'onclick="roomCycleAtt(' + st.id + ')">' + attTxt + '</button>' +
-      '</div>' +
-      (asg ? '<div class="room-asg" ' +
-        (st.memoAssign ? 'role="button" tabindex="0" onclick="openAssignInMushaf(' + st.id + ')"' : '') +
-        '>' + musEsc(asg) +
-        (st.memoAssign ? '<span class="room-open">افتح في المصحف</span>' : '') + '</div>' : '') +
-      '<div class="room-acts">' +
-        '<button type="button" class="room-chk' + (s2.memo?' on':'') +
-          '" onclick="roomToggle(' + st.id + ',\'memo\')">' +
-          (s2.memo ? '✓ ' : '') + 'الحفظ</button>' +
-        '<button type="button" class="room-chk' + (s2.rev?' on':'') +
-          '" onclick="roomToggle(' + st.id + ',\'rev\')">' +
-          (s2.rev ? '✓ ' : '') + 'المراجعة</button>' +
-        '<button type="button" class="room-chk mast" onclick="cycleMastery(' + st.id + ');renderAttendanceRoom();">' +
-          (function(){ const m = (st.mastery||{})[todayKey()];
-            return m === 'mastered' ? '✓ أتقن' : m === 'partial' ? 'تثبيت' : m === 'weak' ? 'لم يتقن' : 'التقويم'; })() +
-        '</button>' +
-      '</div>' +
+                 : s2.att === 'absent' ? 'غائب' : '—';
+    // علامة الإنجاز: نقطة واحدة تُغني عن ثلاثة أزرار في القائمة.
+    const dot = s2.memo ? 'done' : (s2.att === 'absent' ? 'abs' : 'wait');
+    /* العلامة نفسها زرّ: خضراء حاضر، حمراء غائب، صفراء متأخّر.
+       فيُنادي المعلّم الأسماء بلمسةٍ لكلّ طالب بلا مغادرة القائمة —
+       وهذا أسرع ما يكون في أوّل الحلقة. أمّا بقيّة الصفّ ففتحُ التسميع. */
+    const markCls = s2.att === 'present' ? 'ok' : s2.att === 'late' ? 'late'
+                  : s2.att === 'absent' ? 'no' : 'none';
+    const markTxt = s2.att === 'present' ? '✓' : s2.att === 'late' ? '⌚'
+                  : s2.att === 'absent' ? '✕' : '';
+    html += '<div class="rl-row">' +
+      '<button type="button" class="rl-mark mk-' + markCls + '" ' +
+        'aria-label="حضور ' + musEsc(st.name) + '" ' +
+        'onclick="event.stopPropagation();roomCycleAtt(' + st.id + ')">' + markTxt + '</button>' +
+      '<span class="rl-body" role="button" tabindex="0" onclick="openRecite(' + st.id + ')">' +
+      '<span class="rl-dot rl-' + dot + '"></span>' +
+      '<span class="rl-info">' +
+        '<span class="rl-name">' + musEsc(st.name) + '</span>' +
+        '<span class="rl-meta">' + musEsc(row.g.name) +
+          '<span class="sep"></span>' + toAr(juz) + ' ' + juzWord(juz) +
+          (ps ? '<span class="sep"></span>' + ps.label : '') + '</span>' +
+      '</span>' +
+      '</span>' +
     '</div>';
   });
   html += '</div>';
@@ -8893,6 +9176,159 @@ function renderAttendanceRoom(){
   html += '<button class="hifz-edit-btn" style="margin-top:8px;" onclick="closeShareSheet()">إغلاق</button>';
   panel.innerHTML = html;
   overlay.classList.remove('hidden');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   وضع التسميع
+   Recitation mode: one student fills the screen.
+
+   طلبه أرفت بعد أن سألته كيف يُسمّع، فقال: «من يجهز أوّلًا». وهذا يحسم
+   التصميم — لأن الترتيب المتسلسل كان سيمنعه من القفز لمن رفع يده.
+
+   فالبناء طبقتان:
+     · القائمة المضغوطة: اسمٌ وحالةٌ فقط — للنظر والقفز الحرّ.
+     · وضع التسميع: طالبٌ واحد يملأ الشاشة — للعمل.
+   ولمسةٌ واحدة بينهما في الاتّجاهين.
+
+   وفي وضع التسميع نُظهر ما يحتاجه وهو يسمع فقط: المقرّر، وثلاثة أزرار
+   كبيرة تُضغط بلا نظر. أمّا الإحصاءات والأهداف فتُترك للميزان.
+   ═══════════════════════════════════════════════════════════════════════ */
+var _reciteId = null;
+
+function openRecite(studentId){
+  _reciteId = studentId;
+  renderRecite();
+}
+function closeRecite(){
+  _reciteId = null;
+  renderAttendanceRoom();
+}
+
+/** الطالب التالي في القائمة المعروضة — للتنقّل بلا رجوع. */
+function reciteSibling(dir){
+  const c = getActiveCircle(); if(!c) return;
+  const flat = [];
+  groupedStudents(c).forEach(function(d){
+    if(_roomGroup === 'all' || _roomGroup === d.group.id){
+      d.students.forEach(function(st){ flat.push(st.id); });
+    }
+  });
+  const i = flat.indexOf(_reciteId);
+  if(i < 0) return;
+  const n = i + dir;
+  if(n < 0 || n >= flat.length) return;
+  _reciteId = flat[n];
+  renderRecite();
+}
+
+function renderRecite(){
+  const panel = document.getElementById('share-sheet-panel');
+  const overlay = document.getElementById('share-sheet-overlay');
+  if(!panel || !overlay) return;
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === _reciteId; });
+  if(!st){ renderAttendanceRoom(); return; }
+
+  const s2 = roomState(st);
+  const juz = getStudentJuzMemorized(st);
+  const ps = planStatus(st);
+  const grp = groupOfStudent(c, st);
+  const mast = (st.mastery || {})[todayKey()];
+
+  let html = '<div class="rc-head">' +
+    '<button type="button" class="rc-back" onclick="closeRecite()">→ القائمة</button>' +
+    '<div class="rc-nav">' +
+      '<button type="button" class="rc-arrow" onclick="reciteSibling(-1)">‹</button>' +
+      '<button type="button" class="rc-arrow" onclick="reciteSibling(1)">›</button>' +
+    '</div>' +
+  '</div>';
+
+  html += '<div class="rc-name">' + musEsc(st.name) + '</div>' +
+    '<div class="rc-sub">' + musEsc(grp ? grp.name : '') +
+      '<span class="sep"></span>' + toAr(juz) + ' ' + juzWord(juz) +
+      (ps ? '<span class="sep"></span><span class="' + ps.cls + ' rc-track">' + ps.label + '</span>' : '') +
+    '</div>';
+
+  // المقرّر: أكبر ما في الشاشة بعد الاسم، ويفتح المصحف بلمسة.
+  if(st.memoAssign){
+    html += '<div class="rc-asg" role="button" tabindex="0" onclick="openAssignInMushaf(' + st.id + ')">' +
+      '<div class="rc-asg-t">' + musEsc(assignmentLabel(st.memoAssign)) + '</div>' +
+      '<div class="rc-asg-s">اضغط لفتحه في المصحف</div>' +
+    '</div>';
+  } else {
+    html += '<div class="rc-asg rc-asg-empty" role="button" tabindex="0" onclick="openAssignmentEditor(' + st.id + ',\'memo\')">' +
+      '<div class="rc-asg-t">لا مقرّر محدَّد</div>' +
+      '<div class="rc-asg-s">اضغط لتحديد سورة وآيات</div>' +
+    '</div>';
+  }
+
+  // الحضور: ثلاثة أزرار صريحة لا دورة — أسرع وأوضح حين يكون الطالب أمامك.
+  html += '<div class="rc-att-row">' +
+    ['present','حاضر','late','متأخّر','absent','غائب'].reduce(function(acc, v, i, arr){
+      if(i % 2) return acc;
+      const val = arr[i], lbl = arr[i+1];
+      return acc + '<button type="button" class="rc-att att-' + val +
+        (s2.att === val ? ' on' : '') + '" onclick="reciteSetAtt(' + st.id + ',\'' + val + '\')">' +
+        lbl + '</button>';
+    }, '') +
+  '</div>';
+
+  // الأفعال الثلاثة: كبيرة تُضغط بلا نظر.
+  html += '<div class="rc-acts">' +
+    '<button type="button" class="rc-act' + (s2.memo?' on':'') +
+      '" onclick="roomToggle(' + st.id + ',\'memo\');renderRecite();">' +
+      '<span class="rc-act-t">' + (s2.memo ? '✓ سمّع' : 'الحفظ') + '</span>' +
+      '<span class="rc-act-s">' + (s2.memo ? 'أُنجز اليوم' : 'لم يُسمّع بعد') + '</span></button>' +
+    '<button type="button" class="rc-act' + (s2.rev?' on':'') +
+      '" onclick="roomToggle(' + st.id + ',\'rev\');renderRecite();">' +
+      '<span class="rc-act-t">' + (s2.rev ? '✓ راجع' : 'المراجعة') + '</span>' +
+      '<span class="rc-act-s">' + (s2.rev ? 'أُنجزت' : 'لم تُراجَع') + '</span></button>' +
+  '</div>';
+
+  // التقويم: ثلاث درجات صريحة.
+  html += '<div class="rc-mast-row">' +
+    [['mastered','أتقن'],['partial','يحتاج تثبيتًا'],['weak','لم يتقن']].map(function(m){
+      return '<button type="button" class="rc-mast m-' + m[0] + (mast === m[0] ? ' on' : '') +
+        '" onclick="reciteSetMastery(' + st.id + ',\'' + m[0] + '\')">' + m[1] + '</button>';
+    }).join('') +
+  '</div>';
+
+  html += '<div class="rc-more">' +
+    '<button type="button" onclick="renderGoalPanel(' + st.id + ')">هدفه</button>' +
+    '<button type="button" onclick="openStudentMore(' + st.id + ')">المزيد</button>' +
+    '<button type="button" onclick="sendParentReport(' + st.id + ')">وليّ الأمر</button>' +
+  '</div>';
+
+  panel.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+/** الحضور بالضغط المباشر: الضغط على الحالة نفسها يلغيها. */
+function reciteSetAtt(id, val){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === id; }); if(!st) return;
+  const k = todayKey();
+  st.attendance = st.attendance || {};
+  if(st.attendance[k] === val) delete st.attendance[k];
+  else st.attendance[k] = val;
+  saveTeacherCircles(_teacherCircles);
+  renderRecite();
+}
+
+function reciteSetMastery(id, val){
+  const c = getActiveCircle(); if(!c) return;
+  const st = c.students.find(function(x){ return x.id === id; }); if(!st) return;
+  const k = todayKey();
+  st.mastery = st.mastery || {};
+  if(st.mastery[k] === val) delete st.mastery[k];
+  else st.mastery[k] = val;
+  // التقويم يعني أنه سمّع — فلا يُدخل المعلّم الشيء مرّتين.
+  if(st.mastery[k]){
+    st.roomMemo = st.roomMemo || {}; st.roomMemo[k] = true;
+    st.completion = st.completion || {}; st.completion[k] = true;
+  }
+  saveTeacherCircles(_teacherCircles);
+  renderRecite();
 }
 
 /** ملخّص اليوم للحلقة كلها. */
@@ -10992,7 +11428,12 @@ function renderTeacherScreen(){
     const caretPos = hadFocus ? prevSearchEl.selectionStart : null;
 
     const active = getActiveCircle();
-    if(badge) badge.innerHTML = active ? '<div class="circle-name-badge">' + (active.icon || '🕌') + ' ' + active.name + '</div>' : '';
+    /* كان يطبع قيمة الأيقونة نصًّا، فتظهر «niche» بدل رسمها — والافتراضيّ
+       إيموجي مسجد لم يختره المعلّم. circleIcon تتكفّل بالحالتين: مفتاح
+       جديد يُرسم، وإيموجي قديم يبقى كما اختاره. */
+    if(badge) badge.innerHTML = active
+      ? '<div class="circle-name-badge">' + circleIcon(active.icon, 15) + musEsc(active.name) + '</div>'
+      : '';
     if(active && _showComparison){
       renderCircleComparison(wrap, active);
       return;
