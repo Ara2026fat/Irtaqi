@@ -6,7 +6,7 @@
 // يمنع ظهور زر "تثبيت التطبيق" على الجوال بلا أي رسالة خطأ مفهومة.
 // البديل: تخزين كل ملف على حدة، وتجاهل الفاشل بدل إسقاط الجميع.
 // ============================================================================
-const CACHE_NAME = 'irtaqi-cache-v3';
+const CACHE_NAME = 'irtaqi-cache-v4';
 
 // نقطة الدخول صارت index.html ليعمل الرابط المختصر على GitHub Pages
 // (‎ara2026fat.github.io/Irtaqi/‎). كان الاسم Irtaqi.html فيظهر 404 لمن
@@ -53,6 +53,19 @@ self.addEventListener('activate', function (event) {
 self.addEventListener('fetch', function (event) {
   var req = event.request;
 
+  /* ═══ عطل حقيقي أُصلح هنا ═══
+     كان العامل يعترض كل الطلبات، ومنها بيانات المصحف وخطّه من
+     raw.githubusercontent وjsDelivr. وحين تفشل الشبكة كانت catch تُرجع
+     `cached` وهي undefined لطلبٍ خارجيّ لم يُخزَّن قطّ، فيُمرَّر undefined
+     إلى respondWith فيقع خطأ شبكة مصطنع — والنتيجة أن المصحف لا يفتح
+     أبدًا حتى مع اتصال سليم.
+
+     القاعدة: العامل لا يعترض إلا ملفات التطبيق نفسه. أمّا المصادر
+     الخارجية فتُترك للمتصفّح يديرها بنفسه ويطبّق CORS كما ينبغي. */
+  var sameOrigin = false;
+  try { sameOrigin = new URL(req.url).origin === self.location.origin; } catch(e){}
+  if (!sameOrigin) return;
+
   // نتعامل مع طلبات GET فقط. أي طلب آخر يمر مباشرة للشبكة.
   if (req.method !== 'GET') return;
 
@@ -82,7 +95,10 @@ self.addEventListener('fetch', function (event) {
           caches.open(CACHE_NAME).then(function (c) { c.put(req, clone); });
         }
         return res;
-      }).catch(function () { return cached; });
+      }).catch(function () {
+        // إن لم يوجد مخزَّن، نُرجع ردًّا صريحًا بدل undefined.
+        return cached || new Response('', { status: 504, statusText: 'offline' });
+      });
       return cached || network;
     })
   );
