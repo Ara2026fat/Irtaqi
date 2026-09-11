@@ -8,6 +8,11 @@
 <meta name="copyright" content="© جميع الحقوق محفوظة لعرفات الراجحي">
 <title>ارتق — احفظ، راجع، وارتقِ بالدرجات</title>
 <link rel="manifest" href="manifest.json">
+<!-- تهيئة الاتصال بمصادر المصحف قبل أوّل طلب: DNS وTLS تُنجَز مسبقًا،
+     فيوفّر ذلك نحو نصف ثانية على أوّل صفحة في الشبكات البطيئة. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 <!-- ملفّ المحاكاة: لا يفعل شيئًا إلّا بطلبٍ صريح (‎?demo=1‎ أو IrtaqiDemo.seed) -->
 <script defer src="demo.js"></script>
 <meta name="theme-color" content="#1F8367">
@@ -811,45 +816,6 @@ body.theme-dark .rights-dua{color:var(--copper-light,#D4AF37);}
 .tac-source{font-size:11px;color:var(--muted);text-align:center;}
 
 /* ===== شاشة التلاوة ===== */
-.mus-sheet-wrap{
-  min-height:calc(100vh - 120px);display:flex;align-items:center;justify-content:center;
-  padding:14px;background:var(--ivory-2);
-}
-.mus-page{
-  --mfs:15px;
-  width:100%;max-width:420px;aspect-ratio:0.68;background:#FBF6E9;
-  border:1px solid rgba(0,0,0,0.12);border-radius:6px;
-  box-shadow:0 6px 24px rgba(0,0,0,0.12);
-  padding:18px 14px;overflow:hidden;position:relative;
-  font-family:'Amiri','Scheherazade New',serif;color:#1F1710;
-  direction:rtl;display:flex;flex-direction:column;justify-content:space-between;
-}
-.mus-page .ln{
-  font-size:var(--mfs);line-height:1.9;text-align:justify;text-align-last:justify;
-  white-space:nowrap;overflow:hidden;
-}
-.mus-page .ln.mid{text-align:center;text-align-last:auto;}
-.mus-page w{display:inline;}
-.mus-page .band{position:relative;margin:6px 0;text-align:center;}
-.mus-page .band svg{width:100%;height:28px;display:block;}
-.mus-page .band .inner{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-size:calc(var(--mfs) * 0.85);white-space:nowrap;color:#3B2A06;
-}
-.mus-msg{font-family:'Tajawal',sans-serif;font-size:13px;text-align:center;color:var(--muted);
-  margin:auto;padding:20px;}
-.mus-msg button{margin-top:10px;padding:8px 18px;border-radius:10px;border:none;
-  background:var(--purple);color:#fff;font-family:'Tajawal',sans-serif;font-weight:800;}
-.mus-nav{
-  position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
-  gap:10px;padding:12px 16px;background:var(--card-bg);border-top:1px solid rgba(0,0,0,0.06);
-}
-.mus-nav-btn{
-  flex:0 0 auto;padding:10px 16px;border-radius:12px;border:none;
-  background:radial-gradient(circle at 35% 30%,#FFE9A8,#F0D878 55%,#D4AF37);
-  color:#3B2A06;font-weight:800;font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;
-}
-.mus-nav-surah{flex:1;text-align:center;font-size:12px;color:var(--muted);font-weight:700;}
 .tilawa-hero{
   background:linear-gradient(180deg,#1A2A24,#0E1A15);
   padding:28px 20px 28px;text-align:center;position:relative;overflow:hidden;
@@ -1128,8 +1094,8 @@ body.theme-dark .hifz-edit-btn.danger{color:#F08080;}
    الأصلي كان يعرّف --card-bg و--text و--muted في :root، ولو نُقل كما هو
    لأعاد تعريف لوحة ألوان ارتقِ كلها لا هذه الشاشة وحدها.
    ═══════════════════════════════════════════════════════════════════════ */
-#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#2E9A45;--mband2:#1B6B2F;
-  --medge:#12551F;--mhair:#5FB06B;--mfs:23px;
+#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#1F8367;--mband2:#155F4C;
+  --medge:#0E3D31;--mhair:#7FB3A2;--mfs:23px;
   display:flex;flex-direction:column;overflow:hidden;}
 #screen-mushaf .mus-head{flex:0 0 auto;padding:8px 16px 5px;display:flex;
   align-items:baseline;justify-content:space-between;font-size:12px;color:var(--muted);}
@@ -1843,33 +1809,6 @@ body.theme-dark .pill-tab{background:rgba(255,255,255,0.06);}
 .stu-pg-info{flex:1;text-align:center;font-size:11.5px;font-weight:800;color:var(--muted);}
 body.theme-dark .stu-pg-btn{background:rgba(255,255,255,0.06);}
 
-/* ═══ المصحف (النسخة المحدَّثة) ═══ */
-#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#2E9A45;--mband2:#1B6B2F;
-  --medge:#12551F;--mhair:#5FB06B;--mfs:23px;
-  display:flex;flex-direction:column;overflow:hidden;}
-#screen-mushaf .mus-head{flex:0 0 auto;padding:8px 16px 5px;display:flex;
-  align-items:baseline;justify-content:space-between;font-size:12px;color:var(--muted);}
-#screen-mushaf .mus-surah{font-family:'Amiri',serif;font-size:15px;color:var(--text);}
-#screen-mushaf .mus-sheet{flex:1 1 auto;overflow:auto;display:flex;
-  justify-content:center;align-items:flex-start;padding:4px 8px;}
-#screen-mushaf .mus-page{width:100%;max-width:540px;background:var(--mpage);
-  border:5px solid var(--mband2);border-radius:4px;padding:22px 18px;
-  box-shadow:0 1px 2px rgba(20,40,30,.05),0 8px 26px rgba(20,40,30,.09);}
-#screen-mushaf .ln{display:flex;justify-content:space-between;align-items:center;
-  direction:rtl;line-height:1.95;font-size:var(--mfs);white-space:nowrap;color:var(--mink);}
-#screen-mushaf .ln.mid{justify-content:center;gap:.3em;}
-#screen-mushaf .ln w{display:inline-block;}
-/* الفاتحةُ وأولُ البقرة في المصحف داخل إطار:
-   سطورٌ موسَّطةٌ متقاربة، وعمودٌ أضيق، والكتلةُ في وسط الورقة لا في أعلاها. */
-#screen-mushaf .mus-sheet.framed-sheet{align-items:stretch;}
-#screen-mushaf .mus-page.framed{
-  padding:26px 22px;
-  display:flex;flex-direction:column;justify-content:center;}
-#screen-mushaf .mus-page.framed .ln{
-  justify-content:center;gap:.3em;
-  line-height:1.72;max-width:80%;margin-inline:auto;}
-#screen-mushaf .mus-page.framed .band{margin:0 0 6px;}
-#screen-mushaf .mus-page.framed .ln.mid{margin-bottom:4px;}
 /* ═══ أدواتُ القراءة ═══ */
 /* وضعُ التلاوة: لا شيء بين القارئ والورقة — واللمسُ يُظهر الأدوات ويُخفيها */
 #screen-mushaf .mus-head,
@@ -2025,20 +1964,30 @@ body[data-persona="teacher-female"] .rq-quorum{
    زمرديّون للذكور وخُزاميّون للإناث — فنربطه بمتغيّر الهويّة لا برقمٍ
    ثابت، فيتبع اللوحةَ تلقائيًّا كبقيّة التطبيق. */
 #screen-mushaf{
-  --mband2: var(--purple, #155F4C);
+  /* ألوان الشريط الأربعة معًا في تعريف زاحِم أعلاه — لا هنا.
+     تكرارُ الكتلة يجعل var() داخل SVG يقرأ الأولى لا الأخيرة، فيبقى
+     التدرّجُ أزرق وحدُّ الخرطوش أزرق فوق أرضيّةٍ خضراء. */
 }
 body[data-persona="individual-female"] #screen-mushaf,
 body[data-persona="teacher-female"] #screen-mushaf{
+  --mband1: #7A5273;
   --mband2: #5E3A57;
+  --medge:  #46293F;
+  --mhair:  #C9A8BE;
 }
 body.theme-dark #screen-mushaf{
   --mpage:#12100C; --mink:#E8E2D2;
 }
 
+/* ═══ حُذفت هنا ١٤ قاعدةً من مصحفنا القديم ═══
+   كانت بلا سابقة (.mus-page) فتسبق قواعد زاحِم (#screen-mushaf .mus-page)
+   في الترتيب لا في الأولويّة… بل الأسوأ: ‎.mus-page{aspect-ratio:0.68}‎
+   تُثبّت ارتفاع الورقة، فلا تمتدّ السطورُ لملء الوجه ويبقى فوقها وتحتها
+   بياضٌ عريض — وهو ما رآه أرفت. وقواعد زاحِم تتولّى الأمر كاملًا. */
 /* ═══ المصحف (محرّك زاحِم) ═══ */
 /* ══════════ تنسيقُ المصحف ══════════ */
-#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#2E459A;--mband2:var(--purple,#155F4C);
-  --medge:#121F55;--mhair:#5F6BB0;--mfs:23px;
+#screen-mushaf{--mpage:#FFFEF9;--mink:#000000;--mband1:#1F8367;--mband2:#155F4C;
+  --medge:#0E3D31;--mhair:#7FB3A2;--mfs:23px;
   display:flex;flex-direction:column;overflow:hidden;}
 #screen-mushaf .mus-head{flex:0 0 auto;padding:8px 16px 5px;display:flex;
   align-items:baseline;justify-content:space-between;font-size:12px;color:var(--muted);}
@@ -2220,15 +2169,15 @@ body.theme-dark #screen-mushaf .mus-no input{
   font-size:13.5px;line-height:2;}
 #screen-mushaf .mus-msg b{display:block;font-size:15px;color:#1B2B3D;margin-bottom:8px;}
 body.theme-dark #screen-mushaf{--mpage:#DCD6C6;--mink:#0A0A08;
-  --mband1:#273B82;--mband2:#17285A;--medge:#0E1A44;--mhair:#4E5792;}
+  --mband1:#1B7159;--mband2:#124F40;--medge:#0B3228;--mhair:#6B9B8C;}
 body.mode-obsidian #screen-mushaf{--mpage:#C4BCA8;--mink:#0A0A08;
-  --mband1:#21336F;--mband2:#13224B;--medge:#0C1539;--mhair:#41497B;}
+  --mband1:#17604C;--mband2:#0F4336;--medge:#082A22;--mhair:#5C8879;}
 #screen-mushaf.tone-light{--mpage:#FFFEF9;--mink:#000;
-  --mband1:#2E459A;--mband2:var(--purple,#155F4C);--medge:#121F55;--mhair:#5F6BB0;}
+  --mband1:#1F8367;--mband2:#155F4C;--medge:#0E3D31;--mhair:#7FB3A2;}
 #screen-mushaf.tone-warm{--mpage:#F3E9D2;--mink:#1A1206;
-  --mband1:#2A408E;--mband2:#182B63;--medge:#101C4C;--mhair:#5760A6;}
+  --mband1:#1D7A61;--mband2:#134A3C;--medge:#0C372C;--mhair:#739F90;}
 #screen-mushaf.tone-dark{--mpage:#C4BCA8;--mink:#0A0A08;
-  --mband1:#21336F;--mband2:#13224B;--medge:#0C1539;--mhair:#41497B;}
+  --mband1:#17604C;--mband2:#0F4336;--medge:#082A22;--mhair:#5C8879;}
 body.theme-dark #screen-mushaf .mus-page{
   box-shadow:0 1px 2px rgba(0,0,0,.30),0 10px 30px rgba(0,0,0,.42);}
 body.theme-dark #screen-mushaf .mus-msg{color:#3A3F47;}
@@ -2559,7 +2508,6 @@ body.theme-dark .icon-choice.ic-pick{background:rgba(255,255,255,0.06);}
   background:rgba(212,175,55,0.10);border:1px solid rgba(212,175,55,0.28);}
 body[data-persona="individual-female"] .wp-done,
 body[data-persona="teacher-female"] .wp-done{background:rgba(168,94,118,0.13);}
-.mus-wird span[role=button]{cursor:pointer;}
 
 /* ═══ معالج بناء الحلقة ═══ */
 .wz-body{min-height:300px;display:flex;flex-direction:column;justify-content:center;text-align:center;}
@@ -4896,6 +4844,20 @@ var _musWake = null;
 var _musW = 0;
 
 function musAhead(n){ musPrefetch(n+1); musPrefetch(n-1); musPrefetch(n+2); musPrefetch(n-2); }
+
+/* ═══ تسريع أوّل صفحة ═══
+   كلّ صفحةٍ خطُّها الخاصّ (٦٠٤ خطًّا)، فأوّلُ فتحةٍ تنتظر الخطَّ كاملًا.
+   نُسجّل خطَّ الصفحة المحفوظة فور بدء التطبيق — قبل أن يفتح المستخدم
+   المصحف — فيكون جاهزًا حين يفتحه. تكلفتُه طلبٌ واحدٌ في الخلفيّة. */
+function musWarmStart(){
+  try {
+    if(navigator.onLine === false) return;
+    var n = parseInt(localStorage.getItem(MUS_KEY), 10) || 1;
+    musFont('QCF4_Hafs_' + musPad(n).slice(-2));
+    musPrefetch(n);
+  } catch(e){}
+}
+addEventListener('load', function(){ setTimeout(musWarmStart, 2500); });
 
 function musApplyTone(){
   var scr = document.getElementById('screen-mushaf');
