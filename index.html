@@ -3347,7 +3347,42 @@ App.mark = function (size, cls) {
     return typeof s === 'string' && s.trim().slice(0, MAGIC.length + 1) === MAGIC + '.';
   }
 
-  App.Seal = { able: able, seal: seal, open: open, sealed: sealed, MAGIC: MAGIC };
+  /* ── هُويّةُ المزامنةِ من الكلمةِ نفسِها ────────────────────────
+     مَن ضاع جهازُه يُريد سجلَّه على جهازٍ جديد. فلو كان عنوانُ نسختِه
+     على الخادمِ معرّفًا عشوائيًّا مولودًا في الجهازِ الضائعِ لَضاع
+     معه. فالعنوانُ والقفلُ يُشتقّان من **كلمةِ المزامنة** وحدَها:
+     كلمةٌ واحدةٌ يَحفظها صاحبُها تَبلغه نسختَه من أيِّ جهاز.
+
+     والملحُ هنا ثابتٌ — وهو خلافُ ملحِ الختمِ المتجدِّد — لأنّ
+     الاشتقاقَ يجب أن يُعيد النتيجةَ نفسَها على كلِّ جهاز. ولا يَضرّ:
+     العنوانُ والقفلُ ليسا أخطرَ من الكلمةِ التي اشتُقّا منها، ومَن
+     خمّنها فكّ المحتوى أصلًا. وحدُّ الأمانِ كلِّه قوّةُ الكلمة —
+     ولهذا تُطلَب طويلةً ويُقال لصاحبها إنّها لا تُستعاد. */
+  var ID_SALT = bytes('irtaqi.sync.v1');
+
+  function ident(pass) {
+    if (!able()) return Promise.reject(new Error('لا تعميةَ في هذا المتصفّح'));
+    if (!pass) return Promise.reject(new Error('لا كلمة'));
+    return crypto.subtle
+      .importKey('raw', bytes(pass), 'PBKDF2', false, ['deriveBits'])
+      .then(function (base) {
+        return crypto.subtle.deriveBits(
+          { name: 'PBKDF2', salt: ID_SALT, iterations: ITER, hash: 'SHA-256' },
+          base, 512);
+      })
+      .then(function (bits) {
+        var a = new Uint8Array(bits);
+        return {
+          id: b64(a.subarray(0, 24)),      /* العنوانُ — ٣٢ محرفًا */
+          key: b64(a.subarray(24, 56))     /* القفلُ — ٤٣ محرفًا */
+        };
+      });
+  }
+
+  App.Seal = {
+    able: able, seal: seal, open: open, sealed: sealed,
+    ident: ident, MAGIC: MAGIC
+  };
 
 }(window.App));
 
@@ -4128,7 +4163,13 @@ App.mark = function (size, cls) {
   var ENDPOINT = '';
 
   var DEV_KEY = 'irtaqi.device';   /* مستقلٌّ عن الحالة: وصفُ جهازٍ لا قارئ */
-  var MAX = 2 * 1024 * 1024;       /* حدُّ المِظروفِ المرفوع — يُطابق الخادم */
+  var SIG_KEY = 'irtaqi.sign';     /* قفلُ صفِّ هذا الجهازِ عند الخادم */
+
+  /* حدُّ المِظروفِ: صفُّ D1 سقفُه مليونانِ من البايت بما فيه المعرّفُ
+     والعدّادُ والبصمة، فالعمليُّ ١٬٥٠٠٬٠٠٠. **بالبايتِ لا بالمحرف**:
+     الحرفُ العربيُّ بايتان، فقياسُ الطولِ يُجيز ضِعفَ ما يَقبله
+     الخادمُ ثمّ يُرَدّ الرفعُ بعد أن قُطع الطريقُ كلُّه. */
+  var MAX = 1500000;
 
   function base() {
     var s = (App.state && App.state.settings) || {};
@@ -4163,8 +4204,52 @@ App.mark = function (size, cls) {
     return raw.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
   }
 
+  /* ── قفلُ الصفّ ────────────────────────────────────────────────
+     ثغرةٌ كانت في أوّلِ تصميمي: المعرّفُ وحدَه كان مفتاحَ الصفّ، فمَن
+     عرفه — من سجلٍّ أو من رابطٍ مُسرَّب — لم يَفكّ النسخةَ المُعمّاة،
+     لكنّه **دفعَ فوقَها** فأتلف سجلَّ حفظٍ عمرُه سنون. فلكلِّ صفٍّ
+     قفل: سرٌّ عشوائيٌّ يُولَد هنا، يُرسَل في ترويسةٍ فتُختَم بصمتُه
+     عند الخادمِ في أوّلِ كتابةٍ ويُطالَب به بعدها.
+
+     وقيمُ ترويساتِ HTTP لاتينيّةٌ لا تَقبل عربيًّا، فالسرُّ من
+     Base64 وحدَه. */
+  function sign() {
+    var v = null;
+    try { v = localStorage.getItem(SIG_KEY); } catch (e) {}
+    if (v && v.length >= 16 && v.length <= 200) return v;
+    v = '';
+    try {
+      var a = crypto.getRandomValues(new Uint8Array(32)), s = '', i;
+      for (i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+      v = btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+    } catch (e) {
+      v = (String(Date.now()) + Math.random().toString(36).slice(2) +
+           Math.random().toString(36).slice(2)).slice(0, 40);
+    }
+    try { localStorage.setItem(SIG_KEY, v); } catch (e) {}
+    return v;
+  }
+
+  /* هُويّةُ المزامنةِ المشتقّةُ من كلمةِ صاحبها (App.Seal.ident).
+     تُوضَع في الذاكرةِ لهذه الجلسةِ ولا تُكتب في القرص: الكلمةُ لا
+     تُحفَظ، والمشتقُّ منها لا يُحفَظ. فمَن أخذ الجهازَ لم يَجد بها
+     سبيلًا إلى نسخةِ الخادم. */
+  var IDENT = null;
+  function identity(o) {
+    if (o === null) { IDENT = null; return null; }
+    if (o && o.id && o.key) IDENT = { id: o.id, key: o.key };
+    return IDENT;
+  }
+
   function forget() {
+    IDENT = null;
     try { localStorage.removeItem(DEV_KEY); } catch (e) {}
+    try { localStorage.removeItem(SIG_KEY); } catch (e) {}
+  }
+
+  function size(s) {
+    try { return new TextEncoder().encode(s).length; }
+    catch (e) { return String(s).length * 2; }   /* تقديرٌ متحفّظ */
   }
 
   /* ── البابُ الوحيد ─────────────────────────────────────────────
@@ -4176,10 +4261,12 @@ App.mark = function (size, cls) {
 
     var url = b + path + (q || '');
     var opt = { method: body ? 'POST' : 'GET', mode: 'cors', cache: 'no-store' };
+    var head = { 'x-irtaqi-key': (IDENT && IDENT.key) || sign() };
     if (body) {
-      opt.headers = { 'content-type': 'application/json' };
+      head['content-type'] = 'application/json';
       opt.body = JSON.stringify(body);
     }
+    opt.headers = head;
 
     var ac = null, timer = null;
     try {
@@ -4230,26 +4317,39 @@ App.mark = function (size, cls) {
      ‎rev‎ عدّادٌ عند الخادم. يُدفَع ما بُني على آخرِ ما رأيناه، فإن
      سبقَنا جهازٌ آخرُ رُدَّ الدفعُ بـ409 ومعه الأحدثُ ليَدمج صاحبُه
      بعينِه. ودمجُ سجلّاتِ حفظٍ أمرٌ لا يُترَك لخادمٍ لا يَقرأ. */
+  /* مفتاحُ VAPID العامّ — لا يَعمل pushManager.subscribe بغيره */
+  function pushKey() {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    return req('/api/push/key');
+  }
+
+  /* ── المزامنة ──────────────────────────────────────────────────
+     عنوانُها هُويّةٌ مشتقّةٌ من كلمةِ صاحبها، فمَن حملَ كلمتَه بلغَ
+     نسختَه من أيِّ جهاز. ولا مزامنةَ قبل أن تُفتَح الكلمةُ — وهذا
+     مقصود: نسخةٌ على خادمٍ بلا كلمةٍ تَعني نسخةً لا تُفَكّ. */
   function pull(rev) {
     if (!on()) return Promise.resolve({ ok: false, off: true });
+    if (!IDENT) return Promise.resolve({ ok: false, locked: true });
     return req('/api/sync', null,
-      '?id=' + encodeURIComponent(devId()) + '&rev=' + (rev | 0));
+      '?id=' + encodeURIComponent(IDENT.id) + '&rev=' + (rev | 0));
   }
 
   function push(envelope, rev) {
     if (!on()) return Promise.resolve({ ok: false, off: true });
+    if (!IDENT) return Promise.resolve({ ok: false, locked: true });
     if (!App.Seal || !App.Seal.sealed(envelope)) {
       /* حارسٌ لا يُرفَع: لو سها كاتبٌ ورفع الحالةَ عاريةً وُقف هنا */
       return Promise.resolve({ ok: false, bare: true });
     }
-    if (envelope.length > MAX) return Promise.resolve({ ok: false, big: true });
-    return req('/api/sync', { id: devId(), rev: rev | 0, blob: envelope });
+    if (size(envelope) > MAX) return Promise.resolve({ ok: false, big: true });
+    return req('/api/sync', { id: IDENT.id, rev: rev | 0, blob: envelope });
   }
 
   App.Cloud = {
-    on: on, endpoint: base, device: devId, forget: forget,
+    on: on, endpoint: base, device: devId, sign: sign, forget: forget,
+    identity: identity, size: size,
     ping: ping, subscribe: subscribe, unsubscribe: unsubscribe,
-    pull: pull, push: push, MAX: MAX
+    pushKey: pushKey, pull: pull, push: push, MAX: MAX
   };
 
 }(window.App));
