@@ -607,8 +607,10 @@ html[data-season~="vigil"][data-mode="light"][data-id="f"]{ --sea:rgba(255,228,2
      بلا إطار، فتُقرأ الحافّةُ من الضوء لا من الخطّ. */
   --lift:inset 0 1px 0 0 var(--hair-2);
 
-  /* خطٌّ عربيٌّ من النظام وحدَه — لا ملفَّ خطٍّ يُحمَّل من شبكة. */
-  --font:system-ui, -apple-system, 'Segoe UI', 'Noto Naskh Arabic',
+  /* الأميريُّ أوّلًا، وخطُّ الجهازِ احتياطُه. ولا يُسجَّل الأميريُّ
+     إلّا حين يُفتَح التطبيقُ من رابطٍ (انظر 08-amiri.js)، فمَن فتحه
+     من قرصِه نزل إلى الاحتياطِ بلا خطأٍ ولا طلبِ شبكة. */
+  --font:'Amiri', system-ui, -apple-system, 'Segoe UI', 'Noto Naskh Arabic',
          'Noto Kufi Arabic', 'Geeza Pro', 'Dubai', 'Tajawal', Tahoma, sans-serif;
 
   /* إيقاعٌ رأسيٌّ واحدٌ لكلّ الشاشات، فلا تختلف المسافاتُ بين وحدةٍ وأخرى. */
@@ -2719,6 +2721,60 @@ App.mark = function (size, cls) {
     titleFor: titleFor, create: create, remove: remove, byId: byId
   };
 })(window.App);
+
+/* ══ 08-amiri.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   الأميريُّ — خطُّ التطبيق
+   ───────────────────────────────────────────────────────────────────
+   نسخيٌّ معاصرٌ مبنيٌّ على نسخِ بولاق، ورخصتُه OFL ونسختُها في
+   ‎fonts/AMIRI-OFL.txt‎ بجوارِ الملفّ.
+
+   ولا يُكتَب ‎@font-face‎ في ورقةِ الأنماطِ كما يُفعَل عادةً، لسببٍ
+   مقيس: الملفُّ يُفتَح أحيانًا من القرصِ (‎file://‎)، والمتصفّحُ يَمنع
+   جلبَ الخطِّ هناك منعًا باتًّا فيَخرج خطأٌ في الطرفيّة. وحارسُ
+   الجودةِ يَفحص الطرفيّةَ والشبكةَ على ‎file://‎ بعينِه. فالتسجيلُ
+   مشروطٌ بالبروتوكول: مَن فتح من رابطٍ رأى الأميريّ، ومَن فتح من
+   قرصِه قرأ بخطِّ جهازِه ولا خطأَ ولا طلبَ شبكة.
+
+   والوزنان اثنان لا أربعة: عاديٌّ وعريض. وكلُّ وزنٍ زائدٍ مئةُ
+   كيلوبايتٍ على جهازِ القارئِ لا يُفرَّق أثرُه بالعين. */
+(function (App) {
+  'use strict';
+
+  var FACES = [
+    { w: '400', f: 'fonts/amiri-400.woff2' },
+    { w: '700', f: 'fonts/amiri-700.woff2' }
+  ];
+
+  var done = false;
+
+  function load() {
+    if (done) return;
+    done = true;
+    if (location.protocol === 'file:') return;
+    if (!window.FontFace || !document.fonts) return;
+
+    FACES.forEach(function (x) {
+      var ff;
+      try {
+        ff = new FontFace('Amiri', 'url("' + x.f + '") format("woff2")',
+          { weight: x.w, style: 'normal', display: 'swap' });
+      } catch (e) { return; }
+      ff.load().then(function (f) {
+        try { document.fonts.add(f); } catch (e) {}
+      }).catch(function () {
+        /* لا خطَّ فلا شكوى: يَبقى خطُّ الجهازِ وهو احتياطُ المتغيّر */
+      });
+    });
+  }
+
+  App.Amiri = { load: load };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load);
+  } else { load(); }
+
+}(window.App));
 
 /* ══ 09-rosette.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -5779,7 +5835,11 @@ App.mark = function (size, cls) {
   }
 
   var CSS = [
-    '.ex-frame{margin-top:26px}',
+    '.ex-frame{margin-top:18px}',
+    /* الشاشاتُ القصيرة: المثالُ أوّلُ ما يُستغنى عنه. مَن شاشتُه
+       ستُّ مئةٍ وأربعون بكسلًا يَحتاج العنوانَ والزرَّ قبل أن يَحتاج
+       أن يُريَه أحدٌ شكلَ يومِه — ويَراه بعد أوّلِ منهجٍ يُنشئه. */
+    '@media (max-height:719px){ .t-empty .ex-frame{display:none} }',
     '.ex-cap{display:flex;align-items:center;gap:8px;margin-bottom:11px}',
     '.ex-tag{padding:2px 9px;border-radius:var(--r-pill);',
     '  background:var(--gold-soft);color:var(--gold-lit);',
@@ -6510,11 +6570,12 @@ App.mark = function (size, cls) {
      جملةٍ تَقرؤها في التطبيق. */
   W.obCta = function () { return vg('ابدأ منهجك', 'ابدئي منهجَك'); };
   W.demoNote = function () {
-    /* كان يقول «على جزء عمّ» حين كان المثالُ منهجيّةً واحدة؛ وصار
-       أربعةَ مناهجَ من أربعةِ أنواع، فلا يُترك النصُّ يَصف ما مضى. */
-    return vg('أربعةُ مناهجَ بعد أربعين يومًا، لكلِّ نوعٍ لونُه. '
+    /* يُراجَع كلّما تغيّر المثال. قال «على جزء عمّ» حين كان منهجيّةً
+       واحدة، ثمّ «أربعةُ مناهج» حين صار أربعةً، ثمّ عاد صفًّا واحدًا
+       لتَسَع شاشةُ أوّلِ مرّةٍ نفسَها — ولو تُرك لَوصفَ ما لا يُرى. */
+    return vg('صفٌّ واحدٌ من يومك بعد أربعين يومًا، ولكلِّ نوعِ منهجٍ لونُه. '
               + 'صفوفُك تُبنى من المناهج التي تختارها، وتُسجَّل بلمسة.',
-              'أربعةُ مناهجَ بعد أربعين يومًا، لكلِّ نوعٍ لونُه. '
+              'صفٌّ واحدٌ من يومكِ بعد أربعين يومًا، ولكلِّ نوعِ منهجٍ لونُه. '
               + 'صفوفُكِ تُبنى من المناهج التي تختارينها، وتُسجَّل بلمسة.');
   };
 
@@ -8617,8 +8678,10 @@ App.mark = function (size, cls) {
 
     /* البداية: صفحةٌ مُذهَّبةٌ فارغةٌ تنتظر أن تُكتب */
     '.t-empty{min-height:72vh;display:flex;flex-direction:column;align-items:center;'
-      + 'justify-content:center;text-align:center;gap:22px;padding:28px 6px}',
-    '.t-mark{display:block;width:96px;height:96px;border-radius:var(--r-lg);overflow:hidden}',
+      + 'justify-content:center;text-align:center;gap:18px;padding:22px 6px}',
+    /* الشعارُ ٨٠ لا ٩٦، والفُرَجُ ١٨ لا ٢٢: شاشةُ أوّلِ مرّةٍ كانت
+       تَفيض عن حدِّها فتُمرَّر، وهي أَولى الشاشاتِ بأن تَسَع نفسَها. */
+    '.t-mark{display:block;width:80px;height:80px;border-radius:var(--r-lg);overflow:hidden}',
     '.t-mark img,.t-mark svg{display:block;width:100%;height:100%}',
     '.t-empty h1{margin:0;font-size:24px;font-weight:700;color:var(--ink)}',
     '.t-empty p{margin:0;max-width:19em;font-size:16px;line-height:1.9;color:var(--ink-mut)}',
@@ -9075,8 +9138,16 @@ App.mark = function (size, cls) {
      الحقيقيِّ كلّما تغيّر صفُّ الورد، والمُعارُ هو الحقيقيُّ بعينِه. */
   function sampleDay() {
     if (!App.Example) return null;
+    /* بطاقةٌ واحدةٌ لا بطاقتان: المثالُ يَقول «هكذا يبدو يومُك»،
+       وبطاقةٌ واحدةٌ تَقوله تامًّا. والثانيةُ تُكرّره وتُخرج شاشةَ
+       أوّلِ مرّةٍ عن حدِّها فتَحتاج تمريرًا — وأوّلُ شاشةٍ تُرى
+       أَولى الشاشاتِ بأن تَسَع نفسَها. */
     var rows = App.Example.borrow(function () {
-      return wardPane(App.state.plans || []);
+      var all = App.state.plans || [], one = [], i;
+      for (i = 0; i < all.length && !one.length; i++) {
+        if (!App.Plans.isDueToday || App.Plans.isDueToday(all[i])) one.push(all[i]);
+      }
+      return wardPane(one.length ? one : all.slice(0, 1));
     });
     if (!rows) return null;
     return App.Example.frame('هكذا يبدو يومُك بعد أربعين يومًا', rows,
@@ -9085,7 +9156,7 @@ App.mark = function (size, cls) {
 
   function emptyState() {
     var w = App.el('div', 'screen t-empty empty');
-    var mk = App.mark(96, 't-mark');
+    var mk = App.mark(80, 't-mark');   /* ٩٦ → ٨٠: الشعارُ يَكفي دالًّا بهذا */
     if (mk) { var o = App.el('div', null, mk); w.appendChild(o.firstChild); }
     var h = App.el('h1');
     h.textContent = App.Words.emptyTitle();
@@ -15183,8 +15254,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '#settings .st-sign{margin-top:18px;padding-top:16px;text-align:center;' +
       'border-top:1px solid var(--hair)}',
     '#settings .st-sign p{margin:0}',
-    '#settings .st-sign-d{font-size:14px;font-weight:700;color:var(--ink)}',
-    '#settings .st-sign-c{margin-top:6px;font-size:12.5px;color:var(--gold);' +
+    /* سقط st-sign-d مع سطرِ «طوّر هذا التطبيق»، وصار الاسمُ في
+       سطرِ الحقوقِ نفسِه. فكبُر السطرُ قليلًا لأنّه صار الأوّل. */
+    '#settings .st-sign-c{font-size:13.5px;color:var(--gold);' +
       'font-weight:700}',
     '#settings .st-sign-p{margin-top:12px;font-size:13.5px;line-height:1.9;' +
       'color:var(--ink-mut)}',
@@ -15906,9 +15978,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
          الرخصةُ تَشترط بقاءَ الإشعارِ في النسخةِ لا عرضَه في الواجهة،
          فالشرطُ قائمٌ والشاشةُ خالصةٌ للقارئِ بلغتِه وحدَها. */
       var sign = App.el('div', 'st-sign');
-      sign.appendChild(txt('p', 'st-sign-d', 'طوّر هذا التطبيق عرفات الراجحي'));
       sign.appendChild(txt('p', 'st-sign-c',
-        'جميع الحقوق محفوظة © ارتقِ ٢٠٢٦م / ١٤٤٨هـ'));
+        'جميع الحقوق محفوظة © عرفات الراجحي — ارتقِ ٢٠٢٦م / ١٤٤٨هـ'));
       sign.appendChild(txt('p', 'st-sign-p',
         'اللهمّ اغفرْ لمطوِّرها ومستخدميها ووالديهم والمسلمين أجمعين'));
       box.appendChild(sign);
