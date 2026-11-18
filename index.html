@@ -1210,12 +1210,10 @@ input.inp:focus,select.inp:focus,textarea.inp:focus{
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
   background:var(--ground);
-  /* الصحيفةُ تُغطّي الحقلَ فتَفقد الغرفةُ ضوءَها تحتها؛ فلها صدرُها
-     الخاصّ — أخفتُ، لأنّها سطحٌ مرفوعٌ لا أرضٌ موضوعة. */
-  background-image:
-    radial-gradient(900px 420px at 50% -10%, var(--lift), transparent 70%);
-  background-repeat:no-repeat;
-  background-attachment:local;
+  /* صدرُ الصحيفةِ في «الهويّة» لا هنا: ‎--lift‎ رمزُ ظلٍّ لا لون،
+     وقد كان مكتوبًا هنا في موضعِ لونِ تدرُّجٍ فيَبطُل التصريحُ كلُّه
+     بصمتٍ لا يُنبَّه إليه. وهو الفخُّ عينُه الذي أطفأ ظلالَ التطبيقِ
+     كلِّها من قبل. فلا يُعاد كتابُه هنا. */
 }
 #sheet.on{ display:block }
 #sheet-body{
@@ -1250,6 +1248,93 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 .sr-only{
   position:absolute; width:1px; height:1px; margin:-1px; padding:0;
   overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0;
+}
+
+/* ══ 21-motion.css ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   الانتقال — أن يُفهَم أين ذهبتَ لا أن تُبهَر
+   ───────────────────────────────────────────────────────────────────
+   الطلبُ كان «تنقّلًا سلسًا وديناميكيًّا»، وأكثرُ ما يُفسد هذا المعنى
+   أن يُقرأ «حركةً كثيرة». الحركةُ هنا تؤدّي عملًا واحدًا: تقول للعين
+   **من أين جاء هذا السطحُ وإلى أين ذهب سابقُه**، فتَفهم العينُ
+   الترتيبَ بلا جهد. فإن لم تَقل ذلك فهي ضجيجٌ يُؤخّر اللمسةَ التالية.
+
+   فلا ارتدادَ ولا دورانَ ولا قفزة: إزاحةٌ قصيرةٌ مع ظهور، على منحنى
+   التطبيقِ نفسِه (‎--ease‎) — منحنًى واحدٌ للنظامِ كلِّه، فلا تَختلف
+   «شخصيّةُ» الشاشةِ عن شخصيّةِ اللسان.
+
+   والمدّة: ٢٢٠ مللي ثانيةً للشاشة و١٨٠ للسانِ داخلَها. وما دون ١٨٠
+   يُقرأ ومضةً لا انتقالًا، وما فوق ٢٦٠ يُقرأ بطأً في يدِ من يَلمس
+   عشرَ لمساتٍ في الدقيقة.
+
+   ولا جافاسكربت في هذا: النواةُ تُفرغ ‎#pane‎ وتَبني محتواه من جديد
+   في كلِّ رسم (وكذلك ‎#sheet-body‎ و‎.segpane‎)، وإدخالُ عنصرٍ جديدٍ
+   إلى الشجرة يُشغّل حركتَه من تلقائه. فالانتقالُ خاصّيّةٌ من خواصِّ
+   السطحِ لا أمرٌ يُصدَر إليه.
+
+   وفي RTL: التقدُّمُ إلى الأمامِ معناه في العربيّة اليسار، فالسطحُ
+   الجديدُ يَدخل **من اليسار** زاحفًا إلى موضعه. وهذه إزاحةٌ ماديّةٌ
+   لا منطقيّة (‎translate‎ بالسالب) فلا تَنعكس مع الاتّجاه: لو كُتبت
+   بالمنطقيّ لانقلبت في لغةٍ أخرى ولم تَنقلب جهةُ القراءة معها.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* مدّتان لا أكثر، ومنحنى النظامِ كما هو — لا يُعاد تعريفُ --ease */
+  --nav:.22s;
+  --nav-in:.18s;
+}
+
+/* ── الشاشة ──
+   تَدخل من اليسار (جهةُ التقدُّم في العربيّة) مع ظهورٍ قصير. ولا
+   تُحرَّك الشاشةُ الخارجةُ: إخراجُها يَقتضي إبقاءَ سطحَين معًا في
+   الشجرة، وذاك ثمنٌ في الذاكرةِ والرسمِ لا يُشترى بربع ثانية. */
+@keyframes nav-in{
+  from{ opacity:0; translate:-16px 0 }
+  to  { opacity:1; translate:0 0 }
+}
+/* بلا ‎both‎ عمدًا: ‎translate‎ غيرُ الصِّفريّ — وحتّى ‎0 0‎ — يَجعل
+   العنصرَ حاضنًا لكلِّ ‎position:fixed‎ تحته، فلو ثَبتت القيمةُ بعد
+   انتهاء الحركة لعلِق كلُّ غشاءٍ أو لوحٍ عائمٍ داخلَ الشاشة. */
+#pane > *{ animation:nav-in var(--nav) var(--ease) }
+
+/* ── الصحيفة ──
+   تَرتفع من القاعِ لأنّها جاءت من تحتِ الشاشةِ لا من جانبها، وهي
+   حركةٌ قائمةٌ في الهيكل (‎sheet-rise‎) — وُحِّدت مدّتُها هنا بمدّةِ
+   النظامِ فلا يختلف إيقاعُ البابين. */
+@media (prefers-reduced-motion:no-preference){
+  #sheet.on{ animation-duration:var(--nav) }
+}
+
+/* ── اللسانُ داخلَ الشاشة ──
+   أقصرُ وأخفُّ من انتقال الشاشة: الانتقالُ هنا داخلَ سطحٍ واحدٍ
+   لا بين سطحين، فالإزاحةُ نصفُ تلك والمدّةُ أقلّ. وجهتُها الجهةُ
+   نفسُها، فلا تَختلف لغةُ الحركةِ في مستويين متجاورين. */
+@keyframes seg-in{
+  from{ opacity:0; translate:-9px 0 }
+  to  { opacity:1; translate:0 0 }
+}
+.segpane > *{ animation:seg-in var(--nav-in) var(--ease) }
+
+/* ── اللوحُ الزجاجيّ عند اللمس ──
+   لوحُ البطولةِ جسمٌ له سُمك، فاللمسُ يَغمِسه لا يُخفيه: نزولٌ قدرَ
+   بكسلٍ ونصفٍ مع تضاؤلٍ يسير. ولا يُحرَّك في الحَوْم (hover) شيءٌ:
+   الحَوْمُ في هاتفٍ يَقع مع اللمسة نفسِها فيُقرأ ارتعاشًا. */
+@media (prefers-reduced-motion:no-preference){
+  .pg-b .pg-ico{ transition:translate var(--nav-in) var(--ease),
+                            scale var(--nav-in) var(--ease) }
+  .pg-b:active .pg-ico{ translate:0 1.5px; scale:.97 }
+}
+
+/* ═══ تقليلُ الحركة: صفرٌ لا تقريبُ صفر ═══
+   الهيكلُ يَقصُر كلَّ حركةٍ إلى ‎0.01ms‎ ليَبقى ‎animationend‎ يُطلَق
+   فلا يتعطّل منطقُ وحدةٍ تَنتظره. وما في هذا الملفّ لا يَنتظره أحدٌ
+   — زخرفةٌ خالصةٌ — فيُحذَف حذفًا: لا اسمَ حركةٍ ولا مدّةَ ولا إزاحة. */
+@media (prefers-reduced-motion:reduce){
+  #pane > *,
+  .segpane > *,
+  #sheet.on{ animation:none !important }
+  .pg-b .pg-ico{ transition:none !important }
+  .pg-b:active .pg-ico{ translate:none; scale:1 }
 }
 
 /* ══ 27-joy.css ══ */
@@ -2378,8 +2463,11 @@ App.mark = function (size, cls) {
               '<circle cx="10.2" cy="7.6" r="2.3"/><circle cx="13.8" cy="16.4" r="2.3"/>',
 
     /* ── أنواعُ المناهج ────────────────────────────────────────── */
-    // حفظ: كتابٌ قائمٌ وشريطُ علامة — ما أُحرز وثُبّت في الصدر
-    hifz: '<path d="M5.6 4.4a1.1 1.1 0 0 1 1.1-1.1h10.6a1.1 1.1 0 0 1 1.1 1.1v15.2a1.1 1.1 0 0 1-1.1 1.1H6.7a1.1 1.1 0 0 1-1.1-1.1Z"/>' +
+    /* حفظ: كتابٌ قائمٌ وشريطُ علامة — ما أُحرز وثُبّت في الصدر.
+       وزاويتُه ٢ لا ١٫١: معجمُ الأنصافِ في هذا الملفّ ٢ (الرُّزنامةُ
+       والمصحفُ والنسخُ والقفل)، وكانت زاويةُ «حفظ» وحدَها أحدَّ منها
+       — وهي أكثرُ أيقوناتِ التطبيقِ ظهورًا، فشذوذُها يُرى كلَّ يوم. */
+    hifz: '<path d="M5.6 5.3a2 2 0 0 1 2-2h8.8a2 2 0 0 1 2 2v13.4a2 2 0 0 1-2 2H7.6a2 2 0 0 1-2-2Z"/>' +
           '<path d="M8.3 3.3v17.4"/>' +
           '<path d="M13 3.5v7.3l2.2-1.7 2.2 1.7V3.5"/>',
     // مراجعة: سهمٌ دائريّ — دورةٌ تعود على ما مضى
@@ -2400,7 +2488,14 @@ App.mark = function (size, cls) {
     close:   '<path d="M5.8 5.8l12.4 12.4M18.2 5.8L5.8 18.2"/>',
     add:     '<path d="M12 5.2v13.6M5.2 12h13.6"/>',
     check:   '<path d="M4.6 12.6 9.6 17.6 19.4 6.6"/>',
-    more:    '<circle cx="5.2" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.8" cy="12" r="1.3"/>',
+    /* نقاطٌ مصمتةٌ لا حَلَقات: المِلءُ هنا تصحيحُ وزنٍ لا تبديلُ استعارة.
+       كُنّ ثلاثَ دوائرَ نصفُ قطرها ١٫٣ بلا ملءٍ وبحدِّ ١٫٦، فتُرسَم كلُّ
+       واحدةٍ حلقةً جوفاءَ قطرُها الداخليُّ نصفُ بكسل — تختفي عند ١٧px
+       وتُقرأ غبارًا بين أيقوناتٍ مصمتةِ الخطّ. والنقطةُ ١٫٧ مصمتةً
+       تُساوي الحلقةَ القديمةَ كتلةً وتُرى. */
+    more:    '<g fill="currentColor" stroke="none">' +
+             '<circle cx="5.2" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/>' +
+             '<circle cx="18.8" cy="12" r="1.7"/></g>',
     undo:    '<path d="M3.8 9.4h6.4"/><path d="M3.8 9.4V3.2"/>' +
              '<path d="M3.8 9.4a8.4 8.4 0 1 1-1 7.2"/>',
     edit:    '<path d="M4 20h4.2L19.3 8.9a2 2 0 0 0 0-2.8l-1.4-1.4a2 2 0 0 0-2.8 0L4 15.8Z"/>' +
@@ -2470,6 +2565,226 @@ App.mark = function (size, cls) {
     'user','users','male','female','plus-user',
     'calendar','clock','target','chart','star','award',
     'book','page','bookmark','info','bell','moon','sun','lock'];
+})(window.App);
+
+/* ══ 11-icon3d.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   أيقوناتُ البطولة — لوحٌ زجاجيٌّ مضيءٌ يحمل الرمز
+   ───────────────────────────────────────────────────────────────────
+   طبقتان لا طبقةٌ واحدة. أيقونةُ الشريطِ والزرِّ خطٌّ واحدٌ حادٌّ
+   (‎App.icon‎)، لأنّ مَن يَمسح شريطًا من خمسةِ ألسنةٍ في ثُلثِ ثانيةٍ
+   لا يَقرأ زجاجًا. وأيقونةُ البطولةِ — حيث تكون الأيقونةُ هي المشهدَ
+   لا دليلًا عليه — لوحٌ له سُمكٌ وضوءٌ وهالة. وقلبُ الفرقِ أنّ
+   **الرمزَ نفسَه يبقى خطًّا واحدًا بلونٍ واحد** في الطبقتين:
+
+     الزجاجُ للسطحِ لا للخطّ. خطُّ ٢ بكسلٍ مملوءٌ بتدرُّجٍ معدنيٍّ
+     يَفقد لونَه ومعناه على الهاتف، ويُفقد الفاحصَ قدرتَه على قياسِ
+     تباينِه قياسًا صادقًا (‎getComputedStyle(svg).color‎ يَصف عندئذٍ
+     لونًا لا يُرى). فالعمقُ كلُّه تحت الرمزِ لا فيه: لوحٌ شفّافٌ،
+     وحافّةٌ تَلتقط الضوءَ من أعلى اليسار، وظلٌّ داخليٌّ من أسفل
+     اليمين، وانعكاسٌ قُزَحيٌّ على الصدر، وهالةُ لونِ النوعِ تحته.
+
+   ولا مُرشِّحَ (‎filter‎) البتّة — لا ‎feGaussianBlur‎ ولا غيرَه: أربعةُ
+   مرشِّحاتٍ في شاشةٍ واحدةٍ تُكلّف الجوّالَ أكثرَ ممّا تُعطي. الضبابُ
+   كلُّه تدرُّجاتٌ شعاعيّة، وهي تُرسَم على المعالجِ الرسوميِّ بلا ثمن.
+
+   والتدرُّجاتُ داخلَ كلِّ أيقونةٍ لا في ‎defs‎ مشتركٍ، خلافًا لأوّلِ
+   ما يَخطر: متغيّراتُ CSS (‎--kind‎ وأخواتُها) تُحسَب عند موضعِ
+   ‎<stop>‎ من الشجرة لا عند موضعِ مَن يُشير إليه — فلوحٌ مشتركٌ في
+   ‎body‎ يَجمد على لونٍ واحدٍ فتخرج الأيقوناتُ الأربعُ بلونِ واحد.
+   وثمنُ ذلك أربعةُ تدرُّجاتٍ لكلِّ أيقونة، وهي أرخصُ من مُرشِّحٍ واحد.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  /* الرسمُ يُؤخذ من المعجمِ نفسِه (‎10-icons.js‎) ولا يُكتب هنا ثانيةً:
+     نسختان من رمزٍ واحدٍ تَفترقان أوّلَ تعديل. والنواةُ لا تَكشف
+     خريطتَها، فيُنزع الغلافُ عن مُخرَجِ ‎App.icon‎ مرّةً ويُحفَظ. */
+  var cache = {};
+  function pathOf(key) {
+    if (cache[key] === undefined) {
+      var s = App.icon(key, 24) || '';
+      cache[key] = s.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+    }
+    return cache[key];
+  }
+
+  /* مُعرِّفاتُ ‎<defs>‎ عالميّةٌ في الصفحة كلِّها، فتُسبَق بـ‎i3-‎ وبعدّادٍ
+     لا يتكرّر — أيقونتان بمُعرِّفٍ واحدٍ تَرِثُ الثانيةُ تدرُّجَ الأولى. */
+  var seq = 0;
+
+  /* ── الهندسة ──────────────────────────────────────────────────
+     شبكةُ ٦٤. اللوحُ من ٦ إلى ٥٨ (٥٢ وحدة) وما حولَه فراغٌ للهالة.
+     وزواياه ليست قوسًا من دائرةٍ بل مُنحنًى متّصلُ الانحناء: يَخرج
+     المنحنى من الضلعِ مُسطَّحًا ثمّ يَدور — وهو ما يُفرّق لوحَ النظامِ
+     الفاخرِ من المربّعِ المستديرِ المولَّد. (k = 0.32r) */
+  var P0 = 6, P1 = 58, R = 15, K = 4.8;     /* K = R × 0.32 */
+  function plate(dy) {
+    var a = P0 + dy, b = P1 + dy;           /* الرأسيُّ وحدَه يُزاح */
+    return 'M' + (P0 + R) + ',' + a +
+      'H' + (P1 - R) +
+      'C' + (P1 - K) + ',' + a + ' ' + P1 + ',' + (a + K) + ' ' + P1 + ',' + (a + R) +
+      'V' + (b - R) +
+      'C' + P1 + ',' + (b - K) + ' ' + (P1 - K) + ',' + b + ' ' + (P1 - R) + ',' + b +
+      'H' + (P0 + R) +
+      'C' + (P0 + K) + ',' + b + ' ' + P0 + ',' + (b - K) + ' ' + P0 + ',' + (b - R) +
+      'V' + (a + R) +
+      'C' + P0 + ',' + (a + K) + ' ' + (P0 + K) + ',' + a + ' ' + (P0 + R) + ',' + a + 'Z';
+  }
+  var PLATE = plate(0);
+  /* جنبُ اللوح: نسختان متداخلتان بقاعدةِ «الزوجِ والفرد» (evenodd)
+     فلا يُطلى إلّا ما جاوزَ اللوحَ من النسخة السفلى — هلالٌ تحته.
+     ولو طُليت كاملةً لصارت أرضًا صمّاءَ تحت زجاجٍ شفّافٍ فأبطلت شفافيّتَه. */
+  var BASE = plate(2.2) + PLATE;
+
+  /* صدرُ اللوح: يَتبع حافّتَه العليا بالنقاطِ نفسِها — ولو قُرِّب
+     بقوسٍ دائريٍّ لظهر شعرُ انفصالٍ عند الزاوية — ويُغلَق بمنحنًى
+     هادئٍ في الوسط، فهو انعكاسُ ضوءٍ لا نصفُ لوح. */
+  var SHEEN =
+    'M' + P0 + ',' + (P0 + R) +
+    'C' + P0 + ',' + (P0 + K) + ' ' + (P0 + K) + ',' + P0 + ' ' + (P0 + R) + ',' + P0 +
+    'H' + (P1 - R) +
+    'C' + (P1 - K) + ',' + P0 + ' ' + P1 + ',' + (P0 + K) + ' ' + P1 + ',' + (P0 + R) +
+    'V28C45,36 19,36 ' + P0 + ',29Z';
+
+  /* الرمزُ من شبكةِ ٢٤ إلى قلبِ اللوح: ٣٠ وحدةً من ٥٢ — نصفُ اللوحِ
+     وزيادةٌ قليلة. أضيقُ منه يَبدو الرمزُ تائهًا، وأوسعُ يَخنق الزجاج. */
+  var GS = 1.25, GT = (64 - 24 * GS) / 2;   /* مقياسٌ ١٫٢٥ وإزاحةٌ ١٧ */
+
+  function icon3d(key, size, cls) {
+    var d = pathOf(key);
+    if (!d) return '';
+    var s = size || 56, u = 'i3-' + (++seq);
+    return '<svg class="i3' + (cls ? ' ' + cls : '') + '" viewBox="0 0 64 64" width="' + s +
+      '" height="' + s + '" aria-hidden="true" focusable="false">' +
+      '<defs>' +
+        '<linearGradient id="' + u + 'p" x1="0" y1="0" x2=".9" y2="1">' +
+          '<stop class="i3-pa" offset="0"/><stop class="i3-pb" offset=".6"/>' +
+          '<stop class="i3-pc" offset="1"/></linearGradient>' +
+        '<linearGradient id="' + u + 'r" x1=".05" y1="0" x2=".85" y2="1">' +
+          '<stop class="i3-ra" offset="0"/><stop class="i3-rb" offset=".42"/>' +
+          '<stop class="i3-rc" offset="1"/></linearGradient>' +
+        '<linearGradient id="' + u + 's" x1=".15" y1="0" x2=".55" y2="1">' +
+          '<stop class="i3-sa" offset="0"/><stop class="i3-sb" offset=".6"/>' +
+          '<stop class="i3-sc" offset="1"/></linearGradient>' +
+        '<radialGradient id="' + u + 'h" cx=".5" cy=".54" r=".5">' +
+          '<stop class="i3-ha" offset=".35"/><stop class="i3-hb" offset=".7"/>' +
+          '<stop class="i3-hc" offset="1"/></radialGradient>' +
+      '</defs>' +
+      /* الهالةُ أوّلًا فتَقع تحت اللوحِ ولا يَظهر منها إلّا ما جاوزه.
+         وهي بيضاويّةٌ لا مستطيلة: التدرُّجُ الشعاعيُّ يَنتهي عند نصفِ
+         قطرِه ثمّ **يَثبت** على آخرِ لونِه، فإن حملَه مستطيلٌ صُبغت
+         أركانُه الأربعُ بذلك اللونِ وبانت حولَ اللوحِ بقعةٌ مربّعة. */
+      '<ellipse class="i3-halo" cx="32" cy="33" rx="32" ry="31" fill="url(#' + u + 'h)"/>' +
+      /* سُمكُ اللوح — جسمٌ لا ظِلٌّ ضبابيّ: الظلُّ الضبابيُّ يَقتضي
+         مُرشِّحًا (ثمنُه على الجوّال)، والحافّةُ الصريحةُ تقول «لوحٌ له
+         جنبٌ» أصدقَ ممّا يقوله ضبابٌ تحت لوح. */
+      '<path class="i3-base" d="' + BASE + '" fill-rule="evenodd"/>' +
+      '<path class="i3-plate" d="' + PLATE + '" fill="url(#' + u + 'p)"/>' +
+      '<path class="i3-sheen" d="' + SHEEN + '" fill="url(#' + u + 's)"/>' +
+      '<path class="i3-edge" d="' + PLATE + '" fill="none" stroke="url(#' + u + 'r)" stroke-width="1"/>' +
+      '<g class="i3-sym" transform="translate(' + GT + ',' + GT + ') scale(' + GS + ')" ' +
+        'fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' +
+        /* نسختان: السفلى ظلُّ الرمزِ على الزجاجِ أو لمعةُ حافّتِه —
+           تُزاح ويُبدَّل لونُها بالوضع، فالضوءُ لا ينقلب بانقلاب الأرض */
+        '<g class="i3-emb">' + d + '</g>' +
+        '<g class="i3-gl" stroke="currentColor">' + d + '</g>' +
+      '</g></svg>';
+  }
+
+  /* ── الأنماط ──────────────────────────────────────────────────
+     كلُّ لونٍ هنا رمزٌ أو اشتقاقٌ من ‎--kind‎: الأيقونةُ تَرِث لونَ
+     نوعِها من البطاقةِ التي تَلبسها، فلا لوحَ ثانيًا في التطبيق.
+
+     **وفخٌّ وقعتُ فيه ههنا فلا يُعاد:** ‎--i3-pc:color-mix(…var(--kind)…)‎
+     مكتوبةً على ‎:root‎ لا تُعطي لونَ النوع. قيمةُ المتغيّرِ تُحسَب عند
+     **العنصرِ الذي أُعلنت عليه**، فتَقرأ ‎--kind‎ من الجذرِ — وهناك
+     احتياطُها ‎--accent‎ — ثمّ تَنزل لونًا جامدًا. فخرجت الأيقوناتُ
+     الأربعُ بلونِ الهويّةِ الواحد، وقد وُضع لها أربعة. فالنِّسَبُ
+     وحدَها على الجذر، والمزجُ بـ‎--kind‎ عند ‎<stop>‎ نفسِه حيث تَصدُق.
+
+     والليلُ غيرُ النهارِ قاعدةً لا شفافيّةً مقلوبة: في النهارِ زجاجٌ
+     **أفتحُ** من البطاقةِ تحته (ثلجيٌّ مصقول)، وفي الليلِ زجاجٌ
+     **أدكنُ** منها ذو حافّةٍ مضيئة (دخانيٌّ). ولو قُلبت الشفافيّةُ
+     آليًّا لخرج في الليلِ لوحٌ أبيضُ باهتٌ يَبتلع رمزَه الذهبيّ. */
+  var CSS = [
+    /* ── الليل: زجاجٌ دخانيٌّ وحافّةٌ تَلتقط الضوء ── */
+    ':root{',
+    '  --i3-pa:rgba(255,255,255,.15);',                     /* صدرُ اللوح */
+    '  --i3-pb-k:0%; --i3-pb-b:rgba(2,10,10,.34);',         /* وسطُه — أدكنُ ممّا تحته */
+    '  --i3-pc-k:20%; --i3-pc-b:rgba(2,10,10,.22);',        /* قدمُه: ضوءٌ محبوسٌ بلون النوع */
+    '  --i3-ra:rgba(255,255,255,.78);',                     /* ضوءُ الحافّة من أعلى اليسار */
+    '  --i3-rb-k:0%; --i3-rb-b:rgba(255,255,255,.10);',
+    '  --i3-rc-k:46%;',                                     /* وظلُّها من أسفل اليمين */
+    '  --i3-sa:rgba(255,255,255,.20);',                     /* الانعكاس */
+    '  --i3-sb:rgba(198,230,255,.06);',
+    '  --i3-sc:rgba(255,255,255,0);',
+    '  --i3-ha-k:34%; --i3-hb-k:12%;',                      /* الهالة */
+    /* طرفُ الهالةِ ‎٢٪‎ لا صفرًا: الصفرُ يُحسَب «شفّافًا أسودَ» فتَهبط
+       الهالةُ إلى السوادِ قبل أن تَختفي، وتلك حلقةٌ رماديّةٌ حولَ اللوح. */
+    '  --i3-hc-k:2%;',
+    '  --i3-base-k:40%; --i3-base-b:#030E0D;',              /* جنبُ اللوح */
+    '  --i3-emb-k:0%; --i3-emb-b:rgba(255,255,255,.20);',   /* لمعةُ حرفِ الرمز */
+    '  --i3-emb-x:-.45px; --i3-emb-y:-.6px;',
+    '}',
+    /* ── النهار: زجاجٌ ثلجيٌّ أفتحُ من أرضِه، وظلُّ الرمزِ من لونِ نوعه ── */
+    'html[data-mode="light"]{',
+    /* زجاجٌ **مصبوغٌ** لا لوحٌ أبيض: البياضُ الخالصُ على ورقٍ كريميٍّ
+       يُقرأ لصاقةً بلاستيكيّةً مهما أُضيفت إليه حافّة — لأنّ الزجاجَ
+       إنّما يُعرَف بأنّه يَصبغ ما تحته. فصدرُه ضوءٌ أبيضُ وقدمُه
+       صبغةُ نوعِه، والرمزُ فوقه مقيسٌ فوق الحدّ. */
+    /* وصدرُه دونَ البياضِ التامّ عمدًا: الانعكاسُ فوقه أبيضُ ‎٠٫٩٦‎،
+       ولو كان اللوحُ تحته أبيضَ مثلَه لما رُئي الانعكاسُ أصلًا. */
+    /* والصبغةُ تَثقُل عند القدمِ لا عند الوسط: الرمزُ يَجلس في الوسط،
+       وكلُّ درجةِ صبغٍ تحته تُؤخذ من تباينِه. قِيس: بصبغةٍ وسطى ‎١٤٪‎
+       هبط ذهبُ «حفظ» إلى ٣٫٣٣:١ على لوحه — فوق الحدِّ بقليلٍ لا يُطمأنّ
+       إليه — وبـ‎٨٪‎ صار ٤٫٠٦ وبقيت صبغةُ القدمِ تقول «زجاجٌ مصبوغ». */
+    '  --i3-pa:rgba(255,255,255,.80);',
+    '  --i3-pb-k:8%; --i3-pb-b:rgba(255,255,255,.74);',
+    '  --i3-pc-k:32%; --i3-pc-b:rgba(255,255,255,.34);',
+    '  --i3-ra:rgba(255,255,255,1);',
+    '  --i3-rb-k:16%; --i3-rb-b:transparent;',
+    '  --i3-rc-k:46%;',
+    '  --i3-sa:rgba(255,255,255,.96);',
+    '  --i3-sb:rgba(255,255,255,.20);',
+    '  --i3-sc:rgba(255,255,255,0);',
+    '  --i3-ha-k:30%; --i3-hb-k:11%; --i3-hc-k:2%;',
+    '  --i3-base-k:34%; --i3-base-b:#FFFFFF;',
+    '  --i3-emb-k:26%; --i3-emb-b:transparent;',
+    '  --i3-emb-x:.5px; --i3-emb-y:.7px;',
+    '}',
+    '.i3{display:block;flex:0 0 auto}',
+    '.i3-pa{stop-color:var(--i3-pa)}',
+    '.i3-pb{stop-color:color-mix(in srgb,var(--kind) var(--i3-pb-k),var(--i3-pb-b))}',
+    '.i3-pc{stop-color:color-mix(in srgb,var(--kind) var(--i3-pc-k),var(--i3-pc-b))}',
+    '.i3-ra{stop-color:var(--i3-ra)}',
+    '.i3-rb{stop-color:color-mix(in srgb,var(--kind) var(--i3-rb-k),var(--i3-rb-b))}',
+    '.i3-rc{stop-color:color-mix(in srgb,var(--kind) var(--i3-rc-k),transparent)}',
+    '.i3-sa{stop-color:var(--i3-sa)}.i3-sb{stop-color:var(--i3-sb)}',
+    '.i3-sc{stop-color:var(--i3-sc)}',
+    '.i3-ha{stop-color:color-mix(in srgb,var(--kind) var(--i3-ha-k),transparent)}',
+    '.i3-hb{stop-color:color-mix(in srgb,var(--kind) var(--i3-hb-k),transparent)}',
+    '.i3-hc{stop-color:color-mix(in srgb,var(--kind) var(--i3-hc-k),transparent)}',
+    '.i3-base{fill:color-mix(in srgb,var(--kind) var(--i3-base-k),var(--i3-base-b))}',
+    /* الظلُّ/اللمعةُ تُزاح داخلَ شبكةِ الرمزِ المكبَّرة، فالبكسلُ هنا
+       وحدةُ شبكةٍ لا بكسلَ شاشة — والإزاحةُ أقلُّ من وحدةٍ قصدًا. */
+    '.i3-emb{stroke:color-mix(in srgb,var(--kind) var(--i3-emb-k),var(--i3-emb-b));',
+    '  transform:translate(var(--i3-emb-x),var(--i3-emb-y))}',
+    /* شدّةُ التباينِ العالية: الزجاجُ زينةٌ ومَن طلب الحدَّ أراد الفصلَ
+       لا اللمعان — فيُصمَت اللوحُ ويَبقى الرمزُ وحدَه على سطحٍ صريح. */
+    '@media (prefers-contrast:more){',
+    '  .i3-sheen,.i3-halo,.i3-emb,.i3-base{display:none}',
+    '  .i3-plate{fill:var(--surface)}',
+    '  .i3-edge{stroke:var(--kind);stroke-width:1.5}',
+    '}'
+  ].join('');
+
+  var st = document.createElement('style');
+  st.setAttribute('data-mod', 'icon3d');
+  st.textContent = CSS;
+  document.head.appendChild(st);
+
+  App.icon3d = icon3d;
 })(window.App);
 
 /* ══ 12-quran.js ══ */
@@ -2787,10 +3102,19 @@ App.mark = function (size, cls) {
   /* رسمُ المدينةِ هو الأصل، لا خِيارٌ يُبحَث عنه: مَن حَفِظ من المصحفِ
      يَحفظ بموضعِ الكلمةِ في الصفحة، فحَجْبُ الرسمِ افتراضًا يَسلبه
      ذلك. ومَن أراد النصَّ المجرَّدَ أطفأه، فيُخزَّن false صريحًا. */
+  /* المتصفّحُ يَمنع fetch من file:// منعًا باتًّا. فلو ادّعينا القدرةَ
+     هناك لَخرج خطأٌ في الطرفيّةِ ثمّ ذهب الطلبُ إلى موقعٍ خارجيٍّ لم
+     يَطلبه أحد. فمَن فتح الملفَّ من قرصِه قرأ النصَّ، ومَن فتحه من
+     رابطِه رأى رسمَ المدينة. */
+  var FROM_FILE = (location.protocol === 'file:');
+
   function enabled() {
+    if (FROM_FILE) return false;
     var s = App.state.settings || {};
     return s.madani !== false;
   }
+
+  function fromFile() { return FROM_FILE; }
 
   function cacheOpen() {
     /* Cache Storage لا يعمل على file:// ولا في سياقٍ غيرِ آمن؛ وغيابُه
@@ -2803,7 +3127,13 @@ App.mark = function (size, cls) {
 
   function fetchFont(name) {
     return cacheOpen().then(function (c) {
-      var urls = SRC.map(function (t) { return t.replace('%s', fileOf(name)); });
+      /* الرسمُ مُشغَّلٌ افتراضًا، فلو ذهبنا إلى jsDelivr من تلقائنا متى
+         غاب مجلَّدُ الخطوطِ لَخرج من جهازِ القارئِ طلبٌ إلى طرفٍ ثالثٍ
+         لم يَأذن به ولم يَعلم. فدارُنا وحدَها هي الأصل، ولا يُقصَد
+         الخارجُ إلّا بإذنٍ صريحٍ من الإعدادات (madani === true). */
+      var st = App.state.settings || {};
+      var urls = SRC.slice(0, st.madani === true ? SRC.length : 1)
+        .map(function (t) { return t.replace('%s', fileOf(name)); });
 
       function tryAt(i) {
         if (i >= urls.length) return Promise.reject(new Error('لا مصدر'));
@@ -2882,7 +3212,7 @@ App.mark = function (size, cls) {
 
   App.QFont = {
     enabled: enabled, load: load, forPage: forPage,
-    ready: ready, stats: stats, clear: clear
+    ready: ready, stats: stats, clear: clear, fromFile: fromFile
   };
 
 }(window.App));
@@ -5320,11 +5650,14 @@ App.mark = function (size, cls) {
        والتداخلُ بـclip-path، وهو يقطع الأحداثَ كما يقطع الصورة، فكلُّ
        لوحةٍ تستقبل لمسَ ما يُرى منها لا ما يُخفيه جارُها. */
     '.pgate{display:flex;flex-direction:column}',
-    '.pg-b{position:relative;width:100%;min-height:116px;display:flex;',
-    '  align-items:center;gap:15px;padding:20px 22px;border:0;cursor:pointer;',
+    /* ١٠٦ لا ١١٦، والحشوُ ١٦ لا ٢٢: الشكوى كانت تمريرًا في شاشةٍ هي
+       مفترقُ طريقٍ يُرى كلُّه أو لا يُرى. والمقصوصُ من الفراغِ لا من
+       الحرفِ ولا من هدفِ اللمس — وأدنى بطاقةٍ هنا ١٠٦ وحدُّ اللمس ٤٤. */
+    '.pg-b{position:relative;width:100%;min-height:106px;display:flex;',
+    '  align-items:center;gap:13px;padding:14px 16px;border:0;cursor:pointer;',
     '  text-align:start;font:inherit;color:inherit;',
     '  -webkit-tap-highlight-color:transparent}',
-    '.pg-b + .pg-b{margin-block-start:-18px}',
+    '.pg-b + .pg-b{margin-block-start:-21px}',
     /* الحافّتان تتبادلان الميلَ فتتشابك اللوحات */
     '.pg-b:nth-child(odd){clip-path:polygon(0 0,100% 13%,100% 100%,0 87%)}',
     '.pg-b:nth-child(even){clip-path:polygon(0 13%,100% 0,100% 87%,0 100%)}',
@@ -5343,33 +5676,63 @@ App.mark = function (size, cls) {
       + 'color-mix(in srgb,var(--kind) 20%,var(--surface)),var(--surface))}',
     '.pg-b .pg-t{color:var(--ink)}',
     '.pg-b .pg-s{color:var(--ink-mut)}',
-    /* الخاتمُ يحمل لونَ نوعه، وعلى الفاتح يُغمَّق ليُقرأ */
-    '.pg-ico{flex:0 0 auto;display:grid;place-items:center;width:62px;height:62px;',
-    '  border-radius:var(--r-md)}',
-    '.pg-b .pg-ico{background:var(--kind-dim);color:var(--kind)}',
-    /* ٣٦٪ لا ٦٢٪: لونُ النوعِ خفيفٌ على الأرض الفاتحةِ فيقع تباينُ
-       الأيقونة بين ٢٫٤٧ و٣٫١٤:١ — دون حدّ الرسوم. وبـ٣٦٪ يصير أدناه
-       ٤٫٥٨:١، أي يُقرأ كما يُقرأ النصّ. */
-    '.pg-ico svg{width:30px;height:30px}',
+    /* الخاتمُ صار لوحًا زجاجيًّا قائمًا بنفسه (‎App.icon3d‎): أرضيّتُه
+       وحافّتُه وهالتُه كلُّها داخلَ الـSVG، فلا يُطلى هنا شيءٌ تحته —
+       ولو بقيت الأرضيّةُ لرُئي مربّعٌ مصمتٌ خلفَ زجاجٍ شفّاف. ويَبقى
+       ‎color‎ وحدَه: منه يأخذ الرمزُ لونَ نوعِه. */
+    '.pg-ico{flex:0 0 auto;display:grid;place-items:center;width:62px;height:62px}',
+    /* اللوحُ يَملأ خانتَه: المقاسُ يَتبدّل بالشاشةِ القصيرةِ في موضعٍ
+       واحدٍ (الخانة) لا في موضعين يَفترقان */
+    '.pg-ico .i3{width:100%;height:100%}',
+    '.pg-b .pg-ico{color:var(--kind)}',
     '.pg-bd{flex:1 1 auto;min-width:0}',
-    '.pg-t{display:block;font-size:22px;font-weight:800;line-height:1.3}',
+    '.pg-t{display:block;font-size:21px;font-weight:800;line-height:1.3}',
     /* الشَّرطةُ تحت الاسم كما في التصميم، وهي لونُ النوع لا ذهبًا ثابتًا */
-    '.pg-rule{display:block;width:42px;height:3px;border-radius:2px;margin:7px 0 0}',
+    '.pg-rule{display:block;width:40px;height:3px;border-radius:2px;margin:6px 0 0}',
     '.pg-b .pg-rule{background:var(--kind)}',
-    '.pg-s{display:block;margin-top:9px;font-size:13.5px;line-height:1.6}',
+    '.pg-s{display:block;margin-top:7px;font-size:13px;line-height:1.55}',
     '.pg-n{flex:0 0 auto;font-size:13px;font-weight:700;opacity:.8}',
     '.pg-b .pg-n{color:var(--kind)}',
     /* ── على الورقِ وحدَه ────────────────────────────────────────
-       الأرضيّةُ صارت واحدةً في الوضعَين (لونُ النوعِ على سطحِ السِّمة)،
-       فلم يبقَ للنهارِ إلّا ما يَقتضيه التباينُ عليه: الخاتمُ يُبيَّض
-       تحتَه ليَنفصل عن أرضيّتِه المصبوغة، والرقمُ الصغيرُ الثخينُ
-       يُغمَّق ١٥٪ ليعبرَ حدَّ النصّ على أرضيّةٍ من لونه نفسِه. */
-    'html[data-mode="light"] .pg-b .pg-ico{background:#FFF;color:var(--kind)}',
+       الأرضيّةُ واحدةٌ في الوضعَين (لونُ النوعِ على سطحِ السِّمة)، ولم
+       يبقَ للنهارِ إلّا ما يَقتضيه التباينُ عليه: الرقمُ الصغيرُ
+       الثخينُ يُغمَّق ١٥٪ ليعبرَ حدَّ النصّ على أرضيّةٍ من لونه نفسِه. */
     'html[data-mode="light"] .pg-b .pg-n{',
     '  color:color-mix(in srgb,var(--kind) 85%,#0B1A16)}',
     '@media (prefers-reduced-motion:no-preference){',
     '  .pg-b{transition:filter var(--fast) var(--ease)}',
     '  .pg-b:hover{filter:brightness(1.07)}}',
+    /* ── شاشةٌ قصيرة: البوّابةُ تُرى كلُّها أو ليست بوّابة ──────────
+       على ٦٤٠ ارتفاعًا كانت اللوحاتُ الأربعُ وبابُ المسارِ الحرِّ
+       يتجاوزون الشاشةَ بمئةٍ وثلاثين، فيَنزل الطالبُ يَبحث عن بابٍ لا
+       يَعلم أنّه ثَمّ. فتُقتطَع هنا الفراغاتُ وحدَها: السطرُ المُعين
+       يَسقط (العنوانُ سؤالٌ تامٌّ بنفسه)، واللوحُ يَضيق، والحرفُ
+       يَبقى كما هو — وهدفُ اللمسِ لا يُمَسّ. */
+    '@media (max-height:719px){',
+    '  .bld .mnj-lead{display:none}',
+    '  .pg-b{min-height:92px;padding:11px 14px;gap:11px}',
+    '  .pg-b + .pg-b{margin-block-start:-19px}',
+    '  .pg-ico{width:52px;height:52px}',
+    '  .pg-t{font-size:19px}',
+    '  .pg-rule{margin-top:5px}',
+    '  .pg-s{margin-top:5px;font-size:12.5px;line-height:1.5}',
+    /* ‎.bld‎ تُسبَق به عمدًا: قاعدةُ ‎.mnj-own‎ الأصليّةُ مكتوبةٌ بعد هذا
+       الموضعِ في الملفّ، والمتساويانِ في الخصوصيّةِ يَغلب آخرُهما —
+       فالاستعلامُ لا يُكسب قاعدتَه وزنًا، والسابقُ يَخسر بلا صوت. */
+    '  .bld .mnj-own{min-height:58px;padding:9px 12px}',
+    /* ‎.bld‎ هي ‎.screen‎ نفسُها، وفرجتُها ‎gap‎ لا هامشًا */
+    '  .bld{gap:12px}',
+    '  .bld .bar{padding-top:0}',
+    '}',
+    /* ── شاشةٌ طويلة ──────────────────────────────────────────────
+       ما وُفِّر للشاشةِ القصيرةِ لا يُؤخَذ من الطويلة: على ٨٤٤ يَبقى
+       بعد الضغطِ فراغٌ مئتا بكسل، وهو فراغُ بُخلٍ لا فراغُ وقار.
+       فتَستردّ اللوحاتُ سَعتَها حيث لا ثمنَ لها. */
+    '@media (min-height:780px){',
+    '  .pg-b{min-height:118px;padding:18px 18px}',
+    '  .pg-b + .pg-b{margin-block-start:-20px}',
+    '  .pg-t{font-size:22px}',
+    '}',
     '.mnj-card{display:flex;align-items:flex-start;gap:13px;width:100%;min-height:76px;',
     'padding:14px;text-align:start;background:var(--surface);color:var(--ink);',
     'border:1px solid var(--hair);border-radius:var(--r-lg);cursor:pointer;font:inherit;',
@@ -5806,8 +6169,10 @@ App.mark = function (size, cls) {
     var intro = el('section', 'sec');
     intro.appendChild(el('h2', 'h3', inGate ? 'ما الذي تريده اليوم؟'
                                             : 'طرائقُ ' + (cur ? cur.t : '')));
+    /* السطرُ المُعين يُختصر: شطرُه الثاني («أو ابنِ خطّتك بنفسك») بابٌ
+       قائمٌ أسفلَ الشاشةِ بنصّه، فذِكرُه هنا سطرٌ يُدفع ثمنُه تمريرًا */
     intro.appendChild(el('p', 'mnj-lead', inGate
-      ? 'اختَر ما أنت فيه، فتُعرَض عليك الطرائقُ المجرّبةُ له وحدَها — أو ابنِ خطّتك بنفسك.'
+      ? 'اختَر ما أنت فيه، تُعرَض عليك طرائقُه المجرّبة.'
       : (cur ? cur.s : '') + '. اختَر طريقةً تُضبط خطّتُك عليها وتَعرف خطواتَ يومك.'));
     wrap.appendChild(intro);
 
@@ -5843,7 +6208,8 @@ App.mark = function (size, cls) {
       var n = M.byPurpose(g.key).length;
       var b = btn('pg-b ' + (i % 2 ? 'pg-lite' : 'pg-dark') + ' ' + K.cls, '',
         function () { view = { mode: 'pick', id: null, purpose: g.key }; App.redraw(); });
-      b.appendChild(el('span', 'pg-ico', App.icon(g.icon, 30)));
+      /* هنا الأيقونةُ هي المشهدُ لا دليلٌ عليه، فلها لوحُ البطولة */
+      b.appendChild(el('span', 'pg-ico', App.icon3d(g.icon, 62)));
       var bd = el('span', 'pg-bd');
       bd.appendChild(el('b', 'pg-t', g.t));
       bd.appendChild(el('i', 'pg-rule'));
@@ -11329,8 +11695,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '.circ-sep::before,.circ-sep::after{content:"";height:1px;flex:1;background:var(--hair)}',
     '.circ-panel{overflow:hidden;animation:circ-in var(--mid) var(--ease) both}',
     '@keyframes circ-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}',
-    '.circ-emb{display:grid;place-items:center;inline-size:72px;block-size:72px;margin:0 auto 14px;',
-    'border-radius:var(--r-lg);background:var(--accent-soft);color:var(--accent)}',
+    /* خاتمُ الفراغ صار لوحَ بطولةٍ قائمًا بنفسه: أرضيّتُه وحافّتُه
+       داخلَ الـSVG، فلا تُطلى تحتَه أرضٌ ثانيةٌ تُرى من خلفِ زجاجه. */
+    '.circ-emb{display:grid;place-items:center;inline-size:76px;block-size:76px;',
+    'margin:0 auto 14px;color:var(--accent)}',
+    '.circ-emb .i3{inline-size:100%;block-size:100%}',
     '.circ-pen:focus-visible,.circ-num:focus-visible,.circ-rowb:focus-visible{',
     'outline:2px solid var(--accent);outline-offset:2px}',
     '.circ-rowb{inline-size:100%;text-align:start;cursor:pointer}',
@@ -11562,7 +11931,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (!list.length) {
       var emp = App.el('div', 'empty');
-      var e1 = App.el('div', 'circ-emb', App.icon('circles', 34));
+      /* هنا الأيقونةُ هي المشهدُ كلُّه — لا حلقةَ بعدُ ولا صفوف */
+      var e1 = App.el('div', 'circ-emb', App.icon3d('circles', 76));
       e1.setAttribute('aria-hidden', 'true');
       emp.appendChild(e1);
       emp.appendChild(put(App.el('p', 'h3'), 'لا حلقةَ لك بعد'));
@@ -11943,6 +12313,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   var P = App.Plans, Q = App.Quran, ar = App.ar, el = App.el;
 
   var CSS = [
+    /* خاتمُ شاشةِ الفراغ: خانةٌ للوحِ البطولةِ لا أرضيّةَ لها */
+    '.st-emb{display:grid;place-items:center;width:76px;height:76px;color:var(--accent)}',
+    '.st-emb .i3{width:100%;height:100%}',
     /* ١ · أربعُ بلاطاتٍ في صفٍّ: أرقامُ اليوم في لمحة */
     '.pr-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}',
     '.pr-tile{display:flex;flex-direction:column;align-items:center;gap:5px;',
@@ -12237,7 +12610,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (!plans.length) {
       var e = el('div', 'empty');
-      e.appendChild(el('div', 'emblem emblem-quiet', App.icon('chart', 30)));
+      /* الفراغُ مشهدٌ مقصودٌ بطلُه الخاتم، فله لوحُ البطولةِ لا خاتمٌ
+         صامتٌ ‎(emblem-quiet)‎ — وصنفُ الخاتمِ يَسقط معه فلا تُطلى
+         أرضٌ صمّاءُ خلفَ زجاجٍ شفّاف. */
+      e.appendChild(el('div', 'st-emb', App.icon3d('chart', 76)));
       var et = el('div', 'empty-t'); et.textContent = App.Words.statsEmptyTitle();
       var es = el('div', 'empty-s');
       es.textContent = App.Words.statsEmptyLede();
@@ -12845,6 +13221,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '#settings .st-sw-t{flex:1 1 auto;min-width:0}',
     '#settings .st-sw-t b{display:block;font-size:14px;font-weight:700}',
     '#settings .st-cb{flex:0 0 auto;width:22px;height:22px;accent-color:var(--accent)}',
+    /* بطاقةٌ مُعطَّلةٌ لا مَخفيّة: يَبقى عنوانُها مقروءًا ليُعلَم أنّ
+       البابَ موجودٌ وأنّ المانعَ المتصفّحُ لا التطبيق. */
+    '#settings .st-card-off .st-sw{opacity:.62}',
+    '#settings .st-card-off .st-cb{cursor:not-allowed}',
     '#settings .st-clear{margin-block-start:12px;min-height:38px;padding:8px 13px;',
     '  background:var(--surface-2);color:var(--ink-mut);',
     '  border:1px solid var(--hair);border-radius:var(--r-md);',
@@ -13303,17 +13683,28 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var cb = App.el('input');
       cb.type = 'checkbox';
       cb.className = 'st-cb';
-      cb.checked = !(App.state.settings && App.state.settings.madani === false);
+      /* الملفُّ المفتوحُ من القرصِ لا يَبلغ خطًّا: المتصفّحُ يَمنع ذلك
+         منعًا باتًّا. فلا يُترك المفتاحُ يَعِد بما لا يَكون — يُعطَّل
+         ويُقال السببُ صريحًا. */
+      var onFile = !!(App.QFont && App.QFont.fromFile && App.QFont.fromFile());
+      cb.checked = !onFile
+        && !(App.state.settings && App.state.settings.madani === false);
+      cb.disabled = onFile;
+      if (onFile) box.classList.add('st-card-off');
       row.appendChild(cb);
       box.appendChild(row);
 
       function refresh() {
         var st = App.QFont ? App.QFont.stats() : { loaded: 0, total: 0 };
-        note.textContent = cb.checked
+        note.textContent = onFile
+          ? 'يَحتاج رسمُ المدينةِ أن يُفتح التطبيقُ من رابطِه على الشبكة؛ '
+            + 'والمتصفّحُ يَمنع تحميلَ الخطوطِ من ملفٍّ على قرصك.'
+          : cb.checked
           ? (st.loaded
               ? ('نُزّل ' + App.ar(st.loaded) + ' من ' + App.ar(st.total)
                  + ' خطًّا، ويُقرأ ما نُزّل دون اتّصال.')
-              : 'يُنزَّل خطُّ كلِّ صفحةٍ عند فتحها أوّلَ مرّة، ثمّ يبقى.')
+              : 'يُنزَّل خطُّ كلِّ صفحةٍ عند فتحها أوّلَ مرّة، ثمّ يبقى — '
+                + 'من مجلَّدِ التطبيقِ نفسِه، لا من موقعٍ آخر.')
           : 'يُعرض نصُّ المصحفِ مُشكَّلًا بخطِّ جهازك — دون تنزيلِ شيء.';
       }
 
