@@ -1,12 +1,12 @@
 {
-  "name": "ارتقِ — حفظ القرآن ومراجعته",
+  "name": "ارتقِ — منصّة حفظ القرآن",
   "short_name": "ارتقِ",
   "start_url": "/Irtaqi/",
   "scope": "/Irtaqi/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F8FAF7",
-  "theme_color": "#155F4C",
+  "background_color": "#F8F4EC",
+  "theme_color": "#F8F4EC",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
