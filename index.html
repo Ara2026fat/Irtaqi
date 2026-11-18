@@ -1,4 +1,31 @@
 <!doctype html>
+<!--
+  ارتقِ — منصّة حفظ القرآن الكريم ومراجعته
+  طوّر هذا التطبيق عرفات الراجحي · جميع الحقوق محفوظة © ٢٠٢٦م
+
+  ‫إشعارُ المصدر — شرطُ رخصته لا مجاملة. ونصُّ الرخصة يَشترط بقاءَ
+  ‫الإشعار في كلِّ نسخةٍ تُوزَّع، ولا يَشترط عرضَه في الواجهة؛ فموضعُه
+  ‫هنا في الملفِّ المُوزَّع نفسِه، فالشرطُ قائمٌ والشاشةُ خالصةٌ للقارئ.
+
+  Quran text and Madani page layout data: quran-qcf4
+  MIT License · Copyright (c) 2026 Mohamad Hajj Rabee
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions: The above copyright notice and this
+  permission notice shall be included in all copies or substantial
+  portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+  WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+  THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+-->
 <html lang="ar" dir="rtl" data-id="m" data-mode="light">
 <head>
 <meta charset="utf-8">
@@ -13212,11 +13239,6 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '#settings .st-mdface i:nth-child(1){width:100%}',
     '#settings .st-mdface i:nth-child(2){width:72%}',
     '#settings .st-mdface i:nth-child(3){width:46%;height:5px}',
-    '#settings .st-credit{margin-block-start:16px;padding-block-start:14px;',
-    '  border-top:1px solid var(--hair-2)}',
-    '#settings .st-credit p{margin:0;font-size:12px;line-height:1.85;',
-    '  color:var(--ink-faint)}',
-    '#settings .st-credit-n{font-weight:700}',
     '#settings .st-sw{display:flex;align-items:center;gap:12px;cursor:pointer}',
     '#settings .st-sw-t{flex:1 1 auto;min-width:0}',
     '#settings .st-sw-t b{display:block;font-size:14px;font-weight:700}',
@@ -13291,12 +13313,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '#settings .st-brand span{display:block;margin-top:3px;font-size:13px;color:var(--ink-mut)}',
     '#settings .st-about p{margin:0 0 11px;font-size:14.5px;line-height:1.95;color:var(--ink-mut)}',
     '#settings .st-about p:last-of-type{margin-bottom:0}',
-    '#settings .st-sign{display:flex;align-items:center;gap:10px;margin-top:16px;' +
-      'padding-top:14px;border-top:1px solid var(--hair)}',
-    '#settings .st-sign i{flex:none;width:5px;height:5px;border-radius:50%;' +
-      'background:var(--gold)}',
-    '#settings .st-sign span{font-size:12.5px;letter-spacing:.14em;color:var(--gold);' +
+    /* الخاتمةُ مركزٌ لا سطرٌ جانبيّ: هي آخرُ ما تَقع عليه العينُ في
+       التطبيق، ودعوةٌ تُقرأ لا تُزَفّ. ولا حرفَ لاتينيًّا فيها. */
+    '#settings .st-sign{margin-top:18px;padding-top:16px;text-align:center;' +
+      'border-top:1px solid var(--hair)}',
+    '#settings .st-sign p{margin:0}',
+    '#settings .st-sign-d{font-size:14px;font-weight:700;color:var(--ink)}',
+    '#settings .st-sign-c{margin-top:6px;font-size:12.5px;color:var(--gold);' +
       'font-weight:700}',
+    '#settings .st-sign-p{margin-top:12px;font-size:13.5px;line-height:1.9;' +
+      'color:var(--ink-mut)}',
 
     /* حلقةُ تركيزٍ ظاهرةٌ على كلّ ما يُركَّز عليه */
     '#settings :focus-visible{outline:2.5px solid var(--gold-lit);outline-offset:3px;' +
@@ -13941,28 +13967,18 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         'كلُّ ما تكتبه مخزونٌ في جهازك وحدَه، فإن محوتَ بيانات المتصفّح ذهب معها، ' +
         'ولهذا كان التصديرُ في لسان «بياناتي».'));
       box.appendChild(txt('p', null,
-        'والحلقاتُ تعمل بتبادل الروابط بين الطلّاب أنفسِهم: تُنشئ حلقةً فتُرسل رابطَها ' +
+        'والحلقاتُ تعمل بتبادل الروابط بينكم أنفسِكم: تُنشئ حلقةً فتُرسل رابطَها ' +
         'لمن تشاء، ويعود إليك رابطُه. لا خادمَ يجمعكم، ولا أحدَ يراقبُ تقدّمك.'));
 
-      /* إشعارُ المصدرِ شرطُ رخصتِه لا مجاملة: بياناتُ المصحفِ
-         (نصُّه ورسمُ صفحاتِه) تحت MIT، وهي تَشترط إبقاءَ الإشعار
-         في كلِّ نسخةٍ تُوزَّع. فموضعُه هنا، ظاهرًا لا مدفونًا. */
-      var cr = App.el('div', 'st-credit');
-      cr.appendChild(txt('p', null,
-        'نصُّ المصحفِ ورسمُ صفحاتِه مأخوذان من قاعدةِ بيانات ' +
-        'quran-qcf4 برخصة MIT.'));
-      var cn = txt('p', 'st-credit-n', '© 2026 Mohamad Hajj Rabee');
-      cn.setAttribute('dir', 'ltr');
-      cr.appendChild(cn);
-      cr.appendChild(txt('p', null,
-        'وبياناتُ المتشابهاتِ من تطبيق «زاحِم».'));
-      box.appendChild(cr);
-
+      /* إشعارُ رخصةِ المصدرِ انتقل إلى صدرِ الملفِّ المُوزَّع تعليقًا:
+         الرخصةُ تَشترط بقاءَ الإشعارِ في النسخةِ لا عرضَه في الواجهة،
+         فالشرطُ قائمٌ والشاشةُ خالصةٌ للقارئِ بلغتِه وحدَها. */
       var sign = App.el('div', 'st-sign');
-      sign.appendChild(App.el('i'));
-      var sg = txt('span', null, 'ARAFAT ALRAJHI © 2026');
-      sg.setAttribute('dir', 'ltr');
-      sign.appendChild(sg);
+      sign.appendChild(txt('p', 'st-sign-d', 'طوّر هذا التطبيق عرفات الراجحي'));
+      sign.appendChild(txt('p', 'st-sign-c',
+        'جميع الحقوق محفوظة © ارتقِ ٢٠٢٦م / ١٤٤٨هـ'));
+      sign.appendChild(txt('p', 'st-sign-p',
+        'اللهمّ اغفرْ لمطوِّرها ومستخدميها ووالديهم والمسلمين أجمعين'));
       box.appendChild(sign);
       return box;
     }
