@@ -6,7 +6,7 @@
 // يمنع ظهور زر "تثبيت التطبيق" على الجوال بلا أي رسالة خطأ مفهومة.
 // البديل: تخزين كل ملف على حدة، وتجاهل الفاشل بدل إسقاط الجميع.
 // ============================================================================
-const CACHE_NAME = 'irtaqi-cache-v5';
+const CACHE_NAME = 'irtaqi-cache-v6';
 
 // نقطة الدخول صارت index.html ليعمل الرابط المختصر على GitHub Pages
 // (‎ara2026fat.github.io/Irtaqi/‎). كان الاسم Irtaqi.html فيظهر 404 لمن
@@ -106,5 +106,54 @@ self.addEventListener('fetch', function (event) {
       });
       return cached || network;
     })
+  );
+});
+
+// ============================================================================
+// التذكيرُ بالوِرد — ساكنٌ حتّى يَشترك صاحبُ الجهازِ بنفسه.
+// لا يَعمل شيءٌ ممّا دونه ما لم يُرسل الخادمُ إشعارًا، ولا يُرسل الخادمُ
+// شيئًا لمن لم يَشترك. فوجودُ هذه المعالِجاتِ اليومَ لا يُحدث أثرًا،
+// ويُغني غدًا عن تحديثِ عاملِ الخدمةِ وقتَ تفعيلِ التنبيه.
+// ============================================================================
+
+self.addEventListener('push', function (event) {
+  // جسمُ الإشعارِ يأتي من الخادم، وقد يأتي فارغًا أو تالفًا — فله بديلٌ
+  // لا يَلوم المتأخّر: التذكيرُ دعوةٌ لا محاسبة.
+  var d = {};
+  try { d = (event.data && event.data.json()) || {}; } catch (e) {}
+
+  var title = d.title || 'ارتقِ';
+  var body = d.body || 'وِردُك في انتظارك.';
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      dir: 'rtl',
+      lang: 'ar',
+      tag: d.tag || 'wird',          // واحدٌ يَحلّ محلَّ واحد، فلا تتراكم
+      renotify: false,
+      badge: './icon-192.png',
+      icon: './icon-192.png',
+      data: { url: d.url || './' }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  var target = (event.notification.data && event.notification.data.url) || './';
+
+  // نافذةٌ مفتوحةٌ تُرفَع ولا تُفتح ثانية: مَن عنده التطبيقُ مفتوحٌ
+  // على صفحةٍ من المصحف لا يُقذَف منها لأنّه لمس تذكيرًا.
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(function (list) {
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].url.indexOf(self.registration.scope) === 0 && 'focus' in list[i]) {
+            return list[i].focus();
+          }
+        }
+        if (self.clients.openWindow) return self.clients.openWindow(target);
+      })
   );
 });

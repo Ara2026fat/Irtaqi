@@ -3244,6 +3244,113 @@ App.mark = function (size, cls) {
 
 }(window.App));
 
+/* ══ 17-seal.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   الخَتْم — تعميةٌ من طرفٍ إلى طرف
+   ───────────────────────────────────────────────────────────────────
+   هذه الوحدةُ أساسُ وعدٍ قطعناه في «عن التطبيق»: «لا يُرسَل من هذا
+   شيءٌ إلى أيّ مكان». وسيأتي يومٌ تُزامَن فيه النسخةُ بين جهازَين،
+   فإمّا أن يَسقط الوعدُ وإمّا أن يُرفَع إلى ما هو أمتن: **خادمٌ
+   يَحمل صندوقًا لا يَقدر على فتحه**. وهذا ما تَصنعه هذه الوحدة.
+
+   وهي اليومَ ليست تجهيزًا لغدٍ فحسب: نسخةُ القارئِ الاحتياطيّةُ فيها
+   سجلُّ حفظِه كلِّه، وقد تُرسَل في محادثةٍ أو تَبقى في مجلَّدِ
+   التنزيلات. فخَتْمُها بكلمةٍ يَملكها وحدَه عملٌ نافعٌ من يومِه.
+
+   المِظروف:  IRTQ1.<ملح>.<متّجه>.<المُعمّى>   كلُّه Base64 بلا حشو
+   المفتاح:   PBKDF2-SHA256 ثمّ AES-GCM ٢٥٦
+
+   ولرقمِ الإصدارِ في الصدرِ (‎1‎) معنًى: نسخةٌ خُتمت اليومَ يجب أن
+   تُفتَح بعد سنتين ولو تبدّلت المعايير. فالصدرُ يُقرأ أوّلًا، وكلُّ
+   تبديلٍ في الطريقةِ يَأخذ رقمًا جديدًا ويَبقى القديمُ مفهومًا.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  var MAGIC = 'IRTQ1';
+
+  /* دوراتُ الاشتقاق. المرادُ أن يَغلوَ تخمينُ الكلمةِ على مَن ظفر
+     بالملفّ، لا أن يَثقل الفتحُ على صاحبه: مئاتُ الألوفِ تُكلّف
+     صاحبَ الملفِّ جزءًا من الثانيةِ مرّةً واحدة، وتُكلّف المُخمِّنَ
+     ذلك في كلِّ تخمينةٍ من ملايينِه. (توصيةُ OWASP لـSHA-256.) */
+  var ITER = 310000;
+
+  function able() {
+    try { return !!(window.crypto && crypto.subtle && window.TextEncoder); }
+    catch (e) { return false; }
+  }
+
+  function bytes(s) { return new TextEncoder().encode(s); }
+  function text(b) { return new TextDecoder().decode(b); }
+
+  /* Base64 بلا حشوٍ ولا أحرفَ تُفسدها الروابط */
+  function b64(buf) {
+    var a = new Uint8Array(buf), s = '', i;
+    for (i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+    return btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+  }
+  function unb64(s) {
+    var t = String(s).replace(/-/g, '+').replace(/_/g, '/');
+    while (t.length % 4) t += '=';
+    var raw = atob(t), a = new Uint8Array(raw.length), i;
+    for (i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i);
+    return a;
+  }
+
+  function derive(pass, salt) {
+    return crypto.subtle
+      .importKey('raw', bytes(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: salt, iterations: ITER, hash: 'SHA-256' },
+          base,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt']
+        );
+      });
+  }
+
+  /* يَختم نصًّا بكلمة. ملحٌ جديدٌ ومتّجهٌ جديدٌ في كلِّ ختمةٍ: ختمُ
+     النصِّ نفسِه مرّتَين يَخرج مختلفًا، فلا يُستدَلّ بالتشابه. */
+  function seal(plain, pass) {
+    if (!able()) return Promise.reject(new Error('لا تعميةَ في هذا المتصفّح'));
+    if (!pass) return Promise.reject(new Error('لا كلمة'));
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return derive(pass, salt).then(function (k) {
+      return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, bytes(plain));
+    }).then(function (ct) {
+      return MAGIC + '.' + b64(salt) + '.' + b64(iv) + '.' + b64(ct);
+    });
+  }
+
+  /* يَفكّ مِظروفًا. وفشلُ الفكِّ لا يُفرَّق فيه بين كلمةٍ خاطئةٍ
+     وملفٍّ مبتور: AES-GCM يَكشف العبثَ كما يَكشف الخطأ، وكلاهما
+     عند القارئِ شيءٌ واحد — «لم يُفتَح». */
+  function open(packed, pass) {
+    if (!able()) return Promise.reject(new Error('لا تعميةَ في هذا المتصفّح'));
+    var p = String(packed || '').trim().split('.');
+    if (p.length !== 4 || p[0] !== MAGIC) {
+      return Promise.reject(new Error('ليس مِظروفَ ارتقِ'));
+    }
+    var salt, iv, ct;
+    try { salt = unb64(p[1]); iv = unb64(p[2]); ct = unb64(p[3]); }
+    catch (e) { return Promise.reject(new Error('مِظروفٌ تالف')); }
+    return derive(pass, salt).then(function (k) {
+      return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, k, ct);
+    }).then(function (buf) { return text(buf); });
+  }
+
+  /* أهذا النصُّ مِظروفٌ مختوم؟ يُسأل قبل محاولةِ القراءةِ العاديّة */
+  function sealed(s) {
+    return typeof s === 'string' && s.trim().slice(0, MAGIC.length + 1) === MAGIC + '.';
+  }
+
+  App.Seal = { able: able, seal: seal, open: open, sealed: sealed, MAGIC: MAGIC };
+
+}(window.App));
+
 /* ══ 18-audio.js ══ */
 /* ══ 18-audio.js — التلاوةُ المسموعة ═════════════════════════════
    الحفظُ شفهيٌّ قبل أن يكون بصريًّا: يُسمَع فيُردَّد فيَثبُت. وكان
@@ -3982,6 +4089,168 @@ App.mark = function (size, cls) {
     '.ra-ic{display:inline-flex;transform:rotate(90deg)}',
     '.ra-wide[aria-expanded="true"] .ra-ic{transform:rotate(-90deg)}'
   ];
+
+}(window.App));
+
+/* ══ 19-cloud.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   الوصلة — بابُ ارتقِ إلى خادمِه، وهو اليومَ مُغلَق
+   ───────────────────────────────────────────────────────────────────
+   التطبيقُ اليومَ لا خادمَ له، وفحصُ «طلباتُ الشبكة» في حارسِ الجودةِ
+   يَسقط إن خرج طلبٌ واحد. وغدًا — حين يَصل النطاق — نُريد التنبيهَ
+   والمزامنةَ والحلقةَ الحقيقيّة.
+
+   فالخيارُ بين أمرَين: أن نَكتب ذلك كلَّه غدًا في عَجَلةٍ فنَشقّ
+   الوحداتِ شقًّا، أو أن نَضع **المَوضِعَ** اليومَ ساكنًا. وهذا هو.
+
+   القاعدةُ الحاكمة: ‎ENDPOINT‎ فارغٌ ⇐ الوحدةُ كلُّها ساكنة. كلُّ
+   دالّةٍ تَرُدّ ‎{ok:false, off:true}‎ بلا طلبٍ البتّة. فإذا جاء
+   النطاقُ مُلئ السطرُ الواحدُ أدناه وعملَ كلُّ شيء.
+
+   وثلاثةُ أشياءَ قُيِّدت في هذه الوحدةِ قصدًا:
+
+   ١) **بابٌ واحدٌ للخروج.** لا ‎fetch‎ في ارتقِ كلِّه إلّا في ‎req‎
+      ههنا وفي خطِّ المصحف. فمَن أراد أن يَعرف ما يُرسَل من جهازه
+      قرأ دالّةً واحدة.
+
+   ٢) **المعرّفُ لا يُولَّد قبل حاجته.** معرّفٌ لا يُرسَل لا يُصنَع.
+      ومَوضِعُه خارجَ ‎App.state‎ في مفتاحٍ مستقلّ: فهو **وصفُ جهازٍ
+      لا وصفُ قارئ**، فلا يَنتقل في النسخةِ الاحتياطيّةِ إلى جهازٍ
+      آخرَ فيَنتحل هُويّةَ الأوّل.
+
+   ٣) **لا يُرفَع إلّا مختوم.** ‎push‎ لا تَقبل إلّا مِظروفَ ‎App.Seal‎.
+      فلو سها كاتبٌ يومًا ورفع الحالةَ عاريةً رُدَّ قبل أن يَخرج شيء.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  /* ← السطرُ الواحد. يُملأ يومَ يَصل النطاق: 'https://irtaqi.app' */
+  var ENDPOINT = '';
+
+  var DEV_KEY = 'irtaqi.device';   /* مستقلٌّ عن الحالة: وصفُ جهازٍ لا قارئ */
+  var MAX = 2 * 1024 * 1024;       /* حدُّ المِظروفِ المرفوع — يُطابق الخادم */
+
+  function base() {
+    var s = (App.state && App.state.settings) || {};
+    var v = (typeof s.cloud === 'string' && s.cloud) || ENDPOINT || '';
+    return v.replace(/\/+$/, '');
+  }
+
+  /* أمفتوحٌ البابُ؟ كلُّ الواجهاتِ تَسأل هذه أوّلًا، وشاشةُ الإعداداتِ
+     لا تُظهر بطاقةَ المزامنةِ إلّا إن صدقَت — فلا يَرى القارئُ اليومَ
+     بابًا لا يُفتح، ويَراه يومَ يُفتح بلا تحديثِ تطبيق. */
+  function on() { return !!base(); }
+
+  function devId() {
+    var v = null;
+    try { v = localStorage.getItem(DEV_KEY); } catch (e) {}
+    if (v && /^[A-Za-z0-9_-]{16,64}$/.test(v)) return v;
+    v = mint();
+    try { localStorage.setItem(DEV_KEY, v); } catch (e) {}
+    return v;
+  }
+
+  function mint() {
+    var raw = '';
+    try {
+      if (window.crypto && crypto.randomUUID) raw = crypto.randomUUID();
+      else if (window.crypto && crypto.getRandomValues) {
+        var a = crypto.getRandomValues(new Uint8Array(16)), i;
+        for (i = 0; i < a.length; i++) raw += ('0' + a[i].toString(16)).slice(-2);
+      }
+    } catch (e) {}
+    if (!raw) raw = String(Date.now()) + Math.random().toString(36).slice(2);
+    return raw.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
+  }
+
+  function forget() {
+    try { localStorage.removeItem(DEV_KEY); } catch (e) {}
+  }
+
+  /* ── البابُ الوحيد ─────────────────────────────────────────────
+     وله مُهلةٌ مقصودة: القارئُ في مسجدٍ شبكتُه ضعيفةٌ لا يَنتظر
+     التطبيقَ، والمزامنةُ خدمةٌ لا شرطٌ لفتحِ المصحف. */
+  function req(path, body, q) {
+    var b = base();
+    if (!b) return Promise.resolve({ ok: false, off: true });
+
+    var url = b + path + (q || '');
+    var opt = { method: body ? 'POST' : 'GET', mode: 'cors', cache: 'no-store' };
+    if (body) {
+      opt.headers = { 'content-type': 'application/json' };
+      opt.body = JSON.stringify(body);
+    }
+
+    var ac = null, timer = null;
+    try {
+      if (window.AbortController) {
+        ac = new AbortController();
+        opt.signal = ac.signal;
+        timer = setTimeout(function () { try { ac.abort(); } catch (e) {} }, 12000);
+      }
+    } catch (e) {}
+
+    return fetch(url, opt).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        d = d || {};
+        d.status = r.status;
+        if (!('ok' in d)) d.ok = r.ok;
+        return d;
+      });
+    }).catch(function () {
+      return { ok: false, net: true };
+    }).then(function (d) {
+      if (timer) clearTimeout(timer);
+      return d;
+    });
+  }
+
+  /* ── عدٌّ مجهول: كم جهازًا يَفتح ارتقِ. لا اسمَ ولا محتوى ── */
+  function ping() {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    return req('/api/ping', { id: devId(), v: App.VERSION || '1' });
+  }
+
+  /* ── التذكير: ساعةُ الوِردِ بتوقيتِ صاحبِه هو ── */
+  function subscribe(sub, h, m) {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    return req('/api/push/sub', {
+      id: devId(), sub: sub, wird: { h: h | 0, m: m | 0 }, tz: tz
+    });
+  }
+
+  function unsubscribe() {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    return req('/api/push/unsub', { id: devId() });
+  }
+
+  /* ── المزامنة ──────────────────────────────────────────────────
+     ‎rev‎ عدّادٌ عند الخادم. يُدفَع ما بُني على آخرِ ما رأيناه، فإن
+     سبقَنا جهازٌ آخرُ رُدَّ الدفعُ بـ409 ومعه الأحدثُ ليَدمج صاحبُه
+     بعينِه. ودمجُ سجلّاتِ حفظٍ أمرٌ لا يُترَك لخادمٍ لا يَقرأ. */
+  function pull(rev) {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    return req('/api/sync', null,
+      '?id=' + encodeURIComponent(devId()) + '&rev=' + (rev | 0));
+  }
+
+  function push(envelope, rev) {
+    if (!on()) return Promise.resolve({ ok: false, off: true });
+    if (!App.Seal || !App.Seal.sealed(envelope)) {
+      /* حارسٌ لا يُرفَع: لو سها كاتبٌ ورفع الحالةَ عاريةً وُقف هنا */
+      return Promise.resolve({ ok: false, bare: true });
+    }
+    if (envelope.length > MAX) return Promise.resolve({ ok: false, big: true });
+    return req('/api/sync', { id: devId(), rev: rev | 0, blob: envelope });
+  }
+
+  App.Cloud = {
+    on: on, endpoint: base, device: devId, forget: forget,
+    ping: ping, subscribe: subscribe, unsubscribe: unsubscribe,
+    pull: pull, push: push, MAX: MAX
+  };
 
 }(window.App));
 
@@ -13777,10 +14046,37 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       bExp.type = 'button';
       bExp.innerHTML = ic(['download'], 22) +
         '<span class="st-rt"><b>تصدير نسخة</b>' +
-        '<small>ملفُّ JSON فيه ملفُّك ومناهجُك وحلقاتُك.</small></span>' +
+        '<small>ملفٌّ فيه ملفُّك ومناهجُك وحلقاتُك.</small></span>' +
         '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
-      bExp.onclick = doExport;
+      bExp.onclick = function () { doExport(); };
       rows.appendChild(bExp);
+
+      /* — تصديرٌ مختوم —
+         النسخةُ فيها سجلُّ حفظِك كلِّه، وهي تَخرج من التطبيقِ إلى
+         مجلَّدِ التنزيلاتِ وربّما إلى محادثة. فمَن شاء خَتَمها بكلمةٍ
+         لا يَملكها غيرُه، فلا تُقرأ إن وقعت في يدٍ أخرى. */
+      if (App.Seal && App.Seal.able()) {
+        var bSeal = App.el('button', 'st-row');
+        bSeal.type = 'button';
+        bSeal.innerHTML = ic(['lock'], 22) +
+          '<span class="st-rt"><b>تصدير نسخةٍ مختومة</b>' +
+          '<small>تُقفَل بكلمةٍ تَختارها، ولا تُفتَح إلّا بها. ' +
+          'وإن نَسيتَها فلا سبيلَ إلى فتحِها — ولا عندنا.</small></span>' +
+          '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
+        bSeal.onclick = function () {
+          var pass = window.prompt(
+            'كلمةُ الختم — اكتبها في موضعٍ تَأمَنه.\n' +
+            'لا تُحفَظ في التطبيق، ولا سبيلَ إلى فتحِ النسخةِ بدونها.');
+          if (pass === null) return;
+          if (String(pass).length < 6) {
+            say('كلمةُ الختمِ ستّةُ أحرفٍ فأكثر.', true);
+            return;
+          }
+          say('يُختَم…', false);
+          doExport(String(pass));
+        };
+        rows.appendChild(bSeal);
+      }
 
       /* — استيراد — */
       var fwrap = App.el('div', 'st-wrapfile');
@@ -13788,7 +14084,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       file.type = 'file';
       file.id = 'st-import';
       file.className = 'st-file';
-      file.accept = '.json,application/json';
+      file.accept = '.json,.irtaqi,application/json,text/plain';
       var bImp = App.el('label', 'st-row');
       bImp.htmlFor = 'st-import';
       bImp.innerHTML = ic(['upload', 'import', 'copy', 'download'], 22) +
@@ -13828,12 +14124,32 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
       /* الحفظُ بـBlob ورابطٍ مؤقّت، ويُسحب الرابطُ بعد النقر فلا يبقى
          في الذاكرة مرجعٌ لنسخةٍ كاملةٍ من بيانات الطالب. */
-      function doExport() {
-        var name, url = null, a = null;
+      function doExport(pass) {
+        if (pass) {
+          /* الختمُ يَأخذ جزءًا من الثانية (اشتقاقٌ مقصودُ الثِّقَل)،
+             فيُؤجَّل الحفظُ إلى أن يَتمّ ولا يُحجَب الزرُّ بانتظار. */
+          App.Seal.seal(JSON.stringify(App.state), pass).then(function (env) {
+            write(env, 'irtaqi-' + App.dateKey() + '.irtaqi', 'text/plain');
+            say('صُدّرت نسخةٌ مختومة. احفظ كلمتَها — لا بديلَ عنها.', false);
+            App.toast('خُتمت النسخة.');
+          }).catch(function () {
+            say('تعذّر ختمُ النسخةِ في هذا المتصفّح.', true);
+            App.toast('تعذّر الختم.');
+          });
+          return;
+        }
+        var n0 = App.state.plans.length;
+        if (!write(JSON.stringify(App.state, null, 2),
+                   'irtaqi-' + App.dateKey() + '.json', 'application/json')) return;
+        say('صُدّرت نسخةٌ فيها ' + App.ar(n0) + ' ' +
+            (n0 === 1 ? 'منهج' : 'منهجًا') + '.', false);
+        App.toast('حُفظت النسخة.');
+      }
+
+      function write(data, name, type) {
+        var url = null, a = null;
         try {
-          var json = JSON.stringify(App.state, null, 2);
-          name = 'irtaqi-' + App.dateKey() + '.json';
-          var blob = new Blob([json], { type: 'application/json' });
+          var blob = new Blob([data], { type: type });
           url = URL.createObjectURL(blob);
           a = document.createElement('a');
           a.href = url;
@@ -13845,16 +14161,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         } catch (e) {
           say('تعذّر إنشاءُ ملفّ النسخة في هذا المتصفّح.', true);
           App.toast('تعذّر التصدير.');
-          return;
+          return false;
         } finally {
           setTimeout(function () {
             if (a && a.parentNode) a.parentNode.removeChild(a);
             if (url) URL.revokeObjectURL(url);
           }, 1200);
         }
-        var n = App.state.plans.length;
-        say('صُدّرت نسخةٌ فيها ' + App.ar(n) + ' ' + (n === 1 ? 'منهج' : 'منهجًا') + '.', false);
-        App.toast('حُفظت النسخة.');
+        return true;
       }
 
       function readFile(f) {
@@ -13872,6 +14186,20 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         };
         fr.onload = function () {
           var text = typeof fr.result === 'string' ? fr.result : '';
+          /* المِظروفُ المختومُ يُعرَف من صدرِه قبل أن يُقرأ: فلا
+             يُرَدُّ على صاحبه «ملفٌّ فاسد» وإنّما تُطلَب كلمتُه. */
+          if (App.Seal && App.Seal.sealed(text)) {
+            var pass = window.prompt('كلمةُ ختمِ هذه النسخة:');
+            if (pass === null) { say('أُلغي الاستيراد.', false); return; }
+            say('يُفَكّ…', false);
+            App.Seal.open(text, String(pass)).then(function (plain) {
+              applyImport(plain);
+            }).catch(function () {
+              say('لم تُفتَح النسخة: الكلمةُ خاطئةٌ أو الملفُّ تالف.', true);
+              App.toast('لم تُفتَح النسخة.');
+            });
+            return;
+          }
           applyImport(text);
         };
         try { fr.readAsText(f); }
