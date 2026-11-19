@@ -2271,8 +2271,10 @@ html[data-mode="dark"]{
 .w-jzs{ display:flex; flex-direction:column; gap:14px }
 .w-jz{ display:flex; flex-direction:column; gap:7px }
 .w-jz-h{ display:flex; align-items:baseline; gap:10px }
-.w-jz-h b{ flex:1 1 auto; font-size:14.5px; font-weight:700; color:var(--ink) }
+.w-jz-h b{ flex:none; font-size:14.5px; font-weight:700; color:var(--ink) }
 .w-jz-n{
+  flex:1 1 auto;
+  text-align:end;
   font-size:14px; font-weight:800;
   color:var(--ink-mut);
   font-variant-numeric:tabular-nums;
@@ -2336,6 +2338,9 @@ html[data-mode="dark"]{
   outline:2.5px solid var(--gold-lit);
   outline-offset:2px;
 }
+
+/* حقلا الهدفِ معًا: يُخفَيان جملةً لمن أتمّ المصحف */
+.w-goal{ display:flex; flex-direction:column; gap:var(--gap-lg) }
 
 /* ══ 41-exam.css ══ */
 /* ══ 41-exam.css — كِسوةُ مُولِّدِ الاختبار ═══════════════════════
@@ -16798,8 +16803,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       goal: null,         /* {from,to} هدفُ هذا العام */
       rate: 1,            /* صفحاتُ الجديدِ في اليوم */
       days: [0, 1, 2, 3, 4],
-      cyc: 1,             /* صفحاتُ دورةِ القديمِ في اليوم */
-      ci: 0,              /* موضعُ الدورةِ من قائمةِ القديم */
+      cyc: 0,             /* صفراً = يُحسَب وحدَه (انظر cycRate) */
+      cp: 0,              /* آخرُ صفحةٍ مرَّت بها الدورة */
+      cd: '', cnt: 0,     /* يومُ آخرِ دورةٍ وعددُ ما مَرّ فيه */
       cat: '',            /* آخرُ يومٍ مَشت فيه الدورة */
       st: {},             /* صفحة ← {s,k,z,due,at} */
       sl: {},             /* زلّاتٌ هُضمت من ‎state.slips‎ — كي لا تُعاد */
@@ -16827,7 +16833,17 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     if (!h.sl || typeof h.sl !== 'object') h.sl = {};
     if (!h.log || typeof h.log !== 'object') h.log = {};
     if (!(h.old instanceof Array)) h.old = [];
+    /* أيّامُ الأسبوعِ لا بدّ أن تكون قائمةَ أرقام: نصٌّ في موضعها
+       يَمُرّ من ‎indexOf‎ بلا خطأٍ ويُسقط الوِردَ صامتًا كلَّ يوم. */
+    if (!(h.days instanceof Array)) h.days = [0, 1, 2, 3, 4];
+    else {
+      h.days = h.days.filter(function (d) {
+        return d === Math.round(+d) && d >= 0 && d <= 6;
+      }).map(Number);
+      if (!h.days.length) h.days = [0, 1, 2, 3, 4];
+    }
     if (!isKey(h.since)) h.since = h.startedAt || today();
+    if (!isKey(h.startedAt)) h.startedAt = h.since;
     return h;
   }
 
@@ -16907,6 +16923,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     for (i = 0; i < list.length; i++) seen[list[i]] = 1;
     for (k in h.st) {
       if (!h.st.hasOwnProperty(k)) continue;
+      /* سجلٌّ فاسدٌ لا يُعَدّ حفظًا: مفتاحٌ قيمتُه ‎null‎ كان يُدخل
+         صفحتَه في الجردِ بينما ‎stageOf‎ تُنكرها — فيَختلف العقدُ على
+         نفسِه، ويَبني عليه وكيلُ الاختبارِ سؤالًا في غيرِ محفوظ. */
+      if (!h.st[k] || typeof h.st[k] !== 'object') continue;
       pg = clampPage(k);
       if (pg) seen[pg] = 1;
     }
@@ -16968,6 +16988,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   function noteResult(page, ok) {
     var pg = clampPage(page);
     if (!pg) return null;
+    /* لا يُحكَم على صفحةٍ ليست من المحفوظ: لو قُبِل الحكمُ عليها
+       لَأدخلها أوّلُ زلّةٍ في الجردِ وادّعت الحالةُ حفظَ ما لم
+       يُحفَظ. والاختبارُ لا يَقع إلّا في المحفوظِ أصلًا. */
+    if (!stageOf(pg)) return null;
     var h = ensure(), r = rec(pg), t = today();
     r.at = t;
     if (ok) {
@@ -16977,13 +17001,20 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       if (r.z > 0) r.z--;
       r.k = (r.k || 0) + 1;
       if (r.s < SOLID && r.k >= NEED[r.s]) { r.s++; r.k = 0; }
+      /* «الثابتة» بلا موعد: الدورةُ تَبلغها، ولو أُعطيت موعدًا
+         لَوقع عليها جدولان فسُئلت مرّتَين. */
+      r.due = (r.s >= FIX && r.s <= FAR) ? pickDue(dayAdd(t, STEP[r.s])) : '';
     } else {
       r.z = Math.min(9, (r.z || 0) + 1);
       r.k = 0;
       if (r.s > FIX) r.s--;
       else r.s = FIX;
+      /* ما زُلّ فيه يُعاد غدًا مهما كانت منزلتُه، ثمّ يَمشي على
+         فاصلِ منزلتِه الجديدة. ولو أُعطي فاصلَ منزلتِه فورًا لَانتظرت
+         صفحةٌ ثابتةٌ سقَط حفظُها اليومَ ثلاثين يومًا قبل أن تُسأل —
+         وهذا ضدُّ ما يَفعله المُقرِئ: «زَلِلتَ فيها؟ أعِدها غدًا». */
+      r.due = pickDue(dayAdd(t, 1));
     }
-    r.due = (r.s >= FIX && r.s <= FAR) ? pickDue(dayAdd(t, STEP[r.s])) : '';
     App.save();
     return STAGE_KEY[r.s];
   }
@@ -17046,6 +17077,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return days.indexOf((d || new Date()).getDay()) >= 0;
   }
 
+  /* ما حُفظ اليومَ من الجديد: المقدارُ اليوميُّ حدٌّ يَنفد، لا نافذةٌ
+     تَنزلق كلّما سُجّلت صفحة. ولولا هذا لَبقي السطرُ يقول «جديدة ١»
+     بعد العاشرةِ كما قالها قبل الأولى. */
+  function learnedToday() {
+    var h = ensure(), g = h.log[today()];
+    return (g && Math.max(0, Math.round(+g.n) || 0)) || 0;
+  }
+
   /* الصفحاتُ التالياتُ من هدفِ العامِ ممّا لم يُحفَظ بعد */
   function nextNew(n) {
     var g = goalRange(), h = ensure(), out = [], pg;
@@ -17083,27 +17122,72 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return out;
   }
 
-  /* صفحاتُ دورةِ القديم: تَمشي بترتيبِ المصحفِ ولا تَقف عند موعد.
+  /* دورةُ القديم: تَطوف على كلِّ صفحةٍ «ثابتةٍ» بترتيبِ المصحفِ ولا
+     تَقف عند موعد.
+
+     ولماذا «كلُّ ثابتة» لا «نطاقاتُ القديمِ» وحدَها: صاحبُ التطبيقِ
+     قال إنّ ما تَمّ من هذا العامِ يَنضمّ إلى القديمِ آخرَ العام —
+     وهذا صوابٌ في مآله، خطأٌ في وقته: صفحةٌ ثَبتت في الشهرِ الثاني
+     تَبقى عشرةَ أشهرٍ بلا مرورٍ ثمّ يُمتحَن فيها. فالانضمامُ يقع
+     صفحةً صفحةً ساعةَ تَبلغ «ثابتًا»، لا دفعةً في آخرِ العام. وبهذا
+     لا تَخرج صفحةٌ من كلِّ جدولٍ ساعةً واحدة.
+
      ولماذا دورةٌ لا سلّم: الامتحانُ السنويُّ في المحفوظِ كلِّه، فلا
      بدّ من طوافٍ مضمونِ الأجَل — «أمُرّ على محفوظي كلِّه في ستّين
      يومًا» خبرٌ يَطمئنّ إليه القارئ، و«كلُّ صفحةٍ في موعدها» لا
      يُعطيه هذا الخبر. وما زَلّ فيه خرج من الدورةِ ودخل السلّمَ
      فعاد إليه سريعًا — فالضعفُ يُلتقَط باللفِّ السريعِ لا بالبطيء. */
-  function cycleToday() {
-    var h = ensure(), all = oldPages(), out = [], i, n;
-    if (!all.length) return out;
-    n = Math.max(0, Math.round(+h.cyc) || 0);
-    if (!n) return out;
-    for (i = 0; i < n && i < all.length; i++) {
-      out.push(all[(((h.ci || 0) + i) % all.length + all.length) % all.length]);
+  function cyclePages() {
+    var list = memorizedPages(), out = [], i;
+    for (i = 0; i < list.length; i++) {
+      if (stageOf(list[i]) === 'solid') out.push(list[i]);
     }
     return out;
   }
 
+  /* المؤشّرُ رقمُ صفحةٍ لا موضعٌ في قائمة: القائمةُ تَنمو كلّما ثَبتت
+     صفحةٌ جديدة، فموضعُ العاشرةِ اليومَ هو موضعُ التاسعةِ غدًا —
+     ومؤشّرٌ بالموضعِ يَقفز فوق صفحةٍ أو يُعيد أخرى كلّما نَمت. */
+  /* مقدارُ الدورةِ اليوميُّ لا يَسأل عنه القارئ: يُحسَب من جسمِ
+     الثابتِ ليَتمّ الطوافُ في ستّين يومًا. ولو تُرك رقمًا ثابتًا
+     يَختاره، لَطالت دورتُه كلّما كَبُر محفوظُه — فمَن حفظ خمسةَ
+     أجزاءٍ ومَرّ عليها في شهرَين صار بعد عامَين يَمُرّ عليها في
+     سبعةِ أشهر، وهو لا يَدري لِمَ ضَعُف. فالثابتُ هنا طولُ الدورةِ
+     لا مقدارُ اليوم. وستّون: شهران — أطولُ ما يَحتمله حافظٌ
+     يُمتحَن في محفوظه كلِّه مرّةً في العام. */
+  var CYCLE_DAYS = 60;
+
+  function cycRate() {
+    var h = ensure(), set = Math.round(+h.cyc) || 0;
+    if (set > 0) return set;
+    return Math.max(1, Math.ceil(cyclePages().length / CYCLE_DAYS));
+  }
+
+  /* ما مَرّ من الدورةِ اليوم. ولولاه لَما تمَّت الدورةُ أبدًا: كلّما
+     مرَّت صفحةٌ تقدّم المؤشّرُ فظَهرت التي بعدها، فالسطرُ يقول
+     «دورةُ القديم ٤» ثمّ لا يَنفد — ومَن لا يَرى وِردَه يَنتهي لا
+     يَعرف متى يَقوم. فالمقدارُ اليوميُّ حدٌّ لا نافذةٌ متحرّكة. */
+  function cycDoneToday() {
+    var h = ensure();
+    return (h.cd === today()) ? Math.max(0, Math.round(+h.cnt) || 0) : 0;
+  }
+
+  function cycleToday() {
+    var h = ensure(), all = cyclePages(), out = [], i, at = -1, n;
+    if (!all.length) return out;
+    n = cycRate() - cycDoneToday();
+    if (n <= 0) return out;
+    for (i = 0; i < all.length; i++) {
+      if (all[i] > (+h.cp || 0)) { at = i; break; }
+    }
+    if (at < 0) at = 0;                       /* بلغ آخرَ المصحفِ فيَلُفّ */
+    for (i = 0; i < n && i < all.length; i++) out.push(all[(at + i) % all.length]);
+    return out;
+  }
+
   function cycleDays() {
-    var h = ensure(), all = oldPages().length;
-    var n = Math.max(1, Math.round(+h.cyc) || 1);
-    return all ? Math.ceil(all / n) : 0;
+    var all = cyclePages().length;
+    return all ? Math.ceil(all / cycRate()) : 0;
   }
 
   function ward() {
@@ -17116,7 +17200,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return {
       date: t,
       workday: isWorkDay(),
-      fresh: isWorkDay() ? nextNew(Math.max(0, Math.round(+h.rate) || 0)) : [],
+      fresh: isWorkDay() ? nextNew(Math.max(0, (Math.round(+h.rate) || 0) - learnedToday())) : [],
       fix: fix,
       rev: rev,
       cycle: cycleToday(),
@@ -17189,14 +17273,18 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   /* صفحةٌ من الدورةِ مَرّت: المؤشّرُ يَتقدّم، والعهدُ يُجدَّد، ولا
      تَدخل السلّم — وإلّا لَانقلبت الدورةُ إلى جدولٍ ثانٍ يُزاحمها. */
   function cyclePass(page, ok) {
-    var h = ensure(), all = oldPages();
-    if (ok === false) { noteResult(page, false); }
+    var pg = clampPage(page);
+    if (!pg) return;
+    var h = ensure();
+    if (ok === false) { noteResult(pg, false); }
     else {
-      var r = rec(page);
+      var r = rec(pg);
       r.at = today();
       if (r.z > 0) r.z--;
     }
-    if (all.length) h.ci = (((h.ci || 0) + 1) % all.length + all.length) % all.length;
+    h.cp = pg;                       /* المؤشّرُ عند آخرِ صفحةٍ مرَّت */
+    if (h.cd !== today()) { h.cd = today(); h.cnt = 0; }
+    h.cnt = (+h.cnt || 0) + 1;
     h.cat = today();
     bump('r', 1);
     App.save();
@@ -17232,7 +17320,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var plans = (App.state && App.state.plans) || [];
     if (!plans.length) return null;
     var t = today(), st = {}, old = [], gFrom = 0, gTo = 0;
-    var rate = 0, days = {}, cycRate = 0, ci = 0, any = false;
+    var rate = 0, days = {}, cp = 0, any = false;
 
     plans.forEach(function (p) {
       var from = clampPage(p && p.from), to = clampPage(p && p.to);
@@ -17279,8 +17367,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
       /* مراجعة */
       old.push({ from: from, to: to });
-      cycRate = Math.max(cycRate, Math.round(+p.rate) || 1);
-      if (!ci) ci = done;
+      /* منهجُ المراجعةِ قطَع ‎done‎ صفحةً من نطاقه، فتَبدأ الدورةُ
+         بعدها لا من أوّلِ المصحفِ ثانية. */
+      if (!cp && done) cp = Math.min(to, from + done - 1);
     });
 
     if (!any) return null;
@@ -17301,8 +17390,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* نطاقُ الهدفِ قد يَبتلع صفحاتٍ من القديم (منهجُ حفظٍ فوق منهجِ
        مراجعة): تُطرَح من القديمِ فلا تُسأل مرّتَين. */
     h.old = subtract(oldRanges(), goalRange());
-    h.cyc = Math.max(1, cycRate || Math.ceil(oldPages().length / 60) || 1);
-    h.ci = Math.max(0, Math.min(Math.max(0, oldPages().length - 1), ci));
+    h.cyc = 0;                 /* يُحسَب وحدَه، فلا يَشيخ بكِبَر المحفوظ */
+    h.cp = clampPage(cp);
     /* مواعيدُ السلّمِ تُوزَّع بعد اكتمالِ السجلِّ كلِّه: لو وُزّعت أثناءَ
        البذرِ لَما عَرَف أوّلُها كم سيَأتي بعده فتكدّس الجميعُ على غد. */
     spread();
@@ -17370,16 +17459,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       h.st = prev.st || {};
       h.sl = prev.sl || {};
       h.log = prev.log || {};
-      h.ci = prev.ci || 0;
+      h.cp = clampPage(prev.cp) || 0;
       h.cat = prev.cat || '';
+      h.cd = prev.cd || '';
+      h.cnt = Math.max(0, Math.round(+prev.cnt) || 0);
       h.since = isKey(prev.since) ? prev.since : t;
       h.startedAt = isKey(prev.startedAt) ? prev.startedAt : t;
     }
     App.state.hifz = h;
     h.old = subtract(oldRanges(), goalRange());
-    h.cyc = Math.max(1, (+opt.cyc > 0 ? Math.round(+opt.cyc)
-                                      : Math.ceil(oldPages().length / 60)) || 1);
-    h.ci = Math.max(0, Math.min(Math.max(0, oldPages().length - 1), h.ci || 0));
+    h.cyc = Math.max(0, Math.round(+opt.cyc) || 0);
     App.save();
     return h;
   }
@@ -17393,6 +17482,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* وما بعدَه للواجهةِ ولمن أراد أن يَبني عليها */
     has: has, ensure: ensure, blank: blank, setup: setup, convert: convert,
     ward: ward, learn: learn, reviewPass: reviewPass, cyclePass: cyclePass,
+    cyclePages: cyclePages, cycRate: cycRate,
     absorbSlips: absorbSlips, spread: spread, cycleDays: cycleDays,
     goalDone: goalDone, oldPages: oldPages, pageScore: pageScore,
     STAGE_NAME: STAGE_NAME, STAGE_KEY: STAGE_KEY, STEP: STEP, NEED: NEED,
@@ -17436,7 +17526,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   function redraw(k) { FK = k || null; App.redraw(); }
   App.on_('drawn', function (e) {
     if (!FK || !e || e.name !== 'home') { FK = null; return; }
-    var n = App.$('[data-wk="' + FK + '"]');
+    /* الزرُّ الذي ضُغط يَزول غالبًا: الصفحةُ التي أُتقنت تَخرج من
+       وِردِ اليوم. فإن لم يُوجَد مَوضعُه حطَّت البؤرةُ على أوّلِ فعلٍ
+       باقٍ في الوِرد — فمَن يَعمل بلوحةِ المفاتيحِ يُتمّ وِردَه
+       بضغطاتٍ متتاليةٍ ولا يُرَدّ إلى أوّلِ الصفحةِ في كلِّ مرّة. */
+    var n = App.$('[data-wk="' + FK + '"]') || App.$('.w-card .w-ib');
     FK = null;
     if (n) { try { n.focus({ preventScroll: true }); } catch (_) { n.focus(); } }
   });
@@ -17514,7 +17608,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return row;
   }
 
-  function group(title, hint, rows) {
+  /* الصفوفُ المعروضةُ من كلِّ مجموعةٍ قبل الطيّ. والعددُ الصادقُ في
+     الشارةِ أعلاه دائمًا: مَن غاب عشرين يومًا يَجد «مراجعة ٥٧» فلا
+     يُكذَب عليه، ولا يُلقى عليه سبعةٌ وخمسون صفًّا في شاشةٍ واحدة.
+     والطيُّ يُفتَح بلمسةٍ ويَذكر عددَ الباقي. */
+  var PEEK = 8;
+  var OPEN = {};
+
+  function group(key, title, hint, rows) {
     var g = el('section', 'w-grp');
     var h = el('div', 'w-grp-h');
     var t = el('h2', 'w-grp-t');
@@ -17526,7 +17627,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       h.appendChild(s);
     }
     g.appendChild(h);
-    rows.forEach(function (r) { g.appendChild(r); });
+    var open = !!OPEN[key], shown = open ? rows : rows.slice(0, PEEK);
+    shown.forEach(function (r) { g.appendChild(r); });
+    if (rows.length > PEEK) {
+      g.appendChild(btn('btn btn-quiet btn-sm w-more',
+        open ? 'اطوِ' : 'اعرض الباقيةَ — ' + w.pagesAcc(rows.length - PEEK),
+        null, function () { OPEN[key] = !open; redraw(); }));
+    }
     return g;
   }
 
@@ -17545,7 +17652,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (d.late) {
       var lt = el('p', 'w-late');
-      lt.textContent = 'منها ' + w.pagesAcc(d.late) + ' فات موعدُها. ابدأ بها.';
+      /* بعد «منها» مبتدأٌ مرفوع: «منها صفحتان»، لا «منها صفحتَين» */
+      lt.textContent = 'منها ' + w.pages(d.late) + ' فات موعدُها. ابدأ بها.';
       card.appendChild(lt);
     }
 
@@ -17554,7 +17662,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (d.fresh.length) {
       empty = false;
-      body.appendChild(group('جديدة', 'تُحفَظ اليوم', d.fresh.map(function (pg) {
+      body.appendChild(group('new', 'جديدة', 'تُحفَظ اليوم', d.fresh.map(function (pg) {
         return pageRow(pg, 'new', pageLine(pg), [
           { key: 'n' + pg, icon: 'check', cls: 'w-yes', label: 'حفِظتُ صفحةَ ' + ar(pg),
             fn: function () { H.learn(pg); App.toast('سُجّلت صفحةُ ' + ar(pg)); redraw('n' + pg); } }
@@ -17586,15 +17694,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (d.fix.length) {
       empty = false;
-      body.appendChild(group('تثبيت', 'ما حُفظ قريبًا', revRows(d.fix, 'fix')));
+      body.appendChild(group('fix', 'تثبيت', 'ما حُفظ قريبًا', revRows(d.fix, 'fix')));
     }
     if (d.rev.length) {
       empty = false;
-      body.appendChild(group('مراجعة', 'قريبةٌ وبعيدة', revRows(d.rev, 'rev')));
+      body.appendChild(group('rev', 'مراجعة', 'قريبةٌ وبعيدة', revRows(d.rev, 'rev')));
     }
     if (d.cycle.length) {
       empty = false;
-      body.appendChild(group('دورةُ القديم',
+      body.appendChild(group('cyc', 'دورةُ القديم',
         H.cycleDays() ? 'تَتمّ في ' + w.days(H.cycleDays()) : '',
         d.cycle.map(function (pg) {
           return pageRow(pg, 'cyc', pageLine(pg), [
@@ -17647,16 +17755,23 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
                   + 'تُقاس بمنزلةِ صفحاتها وقُربِ العهدِ بها وما عليها من زلل.';
     card.appendChild(p);
 
+    /* حدُّ الضعف: دونَ خمسةٍ وستّين. وليس خمسين — جزءٌ عند النصفِ
+       كارثةٌ لا تنبيه، والحدُّ ينبغي أن يُنبّه قبل الكارثةِ لا بعدَها.
+       وخمسةٌ وستّون هي ما دونه صفحاتٌ لم تُمَسّ منذ شهرَين أو عليها
+       زلَلٌ لم يُكفَّر. */
+    var LOW = 65;
     var shown = SHOW_ALL ? list : list.slice(0, 5);
     var box = el('div', 'w-jzs');
     shown.forEach(function (j) {
       var pct = Math.round(j.score * 100);
+      var low = pct < LOW;
       var row = el('div', 'w-jz');
       var hd = el('div', 'w-jz-h');
       var nm = el('b');
       nm.textContent = 'الجزء ' + ar(j.juz);
-      var vn = el('span', 'w-jz-n' + (pct < 50 ? ' w-low' : ''));
-      vn.textContent = ar(pct) + '٪';
+      var vn = el('span', 'w-jz-n' + (low ? ' w-low' : ''));
+      /* اللونُ لا يَحمل الخبرَ وحدَه: كلمةٌ معه لمن لا يُميّز الألوان */
+      vn.textContent = ar(pct) + '٪' + (low ? '  يَحتاج مراجعة' : '');
       hd.appendChild(nm); hd.appendChild(vn);
       row.appendChild(hd);
       var bar = el('div', 'progress');
@@ -17665,7 +17780,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       bar.setAttribute('aria-valuemax', '100');
       bar.setAttribute('aria-valuenow', String(pct));
       bar.setAttribute('aria-label', 'جاهزيّةُ الجزء ' + ar(j.juz));
-      var fill = el('div', 'progress-fill' + (pct < 50 ? ' w-fill-low' : ''));
+      var fill = el('div', 'progress-fill' + (low ? ' w-fill-low' : ''));
       fill.style.width = pct + '%';
       bar.appendChild(fill);
       row.appendChild(bar);
@@ -17757,13 +17872,20 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       rows.appendChild(r2);
     }
 
-    if (oldN) {
+    var cycN = H.cyclePages().length;
+    if (cycN) {
       var r3 = el('div', 'w-inv-r');
       var l3 = el('div', 'w-inv-l');
       l3.textContent = 'دورةُ القديم';
       var v3 = el('div', 'w-inv-v');
-      v3.textContent = 'تَمُرّ على محفوظك في ' + w.days(H.cycleDays());
+      v3.textContent = 'تَمُرّ على الثابتِ كلِّه في ' + w.days(H.cycleDays());
       r3.appendChild(l3); r3.appendChild(v3);
+      var s3 = el('div', 'w-inv-s');
+      /* عددُ الثابتِ يُقال صراحةً: هو مقياسُ ما يُمتحَن فيه، ويَكبُر
+         كلّما ثَبتت صفحةٌ من هدفِ العام — فيَرى القارئُ جسمَه يَنمو. */
+      s3.textContent = 'الثابتُ اليومَ ' + w.pages(cycN)
+                     + (cycN > oldN ? '، منها ' + w.pages(cycN - oldN) + ' من حَصادِ هذا العام' : '');
+      r3.appendChild(s3);
       rows.appendChild(r3);
     }
 
@@ -17812,17 +17934,43 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     s.appendChild(plus); s.appendChild(val); s.appendChild(minus);
     f.appendChild(s);
     paint();
+    /* يُعاد الطلاءُ من خارجه: تبديلُ حقلٍ قد يُغيّر قيمةَ حقلٍ آخرَ
+       لم يَلمسه القارئ، فلا بدّ أن يَرى الرقمَ الجديدَ لا القديم. */
+    f.repaint = paint;
     return f;
   }
 
   function setupPane() {
     var cur = H.has() ? App.state.hifz : null;
     var inv = cur ? H.inventory() : { old: [], goal: null };
-    var oldN = inv.old.length
-      ? Math.max(1, Math.round(H.oldPages().length / 20)) : 0;
-    var fromEnd = !inv.old.length || inv.old[0].to >= Q.PAGES - 2;
-    var gf = inv.goal ? Q.juzOf(inv.goal.from) : Math.min(30, (fromEnd ? 30 - oldN : oldN + 1) || 1);
-    var gt = inv.goal ? Q.juzOf(inv.goal.to) : Math.min(30, gf + 1);
+    var oldPgs = H.oldPages();
+    var oldN = (function () {
+      var seen = {}, n = 0, i, j;
+      for (i = 0; i < oldPgs.length; i++) {
+        j = Q.juzOf(oldPgs[i]);
+        if (!seen[j]) { seen[j] = 1; n++; }
+      }
+      return n;
+    })();
+    var fromEnd = !inv.old.length || inv.old[inv.old.length - 1].to >= Q.PAGES - 2;
+    /* الهدفُ الافتراضيُّ يَتبع المحفوظَ ما لم يَلمسه القارئ: مَن قال
+       «حفظتُ عشرةً من آخرِ المصحف» قَصدُه الجزءُ العشرون غالبًا، لا
+       الثلاثون الذي أقرّ بحفظه. وهذا الاتّباعُ هو ما سقط أوّلَ مرّةٍ
+       فخرج الهدفُ على جزءٍ قال صاحبُه إنّه يَحفظه. */
+    var goalSet = !!inv.goal;
+    /* الهدفُ الافتراضيُّ خمسةُ أجزاءٍ تَلي المحفوظَ في جهةِ سيره —
+       لا جزءًا واحدًا (قليلٌ لعامٍ كامل) ولا جزءًا يَتداخل مع ما
+       أقرّ بحفظه (فيُسأل عن محفوظه كأنّه جديد). والخمسةُ تقديرٌ
+       شائعٌ في الحلقات، والقارئُ يُبدّله بلمستَين. */
+    function defGoal() {
+      var hi, lo;
+      if (fromEnd) { hi = Math.max(1, 30 - oldN); lo = Math.max(1, hi - 4); }
+      else { lo = Math.min(30, oldN + 1); hi = Math.min(30, lo + 4); }
+      return { lo: lo, hi: hi };
+    }
+    var d0 = defGoal();
+    var gf = inv.goal ? Q.juzOf(inv.goal.from) : d0.lo;
+    var gt = inv.goal ? Q.juzOf(inv.goal.to) : d0.hi;
     var rate = cur ? (cur.rate || 1) : 1;
     var days = cur ? (cur.days || []).slice() : [0, 1, 2, 3, 4];
 
@@ -17844,9 +17992,22 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     var card = el('section', 'card w-form');
 
+    var fGoalFrom, fGoalTo, goalBox;
+    function followOld() {
+      /* حافظٌ أتمّ المصحفَ لا هدفَ له هذا العام: وِردُه مراجعةٌ
+         ودورة. فيُرفَع السؤالُ من أصله بدل أن يُجبَر على اختيارِ
+         جزءٍ يَحفظه أصلًا. */
+      if (goalBox) goalBox.style.display = (oldN >= 30) ? 'none' : '';
+      if (goalSet) return;                 /* لمسَه القارئ: لا يُبدَّل عليه */
+      var d = defGoal();
+      gf = d.lo; gt = d.hi;
+      if (fGoalFrom) fGoalFrom.repaint();
+      if (fGoalTo) fGoalTo.repaint();
+    }
+
     card.appendChild(stepper('كم جزءًا حفظتَ في السنين الماضية؟',
       'إن لم تَحفظ شيئًا فاتركها صفرًا', function () { return oldN; },
-      function (v) { oldN = v; }, 0, 30));
+      function (v) { oldN = v; followOld(); }, 0, 30));
 
     var dirF = el('div', 'w-fld');
     var dirL = el('div', 'w-fld-l');
@@ -17859,17 +18020,24 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       bEnd.setAttribute('aria-pressed', fromEnd ? 'true' : 'false');
       bStart.setAttribute('aria-pressed', fromEnd ? 'false' : 'true');
     }
-    bEnd.onclick = function () { fromEnd = true; paintDir(); };
-    bStart.onclick = function () { fromEnd = false; paintDir(); };
+    bEnd.onclick = function () { fromEnd = true; paintDir(); followOld(); };
+    bStart.onclick = function () { fromEnd = false; paintDir(); followOld(); };
     paintDir();
     dirR.appendChild(bEnd); dirR.appendChild(bStart);
     dirF.appendChild(dirR);
     card.appendChild(dirF);
 
-    card.appendChild(stepper('هدفُ هذا العام — من الجزء', null,
-      function () { return gf; }, function (v) { gf = v; if (gt < gf) gt = gf; }, 1, 30));
-    card.appendChild(stepper('إلى الجزء', null,
-      function () { return gt; }, function (v) { gt = Math.max(v, gf); }, 1, 30));
+    goalBox = el('div', 'w-goal');
+    fGoalFrom = stepper('هدفُ هذا العام — من الجزء', null,
+      function () { return gf; },
+      function (v) { goalSet = true; gf = v; if (gt < gf) { gt = gf; fGoalTo.repaint(); } }, 1, 30);
+    fGoalTo = stepper('إلى الجزء', null,
+      function () { return gt; },
+      function (v) { goalSet = true; gt = Math.max(v, gf); }, 1, 30);
+    goalBox.appendChild(fGoalFrom);
+    goalBox.appendChild(fGoalTo);
+    card.appendChild(goalBox);
+    followOld();
 
     card.appendChild(stepper('مقدارُ الجديدِ في اليوم', 'صفحاتٌ تُحفَظ في اليوم الواحد',
       function () { return rate; }, function (v) { rate = v; }, 1, 10));
@@ -17900,7 +18068,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       App.icon('check', 20) + '<span>' + vg('احفَظ', 'احفَظي') + '</span>', null,
       function () {
         if (!days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); return; }
-        H.setup({ oldJuz: oldN, fromEnd: fromEnd, goalFrom: gf, goalTo: gt,
+        var full = oldN >= 30;
+        H.setup({ oldJuz: oldN, fromEnd: fromEnd,
+                  goalFrom: full ? 0 : gf, goalTo: full ? 0 : gt,
                   rate: rate, days: days }, true);
         App.closeSheet();
         App.go('home');
@@ -18134,10 +18304,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     if (n <= 10) return ar(n) + ' أسئلة';
     return ar(n) + ' سؤالًا';
   }
-  function nAskAcc(n) {           /* منصوبًا: «أجِب عن عشرةِ أسئلة» */
+  function nAskAcc(n) {           /* منصوبًا: «لم تُصِبْ سؤالَين» */
     if (n === 1) return 'سؤالًا واحدًا';
     if (n === 2) return 'سؤالَين';
-    if (n <= 10) return ar(n) + ' أسئلة';
+    if (n <= 10) return ar(n) + ' أسئلةٍ';
+    return ar(n) + ' سؤالًا';
+  }
+  function nAskGen(n) {           /* مجرورًا: «أجبتَ عن سؤالَين» */
+    if (n === 1) return 'سؤالٍ واحد';
+    if (n === 2) return 'سؤالَين';
+    if (n <= 10) return ar(n) + ' أسئلةٍ';
     return ar(n) + ' سؤالًا';
   }
   function nJuz(n) {
@@ -18641,12 +18817,17 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
           if (ratio(o, m) < 0.5) continue;
           sims.push(o);
         }
-        /* لا يُعرَض وجهان من سورةٍ واحدةٍ بين الخيارات */
+        /* لا يُعرَض وجهان من سورةٍ واحدةٍ بين الخيارات، ولا لفظان
+           متطابقان: المجموعةُ قد تَضمّ موضعَين متطابقَين في سورتَين
+           مختلفتَين (٧:١٥ و١٥:٣٧ و٣٨:٨٠ منها)، فلو عُرضا معًا لَصار
+           في الخياراتِ خطآن لا يُفرَّق بينهما. */
         shuffle(sims);
-        var used = {}, picked = [];
+        var used = {}, seenT = {}, picked = [];
         for (i = 0; i < sims.length && picked.length < 3; i++) {
-          if (used[sims[i].s]) continue;
+          var ts = sOf(sims[i]);
+          if (used[sims[i].s] || seenT[ts]) continue;
           used[sims[i].s] = 1;
+          seenT[ts] = 1;
           picked.push(sims[i]);
         }
         if (!picked.length) continue;
@@ -18872,6 +19053,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      ثمّ أعاد لا يُسأل عن النطاقِ من جديد. */
   var PICK = { kind: 'all', j: 0, s: 0, n: 10, segs: 0 };
 
+  /* أصنافٌ موضعُ الآيةِ فيها هو المسؤولُ عنه، فلا يُذكَر جزؤُها في
+     الترويسةِ ولا يُلمَّح إليه. */
+  var HIDE_JUZ = { whereJuz: 1, whereSurah: 1, shabihWhere: 1 };
+
   function ayahBox(v, cls) {
     var b = App.el('div', 'ex-ayah' + (cls ? ' ' + cls : ''));
     b.appendChild(document.createTextNode(String(v.t)));
@@ -18913,6 +19098,12 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         App.toast('لم يَتّسع هذا النطاقُ لسؤال. وسِّعه قليلًا.');
         return;
       }
+      /* النطاقُ الضيّقُ لا يَتّسع لما طُلب (سورةُ الإخلاصِ ثلاثةُ
+         أسئلةٍ لا عشرة): يُقال صراحةً ولا يُسكَت عنه، فمن طلب عشرةً
+         ورأى ثلاثةً ظنَّ عطبًا. */
+      if (r.list.length < PICK.n) {
+        App.toast('لم يَتّسع هذا النطاقُ إلّا لـ' + nAskGen(r.list.length) + '.');
+      }
       ses = r; at = 0; chosen = -1; hits = 0; miss = []; answered = [];
       phase = 'run';
       paintRun();
@@ -18921,7 +19112,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ── أ · الإعداد ── */
     function paintSet() {
       body.innerHTML = '';
-      body.appendChild(head('اختبِرْ نفسَك', 'أسئلةٌ تُولَّد من محفوظِك، '
+      body.appendChild(head(vg('اختبِرْ نفسَك', 'اختبِري نفسَكِ'), 'أسئلةٌ تُولَّد من محفوظِك، '
         + 'وجوابُ كلِّ سؤالٍ وخياراتُه آياتٌ من المصحفِ لا غير.'));
 
       /* الاقتراحُ أوّلًا: أكثرُ الناسِ لا يَختار، ومن اختار وجد
@@ -19080,7 +19271,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       t1.textContent = 'السؤال ' + ar(at + 1) + ' من ' + ar(ses.list.length);
       tt.appendChild(t1);
       var t2 = App.el('div', 'ex-meta');
-      t2.textContent = App.join(scopeName(ses.pool.scope), 'الجزء ' + ar(q.juz));
+      /* الجزءُ يُذكَر في الترويسةِ خبرًا، ويُكتَم في أسئلةِ الموضع:
+         كان يُعرَض «الجزء ١» فوقَ سؤالٍ نصُّه «من أيِّ جزءٍ هذه
+         الآية؟» — فيُقرأ الجوابُ من الترويسةِ قبل أن يُقرأ السؤال.
+         وهو عيبٌ لا يَظهر إلّا بالنظرِ إلى شاشةٍ بعينِها. */
+      /* ولا يُعاد الجزءُ مرّتَين حين يكون هو النطاقَ نفسَه: كان
+         يُقرأ «الجزء ٢٨، الجزء ٢٨». */
+      t2.textContent = (HIDE_JUZ[q.type] || ses.pool.scope.kind === 'juz')
+        ? scopeName(ses.pool.scope)
+        : App.join(scopeName(ses.pool.scope), 'الجزء ' + ar(q.juz));
       tt.appendChild(t2);
       top.appendChild(tt);
       var quit = App.el('button', 'btn btn-quiet btn-sm');
@@ -19168,9 +19367,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     function verdict(q) {
       var box = App.el('div', 'ex-verd' + (chosen === q.ok ? ' is-ok' : ''));
       var t = App.el('p', 'ex-verd-t');
-      t.textContent = chosen === q.ok
-        ? vg('أصبتَ.', 'أصبتِ.')
-        : vg('ليس هذا. والصوابُ المُعلَّمُ أعلاه.', 'ليس هذا. والصوابُ المُعلَّمُ أعلاه.');
+      /* في سؤالِ المتشابهاتِ تكون الخياراتُ **كلُّها قرآنًا صحيحًا**،
+         والمسؤولُ عنه موضعُ اللفظِ لا صحّتُه. و«ليس هذا» وحدَها تحتَ
+         آيةٍ قد تُقرأ لحظةً على غيرِ وجهها. فيُنَصّ على الموضعِ
+         نصًّا، فلا يَبقى للّبسِ بابٌ أصلًا. */
+      var miss = (q.type === 'wording' || q.type === 'shabihWhere')
+        ? 'هذا لفظٌ صحيح، لكنّه في موضعٍ آخر. والمطلوبُ المُعلَّمُ أعلاه.'
+        : 'ليس هذا. والصوابُ المُعلَّمُ أعلاه.';
+      t.textContent = chosen === q.ok ? vg('أصبتَ.', 'أصبتِ.') : miss;
       box.appendChild(t);
 
       var w = App.el('p', 'ex-verd-w');
@@ -19222,7 +19426,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         return;
       }
 
-      body.appendChild(head(vg('أجبتَ عن ', 'أجبتِ عن ') + nAskAcc(seen) + '.',
+      body.appendChild(head(vg('أجبتَ عن ', 'أجبتِ عن ') + nAskGen(seen) + '.',
         vg('أصبتَ في ', 'أصبتِ في ') + ar(hits) + ' من ' + ar(seen) + '.'));
 
       /* شريطُ الصوابِ خبرٌ لا درجة: لا لونَ ينتقل من الأحمرِ إلى
@@ -19272,8 +19476,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         adv.textContent = vg('مضى الاختبارُ بلا خطأ. وسِّع النطاقَ أو زِد العددَ في المرّةِ القادمة.',
                              'مضى الاختبارُ بلا خطأ. وسّعي النطاقَ أو زيدي العددَ في المرّةِ القادمة.');
       } else if (byJ[worst].ok < byJ[worst].n) {
-        adv.textContent = 'أَولى ما يُراجَع الآن: الجزءُ ' + ar(worst)
-          + '، وفيه ' + nAsk(byJ[worst].n - byJ[worst].ok) + ' لم يُصَب.';
+        /* «٤ أسئلة لم يُصَب» تُخالف في التأنيث، فيُقدَّم الفعلُ على
+           العددِ ويُخاطَب صاحبُه مباشرةً. */
+        adv.textContent = 'أَولى ما يُراجَع الآن: الجزءُ ' + ar(worst) + ' — '
+          + vg('لم تُصِبْ فيه ', 'لم تُصيبي فيه ')
+          + nAskAcc(byJ[worst].n - byJ[worst].ok) + '.';
       } else {
         adv.textContent = 'الخطأُ متفرّقٌ لا يَجتمع في جزء.';
       }
@@ -19345,7 +19552,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var b = App.el('button', 'btn btn-pri btn-block');
     b.type = 'button';
     b.innerHTML = App.icon('ex-scale', 19);
-    b.appendChild(App.el('span', null, vg('اختبِرْ نفسَك', 'اختبِري نفسَك')));
+    b.appendChild(App.el('span', null, vg('اختبِرْ نفسَك', 'اختبِري نفسَكِ')));
     b.onclick = function () { App.go('exam'); };
     box.appendChild(b);
 
@@ -19371,7 +19578,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     weakJuz: weakJuz,
     poolOf: poolOf,
     hifzPages: hifzPages,
-    nAsk: nAsk, nJuz: nJuz, nPage: nPage
+    nAsk: nAsk, nAskGen: nAskGen, nJuz: nJuz, nPage: nPage
   };
 
 }(window.App));
