@@ -26,8 +26,11 @@ const NEW_IDS_PER_DAY = 3000;        // سدٌّ في وجهِ مَن يَملأ
 const RL = {                         // حدُّ المعدّل: نافذةٌ دقيقةٌ واحدة
   sync: 30,                          // لكلِّ معرّفٍ على /api/sync
   sub: 10,                           // لكلِّ معرّفٍ على /api/push/sub
+  note: 3,                           // اقتراحاتٌ من عنوانٍ واحدٍ في الدقيقة
   ip: 150                            // لكلِّ عنوانٍ شبكيٍّ على كلِّ المسارات
 };
+const MAX_NOTE = 1200;               // حدُّ نصِّ الاقتراحِ بالمحارف
+const MAX_CONTACT = 120;
 
 /* ── أدواتٌ صغيرةٌ على نسقِ زاحِم ── */
 const cors = () => ({
@@ -184,6 +187,49 @@ export default {
 
       /* ٦) الأرقامُ لصاحبِ العملِ وحدَه: مجاميعُ لا صفوفٌ، ولا شيءَ عن قارئٍ بعينِه.
             والدولُ التي فيها أقلُّ من خمسةِ أجهزةٍ تُجمع في «أخرى» كي لا يَدلَّ رقمٌ على شخص. */
+      /* ٧) الاقتراحات — صوتُهم يَصل ولا تَصل أسماؤهم.
+            **لا يُقرَأ من هذا الطلبِ معرِّفُ جهازٍ ولا ترويسةُ هويّة،
+            ولا يُكتَب عنوانٌ شبكيٌّ في القاعدة.** العنوانُ يُستعمَل في
+            الذاكرةِ لحدِّ المعدّلِ ثمّ يُنسى — وهو معالجةٌ لا حفظ.
+            وبهذا لا يُجمَع اقتراحٌ إلى أخيه ولا يُعرَف صاحبُه. */
+      if (url.pathname === '/api/note' && req.method === 'POST') {
+        if (!rateOk('note:' + ip, RL.note)) return json({ ok: false, error: 'rate' }, 429);
+        const b = await body(req);
+        const text = String(b.text || '').trim().slice(0, MAX_NOTE);
+        if (text.length < 10) return json({ ok: false, error: 'short' }, 400);
+        const contact = String(b.contact || '').trim().slice(0, MAX_CONTACT);
+        const ver = String(b.v || '').slice(0, 40);
+        const dar = /^[a-z0-9][a-z0-9-]{1,30}$/.test(String(b.d || '')) ? String(b.d) : null;
+        await env.DB.prepare(
+          'INSERT INTO notes(at,ver,dar,text,contact) VALUES(?1,?2,?3,?4,?5)'
+        ).bind(Date.now(), ver, dar, text, contact || null).run();
+        return json({ ok: true });
+      }
+
+      /* ٨) قراءةُ الاقتراحاتِ — لصاحبِ العملِ وحدَه بمفتاحِ الأرقام */
+      if (url.pathname === '/api/notes' && req.method === 'GET') {
+        const nk = await cfgGet(env, 'STATS_KEY');
+        if (!nk || req.headers.get('x-stats-key') !== nk) return json({ ok: false }, 401);
+        const rs = await env.DB.prepare(
+          'SELECT rid,at,ver,dar,text,contact,seen FROM notes ORDER BY at DESC LIMIT 200'
+        ).all();
+        return json({ ok: true, notes: rs.results || [] });
+      }
+
+      /* ٩) إعداداتُ الدار — رمزٌ في رابطٍ لا حسابٌ ولا تسجيل.
+            لا يُرسَل في هذا الطلبِ شيءٌ عن الجهاز. */
+      if (url.pathname.startsWith('/api/dar/') && req.method === 'GET') {
+        const code = decodeURIComponent(url.pathname.slice(9)).toLowerCase();
+        if (!/^[a-z0-9][a-z0-9-]{1,30}$/.test(code)) return json({ ok: false }, 400);
+        const r = await env.DB.prepare(
+          'SELECT code,name,goal,exam_at FROM dars WHERE code=?1'
+        ).bind(code).first();
+        if (!r) return json({ ok: false }, 404);
+        let goal = null;
+        try { goal = r.goal ? JSON.parse(r.goal) : null; } catch { goal = null; }
+        return json({ ok: true, name: r.name || '', goal, examAt: r.exam_at || '' });
+      }
+
       if (url.pathname === '/api/stats' && req.method === 'GET') {
         const sk = await cfgGet(env, 'STATS_KEY');
         if (!sk || req.headers.get('x-stats-key') !== sk) return json({ ok: false }, 401);

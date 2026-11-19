@@ -52,3 +52,28 @@ CREATE TABLE IF NOT EXISTS cfg (k TEXT PRIMARY KEY, v TEXT NOT NULL);
 -- ٥) عدّادُ المعرّفاتِ الجديدةِ في اليوم: سدٌّ في وجهِ مَن يُغرق القاعدةَ بمعرّفاتٍ مُختلَقة.
 -- كتابةٌ واحدةٌ لكلِّ معرّفٍ جديدٍ لا لكلِّ طلب.
 CREATE TABLE IF NOT EXISTS ctr (d TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0);
+
+-- ════════════════════════════════════════════════════════════════
+-- ‫الاقتراحات: صوتُهم يَصل ولا تَصل أسماؤهم.
+-- ‫لا عمودَ لمعرِّفِ جهازٍ ولا لعنوانِ شبكةٍ — **عمدًا وليس سهوًا**.
+-- ‫فلا يُجمَع اقتراحُ شخصٍ إلى أخيه، ولا يُعرَف متى يَفتح التطبيق.
+-- ‫و‎contact‎ يَكتبه صاحبُه باختياره أو يَتركه فارغًا.
+-- ════════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS notes (
+  rid     INTEGER PRIMARY KEY AUTOINCREMENT,
+  at      INTEGER NOT NULL,
+  ver     TEXT,
+  dar     TEXT,
+  text    TEXT NOT NULL,
+  contact TEXT,
+  seen    INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS notes_at ON notes(seen, at DESC);
+
+-- ‫عدُّ الدور: كم جهازًا يَحمل كلَّ رمز، لا مَن هم.
+CREATE TABLE IF NOT EXISTS dars (
+  code TEXT PRIMARY KEY,
+  name TEXT,
+  goal TEXT,
+  exam_at TEXT
+);

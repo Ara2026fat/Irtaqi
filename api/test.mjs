@@ -521,6 +521,64 @@ console.log('\nتكلفةُ الصفوفِ (كتابة/قراءة لكلِّ ط�
   });
 }
 
+/* ١٠) الاقتراحاتُ ورمزُ الدار */
+console.log('الاقتراحاتُ ورمزُ الدار:');
+{
+  const env = envOf();
+  await T('POST /api/note يَقبل نصًّا ولا يَحفظ معرِّفًا ولا عنوانًا', async () => {
+    const r = await call(env, 'POST', '/api/note',
+      { body: { text: 'أرجو إضافةَ تنبيهٍ قبلَ الفجرِ بنصفِ ساعة', v: '1.4.0' } });
+    eq([r.status, r.data], [200, { ok: true }]);
+    const rows = env.DB.q('SELECT * FROM notes');
+    eq(rows.length, 1);
+    const cols = Object.keys(rows[0]).join(',');
+    ok(!/\bid\b|ip|device/i.test(cols), 'جدولُ الاقتراحاتِ فيه عمودٌ يَدلّ على الجهاز: ' + cols);
+    ok(!JSON.stringify(rows[0]).includes('1.2.3.4'), 'عنوانُ الشبكةِ كُتب في القاعدة!');
+  });
+
+  await T('نصٌّ قصيرٌ يُرَدّ', async () => {
+    const r = await call(env, 'POST', '/api/note', { body: { text: 'زين', v: '1' } });
+    eq(r.status, 400);
+  });
+
+  await T('النصُّ يُقصّ عند الحدّ', async () => {
+    const long = 'ا'.repeat(5000);
+    await call(env, 'POST', '/api/note', { body: { text: long, v: '1' } });
+    const rows = env.DB.q('SELECT text FROM notes ORDER BY rid DESC');
+    ok(rows[0].text.length <= 1200, 'لم يُقَصّ: ' + rows[0].text.length);
+  });
+
+  await T('حدُّ المعدّلِ يَمنع السيل', async () => {
+    let blocked = 0;
+    for (let i = 0; i < 8; i++) {
+      const r = await call(env, 'POST', '/api/note',
+        { body: { text: 'اقتراحٌ رقم ' + i + ' فيه كلامٌ كافٍ', v: '1' } });
+      if (r.status === 429) blocked++;
+    }
+    ok(blocked > 0, 'لم يُمنَع شيءٌ من ثمانيةِ طلباتٍ متتابعة');
+  });
+
+  await T('GET /api/notes يَلزمه المفتاح', async () => {
+    const bad = await call(env, 'GET', '/api/notes');
+    eq(bad.status, 401);
+    const good = await call(env, 'GET', '/api/notes', { headers: { 'x-stats-key': STATS_KEY } });
+    eq(good.status, 200);
+    ok(Array.isArray(good.data.notes) && good.data.notes.length > 0, 'لم تَرجع اقتراحات');
+  });
+
+  await T('GET /api/dar/:code يَرُدّ إعدادَ الدار', async () => {
+    env.DB.q("INSERT INTO dars(code,name,goal,exam_at) VALUES('alnoor','دارُ النور','{\"from\":1,\"to\":5}','1448-08-01')");
+    const r = await call(env, 'GET', '/api/dar/alnoor');
+    eq([r.status, r.data.ok, r.data.name], [200, true, 'دارُ النور']);
+    eq(r.data.goal, { from: 1, to: 5 });
+  });
+
+  await T('رمزٌ فاسدٌ أو مجهولٌ يُرَدّ', async () => {
+    eq((await call(env, 'GET', '/api/dar/!!')).status, 400);
+    eq((await call(env, 'GET', '/api/dar/nosuch')).status, 404);
+  });
+}
+
 Date.now = REAL_NOW;
 console.log(`\n══ النتيجة: ${pass} نجحَ ، ${fail} فشلَ ══\n`);
 process.exit(fail ? 1 : 0);
