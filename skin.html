@@ -15479,6 +15479,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   /* اللسانُ المفتوحُ يُحفظ خارج الرسم: إعادةُ الرسم بعد استيرادٍ أو
      تبديلِ اسمٍ ينبغي ألّا تُرجع الطالبَ إلى أوّل لسانٍ كلَّ مرّة. */
   var TAB = 'me';
+  var ID_TAB = 'talk';
+  var DATA_TAB = 'keep';  /* اللسانُ الداخليُّ في «بياناتي» */   /* اللسانُ الداخليُّ في «هويّتي» */
 
   /* ── مُعِينات ─────────────────────────────────────────────────── */
 
@@ -15961,6 +15963,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
        سطرِ الحقوقِ نفسِه. فكبُر السطرُ قليلًا لأنّه صار الأوّل. */
     '#settings .st-sign-c{font-size:13.5px;color:var(--gold);' +
       'font-weight:700}',
+    '#settings .st-sign-y{margin-top:3px;font-size:13px;color:var(--gold);' +
+      'font-weight:700;opacity:.86}',
     '#settings .st-sign-p{margin-top:12px;font-size:13.5px;line-height:1.9;' +
       'color:var(--ink-mut)}',
 
@@ -16026,6 +16030,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     heroT.appendChild(heroTally);
     hero.appendChild(ornBox);
     hero.appendChild(heroT);
+    /* الترويسةُ على «حسابي» وحدَها لا على الألسنةِ الأربعة: هي
+       خلاصةُ الحساب، وتَكرارُها في «بياناتي» و«عن التطبيق» يَأكل مئةَ
+       بكسلٍ من كلِّ لسانٍ ويَدفع محتواه تحتَ حافّةِ الشاشة. */
     wrap.appendChild(hero);
 
     /* الحصيلةُ تُقرأ من الحالة والخططِ لا تُخزَّن: رقمٌ مخزونٌ يَبلى */
@@ -16301,9 +16308,22 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       App.toast(m === 'dark' ? 'أُطفئ الضوء.' : 'أُضيء النهار.');
     }
 
+    /* ═══ «هويّتي» ثلاثةُ ألسنةٍ لا صحيفةٌ تُمرَّر ═══
+       كانت المجموعاتُ الأربعُ مرصوفةً في عمودٍ واحدٍ طولُه ٩٤٦ بكسلًا
+       في شاشةٍ ارتفاعُها ٨٤٤ — فيَنزل القارئُ ليَبلغ «المصحف». وهي
+       مجموعاتٌ مستقلّةٌ لا يُقرأ بعضُها ببعض، فاللسانُ أصدقُ لها من
+       التمرير: كلُّ لسانٍ يَسَع نفسَه ولا يَخفى تحته شيء. */
     function paneIdentity() {
+      return App.seg([
+        { key: 'talk',   label: 'الخطاب',  render: paneTalk },
+        { key: 'light',  label: 'الضوء',   render: paneLight },
+        { key: 'mushaf', label: 'المصحف',  render: paneMushaf }
+      ], { start: ID_TAB, onchange: function (k) { ID_TAB = k; } });
+    }
+
+    function paneTalk() {
       var out = App.el('div', 'st-stack');
-      /* عنوانٌ للمجموعةِ الأولى كأختَيها: كان اللسانُ وحدَه يُسمّيها
+      /* عنوانٌ للمجموعةِ كأختَيها: كان اللسانُ وحدَه يُسمّيها
          «هويّتي»، فلم يُعرَف أنّ المختارَ صيغةُ الخطابِ لا لقبُ أحد. */
       out.appendChild(cap(App.Words.gGroup()));
       var pair = App.el('div', 'st-pair');
@@ -16315,7 +16335,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       idNote = txt('p', 'st-note', '');
       out.appendChild(idNote);
       markId();
+      return out;
+    }
 
+    function paneLight() {
+      var out = App.el('div', 'st-stack');
       out.appendChild(cap('الضوء'));
       var mpair = App.el('div', 'st-pair');
       mpair.setAttribute('role', 'radiogroup');
@@ -16334,7 +16358,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         out.appendChild(cap('تنفُّسُ اليوم'));
         out.appendChild(App.Breath.row());
       }
+      return out;
+    }
 
+    function paneMushaf() {
+      var out = App.el('div', 'st-stack');
       out.appendChild(cap('المصحف'));
       out.appendChild(madaniRow());
       return out;
@@ -16408,7 +16436,22 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     }
 
     /* ═══ ٣ · بياناتي ═════════════════════════════════════════════ */
+    /* ═══ «بياناتي» لسانان ═══
+       بطاقةُ النسخةِ ٤٤٣ بكسلًا وبطاقةُ المحوِ ٢٦٩ — ومجموعُهما
+       يَفيض عن الشاشة. وهما فعلان متباعدان: أحدُهما يَحفظ والآخرُ
+       يَمحو، فلا يُجمعان في صحيفةٍ واحدةٍ تُمرَّر. واللسانُ يَزيدهما
+       تباعدًا، وهو مقصودٌ ههنا: المحوُ لا رجعةَ فيه فلا يُجاور
+       الآمنَ فتُخطئه اليد. */
     function paneData() {
+      var pair = buildData();
+      return App.seg([
+        { key: 'keep', label: 'نسختي', render: function () { return pair.box; } },
+        { key: 'wipe', label: 'المحو',  render: function () { return pair.danger; } }
+      ], { start: DATA_TAB, onchange: function (k) { DATA_TAB = k; } });
+    }
+
+    function buildData() {
+      var RET = null;
       var out = App.el('div', 'st-stack');
 
       var box = App.el('div', 'st-card');
@@ -16495,6 +16538,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       wipeSlot.style.marginTop = '11px';
       danger.appendChild(wipeSlot);
       out.appendChild(danger);
+
+      /* يُرَدّان منفصلَين ليُوضَع كلٌّ في لسانه، والدوالُّ أدناه
+         تَبقى في مجالِهما فتَعمل كما كانت. */
+      RET = { box: box, danger: danger };
 
       function say(text, isErr) {
         msg.textContent = text;
@@ -16648,7 +16695,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       }
       drawWipe(false);
 
-      return out;
+      return RET;
     }
 
     /* ═══ ٤ · عن التطبيق ══════════════════════════════════════════ */
@@ -16681,8 +16728,12 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
          الرخصةُ تَشترط بقاءَ الإشعارِ في النسخةِ لا عرضَه في الواجهة،
          فالشرطُ قائمٌ والشاشةُ خالصةٌ للقارئِ بلغتِه وحدَها. */
       var sign = App.el('div', 'st-sign');
+      /* سطران مقصودان لا سطرٌ يَنكسر حيث اتّفق: الاسمُ أوّلًا
+         والتاريخُ تحته، فلا يَقع الكسرُ في وسطِ «ارتقِ ٢٠٢٦م». */
       sign.appendChild(txt('p', 'st-sign-c',
-        'جميع الحقوق محفوظة © عرفات الراجحي — ارتقِ ٢٠٢٦م / ١٤٤٨هـ'));
+        'جميع الحقوق محفوظة © عرفات الراجحي'));
+      sign.appendChild(txt('p', 'st-sign-y',
+        'ارتقِ — ٢٠٢٦م / ١٤٤٨هـ'));
       sign.appendChild(txt('p', 'st-sign-p',
         'اللهمّ اغفرْ لمطوِّرها ومستخدميها ووالديهم والمسلمين أجمعين'));
       box.appendChild(sign);
@@ -16697,8 +16748,12 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       { key: 'about', label: 'عن التطبيق', icon: 'info',    render: paneAbout }
     ], {
       start: TAB,
-      onchange: function (k) { TAB = k; }
+      onchange: function (k) {
+        TAB = k;
+        hero.style.display = (k === 'me') ? '' : 'none';
+      }
     }));
+    hero.style.display = (TAB === 'me') ? '' : 'none';
 
     return wrap;
   }
