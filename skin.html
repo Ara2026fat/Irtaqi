@@ -2342,6 +2342,158 @@ html[data-mode="dark"]{
 /* حقلا الهدفِ معًا: يُخفَيان جملةً لمن أتمّ المصحف */
 .w-goal{ display:flex; flex-direction:column; gap:var(--gap-lg) }
 
+/* ═══════════════════════════════════════════════════════════════════
+   لوحُ الإعداد — داشبوردٌ لا استمارة
+   ───────────────────────────────────────────────────────────────────
+   لا حقلَ كتابةٍ فيه، فلا نمطَ ‎input‎ ولا ‎textarea‎ هنا البتّة.
+   وكلُّ ما يُلمَس أربعٌ وأربعون فأكثر، وشبكةُ الأجزاءِ أحوجُ ما في
+   الشاشةِ إلى هذا الحساب.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── البطاقة ───────────────────────────────────────────────────── */
+/* حشوةُ البطاقةِ تُنقَل إلى أبنائها: رأسُها زرٌّ يَملأ عرضَها فيُلمَس
+   من حافّةٍ إلى حافّة، لا مربّعٌ صغيرٌ في وسطها. */
+.w-pan{ padding:0; overflow:hidden }
+.w-pan-h{
+  display:flex; align-items:center; gap:var(--gap-sm);
+  width:100%; min-height:64px;
+  padding:13px var(--pad);
+  text-align:start; color:var(--ink); cursor:pointer;
+}
+.w-pan-t{ flex:1 1 auto; min-width:0; display:block }
+.w-pan-l{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-mut) }
+/* الجوابُ الحاليُّ في وجهِ البطاقة: تُقرأ الشاشةُ بلمحةٍ بلا فتح */
+.w-pan-v{
+  display:block; margin-top:3px;
+  font-size:15.5px; font-weight:700; line-height:1.5;
+  color:var(--ink); overflow-wrap:anywhere;
+}
+/* ما لم يُجَب عنه يُعلَّم بالذهبِ وبنصِّه معًا، لا باللونِ وحدَه */
+.w-pan-v.w-pan-warn{ color:var(--gold-lit); font-weight:600 }
+.w-pan-c{ flex:none; display:grid; place-items:center; color:var(--ink-faint) }
+/* مغلقةٌ: السهمُ لأسفلَ دعوةً للفتح. مفتوحةٌ: لأعلى. */
+.w-pan-c svg{ width:20px; height:20px; transform:rotate(90deg) }
+.w-pan-b{ padding:2px var(--pad) var(--pad) }
+.w-pan-in{ display:flex; flex-direction:column; gap:var(--gap) }
+.w-pan-h:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:-3px }
+
+@media (prefers-reduced-motion:no-preference){
+  .w-pan-c svg{ transition:transform var(--mid) var(--ease) }
+  .w-open .w-pan-c svg{ transform:rotate(-90deg) }
+}
+@media (prefers-reduced-motion:reduce){
+  .w-open .w-pan-c svg{ transform:rotate(-90deg) }
+}
+
+/* ── شبكةُ الأجزاء ──────────────────────────────────────────────
+   ستّةُ أعمدةٍ لا سبعة: على عرضِ ٣٦٠ تَبقى الخليّةُ ٤٤٫٧ بكسلًا مع
+   ستّة، وتَنزل إلى ٣٨ مع سبعة — وهو هدفُ لمسٍ مرفوض. */
+.w-gridwrap{ display:flex; flex-direction:column; gap:10px }
+.w-grid{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0, 1fr));
+  gap:4px;
+}
+.w-cell{
+  display:grid; place-items:center;
+  min-width:44px; min-height:46px;
+  border-radius:var(--r-sm);
+  background:var(--surface-2);
+  color:var(--ink);
+  font-size:15px; font-weight:700; line-height:1;
+  font-variant-numeric:tabular-nums;
+  cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--hair-2);
+}
+/* المختارُ يُعلَّم باللونِ وبالإطارِ معًا: اللونُ وحدَه لا يَكفي */
+.w-cell.w-c-on{
+  background:var(--accent);
+  color:var(--on-accent);
+  box-shadow:inset 0 0 0 1.5px var(--accent);
+}
+/* المِرساة: طرفٌ ثُبّت وينتظر طرفَه الآخر */
+.w-cell.w-c-anchor{
+  background:var(--gold-soft);
+  color:var(--ink);
+  box-shadow:inset 0 0 0 2.5px var(--gold-lit);
+}
+/* ما يُمكن بلوغُه من المِرساة: تلميحٌ خافتٌ لا إعلان */
+.w-cell.w-c-reach{ box-shadow:inset 0 0 0 1px var(--gold-soft) }
+/* المحجوزُ: مُعتَّمٌ ومخطوطٌ ومعطَّلٌ — ثلاثُ علاماتٍ لا لونٌ واحد */
+.w-cell.w-c-block{
+  background:var(--hair-2);
+  color:var(--ink-faint);
+  text-decoration:line-through;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.w-cell[disabled]:not(.w-c-block){ opacity:.4; cursor:not-allowed }
+.w-cell:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:2px }
+.w-ghint{ margin:0; font-size:12.5px; line-height:1.7; color:var(--ink-mut) }
+
+/* على الشاشاتِ الضيّقةِ جدًّا تُفكّ الشبكةُ من حشوةِ البطاقةِ قليلًا
+   كي لا تَنزل الخليّةُ تحتَ أربعٍ وأربعين. */
+@media (max-width:359px){
+  .w-grid{ margin-inline:-10px }
+}
+
+/* ── نطاقاتٌ مُضافة ─────────────────────────────────────────────── */
+.w-rchips{ display:flex; flex-direction:column; gap:8px }
+.w-rempty{ margin:0; font-size:13px; color:var(--ink-faint) }
+.w-rchip{
+  display:flex; align-items:center; gap:8px;
+  min-height:48px;
+  padding:5px 6px 5px 14px;
+  border-radius:var(--r-md);
+  background:var(--accent-soft);
+  color:var(--ink);
+}
+.w-rchip-t{ flex:1 1 auto; min-width:0; font-size:14px; font-weight:700; line-height:1.5 }
+.w-rchip-x{
+  flex:none; display:grid; place-items:center;
+  width:var(--tap); height:var(--tap);
+  border-radius:var(--r-sm);
+  color:var(--ink-mut); cursor:pointer;
+}
+.w-rchip-x:hover{ color:var(--danger) }
+.w-rchip-x:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:-2px }
+
+/* ── خياراتٌ ومفاتيح ────────────────────────────────────────────── */
+.w-opts-col{ flex-direction:column; align-items:stretch }
+.w-opts-col .chip{ justify-content:center }
+.w-wide{ width:100% }
+.w-num{ min-width:56px; justify-content:center; font-variant-numeric:tabular-nums }
+.w-none{ align-self:flex-start }
+.w-sug{ margin:0; font-size:12.5px; line-height:1.8; color:var(--ink-mut) }
+
+/* سطرُ الخصوصيّة: خبرٌ يُطمئن، لا تحذير */
+.w-priv{
+  display:flex; align-items:flex-start; gap:9px;
+  margin:4px 0 0; padding:11px 13px;
+  border-radius:var(--r-md);
+  background:var(--surface-2);
+  font-size:12.5px; line-height:1.75; color:var(--ink-mut);
+}
+.w-priv svg{ flex:none; width:16px; height:16px; margin-top:2px; color:var(--ink-mut) }
+
+/* ── الخلاصةُ الحيّة ────────────────────────────────────────────── */
+.w-sum{ display:flex; flex-direction:column; gap:12px }
+.w-sum-t{ margin:0; font-size:16px; font-weight:800; color:var(--ink) }
+.w-sum-l{ display:flex; flex-direction:column; gap:10px }
+.w-sum-r{ display:flex; align-items:baseline; gap:12px }
+.w-sum-k{ flex:none; min-width:6.5em; font-size:12.5px; font-weight:600; color:var(--ink-mut) }
+.w-sum-v{ flex:1 1 auto; font-size:14.5px; font-weight:700; color:var(--ink); line-height:1.5 }
+.w-sum-warn .w-sum-v{ color:var(--gold-lit) }
+
+/* زرُّ الإثباتِ الناقص: يَبقى ملموسًا ويقول سببَه، ولا يُعطَّل تعطيلًا
+   صامتًا يَترك القارئَ يَنقره ولا يَفهم لِمَ لا يَستجيب. */
+.w-dim{ opacity:.55 }
+
+/* أرقامُ المقدار: صفٌّ واحدٌ لا صفٌّ ونصف. ستُّ خانات كشبكةِ
+   الأجزاءِ نفسِها، فتَبقى الخانةُ فوقَ ٤٤ على عرضِ ٣٦٠. */
+.w-nums{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:6px }
+.w-nums .chip{ min-width:0; padding-inline:0; justify-content:center }
+
 /* ══ 41-exam.css ══ */
 /* ══ 41-exam.css — كِسوةُ مُولِّدِ الاختبار ═══════════════════════
    ورقةُ كسوةٍ لا تُشحَن مع التطبيق (انظر skin/10-system.css).
@@ -17453,11 +17605,22 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      مَن حفظ عشرةً من آخرِ المصحفِ ليس كمَن حفظ عشرةً من أوّله. */
   function setup(opt, keep) {
     var h = blank(), t = today(), prev = keep && has() ? App.state.hifz : null;
-    var n = Math.max(0, Math.min(30, Math.round(+opt.oldJuz) || 0));
-    if (n) {
-      h.old = (opt.fromEnd !== false)
-        ? [{ from: Q.juzStart(31 - n), to: Q.PAGES }]
-        : [{ from: 1, to: Q.juzEnd(n) }];
+    /* المحفوظُ نطاقاتٌ لا عدد: أكثرُ الحفّاظِ عندهم أوّلُ المصحفِ
+       وآخرُه ولا شيءَ بينهما — «عشرةُ أجزاء» وحدَها لا تَدلّ على
+       أيِّ عشرة، والجردُ يَقوم على مواضعِ الصفحاتِ لا على عددها.
+       و‎oldJuz/fromEnd‎ تُقبَلان لنطاقٍ واحدٍ متّصلٍ من طرفٍ إن
+       نادى المحرِّكَ أحدٌ بالصيغةِ الأولى. */
+    if (opt.ranges && opt.ranges.length) {
+      h.old = opt.ranges.map(function (r) {
+        return { from: clampPage(r.from), to: clampPage(r.to) };
+      }).filter(function (r) { return r.from && r.to; });
+    } else {
+      var n = Math.max(0, Math.min(30, Math.round(+opt.oldJuz) || 0));
+      if (n) {
+        h.old = (opt.fromEnd !== false)
+          ? [{ from: Q.juzStart(31 - n), to: Q.PAGES }]
+          : [{ from: 1, to: Q.juzEnd(n) }];
+      }
     }
     if (opt.goalFrom && opt.goalTo) {
       h.goal = { from: Q.juzStart(Math.min(opt.goalFrom, opt.goalTo)),
@@ -17486,8 +17649,74 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return h;
   }
 
+  /* ════ ١٢ · الفئةُ العمريّة ════════════════════════════════════
+     ‼ لا تُكتَب في ‎App.state‎ أبدًا، ولا في شيءٍ يُشتَقّ منها ‼
+
+     السببُ ليس احتياطًا نظريًّا: ‎95-settings.js‎ يَرفع الحالةَ كلَّها
+     إلى ‎/api/sync‎ بعد ختمِها (‎App.Seal.seal(JSON.stringify(App.state))‎)،
+     ويُصدّرها كاملةً في ملفِّ النسخِ الاحتياطيّ. فلو وُضعت الفئةُ في
+     ‎state.hifz‎ لَخرجت من الجهازِ في أوّلِ مزامنةٍ وفي أوّلِ تصدير.
+     ويَستعمل هذا التطبيقَ قاصرون، وسنُّ القاصرِ ليست ممّا يُرفَع إلى
+     خادمٍ لأنّه مُتاح.
+
+     فموضعُها مفتاحٌ مستقلٌّ في ‎localStorage‎ لا تَعرفه النواةُ ولا
+     يَمسّه الاستيرادُ ولا التصدير. ومَن جاء بعدي: إن احتجتَ الفئةَ
+     فاقرأها من ‎App.Hifz.age()‎ ولا تَنسخها إلى الحالةِ ولا إلى أيِّ
+     حمولةِ طلب. والغرضُ منها واحدٌ: تهيئةُ ما يُناسب سنَّ القارئ على
+     جهازه. ولذلك فئاتٌ لا رقمٌ ولا تاريخُ ميلاد — الفئةُ تَكفي
+     للغرضِ ولا تَحمل ما لا يُحتاج. */
+  var AGE_KEY = 'irtaqi.age';
+
+  /* المقترَحُ من السنّ: الحِملُ الحقيقيَّ ليس «الجديد» وحدَه، فكلُّ
+     صفحةٍ جديدةٍ تَجُرّ خلفها ثلاثَ جلساتِ تثبيتٍ ثمّ مراجعتَين —
+     فصفحةٌ في اليومِ تَصير نحوَ خمسِ صفحاتٍ من العملِ حين يَستقرّ
+     السلّم. ولهذا لا يُقترَح على ابنِ التاسعةِ ما يُقترَح على ابنِ
+     العشرين، ولا يُقترَح لأحدٍ أكثرُ من صفحتَين: الثالثةُ تَرفع
+     الوِردَ اليوميَّ فوقَ ثلاثَ عشرةَ صفحةً وهو ما يَنقطع دونه
+     أكثرُ الناس. والجمعةُ تُترَك في المقترَحِ لكلِّ سنّ. */
+  var AGES = [
+    { k: 'u10',   t: 'أقلّ من ١٠ سنوات', rate: 1, days: [0, 1, 2, 3, 4] },
+    { k: '10_12', t: '١٠ إلى ١٢ سنة',    rate: 1, days: [0, 1, 2, 3, 4] },
+    { k: '13_15', t: '١٣ إلى ١٥ سنة',    rate: 1, days: [0, 1, 2, 3, 4, 6] },
+    { k: '16_18', t: '١٦ إلى ١٨ سنة',    rate: 2, days: [0, 1, 2, 3, 4, 6] },
+    { k: 'o18',   t: 'أكبر من ١٨ سنة',   rate: 2, days: [0, 1, 2, 3, 4, 6] }
+  ];
+
+  function ageBand(k) {
+    var i;
+    for (i = 0; i < AGES.length; i++) if (AGES[i].k === k) return AGES[i];
+    return null;
+  }
+
+  /* القراءةُ والكتابةُ محروستان: في النافذةِ الخاصّةِ أو مع خزنٍ
+     مَمنوعٍ تَرمي ‎localStorage‎، والشاشةُ لا تَسقط لأجلِ تفضيل. */
+  function age() {
+    try { return ageBand(localStorage.getItem(AGE_KEY)) ? localStorage.getItem(AGE_KEY) : null; }
+    catch (e) { return null; }
+  }
+  function setAge(k) {
+    try {
+      if (ageBand(k)) localStorage.setItem(AGE_KEY, k);
+      else localStorage.removeItem(AGE_KEY);
+    } catch (e) {}
+  }
+  function suggest() {
+    var b = ageBand(age());
+    return b ? { rate: b.rate, days: b.days.slice() }
+             : { rate: 1, days: [0, 1, 2, 3, 4] };
+  }
+
+  /* الوِردُ اليوميُّ حين يَستقرّ السلّم — تقديرٌ يُقال للقارئِ قبل أن
+     يَلتزم: «صفحةٌ في اليوم» وحدَها تُخفي أنّ خلفها مراجعاتِها. */
+  function dailyLoad(rate) {
+    var r = Math.max(0, Math.round(+rate) || 0);
+    var n = r * (1 + NEED[FIX] + NEED[NEAR] / STEP[NEAR] + NEED[FAR] / STEP[FAR]);
+    return Math.max(r, Math.round(n + cycRate()));
+  }
+
   /* ════ العقدُ المُعلَن ═════════════════════════════════════════ */
   App.Hifz = {
+    age: age, setAge: setAge, AGES: AGES, suggest: suggest, dailyLoad: dailyLoad,
     inventory: inventory,
     stageOf: stageOf,
     weakJuz: weakJuz,
@@ -17947,85 +18176,213 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return card;
   }
 
-  /* ── لوحُ الإعداد ─────────────────────────────────────────────── */
+  /* ── لوحُ الإعداد — داشبوردٌ لا استمارة ────────────────────────
+     لا حقلَ كتابةٍ واحدًا في الشاشةِ كلِّها: لا نصًّا ولا رقمًا ولا
+     لوحةَ مفاتيحَ تُفتَح. كلُّ جوابٍ لمسة.
+
+     والسؤالُ عن المحفوظِ سؤالٌ واحدٌ لا ثلاثة. طلبَ صاحبُ التطبيقِ
+     «كم تحفظ جزءًا» و«كم عددُ الأجزاء» و«من أيِّ جزءٍ إلى أيِّ جزء»،
+     وهذه الثلاثةُ سؤالٌ واحدٌ عن شيءٍ واحد: مَن يُجيب عنها مرّتَين
+     يَتناقض، ثمّ لا يَدري التطبيقُ أيَّ الجوابَين يُصدّق. فيُحدَّد
+     النطاقُ باللمسِ ويُحسَب العددُ لحظةً بلحظة — وهو نصُّ طلبِه
+     الأخير: «إذا حدّد تُحسب أوتوماتيك».
+
+     والبطاقةُ تَعرض جوابَها الحاليَّ في وجهها، فتُقرأ الشاشةُ
+     بلمحةٍ بلا فتحِ شيء، ولا يُفتَح إلّا ما يُراد تبديلُه. */
 
   /* المعجمُ لا يَحمل علامةَ نقصٍ، وعلامةُ الإغلاقِ ‎close‎ ليست
      بديلًا عنها: «×» في زرِّ عَدَدٍ تُقرأ حذفًا لا إنقاصًا. فتُسجَّل
-     علامتان بسابقةٍ خاصّةٍ لئلّا تُزاحما مفتاحًا في ‎10-icons.js‎. */
+     بسابقةٍ خاصّةٍ لئلّا تُزاحم مفتاحًا في ‎10-icons.js‎. */
   App.defIcons({
     'w-minus': '<path d="M5 12h14"/>',
-    'w-plus': '<path d="M12 5v14M5 12h14"/>'
+    'w-plus': '<path d="M12 5v14M5 12h14"/>',
+    'w-lock': '<path d="M6 10V8a6 6 0 0 1 12 0v2"/>'
+      + '<rect x="4" y="10" width="16" height="11" rx="2.5"/>'
   });
 
-  function stepper(label, hint, get, set, lo, hi) {
-    var f = el('div', 'w-fld');
-    var l = el('div', 'w-fld-l');
-    l.textContent = label;
-    f.appendChild(l);
-    if (hint) {
-      var hh = el('div', 'w-fld-h');
-      hh.textContent = hint;
-      f.appendChild(hh);
+  /* ── مُعِيناتُ النطاقات ──────────────────────────────────────── */
+
+  /* نطاقاتٌ بالأجزاءِ تُسوّى: تُرتَّب ويُدمَج المتجاورُ والمتداخل،
+     فعشرةُ لمساتٍ لا تُنتج عشرةَ نطاقاتٍ متلاصقة. */
+  function tidy(list) {
+    var out = [], i, r, s = list.slice();
+    s.sort(function (a, b) { return a.from - b.from; });
+    for (i = 0; i < s.length; i++) {
+      r = { from: Math.max(1, Math.min(30, s[i].from)),
+            to: Math.max(1, Math.min(30, s[i].to)) };
+      if (r.to < r.from) { var x = r.from; r.from = r.to; r.to = x; }
+      if (out.length && r.from <= out[out.length - 1].to + 1) {
+        out[out.length - 1].to = Math.max(out[out.length - 1].to, r.to);
+      } else out.push(r);
     }
-    var s = el('div', 'stepper w-step');
-    var minus = btn('', App.icon('w-minus', 20), 'أنقِص ' + label);
-    var val = el('span', 'val');
-    var plus = btn('', App.icon('w-plus', 20), 'زِد ' + label);
-    val.setAttribute('role', 'status');
-    val.setAttribute('aria-live', 'polite');
-    function paint() {
-      val.textContent = ar(get());
-      minus.disabled = get() <= lo;
-      plus.disabled = get() >= hi;
+    return out;
+  }
+  function inList(list, j) {
+    var i;
+    for (i = 0; i < list.length; i++) if (j >= list[i].from && j <= list[i].to) return true;
+    return false;
+  }
+  function countJuz(list) {
+    var n = 0, i;
+    for (i = 0; i < list.length; i++) n += list[i].to - list[i].from + 1;
+    return n;
+  }
+  function pagesOf(list) {
+    var n = 0, i;
+    for (i = 0; i < list.length; i++) {
+      n += Q.juzEnd(list[i].to) - Q.juzStart(list[i].from) + 1;
     }
-    minus.onclick = function () { set(Math.max(lo, get() - 1)); paint(); };
-    plus.onclick = function () { set(Math.min(hi, get() + 1)); paint(); };
-    /* الزيادةُ أوّلًا: الصفحةُ ‎rtl‎ فأوّلُ ابنٍ يَقع يمينًا، وموضعُ
-       «زِد» عند العربيِّ يمينٌ كما هو عند غيرِه يسار. */
-    s.appendChild(plus); s.appendChild(val); s.appendChild(minus);
-    f.appendChild(s);
-    paint();
-    /* يُعاد الطلاءُ من خارجه: تبديلُ حقلٍ قد يُغيّر قيمةَ حقلٍ آخرَ
-       لم يَلمسه القارئ، فلا بدّ أن يَرى الرقمَ الجديدَ لا القديم. */
-    f.repaint = paint;
-    return f;
+    return n;
+  }
+  function rangeLabel(r) {
+    return r.from === r.to ? 'الجزء ' + ar(r.from)
+                           : 'من الجزء ' + ar(r.from) + ' إلى الجزء ' + ar(r.to);
+  }
+  function listLabel(list) {
+    if (!list.length) return 'لم يُحدَّد بعد';
+    return list.map(rangeLabel).join('، ');
   }
 
+  /* ── شبكةُ الأجزاء ───────────────────────────────────────────
+     ثلاثون خليّةً في ستّةِ أعمدة: ستٌّ هي أكبرُ عددٍ يُبقي الخليّةَ
+     فوقَ أربعٍ وأربعين على عرضِ ٣٦٠ — وسبعةٌ تُنزلها إلى ثمانٍ
+     وثلاثين، وهو هدفُ لمسٍ لا يُقبَل.
+
+     واللمستان: الأولى تُثبّت الطرفَ الأوّل، والثانيةُ تُغلق النطاق.
+     ولمسُ الخليّةِ نفسِها مرّتَين يُعطي جزءًا واحدًا. ولا رسالةَ خطأٍ
+     بعد اللمس: ما لا يَصحّ يُمنَع قبله — الخلايا المحجوزةُ معطَّلةٌ
+     أصلًا، وإذا ثُبّت طرفٌ عُطّل كلُّ ما وراءَ محجوزٍ فلا يُمكن أن
+     يُرسَم نطاقٌ يَقفز فوقَ محفوظ. */
+  function juzGrid(opt) {
+    var box = el('div', 'w-gridwrap');
+    var hint = el('p', 'w-ghint');
+    var grid = el('div', 'w-grid');
+    grid.setAttribute('role', 'group');
+    grid.setAttribute('aria-label', opt.label || 'أجزاءُ المصحف');
+    var cells = [], anchor = null;
+
+    function blocked(j) { return !!(opt.blocked && opt.blocked(j)); }
+    function chosen(j) { return !!(opt.chosen && opt.chosen(j)); }
+
+    /* المدى المسموحُ من المِرساة: أقربُ محجوزٍ يَمينًا وشمالًا */
+    function reach(a) {
+      var lo = a, hi = a, j;
+      for (j = a - 1; j >= 1; j--) { if (blocked(j)) break; lo = j; }
+      for (j = a + 1; j <= 30; j++) { if (blocked(j)) break; hi = j; }
+      return { lo: lo, hi: hi };
+    }
+
+    function paint() {
+      var rg = anchor ? reach(anchor) : null;
+      cells.forEach(function (b, i) {
+        var j = i + 1, bl = blocked(j), ch = chosen(j);
+        var within = rg && j >= rg.lo && j <= rg.hi;
+        b.disabled = bl || (!!anchor && !within);
+        b.className = 'w-cell'
+          + (bl ? ' w-c-block' : '')
+          + (ch && !bl ? ' w-c-on' : '')
+          + (anchor === j ? ' w-c-anchor' : '')
+          + (anchor && within && anchor !== j ? ' w-c-reach' : '');
+        b.setAttribute('aria-pressed', ch ? 'true' : 'false');
+        b.setAttribute('aria-label', 'الجزء ' + ar(j)
+          + (bl ? ' — محجوزٌ لمحفوظك' : anchor === j ? ' — بدايةُ النطاق' : ''));
+      });
+      hint.textContent = anchor
+        ? 'المِس آخرَ الجزء. وإن أردتَ جزءًا واحدًا فالمِس الجزءَ ' + ar(anchor) + ' نفسَه.'
+        : (opt.hint || 'المِس أوّلَ الجزءِ ثمّ آخرَه.');
+    }
+
+    (function () {
+      var j;
+      for (j = 1; j <= 30; j++) {
+        (function (n) {
+          var b = btn('w-cell', ar(n));
+          b.setAttribute('data-wk', (opt.key || 'g') + n);
+          b.onclick = function () {
+            if (anchor === null) { anchor = n; paint(); return; }
+            var from = Math.min(anchor, n), to = Math.max(anchor, n);
+            anchor = null;
+            opt.onPick(from, to);
+          };
+          cells.push(b);
+          grid.appendChild(b);
+        })(j);
+      }
+    })();
+
+    box.appendChild(grid);
+    box.appendChild(hint);
+    box.repaint = paint;
+    box.reset = function () { anchor = null; paint(); };
+    paint();
+    return box;
+  }
+
+  /* ── البطاقة: عنوانٌ وجوابٌ ظاهرٌ، وتُفتَح باللمس ──────────────
+     واحدةٌ مفتوحةٌ في كلِّ مرّة: المفتوحاتُ كلُّها تُعيد الاستمارةَ
+     التي هَربنا منها. */
+  function panel(opt) {
+    var sec = el('section', 'card w-pan');
+    var head = btn('w-pan-h', '');
+    head.setAttribute('aria-expanded', 'false');
+    var txt = el('span', 'w-pan-t');
+    var ttl = el('span', 'w-pan-l');
+    ttl.textContent = opt.title;
+    var val = el('span', 'w-pan-v');
+    txt.appendChild(ttl); txt.appendChild(val);
+    var chev = el('span', 'w-pan-c');
+    chev.innerHTML = App.icon('chevron', 20);
+    head.appendChild(txt); head.appendChild(chev);
+    sec.appendChild(head);
+    var body = el('div', 'w-pan-b');
+    /* ‎aria-controls‎ يَصِل الرأسَ بجسمه: ‎aria-expanded‎ وحدَها تقول
+       «مفتوحةٌ» ولا تقول ماذا فُتح. */
+    body.id = 'wp-' + App.uid();
+    head.setAttribute('aria-controls', body.id);
+    sec.appendChild(body);
+    body.appendChild(opt.build());
+    sec.setValue = function (s, warn) {
+      val.textContent = s;
+      val.className = 'w-pan-v' + (warn ? ' w-pan-warn' : '');
+    };
+    sec.setOpen = function (on) {
+      sec.classList.toggle('w-open', on);
+      head.setAttribute('aria-expanded', on ? 'true' : 'false');
+      body.hidden = !on;
+    };
+    head.onclick = function () { opt.onToggle(); };
+    sec.setOpen(false);
+    return sec;
+  }
+
+  /* ── الشاشة ──────────────────────────────────────────────────── */
   function setupPane() {
     var cur = H.has() ? App.state.hifz : null;
     var inv = cur ? H.inventory() : { old: [], goal: null };
-    var oldPgs = H.oldPages();
-    var oldN = (function () {
-      var seen = {}, n = 0, i, j;
-      for (i = 0; i < oldPgs.length; i++) {
-        j = Q.juzOf(oldPgs[i]);
-        if (!seen[j]) { seen[j] = 1; n++; }
-      }
-      return n;
-    })();
-    var fromEnd = !inv.old.length || inv.old[inv.old.length - 1].to >= Q.PAGES - 2;
-    /* الهدفُ الافتراضيُّ يَتبع المحفوظَ ما لم يَلمسه القارئ: مَن قال
-       «حفظتُ عشرةً من آخرِ المصحف» قَصدُه الجزءُ العشرون غالبًا، لا
-       الثلاثون الذي أقرّ بحفظه. وهذا الاتّباعُ هو ما سقط أوّلَ مرّةٍ
-       فخرج الهدفُ على جزءٍ قال صاحبُه إنّه يَحفظه. */
-    var goalSet = !!inv.goal;
-    /* الهدفُ الافتراضيُّ خمسةُ أجزاءٍ تَلي المحفوظَ في جهةِ سيره —
-       لا جزءًا واحدًا (قليلٌ لعامٍ كامل) ولا جزءًا يَتداخل مع ما
-       أقرّ بحفظه (فيُسأل عن محفوظه كأنّه جديد). والخمسةُ تقديرٌ
-       شائعٌ في الحلقات، والقارئُ يُبدّله بلمستَين. */
-    function defGoal() {
-      var hi, lo;
-      if (fromEnd) { hi = Math.max(1, 30 - oldN); lo = Math.max(1, hi - 4); }
-      else { lo = Math.min(30, oldN + 1); hi = Math.min(30, lo + 4); }
-      return { lo: lo, hi: hi };
+
+    /* النطاقاتُ تُترجَم إلى أجزاءٍ عند الفتحِ وتُعاد صفحاتٍ عند
+       الحفظ: الشبكةُ تَتكلّم بالأجزاءِ والمحرّكُ يَعمل بالصفحات. */
+    var oldR = tidy(inv.old.map(function (r) {
+      return { from: Q.juzOf(r.from), to: Q.juzOf(r.to) };
+    }));
+    var goalR = inv.goal ? { from: Q.juzOf(inv.goal.from), to: Q.juzOf(inv.goal.to) } : null;
+
+    var sug = H.suggest();
+    var band = H.age();
+    var rate = cur ? (cur.rate || sug.rate) : sug.rate;
+    var days = cur ? (cur.days || []).slice() : sug.days.slice();
+    /* المقترَحُ يَتبع السنَّ ما لم يَلمس القارئُ المقدارَ بنفسه */
+    var rateTouched = !!cur, daysTouched = !!cur;
+
+    var open = null, parts = [], paints = [];
+    function sync() { paints.forEach(function (f) { f(); }); }
+    function toggle(k) {
+      open = (open === k) ? null : k;
+      parts.forEach(function (p) { p.setOpen(p.pkey === open); });
     }
-    var d0 = defGoal();
-    var gf = inv.goal ? Q.juzOf(inv.goal.from) : d0.lo;
-    var gt = inv.goal ? Q.juzOf(inv.goal.to) : d0.hi;
-    var rate = cur ? (cur.rate || 1) : 1;
-    var days = cur ? (cur.days || []).slice() : [0, 1, 2, 3, 4];
 
     var wrap = el('div', 'screen w-setup');
+
     var head = el('div', 'bar');
     var ht = el('div', 'bar-t');
     var h1 = el('h1', 'h1');
@@ -18037,98 +18394,316 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     wrap.appendChild(head);
 
     var lede = el('p', 'w-lede');
-    lede.textContent = 'يُسأل عنه مرّةً، ثمّ يَمشي الوِردُ وحدَه. '
-                     + 'وما تُبدّله هنا لا يَمحو ما سجّلتَه من قبل.';
+    lede.textContent = 'كلُّ شيءٍ هنا لمسةٌ، ولا كتابةَ فيه. '
+                     + 'يُسأل مرّةً ثمّ يَمشي الوِردُ وحدَه، وما تُبدّله بعدُ لا يَمحو ما سجّلتَه.';
     wrap.appendChild(lede);
 
-    var card = el('section', 'card w-form');
+    /* ══ ١ · الفئةُ العمريّة ══ */
+    var pAge = panel({
+      title: 'الفئةُ العمريّة',
+      onToggle: function () { toggle('age'); },
+      build: function () {
+        var box = el('div', 'w-opts w-opts-col');
+        AGES().forEach(function (a) {
+          var b = btn('chip w-wide', a.t);
+          b.setAttribute('data-wk', 'age' + a.k);
+          b.onclick = function () {
+            band = (band === a.k) ? null : a.k;
+            H.setAge(band);
+            /* أوّلُ نفعٍ للسنّ: المقدارُ المقترَحُ يَتبدّل فورًا — ما
+               لم يكن القارئُ قد اختار مقدارَه بنفسه، فاختيارُه أعلى
+               من اقتراحنا. */
+            var s = H.suggest();
+            if (!rateTouched) rate = s.rate;
+            if (!daysTouched) days = s.days.slice();
+            sync();
+          };
+          box.appendChild(b);
+          paints.push(function () {
+            b.setAttribute('aria-pressed', band === a.k ? 'true' : 'false');
+          });
+        });
+        var note = el('p', 'w-priv');
+        note.innerHTML = App.icon('w-lock', 16);
+        var sp = el('span');
+        sp.textContent = 'تَبقى في جهازك وحدَه. لا تُرسَل إلى أيِّ خادم، '
+                       + 'ولا تَدخل النسخةَ الاحتياطيّةَ ولا المزامنة.';
+        note.appendChild(sp);
+        box.appendChild(note);
+        return box;
+      }
+    });
+    pAge.pkey = 'age';
+    paints.push(function () {
+      var b = ageBandOf(band);
+      pAge.setValue(b ? b.t : 'اختر فئتَك — يُضبَط بها المقترَح', !b);
+    });
+    parts.push(pAge);
+    wrap.appendChild(pAge);
 
-    var fGoalFrom, fGoalTo, goalBox;
-    function followOld() {
-      /* حافظٌ أتمّ المصحفَ لا هدفَ له هذا العام: وِردُه مراجعةٌ
-         ودورة. فيُرفَع السؤالُ من أصله بدل أن يُجبَر على اختيارِ
-         جزءٍ يَحفظه أصلًا. */
-      if (goalBox) goalBox.style.display = (oldN >= 30) ? 'none' : '';
-      if (goalSet) return;                 /* لمسَه القارئ: لا يُبدَّل عليه */
-      var d = defGoal();
-      gf = d.lo; gt = d.hi;
-      if (fGoalFrom) fGoalFrom.repaint();
-      if (fGoalTo) fGoalTo.repaint();
-    }
+    /* ══ ٢ · المحفوظُ السابق ══ */
+    var oldGrid, oldChips;
+    var pOld = panel({
+      title: 'محفوظُك من السنين الماضية',
+      onToggle: function () { toggle('old'); },
+      build: function () {
+        var box = el('div', 'w-pan-in');
+        oldChips = el('div', 'w-rchips');
+        box.appendChild(oldChips);
+        oldGrid = juzGrid({
+          key: 'o',
+          label: 'أجزاءُ محفوظك السابق',
+          hint: 'المِس أوّلَ الجزءِ ثمّ آخرَه. ويُمكنك إضافةُ أكثرَ من نطاق.',
+          chosen: function (j) { return inList(oldR, j); },
+          blocked: function (j) { return !!goalR && j >= goalR.from && j <= goalR.to; },
+          onPick: function (from, to) {
+            oldR = tidy(oldR.concat([{ from: from, to: to }]));
+            sync();
+          }
+        });
+        box.appendChild(oldGrid);
+        var none = btn('btn btn-quiet btn-sm w-none', 'لم أحفظ شيئًا من قبل', null,
+          function () { oldR = []; sync(); });
+        box.appendChild(none);
+        return box;
+      }
+    });
+    pOld.pkey = 'old';
+    paints.push(function () {
+      var n = countJuz(oldR);
+      pOld.setValue(n ? w.juz(n) + '  —  ' + listLabel(oldR) : 'لم يُحدَّد بعد', !n);
+      if (oldGrid) oldGrid.repaint();
+      if (!oldChips) return;
+      oldChips.innerHTML = '';
+      if (!oldR.length) {
+        var e = el('p', 'w-rempty');
+        e.textContent = 'لا نطاقَ بعد.';
+        oldChips.appendChild(e);
+        return;
+      }
+      oldR.forEach(function (r, i) {
+        var c = el('span', 'w-rchip');
+        var t = el('span', 'w-rchip-t');
+        t.textContent = rangeLabel(r) + '  —  ' + w.juz(r.to - r.from + 1);
+        c.appendChild(t);
+        c.appendChild(btn('w-rchip-x', App.icon('close', 18),
+          'احذف ' + rangeLabel(r), function () {
+            oldR.splice(i, 1);
+            if (oldGrid) oldGrid.reset();
+            sync();
+          }));
+        oldChips.appendChild(c);
+      });
+    });
+    parts.push(pOld);
+    wrap.appendChild(pOld);
 
-    card.appendChild(stepper('كم جزءًا حفظتَ في السنين الماضية؟',
-      'إن لم تَحفظ شيئًا فاتركها صفرًا', function () { return oldN; },
-      function (v) { oldN = v; followOld(); }, 0, 30));
+    /* ══ ٣ · هدفُ هذا العام ══ */
+    var goalGrid;
+    var pGoal = panel({
+      title: 'ما ستَحفظه هذا العام',
+      onToggle: function () { toggle('goal'); },
+      build: function () {
+        var box = el('div', 'w-pan-in');
+        goalGrid = juzGrid({
+          key: 'n',
+          label: 'أجزاءُ هدفِ هذا العام',
+          hint: 'المِس أوّلَ الجزءِ ثمّ آخرَه. والمُعتَّمُ محفوظُك، فلا يُحفَظ مرّتَين.',
+          chosen: function (j) { return !!goalR && j >= goalR.from && j <= goalR.to; },
+          blocked: function (j) { return inList(oldR, j); },
+          onPick: function (from, to) { goalR = { from: from, to: to }; sync(); }
+        });
+        box.appendChild(goalGrid);
+        box.appendChild(btn('btn btn-quiet btn-sm w-none', 'لا جديدَ هذا العام — مراجعةٌ فقط',
+          null, function () { goalR = null; sync(); }));
+        return box;
+      }
+    });
+    pGoal.pkey = 'goal';
+    paints.push(function () {
+      if (goalR && inList(oldR, goalR.from)) goalR = null;   /* ابتلعه المحفوظ */
+      var full = countJuz(oldR) >= 30;
+      pGoal.style.display = full ? 'none' : '';
+      pGoal.setValue(goalR
+        ? w.juz(goalR.to - goalR.from + 1) + '  —  ' + rangeLabel(goalR)
+        : (full ? 'حفظتَ المصحفَ كلَّه' : 'لم يُحدَّد بعد'), !goalR && !full);
+      if (goalGrid) goalGrid.repaint();
+    });
+    parts.push(pGoal);
+    wrap.appendChild(pGoal);
 
-    var dirF = el('div', 'w-fld');
-    var dirL = el('div', 'w-fld-l');
-    dirL.textContent = 'وأين موضعُه من المصحف؟';
-    dirF.appendChild(dirL);
-    var dirR = el('div', 'w-opts');
-    var bEnd = btn('chip', 'من آخرِ المصحف');
-    var bStart = btn('chip', 'من أوّلِه');
-    function paintDir() {
-      bEnd.setAttribute('aria-pressed', fromEnd ? 'true' : 'false');
-      bStart.setAttribute('aria-pressed', fromEnd ? 'false' : 'true');
-    }
-    bEnd.onclick = function () { fromEnd = true; paintDir(); followOld(); };
-    bStart.onclick = function () { fromEnd = false; paintDir(); followOld(); };
-    paintDir();
-    dirR.appendChild(bEnd); dirR.appendChild(bStart);
-    dirF.appendChild(dirR);
-    card.appendChild(dirF);
+    /* ══ ٤ · مقدارُ الجديدِ في اليوم ══ */
+    var pRate = panel({
+      title: 'مقدارُ الجديدِ في اليوم',
+      onToggle: function () { toggle('rate'); },
+      build: function () {
+        var box = el('div', 'w-pan-in');
+        var row = el('div', 'w-nums');
+        var i;
+        for (i = 1; i <= 6; i++) {
+          (function (n) {
+            var b = btn('chip w-num', ar(n));
+            b.setAttribute('aria-label', w.pages(n) + ' في اليوم');
+            b.onclick = function () { rate = n; rateTouched = true; sync(); };
+            row.appendChild(b);
+            paints.push(function () {
+              b.setAttribute('aria-pressed', rate === n ? 'true' : 'false');
+            });
+          })(i);
+        }
+        box.appendChild(row);
+        var sg = el('p', 'w-sug');
+        box.appendChild(sg);
+        paints.push(function () {
+          var b = ageBandOf(band);
+          sg.textContent = b
+            ? 'المقترَحُ لفئتِك: ' + w.pages(b.rate) + '. ووِردُك اليوميُّ كلُّه '
+              + 'يَصير نحوَ ' + w.pages(H.dailyLoad(rate)) + ' بعد أن يَستقرّ السلّم.'
+            : 'وِردُك اليوميُّ كلُّه نحوَ ' + w.pages(H.dailyLoad(rate))
+              + ' بعد أن يَستقرّ السلّم — فكلُّ جديدةٍ تَجُرّ مراجعاتِها.';
+        });
+        return box;
+      }
+    });
+    pRate.pkey = 'rate';
+    paints.push(function () { pRate.setValue(w.pages(rate) + ' في اليوم'); });
+    parts.push(pRate);
+    wrap.appendChild(pRate);
 
-    goalBox = el('div', 'w-goal');
-    fGoalFrom = stepper('هدفُ هذا العام — من الجزء', null,
-      function () { return gf; },
-      function (v) { goalSet = true; gf = v; if (gt < gf) { gt = gf; fGoalTo.repaint(); } }, 1, 30);
-    fGoalTo = stepper('إلى الجزء', null,
-      function () { return gt; },
-      function (v) { goalSet = true; gt = Math.max(v, gf); }, 1, 30);
-    goalBox.appendChild(fGoalFrom);
-    goalBox.appendChild(fGoalTo);
-    card.appendChild(goalBox);
-    followOld();
+    /* ══ ٥ · أيّامُ الأسبوع ══ */
+    var pDays = panel({
+      title: 'أيّامُ الأسبوع',
+      onToggle: function () { toggle('days'); },
+      build: function () {
+        var box = el('div', 'w-pan-in');
+        var dp = el('div', 'daypicker');
+        var i;
+        for (i = 0; i < 7; i++) {
+          (function (d) {
+            var b = btn('', App.DAY_SHORT[d], App.DAY_NAME[d]);
+            b.onclick = function () {
+              var at = days.indexOf(d);
+              if (at >= 0) days.splice(at, 1); else days.push(d);
+              daysTouched = true;
+              sync();
+            };
+            dp.appendChild(b);
+            paints.push(function () {
+              b.setAttribute('aria-pressed', days.indexOf(d) >= 0 ? 'true' : 'false');
+            });
+          })(i);
+        }
+        box.appendChild(dp);
+        var quick = el('div', 'w-opts');
+        [{ t: 'كلَّ يوم', d: [0, 1, 2, 3, 4, 5, 6] },
+         { t: 'أيّامَ الدراسة', d: [0, 1, 2, 3, 4] },
+         { t: 'ما عدا الجمعة', d: [0, 1, 2, 3, 4, 6] }].forEach(function (q) {
+          quick.appendChild(btn('chip', q.t, null, function () {
+            days = q.d.slice(); daysTouched = true; sync();
+          }));
+        });
+        box.appendChild(quick);
+        return box;
+      }
+    });
+    pDays.pkey = 'days';
+    paints.push(function () {
+      pDays.setValue(days.length === 7 ? 'كلَّ يوم'
+        : days.length ? days.slice().sort().map(function (d) { return App.DAY_NAME[d]; }).join('، ')
+        : 'لم يُختَر يوم', !days.length);
+    });
+    parts.push(pDays);
+    wrap.appendChild(pDays);
 
-    card.appendChild(stepper('مقدارُ الجديدِ في اليوم', 'صفحاتٌ تُحفَظ في اليوم الواحد',
-      function () { return rate; }, function (v) { rate = v; }, 1, 10));
+    /* ══ الخلاصةُ الحيّة ══
+       تَتحدّث مع كلِّ لمسة. وأسطرٌ لا سطرٌ واحد: الفاصلةُ «·» بجوارِ
+       رقمٍ هنديٍّ تُقرأ صفرًا، فيَصير «هدفُك ٥ · صفحة» في الأذن
+       «خمسون». فالفصلُ بالأسطرِ لا بحرف. */
+    var sum = el('section', 'card w-sum');
+    var sumT = el('h2', 'w-sum-t');
+    sumT.textContent = 'الخلاصة';
+    sum.appendChild(sumT);
+    var sumL = el('div', 'w-sum-l');
+    sum.appendChild(sumL);
+    paints.push(function () {
+      sumL.innerHTML = '';
+      function line(k, v, warn) {
+        var r = el('div', 'w-sum-r' + (warn ? ' w-sum-warn' : ''));
+        var a = el('span', 'w-sum-k'); a.textContent = k;
+        var b2 = el('span', 'w-sum-v'); b2.textContent = v;
+        r.appendChild(a); r.appendChild(b2);
+        sumL.appendChild(r);
+      }
+      var nOld = countJuz(oldR), nGoal = goalR ? goalR.to - goalR.from + 1 : 0;
+      /* بلا قوسَين حولَ العدد: القوسُ محايدُ الاتّجاه فيَنقلب في سطرٍ
+         عربيٍّ ملآنَ بالأرقامِ الهنديّة، فيُقرأ «٨ أجزاء ) ١٦٤ صفحة(».
+         والشَّرطةُ الطويلةُ تَفصل ولا تَنقلب. */
+      line('تحفظ', nOld ? w.juz(nOld) + '  —  ' + w.pages(pagesOf(oldR)) : 'لا شيءَ بعد');
+      line('هدفُك', nGoal ? w.juz(nGoal) + '  —  ' + w.pages(pagesOf([goalR]))
+                          : 'مراجعةٌ بلا جديد');
+      /* سطران لا سطر: «صفحتان جديدةً» لحنٌ، والوصفُ يُرفَع مع موصوفه.
+         والفصلُ يُغني عن الوصفِ أصلًا ويُقرأ أسرع. */
+      line('جديدٌ كلَّ يوم', w.pages(rate));
+      line('الوِردُ كلُّه', 'نحوَ ' + w.pages(H.dailyLoad(rate)) + ' بالمراجعة');
+      if (!days.length) line('الأيّام', 'اختر يومًا واحدًا على الأقلّ', true);
+      else if (nGoal) {
+        var fin = finish(pagesOf([goalR]), rate, days);
+        line('تَنتهي في', fin ? fin.hij : 'لا يُحسَب');
+        if (fin) line('بعد', w.days(fin.days));
+      }
+    });
+    wrap.appendChild(sum);
 
-    var dF = el('div', 'w-fld');
-    var dL = el('div', 'w-fld-l');
-    dL.textContent = 'أيّامُ الأسبوع';
-    dF.appendChild(dL);
-    var dp = el('div', 'daypicker');
-    for (var i = 0; i < 7; i++) {
-      (function (d) {
-        var b = btn('', App.DAY_SHORT[d], App.DAY_NAME[d]);
-        function paint() { b.setAttribute('aria-pressed', days.indexOf(d) >= 0 ? 'true' : 'false'); }
-        b.onclick = function () {
-          var at = days.indexOf(d);
-          if (at >= 0) days.splice(at, 1); else days.push(d);
-          paint();
-        };
-        paint();
-        dp.appendChild(b);
-      })(i);
-    }
-    dF.appendChild(dp);
-    card.appendChild(dF);
-    wrap.appendChild(card);
-
-    wrap.appendChild(btn('btn btn-pri btn-block w-save',
-      App.icon('check', 20) + '<span>' + vg('احفَظ', 'احفَظي') + '</span>', null,
+    var save = btn('btn btn-pri btn-block w-save',
+      App.icon('check', 20) + '<span>' + vg('أثبِت', 'أثبِتي') + '</span>', null,
       function () {
-        if (!days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); return; }
-        var full = oldN >= 30;
-        H.setup({ oldJuz: oldN, fromEnd: fromEnd,
-                  goalFrom: full ? 0 : gf, goalTo: full ? 0 : gt,
-                  rate: rate, days: days }, true);
+        if (!days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); toggle('days'); return; }
+        if (!oldR.length && !goalR) { App.toast('حدِّد محفوظَك أو هدفَك'); toggle('old'); return; }
+        H.setup({
+          ranges: oldR.map(function (r) {
+            return { from: Q.juzStart(r.from), to: Q.juzEnd(r.to) };
+          }),
+          goalFrom: goalR ? goalR.from : 0,
+          goalTo: goalR ? goalR.to : 0,
+          rate: rate, days: days
+        }, true);
         App.closeSheet();
         App.go('home');
-      }));
+      });
+    wrap.appendChild(save);
+    paints.push(function () {
+      var bad = !days.length || (!oldR.length && !goalR);
+      save.setAttribute('aria-disabled', bad ? 'true' : 'false');
+      save.classList.toggle('w-dim', bad);
+    });
+
+    sync();
     return wrap;
   }
 
+  /* متى يَنتهي الهدفُ على هذه الوتيرة — يومًا بيومٍ لا بقسمةٍ على
+     سبعة: الأسبوعُ لا يَبدأ من يومِ اليوم، فالقسمةُ تُخطئ بأيّامٍ
+     كلّما ضاقت أيّامُ الأسبوع. */
+  function finish(pages, rate, days) {
+    if (!pages || !rate || !days.length) return null;
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    var rem = pages, guard = 0;
+    while (rem > 0 && guard++ < 6000) {
+      d.setDate(d.getDate() + 1);
+      if (days.indexOf(d.getDay()) >= 0) rem -= rate;
+    }
+    if (rem > 0) return null;
+    return { hij: App.hijri(d), days: Math.max(1, Math.round((d - Date.now()) / 86400000)) };
+  }
+
+  function AGES() { return H.AGES; }
+  function ageBandOf(k) {
+    var a = H.AGES, i;
+    for (i = 0; i < a.length; i++) if (a[i].k === k) return a[i];
+    return null;
+  }
+
+  App.screen('hifz-setup', setupPane, { full: true });
   App.screen('hifz-setup', setupPane, { full: true });
 
   /* ── الدخولُ الأوّل ────────────────────────────────────────────── */
