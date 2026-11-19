@@ -1428,11 +1428,17 @@ input.inp:focus,select.inp:focus,textarea.inp:focus{
   border-radius:var(--r-pill);
   overflow:hidden;
 }
-/* ثلاثةُ ألسنةٍ فأكثرَ على شاشةٍ ضيّقة: يُستغنى عن الأيقونة */
-@media (max-width:365px){
-  .seg:has(> :nth-child(3)) .seg-b .ico{ display:none }
-  .seg:has(> :nth-child(3)) .seg-b{ padding-inline:10px }
-}
+/* ══ ألسنةُ التبويبِ نصٌّ بلا أيقونة — دائمًا ══
+   كانت قاعدتان تُخفيان الأيقونةَ نفسَها عند حدَّين مختلفَين: هذه
+   عند ٣٦٥ بكسلًا، وأخرى في «الإعدادات» عند ٤٦٠. فكان العنصرُ
+   الواحدُ بسلوكَين على الجهازِ الواحد: ألسنةُ «تقدُّمي» لها أيقوناتٌ
+   وألسنةُ «الإعدادات» بلا أيقونات، ثمّ تَغيب أيقوناتُ «تقدُّمي» إن
+   ضاقت الشاشةُ قليلًا. ظهورٌ واختفاءٌ بلا قاعدةٍ يُدركها الناظر.
+
+   والحكمُ واحدٌ قاطع: **الاسمُ هو الذي يُقرأ، والأيقونةُ زينة** —
+   وهي في لسانٍ مكتوبٍ لا تُضيف معنًى وتَسرق عرضًا تَحتاجه الكلمةُ
+   العربيّة. فلا أيقونةَ في لسانٍ، على أيِّ شاشةٍ كانت. */
+.seg-b .ico{ display:none }
 .seg-b{
   flex:1 1 0; min-width:0;
   display:inline-flex; align-items:center; justify-content:center; gap:7px;
@@ -15113,8 +15119,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
        الشاشة ولا يُرى — ولسانٌ لا يُرى كأنّه ليس. فتُطوى الأيقوناتُ في
        الضيّق ويبقى الاسمُ: الاسمُ هو الذي يُقرأ، والأيقونةُ زينةٌ. */
     '#settings .seg-b{min-height:46px;padding-inline:11px;gap:6px;font-size:13.5px}',
-    '@media (max-width:460px){#settings .seg-b svg{display:none}' +
-      '#settings .seg-b{padding-inline:9px}}',
+    /* إخفاءُ الأيقونةِ صار قاعدةً واحدةً عامّةً في القشرة، فلا
+       يَبقى ههنا إلّا ضبطُ الحشوِ في الضيّق. */
+    '@media (max-width:460px){#settings .seg-b{padding-inline:9px}}',
     '@media (max-width:345px){#settings .seg-b{padding-inline:5px;font-size:12.5px}}',
 
     /* ── بطاقاتٌ وعناوينُ داخل الألسنة ── */
