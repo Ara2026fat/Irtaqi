@@ -1471,9 +1471,17 @@ input.inp:focus,select.inp:focus,textarea.inp:focus{
     overflow-y:auto;
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
+    /* ══ لا شيءَ يُخفى بلا دلالة ══
+       سقفُ اللوحِ يَمنع الشاشةَ أن تَنقسم، لكنّه إن أخفى بلا علامةٍ صار
+       عيبًا أسوأَ من الانقسام: يَظنّ القارئُ أنّ السطرَ الأخيرَ هو
+       الأخيرُ وقد بقي تحته سطر. فيُترَك شريطُ الانزلاقِ رفيعًا ظاهرًا
+       — وفي الغالبِ الأعمِّ لا يَظهر أصلًا لأنّ كلَّ لوحٍ يَسَع تمامًا. */
+    scrollbar-width:thin;
+    scrollbar-color:var(--hair) transparent;
   }
-  .segpane::-webkit-scrollbar{ width:0; height:0 }
+  .segpane::-webkit-scrollbar{ width:4px }
+  .segpane::-webkit-scrollbar-thumb{
+    background:var(--hair); border-radius:var(--r-pill) }
   .segpane .segpane{ max-height:none; overflow:visible }
 }
 
@@ -5863,11 +5871,11 @@ App.mark = function (size, cls) {
     box.appendChild(lab);
 
     function refresh() {
+      /* كانت ثلاثةَ أسطرٍ تَشرح من أين تُؤخَذ الساعةُ وأنّها بلا اتّصال.
+         وهو لم يَسأل — إنّما يُريد أن يَعرف ما الذي يَتبدّل. */
       note.textContent = cb.checked
-        ? 'تَميل أرضُ الصفحةِ مع السَّحَرِ والنهارِ والأصيلِ والليل، '
-          + 'ويُسطَر شريطُ رمضانَ في شهره — من ساعةِ جهازِك وتقويمِه، '
-          + 'بلا اتّصالٍ ولا موقع. ولا تَتبدّل الألوانُ ولا الوضعُ الداكن.'
-        : 'لوحٌ واحدٌ لا يَتبدّل: وجهُ النهارِ في كلِّ ساعةٍ وكلِّ شهر.';
+        ? 'تَميل أرضُ الصفحةِ مع السَّحَرِ والنهارِ والأصيلِ والليل.'
+        : 'لوحٌ واحدٌ لا يَتبدّل في كلِّ ساعة.';
     }
 
     cb.onchange = function () {
@@ -6571,7 +6579,16 @@ App.mark = function (size, cls) {
     return box;
   }
 
-  App.Example = { state: state, borrow: borrow, frame: frame };
+  /* ── هل في الشاشةِ متّسعٌ لمثالٍ كامل؟ ─────────────────────────
+     المثالُ لسانٌ يُرى كلُّه أو لا يُرى: نصفُ مثالٍ مقطوعٍ من أسفلَ
+     أسوأُ من لا مثال — يَظنّ القارئُ السطرَ الأخيرَ آخرَه وتحته سطر.
+     فمَن شاشتُه أقصرُ من ثمانِ مئةٍ يُطوى عنه اللسانُ أصلًا، ويَراه
+     حين يَفتح التطبيقَ على شاشةٍ أوسع. */
+  function roomy() {
+    return (window.innerHeight || 0) >= 800;
+  }
+
+  App.Example = { state: state, borrow: borrow, frame: frame, roomy: roomy };
 
   /* الأنماطُ تُحقَن مرّةً عند أوّلِ إطار، على نهجِ سائرِ الوحدات */
   function styleOnce() {
@@ -6603,7 +6620,7 @@ App.mark = function (size, cls) {
        ليَسَعه لوحٌ واحدٌ كاملًا. وهو مشهدٌ يُرى لا يُلمَس — فتصغيرُه
        لا يُنقص هدفَ لمسٍ ولا يُصعِّب قراءةَ شيءٍ يُعمَل به. */
     '.segpane > .ex-frame{margin-top:0}',
-    '.segpane > .ex-frame > .ex-body{zoom:.86}',
+    '.segpane > .ex-frame > .ex-body{zoom:.82}',
     '.ex-note{margin:12px 2px 0;font-size:12px;line-height:1.8;',
     '  color:var(--ink-faint)}'
   ];
@@ -10667,7 +10684,12 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   /* ── الأنماط: الوحدةُ تحمل نمطَها لأنّها تملك ملفًّا واحدًا، ولا
      لونَ حرفيًّا فيها — رموزُ الهويّة وحدَها. ─────────────────────── */
   var CSS = [
-    '.mk-ring{position:relative;max-width:336px;margin-inline:auto}',
+    /* الحلقةُ تَتبع طولَ الشاشةِ لا عرضَها وحدَه: كانت ٣٣٦ بكسلًا دائمًا،
+       فعلى شاشةٍ قصيرةٍ — أو داخلَ متصفّحِ تطبيقٍ تَأكل أشرطتُه مئةً
+       وخمسين — تَدفع نصفَ البطاقةِ خارجَ المرأى. فتُقاس بما بقي من
+       الطول، ولا تَنزل عن ٢٤٠ لئلّا تَدقّ أقواسُها عن اللمس. */
+    '.mk-ring{position:relative;margin-inline:auto;',
+    '  max-width:min(336px, max(196px, calc(100dvh - 470px)))}',
     '.mk-ring svg{display:block;width:100%;height:auto;overflow:visible}',
     '.mk-trk{fill:none;stroke:var(--hair);stroke-width:13;stroke-linecap:butt}',
     '.mk-fil{fill:none;stroke:var(--accent);stroke-width:13;stroke-linecap:butt;' +
@@ -10705,6 +10727,18 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* الخريطة */
     '.mk-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(12px,1fr));' +
       'gap:2px;direction:rtl}',
+    /* والخريطةُ كذلك: ٦٠٤ خليّةٍ مربّعةٍ طولُها تابعٌ لعدد الأعمدة —
+       فكلّما ضاقت الخليّةُ زاد العمود وقلَّ السطر. فعلى شاشةٍ قصيرةٍ
+       تُضيَّق الخليّةُ قليلًا لتُرى الخريطةُ كلُّها دفعةً واحدة، وهي
+       مَشهدٌ يُنظَر إليه جملةً قبل أن يُلمَس. */
+    '@media (max-height:800px){',
+    '  .mk-map{grid-template-columns:repeat(auto-fill,minmax(9px,1fr))}',
+    /* وتُضَمّ الحشواتُ قليلًا على الشاشةِ القصيرة: بضعةُ بكسلاتٍ من
+       الهوامشِ تَردّ آخرَ سطرٍ إلى المرأى، وهي أهونُ من إخفائه. */
+    '  .mk .card{padding-block:12px}',
+    '  .mk .sec{gap:10px}',
+    '  .mk .mk-det{padding-block:4px}',
+    '}',
     '.mk-c{display:block;aspect-ratio:1;border-radius:2px;background:var(--hair-2);' +
       'box-shadow:inset 0 0 0 1px var(--hair)}',
     '.mk-c.on{background:var(--accent);box-shadow:none}',
@@ -10789,7 +10823,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var info = [];                       /* معلوماتُ الأجزاء مرّةً واحدة */
     for (var j = 1; j <= NJUZ; j++) info.push(juzInfo(j, cov));
 
-    var wrap = App.el('div', 'screen');
+    var wrap = App.el('div', 'screen mk');
 
     var bar = App.el('div', 'bar');
     bar.appendChild(App.el('h1', 'h1 bar-t', 'المصحف'));
@@ -10867,7 +10901,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     if (empty) {
       card1.appendChild(App.el('p', 'mk-empty',
-        'لم تبنِ منهجًا بعد، فالحلقةُ والخريطةُ خاليتان. ابنِ منهجَك ليبدأ المصحفُ بالامتلاء.'));
+        'ابنِ منهجَك ليبدأ المصحفُ بالامتلاء.'));
       var cta = App.el('button', 'btn-ghost', 'ابنِ منهجك');
       cta.type = 'button';
       cta.onclick = function () { App.go('builder'); };
@@ -11037,7 +11071,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* يُبنى المثالُ قبلَ الألسنةِ لا بعدَها: لسانٌ يُسأل عن وجودِه قبل
        أن يُخلَق لا يُخلَق أبدًا. */
     var exPane = null;
-    if (empty && App.Example) {
+    if (empty && App.Example && App.Example.roomy()) {
       var ex = App.Example.borrow(function () { draw(); return LAST; });
       if (ex && ex.map) {
         exPane = App.Example.frame(
@@ -15366,7 +15400,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
          ولا تُوضَع تحتَ البطاقةِ: لوحٌ تحتَ لوحٍ يَجعل الشاشةَ شاشتَين،
          فتُجعل لسانًا إلى جانبها — شاشةٌ واحدةٌ واختيارٌ بلمسة. */
       var exPane = null;
-      if (App.Example) {
+      if (App.Example && App.Example.roomy()) {
         var ex = App.Example.borrow(function () { render(); return LAST; });
         if (ex && ex.now) {
           exPane = App.Example.frame(
