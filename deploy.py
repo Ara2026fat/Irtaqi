@@ -66,7 +66,11 @@ def main() -> int:
         return 1
     html = html.replace(SW_ANCHOR, SW_SNIPPET, 1)
 
-    out = HERE / 'index.html'
+    # ‫اسمُ المُخرَجِ وسيطٌ ثانٍ اختياريّ: كان مثبَّتًا على index.html وحدَه،
+    # ‫فكان ملفُّ التجربة skin.html يُنسَخ باليدِ مرّةً ثمّ يُنسى — فيَفحصه
+    # ‫صاحبُه وهو بناءٌ قديمٌ لا تَبلغه الإصلاحات. والنسيانُ لا يُعالَج
+    # ‫بالتذكّرِ بل بإزالةِ الخطوةِ التي تُنسى.
+    out = HERE / (sys.argv[2] if len(sys.argv) > 2 else 'index.html')
     out.write_text(html, encoding='utf-8')
     print('كُتب %s — %.1f م.ب' % (out.name, out.stat().st_size / 1048576))
     return 0

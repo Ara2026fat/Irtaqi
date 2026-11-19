@@ -1455,6 +1455,28 @@ input.inp:focus,select.inp:focus,textarea.inp:focus{
 .seg-b:not(.on):hover{ color:var(--ink); background:var(--hair-2) }
 .seg-b:focus-visible{ outline:2px solid var(--gold); outline-offset:2px }
 .segpane{ padding-block-start:16px }
+
+/* ══ الشاشاتُ القصيرة: يَثبت الهيكلُ ويَتحرّك اللوحُ ══
+   على هاتفٍ طويلٍ تَسَع كلُّ لوحةٍ شاشةً واحدةً كاملة. وعلى هاتفٍ قصيرٍ
+   ‏(٦٦٧ أو ٧٤٠ بكسلًا)‏ لا يُقصَّر النصُّ إلى ما لا نهاية، فيُقلَب الأمرُ:
+   الترويسةُ والألسنةُ والشريطُ السفليُّ ثوابتُ لا تُزاح، واللوحُ وحدَه
+   يَنزلق داخلَ إطاره. فتبقى الشاشةُ شاشةً واحدةً: لا يَضيع اللسانُ عن
+   العينِ ولا يَهرب الشريطُ إلى أسفلِ صفحةٍ ثانية.
+   وللألسنةِ الداخليّةِ لا انزلاقٌ ثانٍ — انزلاقٌ في انزلاقٍ تشويشٌ. */
+/* ولا تُقيَّد بطولٍ دونَ طول: قاعدةٌ تَعمل على هاتفٍ قصيرٍ وتَنام على
+   طويلٍ تَترك شاشاتٍ تَنقسم حيث لا يُتوقَّع. الهيكلُ ثابتٌ دائمًا. */
+@media (min-height:1px){
+  .segpane{
+    max-height:calc(100dvh - var(--pane-cap, 236px));
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .segpane::-webkit-scrollbar{ width:0; height:0 }
+  .segpane .segpane{ max-height:none; overflow:visible }
+}
+
 .segpane:focus{ outline:none }
 .segpane:focus-visible{ outline:2px solid var(--gold); outline-offset:4px;
   border-radius:var(--r-md) }
@@ -2463,7 +2485,26 @@ App.seg = function (items, opts) {
     if (built[i]) pane.appendChild(built[i]);
     pane.setAttribute('aria-labelledby', uid + '-' + i);
     if (focus) btns[i].focus();
+    cap();
     if (opts.onchange) opts.onchange(items[i].key, i);
+  }
+
+  /* ── سقفُ اللوحِ على الشاشاتِ القصيرة ────────────────────────────
+     القاعدةُ في ‎20-shell.css‎ تَقصُر اللوحَ على ما بقي من الشاشةِ بعدَ
+     ما فوقَه وما تحته — وما فوقَه يختلف من شاشةٍ إلى شاشة: ترويسةٌ
+     وحدَها هنا، وترويسةٌ وبطاقةُ هويّةٍ هناك. فيُقاس بعدَ التركيبِ ولا
+     يُخمَّن بثابتٍ واحدٍ يَزيد على قومٍ ويَنقص عن آخرين.
+     واللوحُ الداخليُّ يُترَك: انزلاقٌ في انزلاقٍ تشويشٌ. */
+  function cap() {
+    if (pane.parentNode && pane.parentNode.closest
+        && pane.parentNode.closest('.segpane')) return;
+    requestAnimationFrame(function () {
+      if (!pane.isConnected) return;
+      var app = document.getElementById('app');
+      var pb = app ? parseFloat(getComputedStyle(app).paddingBottom) || 0 : 0;
+      var top = pane.getBoundingClientRect().top + (window.scrollY || 0);
+      pane.style.setProperty('--pane-cap', Math.ceil(top + pb + 6) + 'px');
+    });
   }
 
   items.forEach(function (it, i) {
@@ -2498,8 +2539,25 @@ App.seg = function (items, opts) {
     if (k >= 0) start = k;
   }
   show(start);
+  wrap.recap = cap;                    /* لتُعاد القياسةُ عند تبدّلِ القياس */
   return wrap;
 };
+
+/* تبدُّلُ القياسِ يُبدِّل ما فوقَ اللوح: دورانُ الهاتفِ أو ظهورُ لوحةِ
+   المفاتيحِ يُغيّر الشاشةَ، فتُعاد القياسةُ لكلِّ لوحٍ ظاهرٍ مرّةً. */
+(function () {
+  var t = 0;
+  function recap() {
+    clearTimeout(t);
+    t = setTimeout(function () {
+      [].slice.call(document.querySelectorAll('.segwrap')).forEach(function (w) {
+        if (w.recap && w.isConnected) w.recap();
+      });
+    }, 120);
+  }
+  window.addEventListener('resize', recap);
+  window.addEventListener('orientationchange', recap);
+}());
 
 /* ═══════════════════════════════════════════════════════════════════
    وصلُ الأجزاء بفاصلٍ لا يُلبِس
@@ -5842,10 +5900,12 @@ App.mark = function (size, cls) {
 
   var CSS = [
     '.ex-frame{margin-top:18px}',
-    /* الشاشاتُ القصيرة: المثالُ أوّلُ ما يُستغنى عنه. مَن شاشتُه
-       ستُّ مئةٍ وأربعون بكسلًا يَحتاج العنوانَ والزرَّ قبل أن يَحتاج
-       أن يُريَه أحدٌ شكلَ يومِه — ويَراه بعد أوّلِ منهجٍ يُنشئه. */
-    '@media (max-height:719px){ .t-empty .ex-frame{display:none} }',
+    /* الشاشاتُ القصيرة: المثالُ أوّلُ ما يُستغنى عنه. مَن شاشتُه أقصرُ
+       من ثمانِ مئةٍ يَحتاج العنوانَ والزرَّ في شاشةٍ واحدةٍ قبل أن يَحتاج
+       أن يُريَه أحدٌ شكلَ يومِه — ويَراه بعد أوّلِ منهجٍ يُنشئه.
+       وشاشةُ «اليوم» الفارغةُ لا ألسنةَ فيها تَحمل المثالَ عنها كما في
+       «المصحف» و«تقدُّمي»، فالاستغناءُ هو بابُها الوحيدُ إلى شاشةٍ واحدة. */
+    '@media (max-height:779px){ .t-empty .ex-frame{display:none} }',
     '.ex-cap{display:flex;align-items:center;gap:8px;margin-bottom:11px}',
     '.ex-tag{padding:2px 9px;border-radius:var(--r-pill);',
     '  background:var(--gold-soft);color:var(--gold-lit);',
@@ -5855,6 +5915,11 @@ App.mark = function (size, cls) {
        فلا يُسجَّل وردٌ لم يُقرأ. ويُخفَّت قليلًا ليُقرأ مثالًا لا حالًا. */
     '.ex-body{pointer-events:none;opacity:.92}',
     '.ex-body *{cursor:default !important}',
+    /* المثالُ لسانًا: لا هامشَ علويٌّ يُزيحه عن أخيه، ويُصغَّر قليلًا
+       ليَسَعه لوحٌ واحدٌ كاملًا. وهو مشهدٌ يُرى لا يُلمَس — فتصغيرُه
+       لا يُنقص هدفَ لمسٍ ولا يُصعِّب قراءةَ شيءٍ يُعمَل به. */
+    '.segpane > .ex-frame{margin-top:0}',
+    '.segpane > .ex-frame > .ex-body{zoom:.86}',
     '.ex-note{margin:12px 2px 0;font-size:12px;line-height:1.8;',
     '  color:var(--ink-faint)}'
   ];
@@ -9970,11 +10035,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '.mk-sw.a{background:var(--accent)}',
     '.mk-sw.b{background:var(--gold-lit)}',
     '.mk-sw.c{background:var(--hair-2);box-shadow:inset 0 0 0 1px var(--hair)}',
-    '.mk-find{display:flex;align-items:center;justify-content:center;gap:8px;',
-    '  width:100%;min-height:46px;margin-block-start:14px;',
+    /* بابُ البحثِ فعلٌ طرفيٌّ في الترويسة لا لوحٌ يَشغل سطرًا كاملًا:
+       الشاشةُ واحدةٌ، فما كان فعلًا يَسكن الترويسةَ وما كان محتوًى
+       يَسكن اللسان. ٤٤×٤٤ ليَبقى هدفَ لمسٍ سليمًا. */
+    '.mk-find{display:inline-flex;align-items:center;justify-content:center;',
+    '  width:44px;height:44px;flex:0 0 auto;',
     '  background:var(--surface);color:var(--ink);',
     '  border:1px solid var(--hair);border-radius:var(--r-lg);',
-    '  font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}',
+    '  font:inherit;cursor:pointer}',
     '.mk-find .ico{color:var(--accent)}',
     '.mk-read{display:inline-flex;align-items:center;gap:6px;margin-inline-start:10px;',
     '  min-height:32px;padding:5px 11px;border-radius:var(--r-pill);',
@@ -10042,13 +10110,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var wrap = App.el('div', 'screen');
 
     var bar = App.el('div', 'bar');
-    bar.appendChild(App.el('h1', 'h1', 'المصحف'));
+    bar.appendChild(App.el('h1', 'h1 bar-t', 'المصحف'));
     wrap.appendChild(bar);
 
     /* ═══ ١ · حلقةُ الأجزاء ═══ */
+    /* لا عنوانَ ثانيًا فوقَ اللسان: اللسانُ يقول «الأجزاء» فعنوانٌ يقول
+       «حلقةُ الأجزاء» تكرارٌ يأكل سطرَين من شاشةٍ واحدة. يبقى السطرُ
+       المُرشِد وحدَه. */
     var s1 = App.el('section', 'sec');
     var h1 = App.el('div', 'sec-h');
-    h1.appendChild(App.el('h2', 'h2', 'حلقةُ الأجزاء'));
     h1.appendChild(App.el('p', 'small', 'ثلاثون قوسًا، لكلّ جزءٍ قوسُه. المسْ قوسًا لتفصيله.'));
     s1.appendChild(h1);
 
@@ -10127,7 +10197,6 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ═══ ٢ · خريطةُ المصحف ═══ */
     var s2 = App.el('section', 'sec');
     var h2 = App.el('div', 'sec-h');
-    h2.appendChild(App.el('h2', 'h2', 'خريطةُ المصحف'));
     h2.appendChild(App.el('p', 'small', 'خليّةٌ لكلّ صفحةٍ من صفحات المصحف.'));
     s2.appendChild(h2);
 
@@ -10166,12 +10235,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* بابُ البحثِ في المصحفِ نفسِه: الحافظُ يَعرف الآيةَ ولا يَعرف
        موضعَها، وهذه الشاشةُ هي التي تُسأل. */
     if (App.Quran) {
-      var fb = App.el('button', 'mk-find');
+      var fb = App.el('button', 'mk-find bar-end');
       fb.type = 'button';
-      fb.innerHTML = App.icon('search', 17);
-      fb.appendChild(App.el('span', null, 'ابحث عن آية'));
+      fb.innerHTML = App.icon('search', 19);
+      fb.setAttribute('aria-label', 'ابحث عن آية');
+      fb.title = 'ابحث عن آية';
       fb.onclick = function () { App.sheet('find'); };
-      wrap.appendChild(fb);
+      bar.appendChild(fb);
     }
 
     var pg = App.el('div', 'mk-pg');
@@ -10278,10 +10348,32 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
        ونقرُ قوسٍ يُظلّل شريطَها. فيُبنَيان معًا كما كانا ثمّ يُسلَّمان
        للتبويب جاهزَين — ولو أُجّل بناءُ أحدهما لَطلب الآخرُ خلايا
        لم تُخلق بعدُ فانقطع الربطُ ورمى. */
-    wrap.appendChild(App.seg([
+    /* المثالُ لسانٌ ثالثٌ لا ذيلٌ تحتَ الخريطة.
+       كان يُضاف أسفلَ الشاشةِ فيَزيدها ٦٩٣ بكسلًا — أي يَجعلها
+       شاشتَين — ويَعرض الشيءَ نفسَه مملوءًا تحتَ الشيءِ نفسِه خاليًا.
+       واللسانُ يُبقيه ظاهرًا بلمسةٍ ويَرُدّ الشاشةَ إلى حدِّها. */
+    /* يُبنى المثالُ قبلَ الألسنةِ لا بعدَها: لسانٌ يُسأل عن وجودِه قبل
+       أن يُخلَق لا يُخلَق أبدًا. */
+    var exPane = null;
+    if (empty && App.Example) {
+      var ex = App.Example.borrow(function () { draw(); return LAST; });
+      if (ex && ex.map) {
+        exPane = App.Example.frame(
+          'هكذا يمتلئ مصحفُك بعد أربعين يومًا', ex.map,
+          /* النصُّ يَصف ما تُرى لا ما تَمنّيتُه: الخريطةُ تصبغ المقروءَ
+             بلونٍ واحدٍ وتُعلّم الموضعَ الحاضر، ولا تُفرّق الأنواع. */
+          'كلُّ مربّعٍ صفحةٌ من المصحف، والمصبوغُ ما مرَّ عليه وردُك. '
+          + 'هكذا يمتلئ مصحفُك صفحةً صفحة.');
+      }
+    }
+
+    var tabs = [
       { key:'ring', label:'الأجزاء',  icon:'target', render:function () { return s1; } },
       { key:'map',  label:'الخريطة', icon:'mushaf', render:function () { return s2; } }
-    ], {
+    ];
+    if (exPane) tabs.push({ key:'ex', label:'مثال', icon:'info',
+                            render:function () { return exPane; } });
+    wrap.appendChild(App.seg(tabs, {
       cls: 'mk-seg-bar',
       start: (App.state.settings || {}).mushafTab,
       onchange: function (k) {
@@ -10294,23 +10386,6 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     App.mushafRenderMs = +(performance.now() - t0).toFixed(1);
     LAST = { ring: s1, map: s2 };
-
-    /* الخريطةُ الخاليةُ لا تُعلّم شيئًا: من فتح المصحفَ أوّلَ مرّةٍ
-       يرى ٦٠٤ مربّعًا رماديًّا فلا يَعرف ما الذي يصير إليه. فتُعرض
-       تحتها خريطةُ مثالٍ ممتلئةٌ جزئيًّا — مرسومةٌ بالشيفرةِ نفسِها
-       على حالةٍ مُعارة، فهي ما سيَراه في حسابه بالضبط. */
-    if (empty && App.Example) {
-      var ex = App.Example.borrow(function () { draw(); return LAST; });
-      if (ex && ex.map) {
-        wrap.appendChild(App.Example.frame(
-          'هكذا يمتلئ مصحفُك بعد أربعين يومًا', ex.map,
-          /* النصُّ يَصف ما تُرى لا ما تَمنّيتُه: الخريطةُ تصبغ المقروءَ
-             بلونٍ واحدٍ وتُعلّم الموضعَ الحاضر، ولا تُفرّق الأنواع. */
-          'كلُّ مربّعٍ صفحةٌ من المصحف، والمصبوغُ ما مرَّ عليه وردُك. '
-          + 'هكذا يمتلئ مصحفُك صفحةً صفحة.'));
-      }
-      LAST = { ring: s1, map: s2 };
-    }
 
     return wrap;
   }
@@ -14598,21 +14673,34 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       go.textContent = App.Words.statsEmptyCta();
       go.onclick = function () { App.go('builder'); };
       e.appendChild(go);
-      wrap.appendChild(e);
 
       /* شاشةُ تقدُّمٍ بلا تقدُّمٍ لا تُفيد شيئًا: من فتحها أوّلَ مرّةٍ
          يَقرأ دعوةً إلى البناءِ ولا يَعرف ما الذي يُقاس له ولا كيف
-         يُرى نموُّه. فتُعرض تحتها خلاصةُ طالبٍ مضى عليه أربعون يومًا
-         — مرسومةً بالشيفرةِ نفسِها على حالةٍ مُعارة. */
+         يُرى نموُّه. فتُعرض خلاصةُ طالبٍ مضى عليه أربعون يومًا
+         — مرسومةً بالشيفرةِ نفسِها على حالةٍ مُعارة.
+
+         ولا تُوضَع تحتَ البطاقةِ: لوحٌ تحتَ لوحٍ يَجعل الشاشةَ شاشتَين،
+         فتُجعل لسانًا إلى جانبها — شاشةٌ واحدةٌ واختيارٌ بلمسة. */
+      var exPane = null;
       if (App.Example) {
         var ex = App.Example.borrow(function () { render(); return LAST; });
         if (ex && ex.now) {
-          wrap.appendChild(App.Example.frame(
+          exPane = App.Example.frame(
             'هكذا يُرى تقدُّمُك بعد أربعين يومًا', ex.now,
             'الحلقةُ مجموعُ ما مرَّ عليه وردُك من المصحف، والنقاطُ أيّامُ '
-            + 'الشهر: المضيءُ ما أنجزتَ فيه. هكذا يُرى أثرُك.'));
+            + 'الشهر: المضيءُ ما أنجزتَ فيه. هكذا يُرى أثرُك.');
         }
         LAST = null;
+      }
+      if (exPane) {
+        wrap.appendChild(App.seg([
+          { key: 'go', label: 'بدايتي', icon: 'target',
+            render: function () { return e; } },
+          { key: 'ex', label: 'مثال',  icon: 'info',
+            render: function () { return exPane; } }
+        ], { cls: 'pr-seg', start: 'go' }));
+      } else {
+        wrap.appendChild(e);
       }
       return wrap;
     }
@@ -15102,9 +15190,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
   /* ── الأنماط: محصورةٌ في #settings فلا تُنازع الهيكلَ العامّ ──── */
   var CSS = [
-    '#settings{padding:max(18px,env(safe-area-inset-top)) var(--pad) ' +
-      'calc(var(--nav-h) + 34px + env(safe-area-inset-bottom));' +
-      'max-width:var(--maxw);margin-inline:auto}',
+    /* ══ لا حشوةَ ثانيةً ولا عرضَ ثانيًا ══
+       كانت هذه الشاشةُ تَحمل حشوتَها وعرضَها الأقصى بنفسِها وهي ساكنةٌ
+       داخلَ ‎#app‎ الذي يَحملهما أصلًا، فكان الأثرُ عيبَين:
+       • قاعٌ مفرَّغٌ مرّتَين لشريطٍ واحدٍ (٩٦ + ١٠٢ بكسلًا)، فتَطول
+         الصفحةُ بمئةِ بكسلٍ فارغةٍ وتَصير شاشتَين بلا محتوًى يُرى.
+       • وعرضٌ ٣١٨ بكسلًا حيث كلُّ شاشةٍ أخرى ٣٥٤ — فتُحَسّ الإعداداتُ
+         شاشةً من تطبيقٍ آخرَ وإن لم يُعرَف السببُ بالعين.
+       فتُترَك الحشوةُ والعرضُ للهيكلِ وحدَه: شاشةٌ واحدةٌ وهويّةٌ واحدة.
+       ويَبقى ٤ بكسلٍ علويّةً كما في ‎.bar‎ لتَستويَ الترويساتُ كلُّها. */
+    '#settings{padding:4px 0 0}',
     '#settings::before{content:"";position:fixed;inset:0;' +
       'background-size:180px 180px;opacity:.34;pointer-events:none;z-index:-1}',
 
@@ -15273,7 +15368,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '#settings .st-about p:last-of-type{margin-bottom:0}',
     /* الخاتمةُ مركزٌ لا سطرٌ جانبيّ: هي آخرُ ما تَقع عليه العينُ في
        التطبيق، ودعوةٌ تُقرأ لا تُزَفّ. ولا حرفَ لاتينيًّا فيها. */
-    '#settings .st-sign{margin-top:18px;padding-top:16px;text-align:center;' +
+    '#settings .st-sign{margin-top:13px;padding-top:12px;text-align:center;' +
       'border-top:1px solid var(--hair)}',
     '#settings .st-sign p{margin:0}',
     /* سقط st-sign-d مع سطرِ «طوّر هذا التطبيق»، وصار الاسمُ في
