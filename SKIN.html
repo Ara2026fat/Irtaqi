@@ -15103,6 +15103,26 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ٣ · صفُّ النوع: لونُه ومقدارُه وشريطُه — عمودُ اللوحة */
     '.pr-k{display:flex;align-items:center;gap:12px;padding:12px 2px}',
     '.pr-k + .pr-k{border-block-start:1px solid var(--hair)}',
+    /* ما لم يُبدأ يَخفُت قليلًا ولا يَغيب: حاضرٌ ليُعرَف أنّه بابٌ
+       مفتوح، خافتٌ لئلّا يُزاحم ما يَعمل عليه فعلًا. */
+    '.pr-k-off{opacity:.62}',
+    /* ══ اللوحةُ كاملةٌ على الشاشةِ القصيرةِ أيضًا ══
+       صارت تُعرَض دائمًا بأصفارها، فطالت على هاتفٍ قصيرٍ أو داخلَ
+       متصفّحِ تطبيقٍ تَأكل أشرطتُه مئةً وخمسين. فتُضَمّ الحشواتُ
+       والفجواتُ وتَصغُر نقاطُ الشهر — ولا يَسقط شيءٌ من اللوحة. */
+    '@media (max-height:800px){',
+    '  .pr.stack-lg{gap:12px}',
+    '  .pr .card{padding-block:12px}',
+    '  .pr .pr-tile{padding:9px 5px 8px}',
+    '  .pr .pr-k{padding-block:7px}',
+    /* ثمانٍ وعشرون نقطةً في سبعةِ أعمدةٍ أربعةُ سطور، وفي أربعةَ عشرَ
+       سطران: العددُ هو العدد، والطولُ نصفُه. */
+    '  .pr .pr-dots{grid-template-columns:repeat(14,1fr);gap:4px;margin-top:8px}',
+    '  .pr .pr-dots i{border-radius:2px}',
+    '  .pr .pr-k{padding-block:6px}',
+    '  .pr .pr-k-em{width:34px;height:34px}',
+    '  .pr .sec{gap:10px}',
+    '}',
     '.pr-k-em{flex:none;display:grid;place-items:center;width:40px;height:40px;',
     '  border-radius:var(--r-sm);background:var(--kind-dim);color:var(--kind)}',
     '.pr-k-em svg{width:20px;height:20px}',
@@ -15269,10 +15289,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
   /* ── صفوفُ الأنواع ──────────────────────────────────────────── */
   function kindRows() {
-    var g = byKind(), box = el('div'), any = false;
+    /* لوحةٌ لا قائمةُ ما بدأ: كانت تَعرض الأنواعَ التي لها مناهجُ وحدَها،
+       فيَرى من لم يَبدأ لوحًا فارغًا لا يُعلّمه أنّ ثَمَّ حفظًا ومراجعةً
+       وتلاوةً وتثبيتًا. فتُرسَم الأربعةُ دائمًا، وما لم يُبدأ يَقف على
+       صفرِه ويقول «لم يبدأ بعد» — صفٌّ ينتظر لا بياضٌ يَسكت. */
+    var g = byKind(), box = el('div'), any = true;
     ['hifz', 'review', 'tilawa', 'tathbit'].forEach(function (k) {
-      var d = g[k]; if (!d) return;
-      any = true;
+      var d = g[k] || { done: 0, total: 0, n: 0, today: 0 };
       var K = P.KINDS[k];
       var pct = d.total ? Math.round(d.done / d.total * 100) : 0;
       var row = el('div', 'pr-k ' + K.cls);
@@ -15284,10 +15307,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var pc = el('span', 'pr-k-p'); pc.textContent = ar(pct) + '٪';
       top.appendChild(nm); top.appendChild(pc);
       var sub = el('span', 'pr-k-s');
-      sub.textContent = App.join(
-        ar(d.done) + ' من ' + ar(d.total) + ' صفحة',
-        d.n > 1 ? ar(d.n) + ' مناهج' : 'منهجٌ واحد',
-        d.today ? 'اليومَ ' + pages(d.today) : null);
+      sub.textContent = d.n
+        ? App.join(
+            ar(d.done) + ' من ' + ar(d.total) + ' صفحة',
+            d.n > 1 ? ar(d.n) + ' مناهج' : 'منهجٌ واحد',
+            d.today ? 'اليومَ ' + pages(d.today) : null)
+        : 'لم يبدأ بعد';
+      if (!d.n) row.classList.add('pr-k-off');
       var bar = el('div', 'pr-k-bar');
       var fil = el('i'); fil.style.width = Math.max(pct, d.done > 0 ? 2 : 0) + '%';
       bar.appendChild(fil);
@@ -15358,7 +15384,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
   function render() {
     styleOnce();
-    var wrap = el('div', 'stack-lg');
+    var wrap = el('div', 'stack-lg pr');
 
     var bar = el('div', 'bar');
     var ttl = el('h1', 'h1 bar-t'); ttl.textContent = 'تقدُّمي';
@@ -15374,53 +15400,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
        قائمًا وللقارئِ جردٌ، فله تقدُّمٌ يُعرَض وإن لم يُنشئ منهجًا
        واحدًا — وعرضُ المثالِ له حينئذٍ يُخفي عملَه خلفَ أرقامِ غيره.
        والسطرُ ساكنٌ حين لا محرِّك. */
-    var hasWard = !!(App.Hifz && App.Hifz.has && App.Hifz.has());
-    if (!plans.length && !hasWard) {
-      var e = el('div', 'empty');
-      /* الفراغُ مشهدٌ مقصودٌ بطلُه الخاتم، فله لوحُ البطولةِ لا خاتمٌ
-         صامتٌ ‎(emblem-quiet)‎ — وصنفُ الخاتمِ يَسقط معه فلا تُطلى
-         أرضٌ صمّاءُ خلفَ زجاجٍ شفّاف. */
-      e.appendChild(el('div', 'st-emb', App.icon3d('chart', 76)));
-      var et = el('div', 'empty-t'); et.textContent = App.Words.statsEmptyTitle();
-      var es = el('div', 'empty-s');
-      es.textContent = App.Words.statsEmptyLede();
-      e.appendChild(et); e.appendChild(es);
-      var go = el('button', 'btn btn-pri btn-block');
-      go.type = 'button';
-      go.textContent = App.Words.statsEmptyCta();
-      go.onclick = function () { App.go('builder'); };
-      e.appendChild(go);
-
-      /* شاشةُ تقدُّمٍ بلا تقدُّمٍ لا تُفيد شيئًا: من فتحها أوّلَ مرّةٍ
-         يَقرأ دعوةً إلى البناءِ ولا يَعرف ما الذي يُقاس له ولا كيف
-         يُرى نموُّه. فتُعرض خلاصةُ طالبٍ مضى عليه أربعون يومًا
-         — مرسومةً بالشيفرةِ نفسِها على حالةٍ مُعارة.
-
-         ولا تُوضَع تحتَ البطاقةِ: لوحٌ تحتَ لوحٍ يَجعل الشاشةَ شاشتَين،
-         فتُجعل لسانًا إلى جانبها — شاشةٌ واحدةٌ واختيارٌ بلمسة. */
-      var exPane = null;
-      if (App.Example && App.Example.roomy()) {
-        var ex = App.Example.borrow(function () { render(); return LAST; });
-        if (ex && ex.now) {
-          exPane = App.Example.frame(
-            'هكذا يُرى تقدُّمُك بعد أربعين يومًا', ex.now,
-            'الحلقةُ مجموعُ ما مرَّ عليه وردُك من المصحف، والنقاطُ أيّامُ '
-            + 'الشهر: المضيءُ ما أنجزتَ فيه. هكذا يُرى أثرُك.');
-        }
-        LAST = null;
-      }
-      if (exPane) {
-        wrap.appendChild(App.seg([
-          { key: 'go', label: 'بدايتي', icon: 'target',
-            render: function () { return e; } },
-          { key: 'ex', label: 'مثال',  icon: 'info',
-            render: function () { return exPane; } }
-        ], { cls: 'pr-seg', start: 'go' }));
-      } else {
-        wrap.appendChild(e);
-      }
-      return wrap;
-    }
+    /* ══ لوحةٌ تَظهر من أوّلِ يوم ══
+       كانت هذه الشاشةُ تُخفي نفسَها حتى يُبنى منهج، فيَرى مَن فتحها
+       أوّلَ مرّةٍ دعوةً إلى البناءِ ولا يَرى ما الذي يُقاس له. والأصفارُ
+       ليست فراغًا: هي أوّلُ سطرٍ في سجلٍّ سيَمتلئ، وهي تُعلّمه ما الذي
+       سيَنمو قبل أن يَنمو. فتُرسَم اللوحةُ كلُّها دائمًا — الحلقةُ
+       والبلاطاتُ والأنواعُ والنموّ — ولو كانت كلُّها أصفارًا، ويَسقط
+       معها لسانُ «مثال»: لا حاجةَ إلى صورةِ غيرِه وقد رأى لوحتَه. */
 
     /* ── ثلاثةُ ألسنة ─────────────────────────────────────────────
        كانت سبعةَ أقسامٍ في عمودٍ واحدٍ طولُه شاشةٌ وسبعةُ أعشار: تُقرأ
@@ -15519,7 +15505,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       cB.appendChild(el('span', 'pr-warn-s',
         plans.length ? App.Words.onPace() : 'لا منهجَ بعد.'));
     }
-    PANE.kinds.appendChild(cB);
+    /* «يحتاج انتباهًا» بطاقةٌ تُجيب عن تعثُّرٍ بعينِه. فإن لم يكن ثَمَّ
+       منهجٌ أصلًا فلا تعثُّرَ ولا جوابَ — وقد قالت الصفوفُ فوقَها «لم
+       يبدأ بعد» أربعَ مرّات، فبطاقةٌ خامسةٌ تقول «لا منهجَ بعد» تكرارٌ
+       يأكل من اللوحة ولا يُضيف. */
+    if (care || plans.length) PANE.kinds.appendChild(cB);
 
     /* ٦ · البابُ إلى خريطة المصحف */
     var go2 = el('button', 'btn btn-pri btn-block');
