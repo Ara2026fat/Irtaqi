@@ -14577,7 +14577,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var total = 0, k;
     for (k in logs) total += logs[k];
 
-    if (!plans.length) {
+    /* «لا منهجَ بعد» تُقاس بالمناهجِ وحدَها — وهذا يَصدق ما دام
+       المنهجُ هو الطريقَ الوحيد. فإن كان محرِّكُ الوِردِ الموحَّدِ
+       قائمًا وللقارئِ جردٌ، فله تقدُّمٌ يُعرَض وإن لم يُنشئ منهجًا
+       واحدًا — وعرضُ المثالِ له حينئذٍ يُخفي عملَه خلفَ أرقامِ غيره.
+       والسطرُ ساكنٌ حين لا محرِّك. */
+    var hasWard = !!(App.Hifz && App.Hifz.has && App.Hifz.has());
+    if (!plans.length && !hasWard) {
       var e = el('div', 'empty');
       /* الفراغُ مشهدٌ مقصودٌ بطلُه الخاتم، فله لوحُ البطولةِ لا خاتمٌ
          صامتٌ ‎(emblem-quiet)‎ — وصنفُ الخاتمِ يَسقط معه فلا تُطلى
@@ -14627,6 +14633,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var covered = P.coveredPages().size;
     var todayN = 0;
     plans.forEach(function (p) { todayN += (p.log && p.log[App.dateKey()]) || 0; });
+    /* محرِّكُ الوِردِ الموحَّد — إن وُجد — يَحمل عملَ اليومِ خارجَ
+       المناهج. ولولا هذا السطرُ لَقالت البطاقةُ «صفرَ صفحات» وقد
+       سُجّلت عشر: كذبٌ على القارئِ في شاشةٍ وُضعت لتَصدقه.
+       وهو ساكنٌ تمامًا حين لا محرِّك، فلا أثرَ له في البناءِ الحيّ. */
+    var hw = App.state.hifz && App.state.hifz.log
+          && App.state.hifz.log[App.dateKey()];
+    if (hw) todayN += (hw.n || 0) + (hw.r || 0);
     var s1 = el('section', 'sec');
     var tiles = el('div', 'pr-tiles');
     tiles.appendChild(tile('calendar', ar(P.streak()), 'يومَ مواظبة'));

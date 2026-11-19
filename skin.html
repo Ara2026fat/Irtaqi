@@ -15108,7 +15108,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var total = 0, k;
     for (k in logs) total += logs[k];
 
-    if (!plans.length) {
+    /* «لا منهجَ بعد» تُقاس بالمناهجِ وحدَها — وهذا يَصدق ما دام
+       المنهجُ هو الطريقَ الوحيد. فإن كان محرِّكُ الوِردِ الموحَّدِ
+       قائمًا وللقارئِ جردٌ، فله تقدُّمٌ يُعرَض وإن لم يُنشئ منهجًا
+       واحدًا — وعرضُ المثالِ له حينئذٍ يُخفي عملَه خلفَ أرقامِ غيره.
+       والسطرُ ساكنٌ حين لا محرِّك. */
+    var hasWard = !!(App.Hifz && App.Hifz.has && App.Hifz.has());
+    if (!plans.length && !hasWard) {
       var e = el('div', 'empty');
       /* الفراغُ مشهدٌ مقصودٌ بطلُه الخاتم، فله لوحُ البطولةِ لا خاتمٌ
          صامتٌ ‎(emblem-quiet)‎ — وصنفُ الخاتمِ يَسقط معه فلا تُطلى
@@ -15158,6 +15164,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var covered = P.coveredPages().size;
     var todayN = 0;
     plans.forEach(function (p) { todayN += (p.log && p.log[App.dateKey()]) || 0; });
+    /* محرِّكُ الوِردِ الموحَّد — إن وُجد — يَحمل عملَ اليومِ خارجَ
+       المناهج. ولولا هذا السطرُ لَقالت البطاقةُ «صفرَ صفحات» وقد
+       سُجّلت عشر: كذبٌ على القارئِ في شاشةٍ وُضعت لتَصدقه.
+       وهو ساكنٌ تمامًا حين لا محرِّك، فلا أثرَ له في البناءِ الحيّ. */
+    var hw = App.state.hifz && App.state.hifz.log
+          && App.state.hifz.log[App.dateKey()];
+    if (hw) todayN += (hw.n || 0) + (hw.r || 0);
     var s1 = el('section', 'sec');
     var tiles = el('div', 'pr-tiles');
     tiles.appendChild(tile('calendar', ar(P.streak()), 'يومَ مواظبة'));
@@ -17489,6 +17502,43 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     words: { pages: nPages, pagesAcc: nPagesAcc, juz: nJuz, juzAcc: nJuzAcc, days: nDays }
   };
 
+  /* ════ ١١ · وصلُ ما كان يَقرأ المناهج ═════════════════════════
+     «تقدُّمي» و«حلقتي» تَقرآن ‎App.Plans‎، فلو تُرك الأمرُ لَجمَدَتا
+     يومَ التحويل: المواظبةُ تَنكسر وعددُ صفحاتِ الحلقةِ يَقف عند
+     رقمٍ لا يَزيد — والقارئُ يَعمل كلَّ يومٍ ويَرى عملَه يَختفي.
+
+     ولا تُفتَح وحدةٌ ليست لي: طبقةُ ‎skin‎ تُضاف بعدَ ‎src‎، فتُعاد
+     الدالّتان هنا وتُستبقى الأصلُ فيُنادَى حين لا يكون للقارئِ
+     محرِّكُ وِردٍ بعد. والقديمُ يُجمَع مع الجديدِ لا يُستبدَل به،
+     فلا تَنكسر سلسلةُ أيّامٍ وقعت قبل التحويل. */
+  var P = App.Plans, oldCovered = P.coveredPages, oldStreak = P.streak;
+
+  P.coveredPages = function () {
+    var s = oldCovered.call(P);
+    if (!has()) return s;
+    var pages = memorizedPages(), i;
+    for (i = 0; i < pages.length; i++) s.add(pages[i]);
+    return s;
+  };
+
+  P.streak = function () {
+    if (!has()) return oldStreak.call(P);
+    var days = {}, h = ensure(), k, g;
+    (App.state.plans || []).forEach(function (p) {
+      for (var j in (p.log || {})) if (p.log[j] > 0) days[j] = 1;
+    });
+    for (k in h.log) {
+      if (!h.log.hasOwnProperty(k)) continue;
+      g = h.log[k];
+      if (g && ((+g.n || 0) + (+g.r || 0)) > 0) days[k] = 1;
+    }
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    if (!days[App.dateKey(d)]) d.setDate(d.getDate() - 1);
+    var n = 0, guard = 0;
+    while (days[App.dateKey(d)] && guard++ < 4000) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  };
+
 }(window.App));
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -17867,7 +17917,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       bar.appendChild(f);
       r2.appendChild(bar);
       var s2 = el('div', 'w-inv-s');
-      s2.textContent = 'أُنجزت ' + w.pagesAcc(done) + ' من ' + w.pages(tot);
+      /* نائبُ فاعلٍ مرفوع: «أُنجزت صفحتان» لا «صفحتَين» */
+      s2.textContent = 'أُنجزت ' + w.pages(done) + ' من ' + w.pages(tot);
       r2.appendChild(s2);
       rows.appendChild(r2);
     }
@@ -18131,7 +18182,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     }
     if (fell) {
       var f = el('p', 'w-moved w-moved-warn');
-      f.textContent = 'نزلت ' + w.pagesAcc(fell) + ' منزلةً بسببِ زللٍ سُجّل في التسميع.';
+      f.textContent = 'نزلت ' + w.pages(fell) + ' منزلةً بسببِ زللٍ سُجّل في التسميع.';
       wrap.appendChild(f);
     }
 
