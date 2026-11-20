@@ -10903,6 +10903,58 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return (best && best.n >= 3) ? best : null;
   }
 
+  /* آخرُ يومٍ مرَّ فيه الوردُ على كلِّ جزء.
+
+     يُعاد بناؤه من السجلِّ وحدَه: المقدارُ المسجَّلُ في كلِّ يومٍ
+     يُراكَم على مدى المنهج، فيُعرَف أيَّ صفحاتٍ قطع الوردُ في ذلك
+     اليوم، ومن الصفحةِ يُعرَف الجزء. وإذا جاوز المجموعُ مدى المنهج
+     لَفَّ من أوّله، لأنّ المراجعةَ تُعيد الكَرّةَ على المدى نفسِه.
+
+     ولا يُخزَّن شيءٌ جديدٌ لأجلِ هذا: ما في السجلِّ يَكفي. */
+  function lastSeen() {
+    if (!App.Quran || !App.Quran.ready()) return null;
+    var seen = {};
+    plans().forEach(function (p) {
+      var log = p.log || {}, keys = [], k;
+      for (k in log) {
+        if (log.hasOwnProperty(k) && log[k] > 0) keys.push(k);
+      }
+      if (!keys.length) return;
+      keys.sort();
+      var from = Math.min(p.from, p.to), to = Math.max(p.from, p.to);
+      var span = to - from + 1;
+      if (!(span > 0)) return;
+      var at = 0;
+      keys.forEach(function (d) {
+        var n = log[d], i, pg, j;
+        for (i = 0; i < n; i++) {
+          pg = from + ((at + i) % span);
+          j = App.Quran.juzOf(pg);
+          if (!seen[j] || seen[j] < d) seen[j] = d;
+        }
+        at += n;
+      });
+    });
+    return seen;
+  }
+
+  /* الجزءُ الذي طال العهدُ به. العتبةُ ثلاثون يومًا: دونَها ليس
+     «قديمًا» بعدُ، والتنبيهُ قبل أوانه إزعاجٌ لا إفادة. */
+  function stalest() {
+    var seen = lastSeen();
+    if (!seen) return null;
+    var now = Date.parse(App.dateKey(new Date()) || key(new Date()));
+    var best = null, j, t, gap;
+    for (j in seen) {
+      if (!seen.hasOwnProperty(j)) continue;
+      t = Date.parse(seen[j]);
+      if (isNaN(t)) continue;
+      gap = Math.round((now - t) / 86400000);
+      if (gap >= 30 && (!best || gap > best.gap)) best = { j: +j, gap: gap };
+    }
+    return best;
+  }
+
   /* ── المرشدُ يُولّد، ولا يَختار من قائمةٍ مكتوبة ──────────────
      لكلِّ قاعدةٍ شرطٌ يُقرأ من السجلّ، ونصٌّ يُبنى من أرقامِه، وفعلٌ
      يُعرَض معه. وترتيبُها ترتيبُ الأهمّيّة: التعديلُ قبل الشهادة،
@@ -10972,7 +11024,28 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       });
     }
 
-    /* ── ٤ · إذنُ الراحة ─────────────────────────────────────── */
+    /* ── ٤ · الحفظُ القديم: ما لا تَذكره الشاشةُ من نفسِها ─────
+       «اليومُ» يُري وردَ اليوم، و«تقدُّمي» يُري ما بلغتَه جملةً —
+       وليس فيهما ما يَقول: هذا جزءٌ مرَّ عليه شهر. وهو أنفعُ ما
+       يَعرفه المرشدُ من سجلِّه، فلذلك قيل. */
+    var sj = stalest();
+    if (sj && !(wj && wj.j === sj.j)) {
+      out.push({
+        kind: 'old',
+        /* رقمان متجاوران يُربكان القراءة، فيُفصَل بينهما بالفعل */
+        head: 'الجزءُ ' + ar(sj.j) + ' مضى عليه ' + nDay(sj.gap),
+        body: 'والحفظُ القديمُ لا يَضيع، لكنّه يَبهَت. '
+            + 'وأسرعُ ما يَكشف ما بَهَت منه أن تُسأل فيه.',
+        acts: [{
+          t: 'اختبِرني فيه',
+          go: function () {
+            App.go('exam', { scope: { kind: 'juz', j: sj.j }, go: 1 });
+          }
+        }]
+      });
+    }
+
+    /* ── ٥ · إذنُ الراحة ─────────────────────────────────────── */
     if (ps.length && today > 0) {
       out.push({
         kind: 'rest',
