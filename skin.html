@@ -6795,6 +6795,48 @@ App.mark = function (size, cls) {
     return true;
   }
 
+  /* ── الكلُّ بضغطةٍ واحدة ──────────────────────────────────────
+     ثلاثُ حِزَمٍ وثلاثةُ أزرارٍ كانت سؤالًا لا يَعني القارئَ: «أيَّها
+     أُحمّل؟» — وجوابُه دائمًا «كلَّها». فصارت ضغطةً واحدةً تَجلب ما
+     يَنقص بالتتابع، وتُخبر عمَّا بلغت. والتتابعُ لا التوازي: ثلاثةُ
+     طلباتٍ معًا على شبكةٍ ضعيفةٍ تَتزاحم وتَسقط جميعًا. */
+  function fetchAll(onStep) {
+    var left = SPEC.filter(function (s) { return !s.ready(); });
+    if (!left.length) return Promise.resolve(0);
+    var done = 0;
+    return left.reduce(function (chain, s) {
+      return chain.then(function () {
+        if (onStep) onStep(s.title, done, left.length);
+        return fetchPack(s.key).then(function () { done++; });
+      });
+    }, Promise.resolve()).then(function () { return done; });
+  }
+
+  /* وملفٌّ واحدٌ يَنزل بالثلاثِ جميعًا: مَن أراد أن يُعطيَه غيرَه
+     يُعطيه ملفًّا لا ثلاثة، ومَن استورده استورد المحتوى كلَّه. */
+  function saveAll() {
+    return Promise.all(SPEC.map(function (s) {
+      return get(s.key).then(function (t) {
+        return t ? t : fetch(url(s.key)).then(function (r) {
+          if (!r.ok) throw new Error('تعذّر جلبُ ' + s.title);
+          return r.text();
+        });
+      });
+    })).then(function (parts) {
+      var body = '{"irtaqi":1';
+      for (var i = 0; i < SPEC.length; i++) {
+        body += ',"' + SPEC[i].key + '":' + parts[i];
+      }
+      body += '}';
+      var a = document.createElement('a');
+      var bl = new Blob([body], { type: 'application/json' });
+      a.href = URL.createObjectURL(bl);
+      a.download = 'irtaqi-content.json';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    });
+  }
+
   function fetchPack(k) {
     var s = spec(k);
     if (!s) return Promise.reject(new Error('حزمةٌ مجهولة'));
@@ -6830,8 +6872,22 @@ App.mark = function (size, cls) {
 
   function importText(txt) {
     var data = JSON.parse(txt);
+
+    /* ملفُّ المحتوى الجامعُ أوّلًا: هو ما يُعطيه القارئُ قارئًا */
+    if (data && data.irtaqi) {
+      var got = 0;
+      SPEC.forEach(function (s) {
+        var d = data[s.key];
+        if (!d) return;
+        var one = JSON.stringify(d);
+        if (adopt(s.key, d, one)) { put(s.key, one)['catch'](function () {}); got++; }
+      });
+      if (!got) throw new Error('الملفُّ لا يَحمل محتوًى صالحًا');
+      return 'all';
+    }
+
     var k = sniff(data);
-    if (!k) throw new Error('هذا الملفُّ ليس حزمةً من حِزَم ارتقِ');
+    if (!k) throw new Error('هذا الملفُّ ليس محتوى ارتقِ');
     if (!adopt(k, data, txt)) throw new Error('الحزمةُ معطوبة');
     put(k, txt)['catch'](function () {});
     return k;
@@ -6874,7 +6930,8 @@ App.mark = function (size, cls) {
   App.Packs = {
     spec: function () { return SPEC.slice(); },
     has: has, state: state, size: size, working: working,
-    fetch: fetchPack, importText: importText, save: save,
+    fetch: fetchPack, fetchAll: fetchAll,
+    importText: importText, save: save, saveAll: saveAll,
     forget: function (k) {
       return del(k).then(function () { sizes[k] = 0; });
     },
@@ -6923,59 +6980,56 @@ App.mark = function (size, cls) {
 
   function pane() {
     var out = App.el('div', 'stack-lg');
+    var card = App.el('article', 'card pk1');
     var say = App.el('p', 'small pk-say');
-    var list = App.el('div', 'pk-list');
-    out.appendChild(list);
 
     function draw() {
-      list.textContent = '';
-      SPEC.forEach(function (s) {
-        var st = state(s.key);
-        var row = App.el('div', 'pk pk-' + st);
-        var head = App.el('div', 'pk-h');
-        head.appendChild(App.el('span', 'pk-t', s.title));
-        head.appendChild(App.el('span', 'pk-s',
-          st === 'busy' ? 'جارٍ…' : st === 'on' ? 'حاضرة' : 'غيرُ محمَّلة'));
-        row.appendChild(head);
-        row.appendChild(App.el('p', 'pk-n', s.note));
+      card.textContent = '';
+      var left = SPEC.filter(function (s) { return !s.ready(); });
+      var work = SPEC.some(function (s) { return busy[s.key]; });
+      var all = !left.length;
 
-        var acts = App.el('div', 'pk-a');
-        if (st !== 'on') {
-          var get = App.el('button', 'btn btn-pri pk-b');
-          get.type = 'button';
-          get.textContent = 'حمِّل';
-          get.disabled = (st === 'busy');
-          get.onclick = function () {
-            say.textContent = 'جارٍ تحميلُ ' + s.title + '…';
-            fetchPack(s.key).then(function () {
-              say.textContent = 'تَمَّ تحميلُ ' + s.title + '.';
-            })['catch'](function (e) {
-              say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
-            });
-          };
-          acts.appendChild(get);
-        } else {
-          var dl = App.el('button', 'btn btn-ghost pk-b');
-          dl.type = 'button';
-          dl.textContent = 'نزِّل الملفّ';
-          dl.onclick = function () {
-            say.textContent = 'جارٍ تجهيزُ الملفّ…';
-            save(s.key).then(function () {
-              say.textContent = 'نَزَل ملفُّ ' + s.title + ' إلى جهازك.';
-            })['catch'](function (e) {
-              say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
-            });
-          };
-          acts.appendChild(dl);
-          if (sizes[s.key]) {
-            acts.appendChild(App.el('span', 'pk-k', kb(sizes[s.key])));
-          }
-        }
-        row.appendChild(acts);
-        list.appendChild(row);
-      });
+      var head = App.el('div', 'pk-h');
+      head.appendChild(App.el('h2', 'h2', 'محتوى المصحف'));
+      head.appendChild(App.el('span', 'pk-s' + (all ? ' on' : ''),
+        work ? 'جارٍ…' : all ? 'حاضر' : 'غيرُ محمَّل'));
+      card.appendChild(head);
+
+      /* ما فيه، سطرًا واحدًا: لا ثلاثُ بطاقاتٍ تَسأل أيَّها يُحمَّل */
+      card.appendChild(App.el('p', 'small',
+        'نصُّ المصحفِ ورسمُ صفحاتِه ومتشابهاتُه. '
+        + (all ? 'في جهازك، ويَعمل بلا اتّصال.'
+               : 'يُحمَّل مرّةً ثمّ يَبقى في جهازك بلا اتّصال.')));
+
+      var b = App.el('button', 'btn btn-pri btn-block');
+      b.type = 'button';
+      b.disabled = work;
+      b.innerHTML = App.icon('download', 19);
+      b.appendChild(App.el('span', null,
+        work ? 'جارٍ التحميل…' : all ? 'نزِّل الملفّ' : 'حمِّل المحتوى'));
+      b.onclick = all ? function () {
+        say.textContent = 'جارٍ تجهيزُ الملفّ…';
+        saveAll().then(function () {
+          say.textContent = 'نَزَل ملفُّ المحتوى إلى جهازك.';
+        })['catch'](function (e) {
+          say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
+        });
+      } : function () {
+        fetchAll(function (t, i, n) {
+          say.textContent = 'جارٍ تحميلُ ' + t
+            + ' (' + App.ar(i + 1) + ' من ' + App.ar(n) + ')…';
+        }).then(function () {
+          say.textContent = 'تَمَّ تحميلُ المحتوى كلِّه.';
+        })['catch'](function (e) {
+          say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
+        });
+      };
+      card.appendChild(b);
     }
 
+    out.appendChild(card);
+
+    /* الاستيرادُ بابُ مَن لا شبكةَ عنده: ملفٌّ واحدٌ يَحمل الكلَّ */
     var imp = App.el('div', 'pk-imp');
     var inp = App.el('input');
     inp.type = 'file';
@@ -6993,7 +7047,8 @@ App.mark = function (size, cls) {
       fr.onload = function () {
         try {
           var k = importText(String(fr.result));
-          say.textContent = 'استُورِدت: ' + ((spec(k) || {}).title || k);
+          say.textContent = k === 'all' ? 'استُورِد المحتوى.'
+            : 'استُورِدت: ' + ((spec(k) || {}).title || k);
         } catch (e) {
           say.textContent = 'تعذّر: ' + (e && e.message || 'ملفٌّ غيرُ صالح');
         }
@@ -7017,28 +7072,18 @@ App.mark = function (size, cls) {
   (function () {
     var s = document.createElement('style');
     s.textContent = [
-      '.pk-list{display:flex;flex-direction:column;gap:10px}',
-      '.pk{padding:12px 14px;border-radius:var(--r-lg);',
-      '  background:var(--surface);border:1px solid var(--hair)}',
-      '.pk-h{display:flex;align-items:center;gap:8px}',
-      '.pk-t{font-weight:700;font-size:14.5px;color:var(--ink)}',
-      /* الحالةُ لا تُقال باللونِ وحدَه: لونٌ ولفظٌ معًا */
+      /* بطاقةٌ واحدةٌ لا ثلاث: الحالةُ لونٌ ولفظٌ معًا، فمَن لا
+         يُفرّق بين الأخضرِ والرماديِّ يَقرأ «حاضر» و«غيرُ محمَّل». */
+      '.pk1 .pk-h{display:flex;align-items:center;gap:10px}',
+      '.pk1 .pk-h .h2{margin:0}',
       '.pk-s{margin-inline-start:auto;font-size:11.5px;font-weight:700;',
-      '  padding:2px 9px;border-radius:var(--r-pill);',
+      '  padding:3px 10px;border-radius:var(--r-pill);',
       '  background:var(--hair-2);color:var(--ink-3)}',
-      '.pk-on .pk-s{background:color-mix(in oklab,var(--accent) 14%,transparent);',
+      '.pk-s.on{background:color-mix(in oklab,var(--accent) 14%,transparent);',
       '  color:var(--accent)}',
-      '.pk-n{margin-top:6px;font-size:12.5px;line-height:1.75;color:var(--ink-2)}',
-      '.pk-a{display:flex;align-items:center;gap:10px;margin-top:10px}',
-      '.pk-b{min-height:40px;padding-inline:16px;font-size:13px}',
-      '.pk-k{font-size:11.5px;color:var(--ink-3)}',
+      '.pk1 .btn{margin-block-start:14px}',
       '.pk-say{text-align:center;min-height:18px}',
-      '.pk-imp{display:flex;justify-content:center;margin-top:4px}',
-      /* الملصقُ زرٌّ في المعنى فيُعطى هيئتَه: قواعدُ ‎.btn‎ مبنيّةٌ
-         على ‎button‎ فلا تَبلغ ‎label‎. */
-      /* الملصقُ زرٌّ في المعنى، وقواعدُ ‎.btn‎ تَبلغ ‎label‎ لأنّها
-         غيرُ مقيّدةٍ بالوَسم — لكنّ المحاذاةَ الداخليّةَ تُذكَر هنا
-         لأنّ ‎label‎ لا يَرث ‎inline-flex‎ من صنفٍ لم يُطبَّق عليه. */
+      '.pk-imp{display:flex;justify-content:center}',
       'label.pk-b{cursor:pointer}',
       '.pk-file{position:absolute;width:1px;height:1px;opacity:0;',
       '  pointer-events:none}',
