@@ -2232,6 +2232,9 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
   .ex-opt{ transition:none }
   .ex-opt:active{ scale:1 }
 }
+
+/* سطرُ الاقتراحِ في لوحِ «اختباري»: نصٌّ لا بطاقة. */
+.ex-hint{ margin-block:6px 12px; color:var(--ink-mut) }
 </style>
 </head>
 <body>
@@ -6222,20 +6225,17 @@ App.mark = function (size, cls) {
 
   var SPEC = [
     { key: 'quran',  title: 'نصُّ المصحف',
-      note: 'آياتُ المصحفِ كلُّها بسورتها وصفحتها — يَلزم القراءةَ '
-          + 'والبحثَ والتسميعَ والاختبار.',
+      note: 'للقراءةِ والبحثِ والتسميعِ والاختبار.',
       ready: function () { return App.Quran && App.Quran.ready(); },
       load:  function (d) { return App.Quran.load(d); } },
 
     { key: 'layout', title: 'رسمُ المصحف المدني',
-      note: 'مواضعُ الكلماتِ في صفحاتِ المجمَّع — بها تُرى الصفحةُ '
-          + 'كما في المصحفِ لا نصًّا مسطورًا.',
+      note: 'لتُرى الصفحةُ كما في المصحفِ لا نصًّا مسطورًا.',
       ready: function () { return App.Layout && App.Layout.ready(); },
       load:  function (d) { return App.Layout.load(d); } },
 
     { key: 'shabih', title: 'المتشابهات',
-      note: 'مواضعُ الآياتِ المتشابهةِ والكلماتُ التي افترقت فيها — '
-          + 'بها يُنبَّه الحافظُ قبل أن يَزِلّ، ومنها تُصنَع المُلهِيات.',
+      note: 'مواضعُ المتشابهاتِ وما افترقت فيه من كلمات.',
       ready: function () { return App.Shabih && App.Shabih.ready(); },
       load:  function (d) { return App.Shabih.load(d); } }
   ];
@@ -6423,6 +6423,156 @@ App.mark = function (size, cls) {
   };
 
   function missing(what) { return App.Packs.missingFor(what); }
+
+  /* ══ لوحُ المحتوى ═════════════════════════════════════════════
+     موضعُه «المصحف» لا الإعدادات: هذه حزمُ مصحفِه، ومَن أرادها
+     يَقصد المصحفَ لا دُرجَ الإعدادات. والوحدةُ تَملك لوحَها فلا
+     تُكتَب واجهتُها في ملفٍّ آخرَ يَنساها. */
+  function kb(n) {
+    return n >= 1048576 ? App.ar((n / 1048576).toFixed(1)) + ' م.ب'
+         : App.ar(Math.round(n / 1024)) + ' ك.ب';
+  }
+
+  function pane() {
+    var out = App.el('div', 'stack-lg');
+    var say = App.el('p', 'small pk-say');
+    var list = App.el('div', 'pk-list');
+    out.appendChild(list);
+
+    function draw() {
+      list.textContent = '';
+      SPEC.forEach(function (s) {
+        var st = state(s.key);
+        var row = App.el('div', 'pk pk-' + st);
+        var head = App.el('div', 'pk-h');
+        head.appendChild(App.el('span', 'pk-t', s.title));
+        head.appendChild(App.el('span', 'pk-s',
+          st === 'busy' ? 'جارٍ…' : st === 'on' ? 'حاضرة' : 'غيرُ محمَّلة'));
+        row.appendChild(head);
+        row.appendChild(App.el('p', 'pk-n', s.note));
+
+        var acts = App.el('div', 'pk-a');
+        if (st !== 'on') {
+          var get = App.el('button', 'btn btn-pri pk-b');
+          get.type = 'button';
+          get.textContent = 'حمِّل';
+          get.disabled = (st === 'busy');
+          get.onclick = function () {
+            say.textContent = 'جارٍ تحميلُ ' + s.title + '…';
+            fetchPack(s.key).then(function () {
+              say.textContent = 'تَمَّ تحميلُ ' + s.title + '.';
+            })['catch'](function (e) {
+              say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
+            });
+          };
+          acts.appendChild(get);
+        } else {
+          var dl = App.el('button', 'btn btn-ghost pk-b');
+          dl.type = 'button';
+          dl.textContent = 'نزِّل الملفّ';
+          dl.onclick = function () {
+            say.textContent = 'جارٍ تجهيزُ الملفّ…';
+            save(s.key).then(function () {
+              say.textContent = 'نَزَل ملفُّ ' + s.title + ' إلى جهازك.';
+            })['catch'](function (e) {
+              say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
+            });
+          };
+          acts.appendChild(dl);
+          if (sizes[s.key]) {
+            acts.appendChild(App.el('span', 'pk-k', kb(sizes[s.key])));
+          }
+        }
+        row.appendChild(acts);
+        list.appendChild(row);
+      });
+    }
+
+    var imp = App.el('div', 'pk-imp');
+    var inp = App.el('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.id = 'pk-file';
+    inp.className = 'pk-file';
+    var lab = App.el('label', 'btn btn-ghost pk-b');
+    lab.setAttribute('for', 'pk-file');
+    lab.textContent = 'استورِد من ملفّ';
+    inp.onchange = function () {
+      var f = inp.files && inp.files[0];
+      if (!f) return;
+      say.textContent = 'جارٍ قراءةُ الملفّ…';
+      var fr = new FileReader();
+      fr.onload = function () {
+        try {
+          var k = importText(String(fr.result));
+          say.textContent = 'استُورِدت: ' + ((spec(k) || {}).title || k);
+        } catch (e) {
+          say.textContent = 'تعذّر: ' + (e && e.message || 'ملفٌّ غيرُ صالح');
+        }
+        inp.value = '';
+      };
+      fr.onerror = function () { say.textContent = 'تعذّرت القراءة.'; };
+      fr.readAsText(f);
+    };
+    imp.appendChild(inp);
+    imp.appendChild(lab);
+    out.appendChild(imp);
+    out.appendChild(say);
+
+    draw();
+    App.on_('packs', function () { if (out.isConnected) draw(); });
+    return out;
+  }
+
+  App.Packs.pane = pane;
+
+  (function () {
+    var s = document.createElement('style');
+    s.textContent = [
+      '.pk-list{display:flex;flex-direction:column;gap:10px}',
+      '.pk{padding:12px 14px;border-radius:var(--r-lg);',
+      '  background:var(--surface);border:1px solid var(--hair)}',
+      '.pk-h{display:flex;align-items:center;gap:8px}',
+      '.pk-t{font-weight:700;font-size:14.5px;color:var(--ink)}',
+      /* الحالةُ لا تُقال باللونِ وحدَه: لونٌ ولفظٌ معًا */
+      '.pk-s{margin-inline-start:auto;font-size:11.5px;font-weight:700;',
+      '  padding:2px 9px;border-radius:var(--r-pill);',
+      '  background:var(--hair-2);color:var(--ink-3)}',
+      '.pk-on .pk-s{background:color-mix(in oklab,var(--accent) 14%,transparent);',
+      '  color:var(--accent)}',
+      '.pk-n{margin-top:6px;font-size:12.5px;line-height:1.75;color:var(--ink-2)}',
+      '.pk-a{display:flex;align-items:center;gap:10px;margin-top:10px}',
+      '.pk-b{min-height:40px;padding-inline:16px;font-size:13px}',
+      '.pk-k{font-size:11.5px;color:var(--ink-3)}',
+      '.pk-say{text-align:center;min-height:18px}',
+      '.pk-imp{display:flex;justify-content:center;margin-top:4px}',
+      /* الملصقُ زرٌّ في المعنى فيُعطى هيئتَه: قواعدُ ‎.btn‎ مبنيّةٌ
+         على ‎button‎ فلا تَبلغ ‎label‎. */
+      /* الملصقُ زرٌّ في المعنى، وقواعدُ ‎.btn‎ تَبلغ ‎label‎ لأنّها
+         غيرُ مقيّدةٍ بالوَسم — لكنّ المحاذاةَ الداخليّةَ تُذكَر هنا
+         لأنّ ‎label‎ لا يَرث ‎inline-flex‎ من صنفٍ لم يُطبَّق عليه. */
+      'label.pk-b{cursor:pointer}',
+      '.pk-file{position:absolute;width:1px;height:1px;opacity:0;',
+      '  pointer-events:none}',
+      '.pk-file:focus-visible + .pk-b{outline:2px solid var(--accent);',
+      '  outline-offset:2px}',
+      /* الشاشةُ القصيرة: ثلاثُ بطاقاتٍ وزرُّ استيرادٍ تَحت ترويسةٍ
+         وأربعةِ ألسنة. تُضَمّ الحشواتُ، ويَصير الزرُّ في صفِّ العنوان
+         بدل سطرٍ خاصٍّ به — فيُوفَّر سطرٌ كاملٌ من كلِّ بطاقة. */
+      '@media (max-height:800px){',
+      '  .pk{padding:8px 12px;position:relative}',
+      '  .pk-list{gap:7px}',
+      '  .pk-n{margin-top:3px;line-height:1.5;font-size:12px;',
+      '    padding-inline-end:96px}',
+      '  .pk-a{margin:0;position:absolute;inset-block-start:8px;',
+      '    inset-inline-end:12px}',
+      '  .pk-s{margin-inline-start:0}',
+      '  .pk-b{min-height:36px;padding-inline:12px;font-size:12px}',
+      '  label.pk-b{min-height:44px}',
+      '}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }());
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', restore);
@@ -10616,7 +10766,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      نفسِها لا من رسمٍ ثانٍ يَشرد عنها. */
   var LAST = null;
 
-  function draw() {
+  function draw(params) {
     var t0 = performance.now();
 
     var cov = App.Plans.coveredPages();
@@ -10894,9 +11044,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     ];
     if (exPane) tabs.push({ key:'ex', label:'مثال', icon:'info',
                             render:function () { return exPane; } });
+    /* المحتوى لسانٌ هنا: هذه حِزَمُ مصحفِه، ومَن أرادها يَقصد
+       المصحفَ لا دُرجَ الإعدادات. ولا يُبنى حتّى يُلمَس. */
+    if (App.Packs && App.Packs.pane) {
+      tabs.push({ key:'pack', label:'المحتوى', icon:'page',
+                  render:function () { return App.Packs.pane(); } });
+    }
     wrap.appendChild(App.seg(tabs, {
       cls: 'mk-seg-bar',
-      start: (App.state.settings || {}).mushafTab,
+      start: (params && params.tab) || (App.state.settings || {}).mushafTab,
       onchange: function (k) {
         var st = App.state.settings || (App.state.settings = {});
         if (st.mushafTab === k) return;   /* لا كتابةَ إلّا عند التبدّل */
@@ -15242,7 +15398,70 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
   /* يُكشَف للفحصِ الآليِّ قبل كلِّ شيء: صحّةُ ألفِ سؤالٍ لا تُرى
      بالعين، وتُقاس ببرنامجٍ يُنادي ‎make‎ ويُقابل كلَّ نصٍّ بالمصحف. */
+  /* ══ لوحُ الاختبار في «تقدُّمي» ═══════════════════════════════
+     موضعُه بين ألسنةِ «تقدُّمي» لا في الإعدادات: ثمرةُ الاختبارِ
+     قياسٌ — درجةٌ لكلِّ جزءٍ وأضعفُ ما عندك — وذاك بابُ «تقدُّمي»
+     بعينه. والإعداداتُ دُرجُ ما يُضبَط مرّةً ثمّ يُنسى، لا موضعُ
+     فعلٍ يُعاد كلَّ أسبوع. */
+  function pane() {
+    var out = App.el('div', 'stack-lg');
+    var miss = App.Packs ? App.Packs.missingFor('exam') : [];
+
+    var c = App.el('article', 'card');
+    c.appendChild(App.el('h2', 'h2', vg('اختبِرْ نفسَك', 'اختبِري نفسَكِ')));
+    c.appendChild(App.el('p', 'small', miss.length
+      ? 'يَلزمه نصُّ المصحفِ والمتشابهات — وهما في «المصحف ← المحتوى».'
+      : 'تَختار الجزءَ أو السورةَ وعددَ الأسئلة، فتُولَّد لك من نصِّ '
+      + 'المصحفِ ويُصحَّح لك ويُعرَف ضعيفُ أجزائك.'));
+
+    var go = App.el('button', 'btn btn-pri btn-block');
+    go.type = 'button';
+    go.textContent = miss.length ? 'حمِّل المحتوى' : 'ابدأ الاختبار';
+    go.onclick = function () {
+      if (miss.length) App.go('mushaf', { tab: 'pack' });
+      else App.go('exam');
+    };
+    /* الاقتراحُ يَسبق الزرَّ لا يَتبعه: هو ما سيَحدث إن ضُغط، فقراءتُه
+       بعدَه لا تُفيد. و‎ex-sug‎ صنفُ بطاقةٍ ذاتِ إطارٍ في الكسوةِ
+       الأصليّة، فلو أُلبِسه سطرٌ لَبدا زرًّا معطَّلًا. */
+    if (!miss.length) {
+      var sg = suggest();
+      c.appendChild(App.el('p', 'small ex-hint',
+        App.join(scopeLabel(sg.scope), nAsk(sg.n))));
+    }
+    c.appendChild(go);
+    out.appendChild(c);
+
+    /* أضعفُ الأجزاءِ: ثمرةُ ما مضى، وهي أَولى ما يُعاد فيه الاختبار */
+    if (!miss.length) {
+      var weak = [];
+      try { weak = weakJuz() || []; } catch (e) {}
+      if (weak.length) {
+        var wc = App.el('article', 'card');
+        wc.appendChild(App.el('h2', 'h2', 'أضعفُ أجزائك'));
+        var row = App.el('div', 'ex-weak');
+        weak.slice(0, 6).forEach(function (w) {
+          var j = w.j || w;
+          var bt = App.el('button', 'chip');
+          bt.type = 'button';
+          bt.textContent = 'الجزء ' + ar(j);
+          bt.onclick = function () {
+            App.go('exam', { scope: { kind: 'juz', j: j }, go: 1 });
+          };
+          row.appendChild(bt);
+        });
+        wc.appendChild(row);
+        wc.appendChild(App.el('p', 'small',
+          'المسْ جزءًا لتَختبر نفسك فيه وحدَه.'));
+        out.appendChild(wc);
+      }
+    }
+    return out;
+  }
+
+
   App.Exam = {
+    pane: pane,
     make: make,
     suggest: suggest,
     weakJuz: weakJuz,
@@ -16782,7 +17001,15 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       { key: 'kinds', label: 'أنواعي', icon: 'target',
         render: function () { return PANE.kinds; } },
       { key: 'grow',  label: 'نموّي',  icon: 'review',
-        render: function () { return PANE.grow; } }
+        render: function () { return PANE.grow; } },
+      /* الاختبارُ لسانٌ هنا لا بابٌ في الإعدادات: ثمرتُه قياسٌ —
+         درجةٌ لكلِّ جزءٍ وأضعفُ ما عندك — وذاك بابُ «تقدُّمي» بعينه.
+         ولا يُبنى لوحُه إلّا حين يُلمَس لسانُه، فلا يُحسَب ثمنُه على
+         من جاء يَنظر خلاصتَه. */
+      { key: 'exam',  label: 'اختباري', icon: 'target',
+        render: function () {
+          return App.Exam ? App.Exam.pane() : App.el('div');
+        } }
     ], { cls: 'pr-seg', start: TAB, onchange: function (k) { TAB = k; } }));
 
     return wrap;
@@ -17320,48 +17547,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     /* الخاتمةُ مركزٌ لا سطرٌ جانبيّ: هي آخرُ ما تَقع عليه العينُ في
        التطبيق، ودعوةٌ تُقرأ لا تُزَفّ. ولا حرفَ لاتينيًّا فيها. */
     /* ── حِزَمُ المحتوى ──────────────────────────────────────────── */
-    '.ex-weak{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}',
-    '.pk-list{display:flex;flex-direction:column;gap:10px}',
-    '.pk{padding:12px 14px;border-radius:var(--r-lg);' +
-      'background:var(--surface);border:1px solid var(--hair)}',
-    '.pk-h{display:flex;align-items:center;gap:8px}',
-    '.pk-t{font-weight:700;font-size:14.5px;color:var(--ink)}',
-    /* الحالةُ لا تُقال باللونِ وحدَه: لونٌ ولفظٌ معًا، فمَن لا يُفرّق '
-       بين الأخضرِ والرماديِّ يَقرأ «حاضرة» و«غيرُ محمَّلة». */
-    '.pk-s{margin-inline-start:auto;font-size:11.5px;font-weight:700;' +
-      'padding:2px 9px;border-radius:var(--r-pill);' +
-      'background:var(--hair-2);color:var(--ink-3)}',
-    '.pk-on .pk-s{background:color-mix(in oklab,var(--accent) 14%,transparent);' +
-      'color:var(--accent)}',
-    '.pk-n{margin-top:6px;font-size:12.5px;line-height:1.75;color:var(--ink-2)}',
-    '.pk-a{display:flex;align-items:center;gap:10px;margin-top:10px}',
-    '.pk-b{min-height:40px;padding-inline:16px;font-size:13px}',
-    '.pk-k{font-size:11.5px;color:var(--ink-3)}',
-    /* ثلاثُ بطاقاتٍ وزرُّ استيرادٍ على شاشةٍ قصيرة: تُضَمّ الحشوةُ
-       ويَقصُر السطرُ قليلًا ليُرى اللوحُ كلُّه بلا خفاء. */
-    '@media (max-height:800px){',
-    '  .pk{padding:8px 12px}',
-    '  .pk-list{gap:7px}',
-    '  .pk-n{margin-top:4px;line-height:1.55;font-size:12px}',
-    '  .pk-a{margin-top:6px}',
-    '  .pk-b{min-height:38px}',
-    '  label.pk-b{min-height:44px}',
-    '}',
-    /* حقلُ الملفِّ لا يُرى: الملصقُ هو الزرّ، ويَبقى الحقلُ مبلوغًا
-       بلوحةِ المفاتيحِ فلا يُحجَب عمَّن لا يَستعمل اللمس. */
-    '.pk-imp{display:flex;justify-content:center;margin-top:4px}',
-    /* الملصقُ زرٌّ في المعنى، فيُعطى هيئةَ زرٍّ صراحةً: قواعدُ ‎.btn‎
-       مَبنيّةٌ على ‎button‎ فلا تَبلغ ‎label‎، فكان يَظهر نصًّا عاريًا
-       لا يُعرَف أنّه يُضغَط. */
-    'label.pk-b{display:inline-flex;align-items:center;justify-content:center;' +
-      'min-height:44px;padding-inline:20px;border-radius:var(--r-lg);' +
-      'background:var(--surface);color:var(--ink);' +
-      'border:1px solid var(--hair);font-weight:700;font-size:13px;' +
-      'cursor:pointer}',
-    '.pk-file{position:absolute;width:1px;height:1px;opacity:0;' +
-      'pointer-events:none}',
-    '.pk-file:focus-visible + .pk-b{outline:2px solid var(--accent);' +
-      'outline-offset:2px}',
     '#settings .st-sign{margin-top:13px;padding-top:12px;text-align:center;' +
       'border-top:1px solid var(--hair)}',
     '#settings .st-sign p{margin:0}',
@@ -17854,161 +18039,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
        ثلاثُ حِزَمٍ لكلٍّ حالتُها: حاضرةٌ أو تُجلَب. ولكلٍّ ثلاثةُ
        أبوابٍ إلى الحضور — الجلبُ من الموقع، والاستيرادُ من ملفٍّ
        وصل الطالبَ من دارِه، والتنزيلُ ليُعطيَها غيرَه. */
-    /* ══ الاختبار ═════════════════════════════════════════════════
-       يُمتحَن الطالبُ في محفوظه آخرَ السنة، والتطبيقُ كان يُخطّط
-       ويُسمّع ويُحصي ولا يَمتحن. والتسميعُ إقرارٌ على النفس، أمّا
-       الاختبارُ فجوابٌ يُقاس بميزانٍ خارجِها، ومنه تُعرَف الأجزاءُ
-       الضعيفةُ بأرقامٍ لا بظنون. والأسئلةُ تُولَّد من نصِّ المصحفِ
-       نفسِه فلا تَنفد، ولا يُكتَب فيها حرفُ قرآنٍ بيد. */
-    function paneExam() {
-      var out = App.el('div', 'st-stack');
-      if (!App.Exam) { out.appendChild(txt('p', 'st-note', '—')); return out; }
-
-      var miss = App.Packs ? App.Packs.missingFor('exam') : [];
-      var c = App.el('div', 'st-card');
-      c.appendChild(txt('h3', 'st-h', 'اختبِر نفسك'));
-      c.appendChild(txt('p', 'st-note', miss.length
-        ? 'يَلزمه نصُّ المصحفِ والمتشابهات. حمِّلهما من «المحتوى».'
-        : 'تَختار الجزءَ أو السورةَ وعددَ الأسئلة، فتُولَّد لك ويُصحَّح '
-        + 'لك ويُعرَف ضعيفُ أجزائك.'));
-
-      var go = App.el('button', 'btn btn-pri btn-block');
-      go.type = 'button';
-      go.textContent = miss.length ? 'افتح المحتوى' : 'ابدأ الاختبار';
-      go.onclick = function () {
-        if (miss.length) { TAB = 'pack'; App.go('settings', { tab: 'pack' }); }
-        else App.go('exam');
-      };
-      c.appendChild(go);
-      out.appendChild(c);
-
-      /* ما مضى من اختبارات: الأجزاءُ الضعيفةُ أوّلًا، فهي ثمرتُه */
-      if (!miss.length && App.Exam.weakJuz) {
-        var weak = [];
-        try { weak = App.Exam.weakJuz() || []; } catch (e) {}
-        if (weak.length) {
-          var wc = App.el('div', 'st-card');
-          wc.appendChild(txt('h3', 'st-h', 'أضعفُ أجزائك'));
-          var row = App.el('div', 'ex-weak');
-          weak.slice(0, 6).forEach(function (j) {
-            var bt = App.el('button', 'chip');
-            bt.type = 'button';
-            bt.textContent = 'الجزء ' + App.ar(j.j || j);
-            bt.onclick = function () {
-              App.go('exam', { scope: { kind: 'juz', j: (j.j || j) }, go: 1 });
-            };
-            row.appendChild(bt);
-          });
-          wc.appendChild(row);
-          wc.appendChild(txt('p', 'st-note',
-            'المسْ جزءًا لتَختبر نفسك فيه وحدَه.'));
-          out.appendChild(wc);
-        }
-      }
-      return out;
-    }
-
-    function paneContent() {
-      var out = App.el('div', 'st-stack');
-      if (!App.Packs) { out.appendChild(txt('p', 'st-note', '—')); return out; }
-
-      var say = txt('p', 'st-note', '');
-      var list = App.el('div', 'pk-list');
-      out.appendChild(list);
-
-      function kb(n) {
-        return n >= 1048576 ? App.ar((n / 1048576).toFixed(1)) + ' م.ب'
-             : App.ar(Math.round(n / 1024)) + ' ك.ب';
-      }
-
-      function draw() {
-        list.textContent = '';
-        App.Packs.spec().forEach(function (s) {
-          var st = App.Packs.state(s.key);
-          var row = App.el('div', 'pk pk-' + st);
-
-          var head = App.el('div', 'pk-h');
-          head.appendChild(txt('span', 'pk-t', s.title));
-          var tag = txt('span', 'pk-s',
-            st === 'busy' ? 'جارٍ…' : st === 'on' ? 'حاضرة' : 'غيرُ محمَّلة');
-          head.appendChild(tag);
-          row.appendChild(head);
-          row.appendChild(txt('p', 'pk-n', s.note));
-
-          var acts = App.el('div', 'pk-a');
-          if (st !== 'on') {
-            var get = App.el('button', 'btn btn-pri pk-b');
-            get.type = 'button';
-            get.textContent = 'حمِّل';
-            get.disabled = (st === 'busy');
-            get.onclick = function () {
-              say.textContent = 'جارٍ تحميلُ ' + s.title + '…';
-              App.Packs.fetch(s.key).then(function () {
-                say.textContent = 'تَمَّ تحميلُ ' + s.title + '.';
-              })['catch'](function (e) {
-                say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
-              });
-            };
-            acts.appendChild(get);
-          } else {
-            var dl = App.el('button', 'btn pk-b');
-            dl.type = 'button';
-            dl.textContent = 'نزِّل الملفّ';
-            dl.onclick = function () {
-              say.textContent = 'جارٍ تجهيزُ الملفّ…';
-              App.Packs.save(s.key).then(function () {
-                say.textContent = 'نَزَل ملفُّ ' + s.title + '.';
-              })['catch'](function (e) {
-                say.textContent = 'تعذّر: ' + (e && e.message || 'خطأ');
-              });
-            };
-            acts.appendChild(dl);
-            if (App.Packs.size(s.key)) {
-              acts.appendChild(txt('span', 'pk-k', kb(App.Packs.size(s.key))));
-            }
-          }
-          row.appendChild(acts);
-          list.appendChild(row);
-        });
-      }
-
-      /* استيرادٌ من ملفٍّ — بابُ مَن لا شبكةَ عنده */
-      var imp = App.el('div', 'pk-imp');
-      var inp = App.el('input');
-      inp.type = 'file'; inp.accept = '.json,application/json';
-      inp.id = 'pk-file';
-      inp.className = 'pk-file';
-      var lab = App.el('label', 'btn pk-b');
-      lab.setAttribute('for', 'pk-file');
-      lab.textContent = 'استورِد من ملفّ';
-      inp.onchange = function () {
-        var f = inp.files && inp.files[0];
-        if (!f) return;
-        say.textContent = 'جارٍ قراءةُ الملفّ…';
-        var fr = new FileReader();
-        fr.onload = function () {
-          try {
-            var k = App.Packs.importText(String(fr.result));
-            say.textContent = 'استُورِدت: ' + (
-              { quran: 'نصُّ المصحف', layout: 'رسمُ المصحف',
-                shabih: 'المتشابهات' }[k] || k);
-          } catch (e) {
-            say.textContent = 'تعذّر: ' + (e && e.message || 'ملفٌّ غيرُ صالح');
-          }
-          inp.value = '';
-        };
-        fr.onerror = function () { say.textContent = 'تعذّرت القراءة.'; };
-        fr.readAsText(f);
-      };
-      imp.appendChild(inp); imp.appendChild(lab);
-      out.appendChild(imp);
-      out.appendChild(say);
-
-      draw();
-      App.on_('packs', function () { if (out.isConnected) draw(); });
-      return out;
-    }
-
     function paneData() {
       var pair = buildData();
       return App.seg([
@@ -18307,8 +18337,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     wrap.appendChild(App.seg([
       { key: 'me',    label: 'حسابي',      icon: 'user',    render: paneAccount },
       { key: 'id',    label: 'هويّتي',      icon: 'user', render: paneIdentity },
-      { key: 'exam',  label: 'اختبِرني',   icon: 'target',  render: paneExam },
-      { key: 'pack',  label: 'المحتوى',    icon: 'mushaf',  render: paneContent },
       { key: 'data',  label: 'بياناتي',     icon: 'page',    render: paneData },
       { key: 'about', label: 'عن التطبيق', icon: 'info',    render: paneAbout }
     ], {
