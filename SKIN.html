@@ -1645,6 +1645,84 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
   .pg-b:active .pg-ico{ translate:none; scale:1 }
 }
 
+/* ══ 24-murshid.css ══ */
+/* ══ 24-murshid.css — كِسوةُ المُرشِد ═════════════════════════════
+
+   لوحُ المرشدِ ليس إنذارًا ولا إعلانًا: هو كلمةُ من يَعرف سجلَّك.
+   فلا لونَ صارخٌ ولا إطارٌ غليظ — أرضٌ هادئةٌ وشريطٌ رفيعٌ على
+   الحافّةِ يُفرّق نوعَه دون أن يَصيح.
+
+   والأنواعُ أربعةٌ ولكلٍّ لونُ شريطٍ يُميّزه لمن يُميّز الألوان —
+   ومعه لفظُه في النصِّ نفسِه لمن لا يُميّزها، فاللونُ لا يَحمل
+   معنًى وحدَه.                                                   */
+
+.mu{
+  position:relative;
+  margin-block:10px 2px;
+  padding:13px 15px 14px;
+  border-radius:var(--r-lg);
+  background:var(--surface);
+  border:1px solid var(--hair);
+  /* الشريطُ على الحافّةِ المنطقيّةِ لا اليمنى: التطبيقُ عربيٌّ
+     ويُقلَب إن قُرئ بلغةٍ تُكتب يسارًا. */
+  border-inline-start:3px solid var(--hair-2);
+}
+
+.mu-fix{ border-inline-start-color:var(--gold, #B4883B) }
+.mu-mark{ border-inline-start-color:var(--accent) }
+.mu-see{ border-inline-start-color:color-mix(in oklab,var(--accent) 55%,transparent) }
+.mu-rest{ border-inline-start-color:var(--hair-2) }
+
+.mu-h{ display:flex; align-items:flex-start; gap:10px }
+
+.mu-t{
+  flex:1;
+  font-weight:700;
+  font-size:14.5px;
+  line-height:1.65;
+  color:var(--ink);
+}
+
+/* بابُ الإخفاءِ شرطُ الثقة: من لا يَستطيع إسكاتَ ناصحٍ يَملّه.
+   ٤٤×٤٤ هدفًا للمس، ومساحتُه المرئيّةُ أصغرُ لئلّا يُزاحم. */
+.mu-x{
+  flex:0 0 auto;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px;
+  margin:-13px -15px -8px 0;
+  margin-inline-end:-15px;
+  background:none; border:0; cursor:pointer;
+  color:var(--ink-3);
+}
+.mu-x:hover{ color:var(--ink-2) }
+
+.mu-b{
+  margin-block-start:5px;
+  font-size:12.5px;
+  line-height:1.85;
+  color:var(--ink-2);
+}
+
+.mu-a{ display:flex; flex-wrap:wrap; gap:8px; margin-block-start:11px }
+.mu-go{ min-height:38px; padding-inline:15px; font-size:12.5px }
+
+/* الشاشةُ القصيرة: يُضَمّ اللوحُ ولا يُحذَف — كلمةُ المرشدِ أهونُ
+   ثمنًا من سطرٍ من الورد، لكنّها لا تَأخذ أكثرَ ممّا تَستحقّ. */
+@media (max-height:800px){
+  .mu{ padding:10px 13px 11px; margin-block:8px 0 }
+  .mu-b{ margin-block-start:3px; line-height:1.7; font-size:12px }
+  .mu-a{ margin-block-start:8px }
+}
+
+/* الظهورُ هادئٌ لا قافز، ويُحترَم من طلب سكونَ الحركة. */
+@media (prefers-reduced-motion: no-preference){
+  .mu{ animation:mu-in 420ms var(--ease, ease) both }
+  @keyframes mu-in{
+    from{ opacity:0; transform:translateY(-4px) }
+    to{ opacity:1; transform:none }
+  }
+}
+
 /* ══ 27-joy.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
    لحظةُ الإتمام — زينتُها
@@ -2235,113 +2313,6 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 /* سطرُ الاقتراحِ في لوحِ «اختباري»: نصٌّ لا بطاقة. */
 .ex-hint{ margin-block:6px 12px; color:var(--ink-mut) }
 
-/* ══ 10-system.css ══ */
-/* ═══════════════════════════════════════════════════════════════════
-   الكِسوة — نظامٌ واحدٌ يَحكم الشاشاتِ الخمسَ
-   ───────────────────────────────────────────────────────────────────
-   هذا الملفُّ لا يُشحَن مع التطبيق. يُضَمّ في بناءٍ ثانٍ (SKIN.html)
-   ليُنظَر فيه ويُحكَم عليه، فإن رَضِيَ صاحبُه نُقل إلى الأصل.
-
-   العلّةُ التي يُعالجها، مقيسةً لا مظنونة:
-
-     أنصافُ الأقطار   خمسةٌ:  ٩٩٩ · ٢٢ · ١٥ · ١١ · ٣
-     الأرضيّات        ثلاثُ كريميّاتٍ متقاربةٍ تَختلف بالشاشة
-     الذهب            حاضرٌ في «اليوم»، غائبٌ عن «تقدُّمي» و«حلقتي»
-     الأيقونات        زجاجٌ في ثلاثةِ مواضع، وخطٌّ فيما عداها
-
-   فكانت خمسَ شاشاتٍ بُنيت كلٌّ على حِدَة، لا خمسَ غرفٍ في بيتٍ واحد.
-   والعلاجُ ليس تجميلَ شاشةٍ شاشة، بل **قانونٌ واحدٌ يَسري عليها**:
-   شكلان لا خمسة، وسطحٌ واحدٌ لا ثلاثة، وذهبٌ لا يَغيب عن شاشة،
-   وهالةٌ تَتكرّر حتّى تُعرَف من غيرِ اسم.
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* ── ١ · الشكل: قانونانِ لا خمسة ──────────────────────────────────
-   سطحٌ كبيرٌ (٢٠)، وغائرٌ صغيرٌ (١٢)، وما يُضغَط فحبّة. وثلاثةٌ
-   تُعرَف خيرٌ من خمسةٍ تُحزَر. */
-/* ‫‎html[data-id]‎ لا ‎:root‎: الأصلُ يُعرّفها داخلَ ‎html[data-id="m"]‎
-   وهي أخصُّ من ‎:root‎ فتَغلبها. ومحاولتي الأولى كُتبت على ‎:root‎
-   فذهبت بلا أثرٍ ولا شكوى — وهو الصنفُ الذي لا يُكتشَف إلّا بالقياس. */
-html[data-id]{
-  --r-lg:20px; --r-md:20px; --r-sm:12px; --r-pill:999px;
-}
-
-/* ── ٢ · السطح: واحدٌ لا ثلاثة ───────────────────────────────────
-   كانت ثلاثُ كريميّاتٍ بينها درجاتٌ لا تُفرَّق بالعين، وإنّما
-   تُفرَّق بالشاشة: فتَشعر أنّك انتقلتَ إلى تطبيقٍ آخر ولا تَدري لِمَ.
-   والغائرُ الآن ليس كريميًّا ثالثًا، بل **ظلُّ المِداد نفسِه** —
-   فيَبقى واحدًا في النهارِ والليلِ وفي كلِّ وجهٍ من أوجهِ اليوم. */
-:root{
-  --surface-2:var(--surface);
-  --sunk:color-mix(in srgb, var(--ink) 6%, transparent);
-}
-html[data-mode="dark"]{
-  --sunk:color-mix(in srgb, var(--ink) 9%, transparent);
-}
-
-/* ── ٣ · الذهبُ لا يَغيب عن شاشة ─────────────────────────────────
-   شعرةٌ ذهبيّةٌ تحتَ عنوانِ كلِّ شاشة. أصغرُ ما يُمكن أن يُفعَل،
-   وأثرُه أنّ العينَ تَجد علامةً واحدةً في الخمسِ كلِّها. */
-/* عنوانُ الشاشةِ ‎h1‎ في المصحفِ و‎h2‎ في «اليوم» و«حلقتي» — وهذا
-   بعينِه عدمُ التوحيدِ الذي نُعالجه. فالقاعدةُ على الحاويةِ ‎.bar‎
-   لا على صنفِ العنوان، فتَسري على الخمسِ مهما اختلفت أسماؤها. */
-.bar > h1::after,
-.bar > h2::after{
-  content:''; display:block;
-  width:44px; height:2px; margin-top:9px;
-  margin-inline-start:auto;          /* إلى يمينِ السطر، مع العنوان */
-  border-radius:2px;
-  background:linear-gradient(to left, var(--gold), transparent);
-}
-
-/* ── ٤ · شبكةُ النشاط: من لوحةِ مبرمجٍ إلى لغةِ مصحف ─────────────
-   كانت ثمانيةً وعشرين مربّعًا رماديًّا بنصفِ قطرِ ٣ بكسلات — وهي
-   بعينِها شبكةُ نشاطِ GitHub. ولا شيءَ أدلُّ على «ترتيبِ كمبيوتر»
-   منها في تطبيقِ قرآن.
-
-   وصارت ثمانيًا وعشرين **هالة**: مقنَّعةٌ بمسارِ الهالةِ نفسِه الذي
-   يَرسم خَتمَ المحطّة، فاللونُ يَبقى كما كان (أخضرُ لِما أُنجز،
-   ذهبٌ للأفضل) ويَتبدّل الشكلُ وحدَه. وبه تَصير الهويّةُ شيئًا
-   يُرى **كلَّ يوم**، لا شيئًا يُرى مرّةً في شهرَين. */
-.pr-dots{ gap:6px }
-.pr-dots i{
-  border-radius:0;
-  box-shadow:none;
-  background:var(--hair-2);
-  -webkit-mask:var(--ros) center/100% 100% no-repeat;
-          mask:var(--ros) center/100% 100% no-repeat;
-}
-.pr-dots i.on{ background:var(--accent) }
-.pr-dots i.hi{ background:var(--gold) }
-
-/* ── ٥ · بطاقاتُ الأرقام: من لوحةِ إدارةٍ إلى صفٍّ هادئ ──────────
-   أربعُ علبٍ محدودةٍ في صفٍّ هو نمطُ لوحةِ التحكُّم بعينِه. والعلبُ
-   تَذهب ويَبقى العدد، يُفصَل عن جارِه بشعرةٍ لا بإطار — فالصفُّ
-   يُقرأ جملةً واحدةً بدل أربعِ بطاقاتٍ تَتنافس. */
-.pr-tiles{ gap:0; background:var(--surface); border-radius:var(--r-lg);
-           padding:14px 4px; box-shadow:var(--lift) }
-.pr-tiles .pr-tile{
-  background:transparent; border:0; box-shadow:none;
-  border-radius:0; padding:2px 6px;
-}
-.pr-tiles .pr-tile + .pr-tile{
-  border-inline-end:1px solid var(--hair-2);
-}
-
-/* ── ٦ · الغائرُ واحدٌ أينما كان ─────────────────────────────── */
-.pr-bar, .pr-k-bar, .t-slot, .qp-hint{
-  background:var(--sunk);
-}
-
-
-/* ── ٧ · الفراغُ في «حلقتي» — جُرّب وتُرك ──────────────────────
-   جرّبتُ توسيطَ المحتوى رأسيًّا ليَملأ الفراغَ المعلَّقَ أسفلَ
-   الشاشة، فخرج أسوأ: انْدَفعت الأزرارُ إلى القاعِ وانفتح فراغان
-   بدل واحد، وغاب سطرُ الشرحِ تحتَها.
-
-   والسببُ أنّ العلّةَ ليست في مكانِ الفراغِ بل في قلّةِ ما يُملأ به:
-   الشاشةُ لا تَملك ما تَعرضه قبل أن تُنشأ حلقة. وتحريكُ الفراغِ لا
-   يُنشئ محتوًى. فتُركت كما هي حتّى يُقرَّر ما يَسكنها. */
-
 /* ══ 31-ward.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
    الوِرد — زينةُ شاشتِه وحدَها
@@ -2722,84 +2693,6 @@ html[data-mode="dark"]{
    الأجزاءِ نفسِها، فتَبقى الخانةُ فوقَ ٤٤ على عرضِ ٣٦٠. */
 .w-nums{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:6px }
 .w-nums .chip{ min-width:0; padding-inline:0; justify-content:center }
-
-/* ══ 61-murshid.css ══ */
-/* ══ 61-murshid.css — كِسوةُ المُرشِد ═════════════════════════════
-
-   لوحُ المرشدِ ليس إنذارًا ولا إعلانًا: هو كلمةُ من يَعرف سجلَّك.
-   فلا لونَ صارخٌ ولا إطارٌ غليظ — أرضٌ هادئةٌ وشريطٌ رفيعٌ على
-   الحافّةِ يُفرّق نوعَه دون أن يَصيح.
-
-   والأنواعُ أربعةٌ ولكلٍّ لونُ شريطٍ يُميّزه لمن يُميّز الألوان —
-   ومعه لفظُه في النصِّ نفسِه لمن لا يُميّزها، فاللونُ لا يَحمل
-   معنًى وحدَه.                                                   */
-
-.mu{
-  position:relative;
-  margin-block:10px 2px;
-  padding:13px 15px 14px;
-  border-radius:var(--r-lg);
-  background:var(--surface);
-  border:1px solid var(--hair);
-  /* الشريطُ على الحافّةِ المنطقيّةِ لا اليمنى: التطبيقُ عربيٌّ
-     ويُقلَب إن قُرئ بلغةٍ تُكتب يسارًا. */
-  border-inline-start:3px solid var(--hair-2);
-}
-
-.mu-fix{ border-inline-start-color:var(--gold, #B4883B) }
-.mu-mark{ border-inline-start-color:var(--accent) }
-.mu-see{ border-inline-start-color:color-mix(in oklab,var(--accent) 55%,transparent) }
-.mu-rest{ border-inline-start-color:var(--hair-2) }
-
-.mu-h{ display:flex; align-items:flex-start; gap:10px }
-
-.mu-t{
-  flex:1;
-  font-weight:700;
-  font-size:14.5px;
-  line-height:1.65;
-  color:var(--ink);
-}
-
-/* بابُ الإخفاءِ شرطُ الثقة: من لا يَستطيع إسكاتَ ناصحٍ يَملّه.
-   ٤٤×٤٤ هدفًا للمس، ومساحتُه المرئيّةُ أصغرُ لئلّا يُزاحم. */
-.mu-x{
-  flex:0 0 auto;
-  display:inline-flex; align-items:center; justify-content:center;
-  width:44px; height:44px;
-  margin:-13px -15px -8px 0;
-  margin-inline-end:-15px;
-  background:none; border:0; cursor:pointer;
-  color:var(--ink-3);
-}
-.mu-x:hover{ color:var(--ink-2) }
-
-.mu-b{
-  margin-block-start:5px;
-  font-size:12.5px;
-  line-height:1.85;
-  color:var(--ink-2);
-}
-
-.mu-a{ display:flex; flex-wrap:wrap; gap:8px; margin-block-start:11px }
-.mu-go{ min-height:38px; padding-inline:15px; font-size:12.5px }
-
-/* الشاشةُ القصيرة: يُضَمّ اللوحُ ولا يُحذَف — كلمةُ المرشدِ أهونُ
-   ثمنًا من سطرٍ من الورد، لكنّها لا تَأخذ أكثرَ ممّا تَستحقّ. */
-@media (max-height:800px){
-  .mu{ padding:10px 13px 11px; margin-block:8px 0 }
-  .mu-b{ margin-block-start:3px; line-height:1.7; font-size:12px }
-  .mu-a{ margin-block-start:8px }
-}
-
-/* الظهورُ هادئٌ لا قافز، ويُحترَم من طلب سكونَ الحركة. */
-@media (prefers-reduced-motion: no-preference){
-  .mu{ animation:mu-in 420ms var(--ease, ease) both }
-  @keyframes mu-in{
-    from{ opacity:0; transform:translateY(-4px) }
-    to{ opacity:1; transform:none }
-  }
-}
 </style>
 </head>
 <body>
@@ -11199,6 +11092,320 @@ App.mark = function (size, cls) {
    الاستيرادُ بقائمتِه البيضاء — وكان يَسقط صامتًا في كلِّ استيراد. */
 if (window.App && window.App.ownState) window.App.ownState('slips');
 
+/* ══ 55-murshid.js ══ */
+/* ══ 60-murshid.js — المُرشِد ═══════════════════════════════════
+   وحدةٌ من التطبيق (جُرّبت في الكسوةِ فأُقِرّت).
+
+   العلّةُ: التطبيقُ يُحصي ولا يَنصح. وسجلُّ الطالبِ فيه ما لا يَراه
+   بعينه — أين يَزِلّ، ومتى يُنجز، وكم بقي له حتّى الخِتام — فيَبقى
+   مكتوبًا لا يُقال له.
+
+   ╔═ ستّةُ قراراتٍ تَحكُم هذا الملفَّ كلَّه ══════════════════════╗
+
+   ١ — **الصمتُ هو الأصل.** المرشدُ الذي يَتكلّم كلَّ يومٍ يَصير
+       ضجيجًا يُغلَق. فلا يَنطق إلّا إن كان عنده ما يُقال، ومرّةً
+       واحدةً في اليومِ على الأكثر.
+
+   ٢ — **لا حثَّ بالذنب.** لا «لا تَهجر القرآن» ولا «أتَنسى كتابَ
+       ربّك؟». تَنفع أسبوعًا ثمّ تَجعل فتحَ التطبيقِ ثقيلًا وتَربط
+       المصحفَ في النفسِ بالتأنيب — وذاك في تطبيقِ قرآنٍ أخطرُ منه
+       في غيره. والماضي لا يُحاسَب عليه، إنّما تُصلَح الخطّةُ لما
+       بقي.
+
+   ٣ — **لا رسالةَ بلا رقمٍ من سجلّه.** «واصِل، أنت رائع» كلامٌ
+       يَصلح لكلِّ أحدٍ فلا يَصلح لأحد. وكلُّ ما هنا مُولَّدٌ من
+       بياناتِه هو: زللُه، ووردُه، ودرجاتُه، وما بقي من هدفه.
+
+   ٤ — **كلُّ رسالةٍ تَحمل فعلًا أو لا تُقال.** الخبرُ وحدَه يُقلِق
+       ولا يُعين. فإن قيل «تأخّرتَ ثلاثةَ أيّام» قيل معه «أُمدّد
+       الخِتامَ أسبوعًا أم أزيد نصفَ صفحة؟» — واختيارٌ بلمسةٍ لا
+       أمرٌ يُملى.
+
+   ٥ — **الشهادةُ نادرةٌ لتَبقى صادقة.** «أتممتَ جزءًا» تُقال حين
+       يُتَمّ جزءٌ لا كلَّ صباح.
+
+   ٦ — **لا سلسلةَ تَنكسر.** يُعَدّ ما أُنجز لا ما انقطع: من مرِض
+       أسبوعًا لا يُعاقَب بمحوِ أربعين يومًا مضت.
+
+   ولا يَكتب المرشدُ في حالةِ الطالبِ شيئًا سوى مفتاحِه الخاصّ
+   ‎state.murshid‎ — آخرُ يومٍ تكلّم فيه وما قاله — ليَفيَ بالقرارِ
+   الأوّلِ ولا يُعيد نفسَه.                                        */
+
+(function (App) {
+  'use strict';
+
+  var KEY = 'murshid';
+  var ar = App.ar;
+
+  function bag() {
+    var S = App.state;
+    if (!S[KEY] || typeof S[KEY] !== 'object') S[KEY] = {};
+    return S[KEY];
+  }
+  if (App.ownState) App.ownState(KEY);
+
+  /* ── صيغُ العدد ───────────────────────────────────────────────
+     «٤ مرّةً» و«١ أيّام» عيبٌ يُرى من أوّلِ نظرة، والعربيّةُ تُفرِد
+     وتُثنّي وتَجمع. وما بعدَ العشرةِ مفردٌ منصوب. */
+  function nDay(n) {
+    if (n === 1) return 'يومًا واحدًا';
+    if (n === 2) return 'يومَين';
+    if (n <= 10) return ar(n) + ' أيّامٍ';
+    return ar(n) + ' يومًا';
+  }
+  function nTime(n) {
+    if (n === 1) return 'مرّةً واحدة';
+    if (n === 2) return 'مرّتَين';
+    if (n <= 10) return ar(n) + ' مرّاتٍ';
+    return ar(n) + ' مرّةً';
+  }
+  function nPage(n) {
+    if (n === 1) return 'صفحةً واحدة';
+    if (n === 2) return 'صفحتَين';
+    if (n <= 10) return ar(n) + ' صفحاتٍ';
+    return ar(n) + ' صفحةً';
+  }
+
+  /* ── أدواتُ التقويم ──────────────────────────────────────────── */
+  function key(d) {
+    return d.getFullYear() + '-'
+      + ('0' + (d.getMonth() + 1)).slice(-2) + '-'
+      + ('0' + d.getDate()).slice(-2);
+  }
+  function back(n) {
+    var d = new Date();
+    d.setDate(d.getDate() - n);
+    return d;
+  }
+
+  /* ── قراءةُ السجلّ ───────────────────────────────────────────── */
+  function plans() { return App.state.plans || []; }
+
+  function doneOn(k) {
+    var n = 0;
+    plans().forEach(function (p) { n += (p.log && p.log[k]) || 0; });
+    return n;
+  }
+
+  /* أيَّامُ الوردِ المقرَّرةُ في آخرِ ‎n‎ يومًا، وما أُنجز منها */
+  function recent(n) {
+    var due = 0, met = 0, missRun = 0, run = 0, i, d, k, any;
+    for (i = n; i >= 1; i--) {
+      d = back(i); k = key(d);
+      any = plans().some(function (p) {
+        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0;
+      });
+      if (!any) continue;
+      due++;
+      if (doneOn(k) > 0) { met++; run = 0; }
+      else { run++; if (run > missRun) missRun = run; }
+    }
+    return { due: due, met: met, missRun: run, worst: missRun };
+  }
+
+  /* أطولُ تتابعٍ من أيّامِ الوردِ المُنجَزة — يُعَدّ ما أُنجز لا ما
+     انقطع، فلا «سلسلةٌ» تَنكسر بمرضٍ أو سفر. */
+  function streak() {
+    var i, d, k, n = 0;
+    for (i = 0; i < 120; i++) {
+      d = back(i); k = key(d);
+      var due = plans().some(function (p) {
+        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0;
+      });
+      if (!due) continue;
+      if (doneOn(k) > 0) n++;
+      else if (i > 0) break;
+    }
+    return n;
+  }
+
+  function totalPages() {
+    var n = 0;
+    plans().forEach(function (p) {
+      for (var k in (p.log || {})) {
+        if (p.log.hasOwnProperty(k)) n += p.log[k] || 0;
+      }
+    });
+    return n;
+  }
+
+  /* أكثرُ الأجزاءِ زللًا في التسميع — من ‎state.slips‎ وحدَها */
+  function worstJuz() {
+    var sl = App.state.slips, by = {}, k, v, best = null;
+    if (!sl || typeof sl !== 'object' || !App.Quran || !App.Quran.ready()) {
+      return null;
+    }
+    for (k in sl) {
+      if (!sl.hasOwnProperty(k) || k.charAt(0) === '_') continue;
+      v = sl[k];
+      var n = (v && v.n) || 0;
+      if (n <= 0) continue;
+      var parts = k.split(':');
+      var ver = App.Quran.verse(+parts[0], +parts[1]);
+      if (!ver) continue;
+      var j = App.Quran.juzOf(ver.p);
+      by[j] = (by[j] || 0) + n;
+    }
+    var second = 0;
+    for (k in by) {
+      if (!by.hasOwnProperty(k)) continue;
+      if (!best || by[k] > best.n) { second = best ? best.n : 0;
+                                     best = { j: +k, n: by[k] }; }
+      else if (by[k] > second) second = by[k];
+    }
+    /* «ولم تَزِلّ في غيره مثلَها» دعوى تَكذب إن تساوى جزءان، فلا
+       تُقال إلّا إذا كان الأوّلُ أكثرَ من الثاني حقًّا. */
+    if (best) best.alone = best.n > second;
+    return (best && best.n >= 3) ? best : null;
+  }
+
+  /* ── المرشدُ يُولّد، ولا يَختار من قائمةٍ مكتوبة ──────────────
+     لكلِّ قاعدةٍ شرطٌ يُقرأ من السجلّ، ونصٌّ يُبنى من أرقامِه، وفعلٌ
+     يُعرَض معه. وترتيبُها ترتيبُ الأهمّيّة: التعديلُ قبل الشهادة،
+     والشهادةُ قبل المرآة. */
+  function rules() {
+    var out = [];
+    var ps = plans().filter(function (p) { return !p.done; });
+    var r = recent(14);
+    var today = doneOn(App.dateKey());
+
+    /* ── ١ · التعديل: الواقعُ فارق الخطّة ───────────────────── */
+    if (ps.length && r.missRun >= 3) {
+      out.push({
+        kind: 'fix',
+        head: 'تأخّرتَ ' + nDay(r.missRun) + ' عن وردك',
+        /* لا يُوعَد بما لا يُفعَل: الخِتامُ محسوبٌ من المقدارِ
+           والأيّامِ لا مخزونٌ يُزاد عليه، فاللَّفظُ يُسمّي الرافعةَ
+           الحقيقيّةَ ويَدلّ على موضعها. */
+        body: 'والماضي لا يُستدرَك بالتأنيب. خفِّف مقدارَ اليوم أو '
+            + 'زِد أيّامَ أسبوعك، يَعُد الخِتامُ في متناولك.',
+        acts: [{ t: 'افتح مناهجي', go: function () { App.go('home'); } }]
+      });
+    }
+
+    /* ── ٢ · الشهادة: نادرةٌ لتَبقى صادقة ───────────────────── */
+    var st = streak();
+    if (st && st % 20 === 0 && today > 0) {
+      out.push({
+        kind: 'mark',
+        head: 'أتممتَ ' + nDay(st) + ' من أيّام وردك',
+        body: 'بلا انقطاع. وهذا عددٌ لا يَبلغه إلّا من ثَبَت.'
+      });
+    }
+    var tp = totalPages();
+    if (tp >= 20 && tp % 20 === 0 && today > 0) {
+      out.push({
+        kind: 'mark',
+        head: 'بلغتَ ' + nPage(tp) + ' مُسجَّلة',
+        body: 'من أوّلِ يومٍ فتحتَ فيه ارتقِ إلى اليوم.'
+      });
+    }
+
+    /* ── ٣ · المرآة: ما لا يَراه بعينه ──────────────────────── */
+    var wj = worstJuz();
+    if (wj) {
+      out.push({
+        kind: 'see',
+        head: wj.alone ? 'أكثرُ زللِك في الجزء ' + ar(wj.j)
+                       : 'الجزء ' + ar(wj.j) + ' يَحتاج تثبيتًا',
+        body: 'زَلَلتَ فيه ' + nTime(wj.n)
+            + (wj.alone ? ' — أكثرَ من أيِّ جزءٍ سواه.' : '.')
+            + ' وأسرعُ ما يُثبِّته أن تُسأل فيه.',
+        acts: [{
+          t: 'اختبِرني فيه',
+          go: function () {
+            App.go('exam', { scope: { kind: 'juz', j: wj.j }, go: 1 });
+          }
+        }]
+      });
+    }
+    if (ps.length && r.due >= 7 && r.met === r.due) {
+      out.push({
+        kind: 'see',
+        head: 'لم تُخلِف يومًا في أسبوعَين',
+        body: ar(r.met) + ' من ' + ar(r.due) + ' يومِ ورد. '
+            + 'وهذا موضعُ من يَزيد قليلًا لا من يَكتفي.'
+      });
+    }
+
+    /* ── ٤ · إذنُ الراحة ─────────────────────────────────────── */
+    if (ps.length && today > 0) {
+      out.push({
+        kind: 'rest',
+        head: 'أنجزتَ وردَك اليوم',
+        body: 'لا شيءَ عليك بعده. والزيادةُ نافلةٌ إن شئتها.'
+      });
+    }
+
+    return out;
+  }
+
+  /* ── متى يَتكلّم: مرّةً في اليوم، ولا يُعيد ما قاله أمس ───── */
+  function pick() {
+    var b = bag(), k = App.dateKey();
+    if (b.day === k) return null;              /* ‫تكلّم اليومَ فكفى */
+    var list = rules();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].head === b.last) continue;   /* ‫لا يُعيد نفسَه */
+      return list[i];
+    }
+    return null;
+  }
+
+  function spoke(m) {
+    var b = bag();
+    b.day = App.dateKey();
+    b.last = m.head;
+    App.save && App.save();
+  }
+
+  /* ── اللوح ───────────────────────────────────────────────────── */
+  function card(m) {
+    var c = App.el('div', 'mu mu-' + m.kind);
+    var h = App.el('div', 'mu-h');
+    h.appendChild(App.el('span', 'mu-t', m.head));
+    var x = App.el('button', 'mu-x');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'أخفِ');
+    x.innerHTML = App.icon('close', 15);
+    x.onclick = function () { c.remove(); };
+    h.appendChild(x);
+    c.appendChild(h);
+    if (m.body) c.appendChild(App.el('p', 'mu-b', m.body));
+    if (m.acts && m.acts.length) {
+      var row = App.el('div', 'mu-a');
+      m.acts.forEach(function (a) {
+        var b = App.el('button', 'btn btn-ghost btn-sm mu-go');
+        b.type = 'button';
+        b.textContent = a.t;
+        b.onclick = a.go;
+        row.appendChild(b);
+      });
+      c.appendChild(row);
+    }
+    return c;
+  }
+
+  /* ── يُركَّب في «اليوم» أعلى الشاشة، ولا يُزاحم شيئًا ──────── */
+  App.on_('drawn', function (d) {
+    if (!d || d.sheet) return;
+    if (d.name !== 'home' && d.name !== 'today') return;
+    var pane = document.getElementById('pane');
+    if (!pane) return;
+    var w = pane.firstElementChild;
+    if (!w || w.querySelector('.mu')) return;
+    var m = pick();
+    if (!m) return;
+    var bar = w.firstElementChild;
+    w.insertBefore(card(m), bar ? bar.nextSibling : w.firstChild);
+    spoke(m);
+  });
+
+  /* يُكشَف للفحصِ الآليّ: الصمتُ قاعدةٌ تُقاس لا نيّةٌ تُدَّعى. */
+  App.Murshid = { rules: rules, pick: pick, card: card, bag: bag };
+
+}(window.App));
+
 /* ══ 60-mushaf.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
    خريطةُ المصحف — الرحلةُ كلُّها في نظرةٍ واحدة
@@ -18974,116 +19181,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
   document.head.appendChild(st);
 })();
 
-/* ══ 20-rosette.js ══ */
-/* ═══════════════════════════════════════════════════════════════════
-   الكِسوة — الهالةُ حيث كان الزجاجُ والمربّع
-   ───────────────────────────────────────────────────────────────────
-   ملفُّ تجربةٍ لا يُشحَن مع التطبيق (انظر skin/10-system.css).
-
-   عملان:
-
-   ١) ‎--ros‎ — مسارُ الهالةِ قناعًا لشبكةِ النشاط. ولا يُكتَب المسارُ
-      في ورقةِ الأنماطِ بيدٍ: يُؤخَذ من ‎App.Rosette.path‎ نفسِها، فلو
-      بُدّل عددُ الفصوصِ غدًا تَبدّلت الشبكةُ معه ولم تَفترقا.
-
-   ٢) أيقوناتُ الحالاتِ الفارغة. كان فيها لوحٌ زجاجيٌّ ثلاثيُّ
-      الأبعادِ في ثلاثةِ مواضعَ من خمسٍ وخمسين أيقونة — والنادرُ لا
-      يُقرأ نظامًا، يُقرأ شُذوذًا. فصار اللوحُ هالةً تَحمل الأيقونةَ
-      الخطّيّةَ نفسَها: لغةٌ واحدةٌ في التطبيق، والمَوتيفُ يَحضر في
-      موضعِ البطولةِ بدل لغةٍ ثانيةٍ تُزاحمه.
-   ═══════════════════════════════════════════════════════════════════ */
-(function (App) {
-  'use strict';
-
-  function uri(d) {
-    return "url(\"data:image/svg+xml;utf8," +
-      "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>" +
-      "<path d='" + d + "' fill='black'/></svg>\")";
-  }
-
-  function mountMask() {
-    if (!App.Rosette) return;
-    var d = App.Rosette.path(12, 12, 11.4, 8);
-    document.documentElement.style.setProperty('--ros', uri(d));
-  }
-
-  /* اللوحُ الزجاجيُّ ← هالة. الأيقونةُ الخطّيّةُ تَبقى كما هي في
-     قلبِها، فلا يُفقَد معناها ولا يُستبدَل برسمٍ آخر. */
-  var SPOTS = [
-    { sel: '.pg-ico',   size: 62 },
-    { sel: '.circ-emb', size: 76 },
-    { sel: '.st-emb',   size: 76 }
-  ];
-
-  function reseat(root) {
-    if (!App.Rosette) return;
-    SPOTS.forEach(function (s) {
-      var list = (root || document).querySelectorAll(s.sel);
-      [].forEach.call(list, function (n) {
-        if (n.getAttribute('data-ros') === '1') return;
-        var i3 = n.querySelector('.i3');
-        if (!i3) return;
-        /* الرمزُ وحدَه يُنتزَع من اللوحِ الزجاجيّ: هو آخرُ مسارٍ فيه،
-           وقد رُسم بـ currentColor فيَرث لونَ موضعِه الجديد. */
-        var sym = i3.querySelector('.i3-sym') ||
-                  i3.querySelector('g:last-of-type') ||
-                  i3.lastElementChild;
-        var inner = sym ? sym.outerHTML : '';
-        n.innerHTML = App.Rosette.seal({
-          size: s.size,
-          cls: 'ros-plate',
-          inner: inner ? '<g class="ros-glyph">' + inner + '</g>' : ''
-        });
-        n.setAttribute('data-ros', '1');
-      });
-    });
-  }
-
-  var CSS =
-    '.ros-plate .ros-fill{fill:var(--accent-soft)}' +
-    '.ros-plate .ros-sep{fill:transparent}' +
-    '.ros-plate .ros-core{fill:transparent}' +
-    '.ros-glyph{color:var(--accent)}' +
-    /* الرمزُ رُسم في مربّعِ ٢٤، واللوحُ أكبرُ منه — فيُوسَّط ويُصغَّر
-       إلى نصفِ قطرِ اللوحِ حتّى لا يَلمس الفصوص. */
-    '.ros-glyph{transform-box:fill-box;transform-origin:center}' +
-    '.pg-ico .ros,.circ-emb .ros,.st-emb .ros{overflow:visible}';
-
-  function mountCss() {
-    var st = document.createElement('style');
-    st.textContent = CSS;
-    document.head.appendChild(st);
-  }
-
-  function boot() {
-    mountMask();
-    mountCss();
-    reseat(document);
-    /* الشاشاتُ تُبنى عند التنقُّل، فيُعاد المسحُ بعد كلِّ بناء.
-       والمشتَرِكُ ‎App.sub‎ لا ‎App.on‎: الثانيةُ مُعِينةُ DOM تأخذ
-       عنصرًا أوّلَ وسيطٍ — ودعوتُها بسلسلةٍ تُسقط السطرَ كلَّه. */
-    /* اسمُ المشترِكِ في النواةِ ‎on_‎ لا ‎sub‎ ولا ‎on‎ — والأخيرةُ
-       مُعِينةُ DOM. وكتبتُها ‎App.sub‎ أوّلًا فلم تُستدعَ قطّ، ولم
-       يَظهر الخللُ لأنّ المُراقِبَ أدناه كان يَستر عليها. */
-    if (App.on_) {
-      App.on_('drawn', function () { setTimeout(reseat, 0); });
-    }
-    /* وإن لم يَبُثَّ التطبيقُ حدثًا عند البناء، فمُراقِبٌ يَكفي */
-    if (window.MutationObserver) {
-      var pane = document.getElementById('app') || document.body;
-      new MutationObserver(function () { reseat(); })
-        .observe(pane, { childList: true, subtree: true });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else { boot(); }
-
-  App.Skin = { reseat: reseat };
-
-}(window.App));
-
 /* ══ 30-ward.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
    الوِرد — محرِّكُ الحفظِ الواحد
@@ -21353,320 +21450,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
   } else { boot(); }
 
   App.Dar = { code: read, set: set, clear: clear, cfg: cfg, refresh: fetchCfg };
-
-}(window.App));
-
-/* ══ 60-murshid.js ══ */
-/* ══ 60-murshid.js — المُرشِد ═══════════════════════════════════
-   ملفُّ كسوةٍ يُجرَّب في SKIN.html قبل أن يُقَرّ.
-
-   العلّةُ: التطبيقُ يُحصي ولا يَنصح. وسجلُّ الطالبِ فيه ما لا يَراه
-   بعينه — أين يَزِلّ، ومتى يُنجز، وكم بقي له حتّى الخِتام — فيَبقى
-   مكتوبًا لا يُقال له.
-
-   ╔═ ستّةُ قراراتٍ تَحكُم هذا الملفَّ كلَّه ══════════════════════╗
-
-   ١ — **الصمتُ هو الأصل.** المرشدُ الذي يَتكلّم كلَّ يومٍ يَصير
-       ضجيجًا يُغلَق. فلا يَنطق إلّا إن كان عنده ما يُقال، ومرّةً
-       واحدةً في اليومِ على الأكثر.
-
-   ٢ — **لا حثَّ بالذنب.** لا «لا تَهجر القرآن» ولا «أتَنسى كتابَ
-       ربّك؟». تَنفع أسبوعًا ثمّ تَجعل فتحَ التطبيقِ ثقيلًا وتَربط
-       المصحفَ في النفسِ بالتأنيب — وذاك في تطبيقِ قرآنٍ أخطرُ منه
-       في غيره. والماضي لا يُحاسَب عليه، إنّما تُصلَح الخطّةُ لما
-       بقي.
-
-   ٣ — **لا رسالةَ بلا رقمٍ من سجلّه.** «واصِل، أنت رائع» كلامٌ
-       يَصلح لكلِّ أحدٍ فلا يَصلح لأحد. وكلُّ ما هنا مُولَّدٌ من
-       بياناتِه هو: زللُه، ووردُه، ودرجاتُه، وما بقي من هدفه.
-
-   ٤ — **كلُّ رسالةٍ تَحمل فعلًا أو لا تُقال.** الخبرُ وحدَه يُقلِق
-       ولا يُعين. فإن قيل «تأخّرتَ ثلاثةَ أيّام» قيل معه «أُمدّد
-       الخِتامَ أسبوعًا أم أزيد نصفَ صفحة؟» — واختيارٌ بلمسةٍ لا
-       أمرٌ يُملى.
-
-   ٥ — **الشهادةُ نادرةٌ لتَبقى صادقة.** «أتممتَ جزءًا» تُقال حين
-       يُتَمّ جزءٌ لا كلَّ صباح.
-
-   ٦ — **لا سلسلةَ تَنكسر.** يُعَدّ ما أُنجز لا ما انقطع: من مرِض
-       أسبوعًا لا يُعاقَب بمحوِ أربعين يومًا مضت.
-
-   ولا يَكتب المرشدُ في حالةِ الطالبِ شيئًا سوى مفتاحِه الخاصّ
-   ‎state.murshid‎ — آخرُ يومٍ تكلّم فيه وما قاله — ليَفيَ بالقرارِ
-   الأوّلِ ولا يُعيد نفسَه.                                        */
-
-(function (App) {
-  'use strict';
-
-  var KEY = 'murshid';
-  var ar = App.ar;
-
-  function bag() {
-    var S = App.state;
-    if (!S[KEY] || typeof S[KEY] !== 'object') S[KEY] = {};
-    return S[KEY];
-  }
-  if (App.ownState) App.ownState(KEY);
-
-  /* ── صيغُ العدد ───────────────────────────────────────────────
-     «٤ مرّةً» و«١ أيّام» عيبٌ يُرى من أوّلِ نظرة، والعربيّةُ تُفرِد
-     وتُثنّي وتَجمع. وما بعدَ العشرةِ مفردٌ منصوب. */
-  function nDay(n) {
-    if (n === 1) return 'يومًا واحدًا';
-    if (n === 2) return 'يومَين';
-    if (n <= 10) return ar(n) + ' أيّامٍ';
-    return ar(n) + ' يومًا';
-  }
-  function nTime(n) {
-    if (n === 1) return 'مرّةً واحدة';
-    if (n === 2) return 'مرّتَين';
-    if (n <= 10) return ar(n) + ' مرّاتٍ';
-    return ar(n) + ' مرّةً';
-  }
-  function nPage(n) {
-    if (n === 1) return 'صفحةً واحدة';
-    if (n === 2) return 'صفحتَين';
-    if (n <= 10) return ar(n) + ' صفحاتٍ';
-    return ar(n) + ' صفحةً';
-  }
-
-  /* ── أدواتُ التقويم ──────────────────────────────────────────── */
-  function key(d) {
-    return d.getFullYear() + '-'
-      + ('0' + (d.getMonth() + 1)).slice(-2) + '-'
-      + ('0' + d.getDate()).slice(-2);
-  }
-  function back(n) {
-    var d = new Date();
-    d.setDate(d.getDate() - n);
-    return d;
-  }
-
-  /* ── قراءةُ السجلّ ───────────────────────────────────────────── */
-  function plans() { return App.state.plans || []; }
-
-  function doneOn(k) {
-    var n = 0;
-    plans().forEach(function (p) { n += (p.log && p.log[k]) || 0; });
-    return n;
-  }
-
-  /* أيَّامُ الوردِ المقرَّرةُ في آخرِ ‎n‎ يومًا، وما أُنجز منها */
-  function recent(n) {
-    var due = 0, met = 0, missRun = 0, run = 0, i, d, k, any;
-    for (i = n; i >= 1; i--) {
-      d = back(i); k = key(d);
-      any = plans().some(function (p) {
-        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0;
-      });
-      if (!any) continue;
-      due++;
-      if (doneOn(k) > 0) { met++; run = 0; }
-      else { run++; if (run > missRun) missRun = run; }
-    }
-    return { due: due, met: met, missRun: run, worst: missRun };
-  }
-
-  /* أطولُ تتابعٍ من أيّامِ الوردِ المُنجَزة — يُعَدّ ما أُنجز لا ما
-     انقطع، فلا «سلسلةٌ» تَنكسر بمرضٍ أو سفر. */
-  function streak() {
-    var i, d, k, n = 0;
-    for (i = 0; i < 120; i++) {
-      d = back(i); k = key(d);
-      var due = plans().some(function (p) {
-        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0;
-      });
-      if (!due) continue;
-      if (doneOn(k) > 0) n++;
-      else if (i > 0) break;
-    }
-    return n;
-  }
-
-  function totalPages() {
-    var n = 0;
-    plans().forEach(function (p) {
-      for (var k in (p.log || {})) {
-        if (p.log.hasOwnProperty(k)) n += p.log[k] || 0;
-      }
-    });
-    return n;
-  }
-
-  /* أكثرُ الأجزاءِ زللًا في التسميع — من ‎state.slips‎ وحدَها */
-  function worstJuz() {
-    var sl = App.state.slips, by = {}, k, v, best = null;
-    if (!sl || typeof sl !== 'object' || !App.Quran || !App.Quran.ready()) {
-      return null;
-    }
-    for (k in sl) {
-      if (!sl.hasOwnProperty(k) || k.charAt(0) === '_') continue;
-      v = sl[k];
-      var n = (v && v.n) || 0;
-      if (n <= 0) continue;
-      var parts = k.split(':');
-      var ver = App.Quran.verse(+parts[0], +parts[1]);
-      if (!ver) continue;
-      var j = App.Quran.juzOf(ver.p);
-      by[j] = (by[j] || 0) + n;
-    }
-    var second = 0;
-    for (k in by) {
-      if (!by.hasOwnProperty(k)) continue;
-      if (!best || by[k] > best.n) { second = best ? best.n : 0;
-                                     best = { j: +k, n: by[k] }; }
-      else if (by[k] > second) second = by[k];
-    }
-    /* «ولم تَزِلّ في غيره مثلَها» دعوى تَكذب إن تساوى جزءان، فلا
-       تُقال إلّا إذا كان الأوّلُ أكثرَ من الثاني حقًّا. */
-    if (best) best.alone = best.n > second;
-    return (best && best.n >= 3) ? best : null;
-  }
-
-  /* ── المرشدُ يُولّد، ولا يَختار من قائمةٍ مكتوبة ──────────────
-     لكلِّ قاعدةٍ شرطٌ يُقرأ من السجلّ، ونصٌّ يُبنى من أرقامِه، وفعلٌ
-     يُعرَض معه. وترتيبُها ترتيبُ الأهمّيّة: التعديلُ قبل الشهادة،
-     والشهادةُ قبل المرآة. */
-  function rules() {
-    var out = [];
-    var ps = plans().filter(function (p) { return !p.done; });
-    var r = recent(14);
-    var today = doneOn(App.dateKey());
-
-    /* ── ١ · التعديل: الواقعُ فارق الخطّة ───────────────────── */
-    if (ps.length && r.missRun >= 3) {
-      out.push({
-        kind: 'fix',
-        head: 'تأخّرتَ ' + nDay(r.missRun) + ' عن وردك',
-        /* لا يُوعَد بما لا يُفعَل: الخِتامُ محسوبٌ من المقدارِ
-           والأيّامِ لا مخزونٌ يُزاد عليه، فاللَّفظُ يُسمّي الرافعةَ
-           الحقيقيّةَ ويَدلّ على موضعها. */
-        body: 'والماضي لا يُستدرَك بالتأنيب. خفِّف مقدارَ اليوم أو '
-            + 'زِد أيّامَ أسبوعك، يَعُد الخِتامُ في متناولك.',
-        acts: [{ t: 'افتح مناهجي', go: function () { App.go('home'); } }]
-      });
-    }
-
-    /* ── ٢ · الشهادة: نادرةٌ لتَبقى صادقة ───────────────────── */
-    var st = streak();
-    if (st && st % 20 === 0 && today > 0) {
-      out.push({
-        kind: 'mark',
-        head: 'أتممتَ ' + nDay(st) + ' من أيّام وردك',
-        body: 'بلا انقطاع. وهذا عددٌ لا يَبلغه إلّا من ثَبَت.'
-      });
-    }
-    var tp = totalPages();
-    if (tp >= 20 && tp % 20 === 0 && today > 0) {
-      out.push({
-        kind: 'mark',
-        head: 'بلغتَ ' + nPage(tp) + ' مُسجَّلة',
-        body: 'من أوّلِ يومٍ فتحتَ فيه ارتقِ إلى اليوم.'
-      });
-    }
-
-    /* ── ٣ · المرآة: ما لا يَراه بعينه ──────────────────────── */
-    var wj = worstJuz();
-    if (wj) {
-      out.push({
-        kind: 'see',
-        head: wj.alone ? 'أكثرُ زللِك في الجزء ' + ar(wj.j)
-                       : 'الجزء ' + ar(wj.j) + ' يَحتاج تثبيتًا',
-        body: 'زَلَلتَ فيه ' + nTime(wj.n)
-            + (wj.alone ? ' — أكثرَ من أيِّ جزءٍ سواه.' : '.')
-            + ' وأسرعُ ما يُثبِّته أن تُسأل فيه.',
-        acts: [{
-          t: 'اختبِرني فيه',
-          go: function () {
-            App.go('exam', { scope: { kind: 'juz', j: wj.j }, go: 1 });
-          }
-        }]
-      });
-    }
-    if (ps.length && r.due >= 7 && r.met === r.due) {
-      out.push({
-        kind: 'see',
-        head: 'لم تُخلِف يومًا في أسبوعَين',
-        body: ar(r.met) + ' من ' + ar(r.due) + ' يومِ ورد. '
-            + 'وهذا موضعُ من يَزيد قليلًا لا من يَكتفي.'
-      });
-    }
-
-    /* ── ٤ · إذنُ الراحة ─────────────────────────────────────── */
-    if (ps.length && today > 0) {
-      out.push({
-        kind: 'rest',
-        head: 'أنجزتَ وردَك اليوم',
-        body: 'لا شيءَ عليك بعده. والزيادةُ نافلةٌ إن شئتها.'
-      });
-    }
-
-    return out;
-  }
-
-  /* ── متى يَتكلّم: مرّةً في اليوم، ولا يُعيد ما قاله أمس ───── */
-  function pick() {
-    var b = bag(), k = App.dateKey();
-    if (b.day === k) return null;              /* ‫تكلّم اليومَ فكفى */
-    var list = rules();
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].head === b.last) continue;   /* ‫لا يُعيد نفسَه */
-      return list[i];
-    }
-    return null;
-  }
-
-  function spoke(m) {
-    var b = bag();
-    b.day = App.dateKey();
-    b.last = m.head;
-    App.save && App.save();
-  }
-
-  /* ── اللوح ───────────────────────────────────────────────────── */
-  function card(m) {
-    var c = App.el('div', 'mu mu-' + m.kind);
-    var h = App.el('div', 'mu-h');
-    h.appendChild(App.el('span', 'mu-t', m.head));
-    var x = App.el('button', 'mu-x');
-    x.type = 'button';
-    x.setAttribute('aria-label', 'أخفِ');
-    x.innerHTML = App.icon('close', 15);
-    x.onclick = function () { c.remove(); };
-    h.appendChild(x);
-    c.appendChild(h);
-    if (m.body) c.appendChild(App.el('p', 'mu-b', m.body));
-    if (m.acts && m.acts.length) {
-      var row = App.el('div', 'mu-a');
-      m.acts.forEach(function (a) {
-        var b = App.el('button', 'btn btn-ghost btn-sm mu-go');
-        b.type = 'button';
-        b.textContent = a.t;
-        b.onclick = a.go;
-        row.appendChild(b);
-      });
-      c.appendChild(row);
-    }
-    return c;
-  }
-
-  /* ── يُركَّب في «اليوم» أعلى الشاشة، ولا يُزاحم شيئًا ──────── */
-  App.on_('drawn', function (d) {
-    if (!d || d.sheet) return;
-    if (d.name !== 'home' && d.name !== 'today') return;
-    var pane = document.getElementById('pane');
-    if (!pane) return;
-    var w = pane.firstElementChild;
-    if (!w || w.querySelector('.mu')) return;
-    var m = pick();
-    if (!m) return;
-    var bar = w.firstElementChild;
-    w.insertBefore(card(m), bar ? bar.nextSibling : w.firstChild);
-    spoke(m);
-  });
-
-  /* يُكشَف للفحصِ الآليّ: الصمتُ قاعدةٌ تُقاس لا نيّةٌ تُدَّعى. */
-  App.Murshid = { rules: rules, pick: pick, card: card, bag: bag };
 
 }(window.App));
 </script>
