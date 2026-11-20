@@ -1659,6 +1659,141 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
   .pg-b:active .pg-ico{ translate:none; scale:1 }
 }
 
+/* ══ 21-nav3d.css ══ */
+/* ══ الشريطُ السفليُّ مرتفعًا ══════════════════════════════════
+
+   ثلاثةُ تغييرات:
+   ١) يَرتفع الشريطُ عن حافّةِ الشاشة فيَصير لوحًا طافيًا له ظلٌّ
+      تحته — وهو ما يَصنع الإحساسَ بالعمق، لا التدرّجاتُ الكثيرة.
+   ٢) اللسانُ الحاضرُ يَجلس في مِحبسٍ مرفوع: حافّةٌ عُليا فاتحةٌ
+      وأخرى سفلى غامقة، فيُقرأ زرًّا بارزًا لا لونًا مسطّحًا.
+   ٣) الضغطُ يَغوص: اللوحُ ينزل بكسلًا والمِحبسُ يَنكمش، ثمّ
+      يَثب راجعًا — ومعه اهتزازةٌ قصيرةٌ من ‎11-nav3d.js‎.
+
+   والبروزُ ليس زينةً وحدَه: المِحبسُ شكلٌ يُميّز الحاضرَ لمن لا
+   يُميّز الألوان، فيَنوب عن الشارةِ العلويّةِ التي أُلغيت هنا. */
+
+#nav{
+  inset-inline:10px;
+  bottom:calc(10px + env(safe-area-inset-bottom));
+  padding:7px 8px;
+  padding-bottom:7px;
+  border:0;
+  border-top:0;
+  border-radius:24px;
+  background:color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset,  /* حافّةٌ عُليا */
+    0 -1px 0 color-mix(in srgb, var(--shade-3) 22%, transparent) inset,
+    0 2px 5px -2px var(--shade-3),
+    0 18px 34px -18px var(--shade-3);
+}
+
+/* الفُرجةُ تحت الشريطِ تُضاف لما يُفسَح أسفلَ المحتوى، وإلّا
+   اختفى آخرُ سطرٍ تحته. */
+#app{
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom)
+                      + 10px + var(--gap-lg));
+}
+
+#nav button{
+  min-height:58px;
+  padding:7px 2px 8px;
+  border-radius:17px;
+  position:relative;
+  isolation:isolate;
+  transition:transform var(--fast) var(--ease),
+             color var(--fast) var(--ease);
+}
+
+/* المِحبسُ: طبقةٌ خلف الأيقونةِ والاسم، لا تَظهر إلّا للحاضر.
+   وتُذكَر حالةُ ‎.on‎ معها صراحةً لأنّ الأساسَ يَرسم بها شعيرةً
+   سفليّةً بمقاساتٍ أخصَّ، فلولا ذِكرُها لَغلبت هذه. */
+#nav button::after,
+#nav button.on::after,
+#nav button[aria-current="page"]::after{
+  content:'';
+  position:absolute;
+  inset:0; inset-inline:0; bottom:0; height:auto;
+  border-radius:inherit;
+  z-index:-1;
+  opacity:0;
+  transform:scale(.88);
+  background:linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 17%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 9%,  transparent) 100%);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 48%, transparent) inset,
+    0 -1px 0 color-mix(in srgb, var(--accent) 24%, transparent) inset,
+    0 3px 7px -3px color-mix(in srgb, var(--accent) 42%, transparent);
+  transition:opacity var(--mid) var(--ease),
+             transform var(--mid) var(--ease);
+}
+
+/* الشارةُ العلويّةُ القديمةُ لا تَصلح على لوحٍ طافٍ: المِحبسُ
+   بَدَلُها، وهو شكلٌ أيضًا لا لون. */
+#nav button::before,
+#nav button.on::before,
+#nav button[aria-current="page"]::before{ display:none }
+
+#nav button.on,
+#nav button[aria-current="page"]{ color:var(--accent); font-weight:700 }
+
+#nav button.on::after,
+#nav button[aria-current="page"]::after{
+  opacity:1;
+  transform:none;
+}
+
+/* الأيقونةُ تَعلو قليلًا في الحاضر، فيَزيد إحساسُ البروز */
+#nav button .ico{
+  transition:transform var(--mid) var(--ease);
+}
+#nav button.on .ico,
+#nav button[aria-current="page"] .ico{ transform:translateY(-1.5px) }
+
+/* الغوصُ عند الضغط: اللسانُ كلُّه ينزل والمِحبسُ ينكمش */
+#nav button:active{ transform:translateY(1.5px) }
+#nav button:active::after{ transform:scale(.95) }
+#nav button:active .ico{ transform:translateY(0) scale(.93) }
+
+/* لمسةُ الشحن: ومضةٌ واحدةٌ تَنتشر من موضعِ اللمسِ عند الاختيار،
+   تُضاف بالشيفرةِ وتُحذَف من نفسِها. */
+#nav .nav-spark{
+  position:absolute;
+  inset-inline-start:var(--x, 50%);
+  top:50%;
+  width:10px; height:10px; margin:-5px 0 0 -5px;
+  border-radius:50%;
+  background:color-mix(in srgb, var(--accent) 55%, transparent);
+  pointer-events:none;
+  z-index:-1;
+  animation:nav-spark 420ms var(--ease) forwards;
+}
+@keyframes nav-spark{
+  from{ transform:scale(.4); opacity:.55 }
+  to  { transform:scale(9);  opacity:0 }
+}
+
+/* فوق ٦٠٠px كان الشريطُ طافيًا أصلًا: تُوحَّد الحوافُّ فحسب */
+@media (min-width:600px){
+  #nav{ bottom:14px; inset-inline:auto; max-width:calc(var(--maxw) - 40px) }
+  #nav button{ min-height:58px }
+}
+
+/* مَن طلب سكونَ الواجهةِ لا يُعطى وثبًا ولا ومضة */
+@media (prefers-reduced-motion:reduce){
+  #nav button:active{ transform:none }
+  #nav .nav-spark{ display:none }
+}
+
+/* الإشعارُ العابرُ يُقاس من حافّةِ الشاشةِ لا من الشريط، فلمّا
+   ارتفع الشريطُ عشرةً صار الإشعارُ يُلامسه. تُضاف العشرةُ له. */
+#toast{
+  bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 10px + 16px);
+}
+
 /* ══ 24-murshid.css ══ */
 /* ══ 24-murshid.css — كِسوةُ المُرشِد ═════════════════════════════
 
@@ -5598,6 +5733,75 @@ App.mark = function (size, cls) {
   });
 
 }(window.App));
+
+/* ══ 23-nav3d.js ══ */
+/* ══ اهتزازُ الشريطِ وومضتُه ═══════════════════════════════════
+   يُقرأ مع ‎21-nav3d.css‎.
+
+   حدٌّ يجب أن يُقال صريحًا: الاهتزازُ لا يَعمل على الآيفون —
+   ‎navigator.vibrate‎ غيرُ مدعومةٍ في سفاري إطلاقًا، ولا حيلةَ
+   فيها من صفحةِ وِب. فهي هديّةٌ لمن جهازُه أندرويد، والومضةُ
+   البصريّةُ تَنوب عنها عند الجميع — ولذلك لم يُبنَ على الاهتزازِ
+   شيءٌ يُفقَد بغيابه.
+
+   ولا يُهتَزُّ لمن طلب سكونَ الواجهة: السكونُ طلبُ راحةٍ من
+   المنبّهات كلِّها لا من الحركةِ المرئيّةِ وحدَها. */
+(function (App) {
+  'use strict';
+
+  var CAN = typeof navigator !== 'undefined'
+         && typeof navigator.vibrate === 'function';
+
+  function calm() {
+    try {
+      return window.matchMedia
+          && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) { return false; }
+  }
+
+  function buzz(ms) {
+    if (!CAN || calm()) return;
+    /* قد تَرفض بعضُ المتصفّحاتِ الاهتزازَ قبل أوّلِ لمسةٍ حقيقيّة،
+       فلا يُترَك الاستثناءُ يَقطع معالِجَ الحدث. */
+    try { navigator.vibrate(ms); } catch (e) {}
+  }
+
+  function spark(btn, ev) {
+    if (calm()) return;
+    var r = btn.getBoundingClientRect();
+    var x = ev && ev.clientX ? (ev.clientX - r.left) : r.width / 2;
+    var s = document.createElement('span');
+    s.className = 'nav-spark';
+    s.style.setProperty('--x', Math.round(x) + 'px');
+    btn.appendChild(s);
+    setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 460);
+  }
+
+  function hit(t) {
+    return t && t.closest ? t.closest('#nav button') : null;
+  }
+
+  var pressedAt = 0;
+
+  /* الالتقاطُ في طورِ النزول: الشريطُ يُعاد بناؤه عند كلِّ انتقال،
+     فالاستماعُ على الوثيقةِ أبقى من الاستماعِ على الأزرار. */
+  document.addEventListener('pointerdown', function (e) {
+    var b = hit(e.target);
+    if (!b) return;
+    pressedAt = Date.now();
+    buzz(8);
+    spark(b, e);
+  }, true);
+
+  /* اهتزازةٌ أخفُّ عند وصولِ الشاشةِ الجديدة: إقرارٌ بأنّ النقرةَ
+     وصلت. وتُشترَط نقرةٌ قريبةٌ على الشريط، وإلّا اهتزَّ الجهازُ
+     عند فتحِ التطبيقِ نفسِه — والانتقالُ قد يأتي من الشيفرةِ لا
+     من إصبعٍ، فلا يُقابَل بما يُقابَل به اللمس. */
+  App.on_('route', function () {
+    if (Date.now() - pressedAt < 600) buzz(4);
+  });
+
+})(window.App);
 
 /* ══ 26-joy.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -17977,20 +18181,20 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     /* ── ٢ · هويّتي — بطاقتان تَعرِضان اللوحَ لا تَصِفانه ── */
     '#settings .st-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}',
     '#settings .st-idcard{position:relative;overflow:hidden;display:flex;' +
-      'flex-direction:column;align-items:center;justify-content:center;gap:11px;' +
-      'min-height:158px;padding:18px 10px;border:1.5px solid;cursor:pointer;' +
+      'flex-direction:column;align-items:center;justify-content:center;gap:9px;' +
+      'min-height:116px;padding:14px 10px;border:1.5px solid;cursor:pointer;' +
       'font-family:inherit;-webkit-tap-highlight-color:transparent;' +
       'transition:transform var(--fast) var(--ease),box-shadow var(--mid) var(--ease)}',
     '#settings .st-idcard:active{transform:scale(.985)}',
-    '#settings .st-idname{font-size:16.5px;font-weight:700}',
+    '#settings .st-idname{font-size:15.5px;font-weight:700}',
     /* شريطُ الألوان: أرضٌ وسطحٌ ومِدادٌ ولونٌ مميّزٌ وذهب، بترتيب
        ظهورها في الشاشة لا بترتيب اسمها في اللوح. */
     /* بطاقةُ الضوءِ أقصرُ من بطاقةِ الهويّة: اختيارٌ أهونُ، وتُظهر
        سطحًا واحدًا عليه ثلاثةُ سطورٍ صوريّةٍ ولمسةُ لون — شاشةٌ
        مصغّرةٌ لا قائمةُ رُقَع. */
-    '#settings .st-mdcard{min-height:124px;gap:13px}',
+    '#settings .st-mdcard{min-height:102px;gap:10px}',
     '#settings .st-mdface{display:flex;flex-direction:column;justify-content:center;',
-    '  gap:5px;width:78px;padding:11px 12px;border:1px solid;border-radius:9px}',
+    '  gap:4px;width:66px;padding:9px 10px;border:1px solid;border-radius:9px}',
     '#settings .st-mdface i{display:block;height:4px;border-radius:2px}',
     '#settings .st-mdface i:nth-child(1){width:100%}',
     '#settings .st-mdface i:nth-child(2){width:72%}',
@@ -18008,7 +18212,9 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     '  border:1px solid var(--hair);border-radius:var(--r-md);',
     '  font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}',
     '#settings .st-chips{display:flex;gap:5px}',
-    '#settings .st-chips i{display:block;width:15px;height:15px;border-radius:4px;' +
+    /* أقراصٌ لا مربّعات، وأصغرُ قليلًا: الرُّقعةُ ذاتُ الزوايا تُقرأ
+       زرًّا يُضغَط، والقرصُ يُقرأ لونًا يُرى — وهو المقصود. */
+    '#settings .st-chips i{display:block;width:13px;height:13px;border-radius:50%;' +
       'border:1px solid}',
     '#settings .st-tick{position:absolute;top:10px;inset-inline-start:10px;width:24px;' +
       'height:24px;display:grid;place-items:center;border-radius:var(--r-pill);opacity:0;' +
@@ -18097,7 +18303,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       '#settings .st-idcard[aria-checked="true"] .st-tick{transform:scale(1)}}',
 
     '@media (max-width:340px){#settings .st-pair{grid-template-columns:1fr}' +
-      '#settings .st-idcard{min-height:92px;flex-direction:row;gap:14px}' +
+      '#settings .st-idcard{min-height:88px;flex-direction:row;gap:14px}' +
       '#settings .st-ask-b{grid-template-columns:1fr}}'
   ].join('\n');
 
