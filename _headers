@@ -1,0 +1,25 @@
+# ‫رؤوسٌ لاستضافةِ Cloudflare Pages — تُقرأ من جذرِ المُخرَج.
+# ‫العلّةُ: الهيكلُ يَتبدّل مع كلِّ نشر، والحِزَمُ والخطوطُ لا تَتبدّل
+# ‫أبدًا (اسمُ الخطِّ جزءٌ من هويّته، والحزمةُ نصُّ مصحفٍ لا يُحرَّر).
+# ‫فلو خُزّنا بالمدّةِ نفسِها لَوقع أحدُ خطأين: إمّا بناءٌ قديمٌ يَلزم
+# ‫القارئَ، وإمّا ٢٫٧ ميغابايت تُجلَب كلَّ مرّة.
+
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/manifest.json
+  Cache-Control: no-cache
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  Cache-Control: public, max-age=604800
+
+# ‫التطبيقُ لا يَطلب من الشبكةِ شيئًا إلّا من أصلِه، ولا يُحمَّل في
+# ‫إطارِ موقعٍ آخر. وهذه الرؤوسُ تَجعل ذلك شرطًا لا وعدًا.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: SAMEORIGIN
