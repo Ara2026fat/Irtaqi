@@ -2477,7 +2477,7 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.28",at:"2026-11-21T23:16:19+03:00"};</script>
+<script>window.__BUILD={v:"1.29",at:"2026-11-22T00:33:36+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -8322,6 +8322,9 @@ App.mark = function (size, cls) {
     '.bld-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}',
     '.bld-day{min-height:52px;border-radius:var(--r-sm);border:1px solid var(--hair);',
     'background:var(--surface-2);color:var(--ink-mut);font:inherit;font-size:11px;',
+    /* كما في شريطِ «اليوم»: اسمُ اليومِ لا يُكسَر بين حروفه مهما ضاق
+       به خانتُه — يُقَصّ بنقاطٍ ولا يَصير عمودًا من الحروف. */
+    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline:3px;',
     'font-weight:700;cursor:pointer;transition:background var(--fast) var(--ease)}',
     '.bld-day[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);',
     'border-color:var(--accent)}',
@@ -10186,7 +10189,13 @@ App.mark = function (size, cls) {
     /* الصفُّ المضغوط: بقيّةُ ورد اليوم، ولكلِّ صفٍّ فعلُه في مكانه.
        والحدُّ يُكتب جهةً جهةً لا بـborder المختصر، لأنّ المختصرَ يَمحو
        حافّةَ النوعِ التي يرسمها .kedge على الجهة الأولى. */
-    '.t-row{display:flex;align-items:center;gap:12px;width:100%;text-align:start;'
+    /* ‎wrap‎ مقصودة: في الصفِّ أربعةُ مواضعَ تُلمَس — خاتمُ النوعِ
+       والاسمُ وزرُّ القراءةِ و«بعضُه» وزرُّ الإتمام — فإذا ضاقت
+       الشاشةُ انضغط الاسمُ وحدَه (لأنّه الوحيدُ الذي يَقبل الضغط)
+       حتّى يَنكسر إلى ثلاثةِ أسطرٍ بين كلماته. فالأفعالُ تَنزل إلى
+       سطرٍ تحتَه إذا لم تَسَعْها السطرُ الأوّل، ولا يَضيق الاسم. */
+    '.t-row{display:flex;flex-wrap:wrap;align-items:center;gap:9px 12px;'
+      + 'width:100%;text-align:start;'
       + 'min-height:var(--tap);padding:11px 13px;border-radius:var(--r-md);'
       + 'background:var(--surface);border-block:1px solid var(--hair);'
       + 'border-inline-end:1px solid var(--hair)}',
@@ -10201,8 +10210,13 @@ App.mark = function (size, cls) {
     '.t-row.is-ok .t-em{background:var(--kind-dim,var(--gold-soft));'
       + 'color:var(--kind,var(--gold-lit));'
       + 'border-color:var(--kind,var(--gold))}',
-    '.t-row .t-mid{flex:1 1 auto;min-width:0}',
-    '.t-row .t-nm{font-size:15px;font-weight:700;color:var(--ink);overflow-wrap:anywhere}',
+    '.t-row .t-mid{flex:1 1 150px;min-width:0}',
+    '.t-row .t-acts{flex:0 1 auto;display:flex;align-items:center;gap:8px;'
+      + 'margin-inline-start:auto}',
+    /* ‎anywhere‎ تَكسِر الكلمةَ العربيّةَ بين حروفها، وهي العِلّةُ
+       نفسُها التي صيّرت أسماءَ الأيّام أعمدةً من الحروف. */
+    '.t-row .t-nm{font-size:15px;font-weight:700;color:var(--ink);'
+      + 'overflow-wrap:break-word}',
     '.t-row .t-sub{margin-top:2px;font-size:13px;color:var(--ink-mut)}',
 
     /* زرُّ الأيقونة: ٤٤ مربّعةً كاملة ولو صَغُرت الأيقونة */
@@ -10229,12 +10243,16 @@ App.mark = function (size, cls) {
     '.t-keep .t-u{font-size:14px;color:var(--ink-mut)}',
     '.t-keep .t-note{flex:1 1 150px;font-size:13px;line-height:1.7;color:var(--ink-mut)}',
     '.t-marks{display:flex;gap:9px;margin:16px 0 0;padding:0;list-style:none}',
-    '.t-marks li{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:7px}',
+    '.t-marks li{flex:1 1 0;min-width:0;display:flex;flex-direction:column;' +
+      'align-items:center;gap:7px}',
     '.t-dot{width:19px;height:19px;border-radius:var(--r-pill);border:1.5px solid var(--hair);'
       + 'background:transparent;box-sizing:border-box}',
     '.t-dot.on{background:var(--gold);border-color:var(--gold)}',
-    '.t-marks .t-dl{font-size:9.5px;line-height:1.25;color:var(--ink-mut);'
-      + 'text-align:center;letter-spacing:-.2px}',
+    /* ‎nowrap‎ ليست زينة: الاسمُ العربيُّ لا موضعَ كسرٍ فيه، فإن ضاق
+       عمودُه كُسر بين حروفِه فنزل كلُّ حرفٍ في سطر — عمودٌ من الحروفِ
+       لا اسمُ يوم. والحجمُ من ‎--dl‎ ليُقاس بعد الرسمِ لا يُخمَّن. */
+    '.t-marks .t-dl{font-size:var(--dl,10px);line-height:1.25;color:var(--ink-mut);'
+      + 'text-align:center;letter-spacing:-.2px;white-space:nowrap}',
     '.t-marks li.now .t-dl{color:var(--ink);font-weight:700}',
 
     /* مناهجي: صفٌّ واحدٌ لكلِّ منهجٍ يُفتح باللمس. والحدُّ جهةً جهةً
@@ -10562,11 +10580,14 @@ App.mark = function (size, cls) {
       : k.t + ' · ' + (portionText(r) || 'اكتمل');
     mid.appendChild(sub);
     row.appendChild(mid);
+    /* الأفعالُ في وعاءٍ واحد: به تَنزل مجتمعةً إلى سطرٍ ثانٍ إذا ضاق
+       الأوّل، ولا يَتفرّق بعضُها فوقَ بعضِها. */
+    var acts = App.el('div', 't-acts');
     if (r && canRead()) {
-      row.appendChild(btn('t-ib', App.icon('book', 19),
+      acts.appendChild(btn('t-ib', App.icon('book', 19),
         'اقرأ ' + portionText(r), function () { App.go('qpage', { p: r.from }); }));
     }
-    if (App.Partial) App.Partial.row(row, p);   /* زرُّ «بعضُه» — 52-partial.js */
+    if (App.Partial) App.Partial.row(acts, p);  /* زرُّ «بعضُه» — 52-partial.js */
     var b;
     if (did > 0) {
       b = btn('t-ib t-ok-b', App.icon('undo', 21), App.Words.undoAria(nameOf(p)), function () { revert(p); });
@@ -10575,7 +10596,8 @@ App.mark = function (size, cls) {
       b = btn('t-ib t-pri', App.icon('check', 21), 'أتممتُ ' + nameOf(p), function () { complete(p); });
       b.setAttribute('data-fk', 'do-' + p.id);
     }
-    row.appendChild(b);
+    acts.appendChild(b);
+    row.appendChild(acts);
     return row;
   }
 
@@ -10663,6 +10685,7 @@ App.mark = function (size, cls) {
       li.appendChild(dot);
       var lb = App.el('span', 't-dl');
       lb.textContent = App.DAY_SHORT[d.getDay()];
+      lb.setAttribute('data-dow', d.getDay());
       li.appendChild(lb);
       li.setAttribute('aria-label', (today ? 'اليوم ' : '') + App.DAY_NAME[d.getDay()] +
         ' · ' + (on ? 'أُنجز' : 'لم يُنجَز'));
@@ -10670,8 +10693,66 @@ App.mark = function (size, cls) {
       d.setDate(d.getDate() + 1);
     }
     card.appendChild(ul);
+    fitDays(ul);
     s.appendChild(card);
     return s;
+  }
+
+  /* ══ الأيّامُ بأسمائها: قياسٌ بعد الرسمِ لا رقمٌ مُوفَّق ══════════
+     طُلبت الأسماءُ كاملةً، وأضيقُ عمودٍ في شاشةِ ٣٦٠ ثلاثةٌ وثلاثون
+     بكسلًا، و«الخميس» باثنين وثلاثين — فالفاصلُ بكسلٌ ونصف. وهذا
+     ليس تصميمًا بل حظٌّ: فإن رفع القارئُ حجمَ الخطِّ في متصفّحه، أو
+     فرض كرومُ أندرويد حدَّه الأدنى، أو تأخّر خطُّ التطبيقِ فحلَّ
+     غيرُه — فاض الاسمُ عن عمودِه وانكسر بين حروفه. وقد وقع عند
+     مستخدمٍ بعينه، ورأيتُه في صورته.
+
+     فالعلاجُ ثلاثُ طبقاتٍ لا طبقة: يُمنَع الكسرُ أصلًا، ثمّ يُقاس
+     أعرضُ اسمٍ بعد الرسمِ فيُصغَّر الخطُّ حتّى يَسَعه عمودُه، فإن بلغ
+     الصغرُ حدَّه ولم يَسَعْ — وذلك حين يَفرض المتصفّحُ حدًّا لا
+     نَملك خفضَه — رُدَّت الأسماءُ إلى حروفها الأُوَل، وهي تَسَع كلَّ
+     حال. فالأسوأُ الممكنُ حرفٌ مقروء، لا عمودٌ مُبهَم.
+
+     ويُعاد القياسُ بعد أن يَحضر الخطّ: عرضُ الكلمةِ يَكبر حين يَحلّ
+     خطُّ التطبيقِ محلَّ خطِّ النظام، فقياسٌ قبلَه قياسٌ لغيرِ ما يُرى. */
+  function fitDays(ul) {
+    var lab = ul.querySelectorAll('.t-dl');
+    if (!lab.length) return;
+    var tries = 0;
+
+    function letters() {
+      for (var i = 0; i < lab.length; i++) {
+        var d = lab[i].getAttribute('data-dow');
+        if (d != null) lab[i].textContent = App.DAY_LETTER[+d] || lab[i].textContent;
+      }
+      ul.style.removeProperty('--dl');
+    }
+
+    function step() {
+      if (!ul.isConnected || !ul.children.length) return;
+      var col = ul.children[0].getBoundingClientRect().width;
+      if (col <= 0) return;
+      var max = 0, i, w;
+      for (i = 0; i < lab.length; i++) {
+        w = lab[i].getBoundingClientRect().width;
+        if (w > max) max = w;
+      }
+      if (max <= col - 0.5) return;              /* وَسِعها عمودُها */
+      if (tries >= 3) { letters(); return; }
+      tries++;
+      var cur = parseFloat(getComputedStyle(lab[0]).fontSize) || 10;
+      var next = cur * (col / max) - 0.3;
+      if (next < 8) { letters(); return; }
+      ul.style.setProperty('--dl', next.toFixed(1) + 'px');
+      requestAnimationFrame(step);
+    }
+
+    requestAnimationFrame(step);
+    try {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { tries = 0; step(); });
+      }
+    } catch (e) {}
+    setTimeout(function () { tries = 0; step(); }, 600);
   }
 
   /* ── ٤ · مناهجي ───────────────────────────────────────────────── */
@@ -18378,7 +18459,11 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
      «٢ منهج». والعدّادُ الحرفيُّ يفضح الآلةَ من أوّل سطر. */
   function countWord(n, one, two, few, many) {
     if (n === 0) return 'لا ' + one;
-    if (n === 1) return one + ' واحد';
+    /* الصفةُ تَتبع موصوفَها في إعرابه: «منهجٌ واحد» خبرٌ مرفوع،
+       و«يومًا واحدًا» مفعولٌ بعد «واظبتَ». وكان يُكتَب «واظبتَ يومًا
+       واحد» — لحنٌ ظاهر. والمُنادي يُمرّر المفردَ في حالتِه التي
+       يُريدها، فتُؤخَذ منه حالةُ الصفة: ما نُوِّن بالفتح نُوِّن معه. */
+    if (n === 1) return one + (/ًا?$/.test(one) ? ' واحدًا' : ' واحد');
     if (n === 2) return two;
     if (n <= 10) return App.ar(n) + ' ' + few;
     return App.ar(n) + ' ' + many;
