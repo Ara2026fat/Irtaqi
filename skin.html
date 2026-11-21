@@ -2948,7 +2948,15 @@ window.App = (function () {
            '-' + String(d.getDate()).padStart(2, '0');
   }
   var DAY_NAME = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-  var DAY_SHORT = ['ح','ن','ث','ر','خ','ج','س'];
+  /* الكلمةُ كاملةً لا حرفًا مفردًا: «ح ن ث ر» لا تُقرأ أيّامًا —
+     يَعرف القارئُ الجمعةَ والسبتَ ويَحار في الأربعة الأُوَل. وتُصغَّر
+     في مواضعها فتَسَعُ السبعةُ عرضَ الهاتف. */
+  var DAY_SHORT = ['الأحد','الاثنين','الثلاثاء','الأربعاء',
+                   'الخميس','الجمعة','السبت'];
+  /* الحرفُ المفردُ لموضعٍ واحدٍ لا غير: مخطّطُ ثمانيةٍ وعشرين عمودًا
+     في «نموّي» — عرضُ العمودِ ستّةَ عشرَ بكسلًا لا تَسَعُ كلمة. وهو
+     مخفيٌّ عن قارئِ الشاشةِ أصلًا، واليومُ كاملًا في تلميحِ العمود. */
+  var DAY_LETTER = ['ح','ن','ث','ر','خ','ج','س'];
 
   /* ── الخزن ────────────────────────────────────────────────────── */
   var KEY = 'irtaqi.v1';
@@ -3258,7 +3266,7 @@ window.App = (function () {
     ar: ar, el: el, $: $, $$: $$, on: on,
     /* المصحف والتاريخ */
     Quran: Quran, hijri: hijri, greg: greg, dateKey: key,
-    DAY_NAME: DAY_NAME, DAY_SHORT: DAY_SHORT,
+    DAY_NAME: DAY_NAME, DAY_SHORT: DAY_SHORT, DAY_LETTER: DAY_LETTER,
     /* التنقّل */
     screen: screen, tab: tab, go: go, route: route, redraw: redraw,
     sheet: openSheet, closeSheet: closeSheet, isSheet: isSheet,
@@ -8410,7 +8418,7 @@ App.mark = function (size, cls) {
        ٤٤ عرضًا على شاشةِ ٣٩٠ — ولولا ذلك نزل إلى ٤٠. */
     '.bld-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}',
     '.bld-day{min-height:52px;border-radius:var(--r-sm);border:1px solid var(--hair);',
-    'background:var(--surface-2);color:var(--ink-mut);font:inherit;font-size:16px;',
+    'background:var(--surface-2);color:var(--ink-mut);font:inherit;font-size:11px;',
     'font-weight:700;cursor:pointer;transition:background var(--fast) var(--ease)}',
     '.bld-day[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);',
     'border-color:var(--accent)}',
@@ -8612,6 +8620,19 @@ App.mark = function (size, cls) {
       'text-align:center}',
     '.ez-alt{display:flex;flex-direction:column;gap:2px;margin-top:10px}',
     '.ez-alt .btn{justify-content:center;font-size:14px;color:var(--ink-mut)}',
+    '.pln-steps{padding-block:6px}',
+    '.pln-stb{display:flex;align-items:center;gap:10px;width:100%;min-height:var(--tap);',
+    '  padding:6px 0;border:0;background:none;font:inherit;color:inherit;',
+    '  text-align:start;cursor:pointer}',
+    '.pln-stb-t{font-size:16px;font-weight:700;color:var(--ink)}',
+    '.pln-stb-n{flex:1 1 auto;min-width:0;font-size:12.5px;color:var(--ink-mut);',
+    '  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.pln-stb-c{flex:none;display:inline-flex;color:var(--ink-faint);',
+    '  transition:transform var(--mid) var(--ease)}',
+    '[dir="rtl"] .pln-stb-c{transform:rotate(180deg)}',
+    '.pln-steps.is-open .pln-stb-c{transform:rotate(-90deg)}',
+    '.pln-stbox{margin-top:8px}',
+    '.pln-stbox[hidden]{display:none}',
     '.mnj-lvl{display:flex;flex-wrap:wrap;gap:8px}',
     '.mnj-lvl .chip{flex:1 1 0;min-width:88px}',
 
@@ -9598,6 +9619,14 @@ App.mark = function (size, cls) {
       card.appendChild(w);
 
       var acts = el('div', 'pln-acts');
+      /* القراءةُ قبل التسجيل: المصحفُ في التطبيقِ نفسِه، فلا يُترَك
+         الطالبُ يَخرج إلى غيرِه ثمّ يَعود ليَضغط «أتممتُ». */
+      if (App.Quran && window.__screens && window.__screens.qpage) {
+        acts.appendChild(btn('btn btn-gold',
+          App.icon('book', 19) + '<span>اقرأ الورد</span>', function () {
+            App.go('qpage', { p: r.from });
+          }));
+      }
       var doneBtn = btn('btn btn-pri', vg('أتممتُ ورد اليوم', 'أتممتُ ورد اليوم'), function () {
         var n = P.markDone(plan, r.count);
         if (n > 0) App.toast('سُجّل ' + pagesPhrase(n));
@@ -9620,10 +9649,27 @@ App.mark = function (size, cls) {
        الرقمان «من صفحةٍ إلى صفحة» يقولان القدرَ ولا يقولان العمل؛ فمن
        بنى منهجَه على منهجيّةٍ رأى خطواتِ يومه حيث يحتاجها لا في معرضٍ
        مضى عليه. ومن بناه بيده لا يُقحَم عليه شيء. */
+    /* وتُطوى: سبعُ خطواتٍ مفتوحةً تَدفع التقدّمَ والختامَ إلى صفحةٍ
+       ثانيةٍ لا تُرى. وهي تُقرأ مرّةً ثمّ تُعرَف، فلا تُفرَض كلَّ فتحة. */
     if (mnj && !finished) {
-      var sc = el('section', 'sec card');
-      sc.appendChild(el('p', 'eyebrow', 'خطواتُ يومك · منهجيّةُ ' + mnj.name));
-      sc.appendChild(stepsList(mnj));
+      var sc = el('section', 'sec card pln-steps');
+      var stBtn = el('button', 'pln-stb');
+      stBtn.type = 'button';
+      stBtn.setAttribute('aria-expanded', 'false');
+      stBtn.appendChild(el('span', 'pln-stb-t', 'خطواتُ يومك'));
+      stBtn.appendChild(el('span', 'pln-stb-n', 'منهجيّةُ ' + mnj.name));
+      stBtn.appendChild(el('span', 'pln-stb-c', App.icon('chevron', 18)));
+      var stBox = el('div', 'pln-stbox');
+      stBox.appendChild(stepsList(mnj));
+      stBox.hidden = true;
+      stBtn.onclick = function () {
+        var o = stBtn.getAttribute('aria-expanded') !== 'true';
+        stBtn.setAttribute('aria-expanded', String(o));
+        stBox.hidden = !o;
+        sc.classList.toggle('is-open', o);
+      };
+      sc.appendChild(stBtn);
+      sc.appendChild(stBox);
       wrap.appendChild(sc);
     }
 
@@ -10199,6 +10245,19 @@ App.mark = function (size, cls) {
       + 'border:1px solid var(--hair);font-size:17px;font-weight:700;color:var(--ink);line-height:1.6}',
     '.t-port .t-pg{color:var(--gold-lit)}',
     '.t-port .t-cnt{display:block;margin-top:3px;font-size:13px;font-weight:400;color:var(--ink-mut)}',
+    /* ══ المقدارُ بابٌ لا خبر ══
+       كان يقول «صفحة ٧» ولا يَفتحها، فيَخرج الطالبُ إلى مصحفٍ آخرَ
+       ثمّ يَعود ليَضغط «أتممتُ». والمصحفُ في التطبيقِ نفسِه، فجُعل
+       السطرُ زرًّا: مكتوبٌ فيه ما يُفتَح، فلا يُضاف زرٌّ ثالثٌ يُزاحم. */
+    '.t-port.t-open{display:flex;align-items:center;gap:10px;width:100%;'
+      + 'text-align:start;cursor:pointer;font:inherit;'
+      + 'transition:background var(--fast) var(--ease)}',
+    '.t-port.t-open:active{background:var(--surface-3,var(--surface-2));scale:.995}',
+    '.t-port.t-open .t-ptxt{flex:1 1 auto;min-width:0}',
+    '.t-port.t-open .t-pico{flex:none;display:inline-flex;align-items:center;gap:5px;'
+      + 'padding:5px 10px;border-radius:var(--r-pill);background:var(--gold-soft);'
+      + 'color:var(--gold-lit);font-size:12.5px;font-weight:700}',
+    '.t-port.t-open .t-pico svg{width:15px;height:15px}',
 
     /* الحلقة: نسبةُ المنهج كلِّه لا نسبةُ اليوم. ولونُها لونُ النوع،
        ونقشُها دائرةٌ تُنقَر فوق القوس (t-pat) لأنّ stroke-dasharray
@@ -10271,7 +10330,8 @@ App.mark = function (size, cls) {
     '.t-dot{width:19px;height:19px;border-radius:var(--r-pill);border:1.5px solid var(--hair);'
       + 'background:transparent;box-sizing:border-box}',
     '.t-dot.on{background:var(--gold);border-color:var(--gold)}',
-    '.t-marks .t-dl{font-size:12px;color:var(--ink-mut)}',
+    '.t-marks .t-dl{font-size:9.5px;line-height:1.25;color:var(--ink-mut);'
+      + 'text-align:center;letter-spacing:-.2px}',
     '.t-marks li.now .t-dl{color:var(--ink);font-weight:700}',
 
     /* مناهجي: صفٌّ واحدٌ لكلِّ منهجٍ يُفتح باللمس. والحدُّ جهةً جهةً
@@ -10461,6 +10521,12 @@ App.mark = function (size, cls) {
     return b;
   }
 
+  /* هل يُمكن فتحُ الصفحة؟ المصحفُ وحدةٌ مستقلّةٌ قد تَغيب في بناءٍ
+     مخفَّف، والمحتوى قد لا يكون حُمِّل بعد — فلا يُعرض بابٌ لا يُفتَح. */
+  function canRead() {
+    return !!(App.Quran && window.__screens && window.__screens.qpage);
+  }
+
   /* نصُّ المقدار: «من صفحة … إلى …» كما يُفهم في المصحف */
   function portionText(r) {
     if (!r) return null;
@@ -10520,14 +10586,25 @@ App.mark = function (size, cls) {
     top.appendChild(ring(pc));
     inn.appendChild(top);
 
-    var por = App.el('div', 't-port');
-    if (did > 0 && !r) {
-      por.innerHTML = '<span class="t-pg">اكتمل المنهجُ كلُّه</span>';
-    } else if (r) {
-      por.innerHTML = '<span class="t-pg">' + portionText(r) + '</span>' +
+    var open = r && canRead();
+    var por = open ? App.el('button', 't-port t-open') : App.el('div', 't-port');
+    if (open) {
+      por.type = 'button';
+      por.setAttribute('aria-label', 'اقرأ ' + portionText(r));
+      por.onclick = function () { App.go('qpage', { p: r.from }); };
+    }
+    if (r) {
+      var t = App.el('span', 't-ptxt');
+      t.innerHTML = '<span class="t-pg">' + portionText(r) + '</span>' +
         '<span class="t-cnt">' + App.ar(r.count) +
         (r.count === 1 ? ' صفحة' : ' صفحات') + ' · بقي ' +
         App.ar(P.total(p) - (p.done || 0)) + ' من ' + App.ar(P.total(p)) + '</span>';
+      por.appendChild(t);
+      if (open) {
+        var ic = App.el('span', 't-pico', App.icon('book', 15));
+        ic.appendChild(App.el('span', null, 'اقرأ'));
+        por.appendChild(ic);
+      }
     } else {
       por.innerHTML = '<span class="t-pg">اكتمل المنهجُ كلُّه</span>';
     }
@@ -10578,6 +10655,10 @@ App.mark = function (size, cls) {
       : k.t + ' · ' + (portionText(r) || 'اكتمل');
     mid.appendChild(sub);
     row.appendChild(mid);
+    if (r && canRead()) {
+      row.appendChild(btn('t-ib', App.icon('book', 19),
+        'اقرأ ' + portionText(r), function () { App.go('qpage', { p: r.from }); }));
+    }
     if (App.Partial) App.Partial.row(row, p);   /* زرُّ «بعضُه» — 52-partial.js */
     var b;
     if (did > 0) {
@@ -18091,7 +18172,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       f.style.height = Math.max(Math.round(x.n / max * 100), x.n > 0 ? 8 : 0) + '%';
       bar.appendChild(f);
       var lb = el('span', 'pr-cl');
-      lb.textContent = App.DAY_SHORT[x.dow];
+      lb.textContent = App.DAY_LETTER[x.dow];
       lb.setAttribute('aria-hidden', 'true');
       bar.title = App.hijri(x.t) + ' — ' + ar(x.n) + ' صفحة';
       col.appendChild(bar); col.appendChild(lb);
