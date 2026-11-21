@@ -2477,6 +2477,7 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
+<script>window.__BUILD={v:"1.27",at:"2026-11-21T22:51:18+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -10514,7 +10515,7 @@ App.mark = function (size, cls) {
     var w = App.el('div', 'screen');
     w.appendChild(header());
     w.appendChild(App.seg([
-      { key: 'ward', label: 'وِردي', icon: 'check', render: function () {
+      { key: 'ward', label: 'وِردُ اليوم', icon: 'check', render: function () {
           var d = App.el('div');
           d.appendChild(wardPane(App.state.plans || []));
           d.appendChild(keepPane());
@@ -11110,7 +11111,9 @@ App.mark = function (size, cls) {
     /* الأنماطُ تُحقَن عند أوّلِ ظهورٍ لا عند أوّلِ صحيفة: الزرُّ يُرسَم
        في «اليوم» قبل أن تُفتح الصحيفةُ مرّةً واحدة. */
     styleOnce();
-    var b = App.el('button', 'btn btn-ghost btn-sm', 'بعضُه');
+    /* «بعضُه» وحدَها لا تقول ماذا يَقع إن ضُغطت. و«أتممتُ بعضَه»
+     تُقرأ بأختها «أتممتُ» فيُعرَف أنّها تسجيلٌ ناقصٌ لا بابٌ آخر. */
+    var b = App.el('button', 'btn btn-ghost btn-sm', 'أتممتُ بعضَه');
     b.type = 'button';
     b.setAttribute('aria-label', App.join(
       vg('سجّل بعضَ وِردك من ', 'سجّلي بعضَ وِردكِ من ') + label,
@@ -12028,7 +12031,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* المحتوى لسانٌ هنا: هذه حِزَمُ مصحفِه، ومَن أرادها يَقصد
        المصحفَ لا دُرجَ الإعدادات. ولا يُبنى حتّى يُلمَس. */
     if (App.Packs && App.Packs.pane) {
-      tabs.push({ key:'pack', label:'المحتوى', icon:'page',
+      tabs.push({ key:'pack', label:'تحميلُ المصحف', icon:'page',
                   render:function () { return App.Packs.pane(); } });
     }
     wrap.appendChild(App.seg(tabs, {
@@ -17977,7 +17980,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     wrap.appendChild(App.seg([
       { key: 'now',   label: 'خلاصتي', icon: 'chart',
         render: function () { return PANE.now; } },
-      { key: 'kinds', label: 'أنواعي', icon: 'target',
+      { key: 'kinds', label: 'الأنواع', icon: 'target',
         render: function () { return PANE.kinds; } },
       { key: 'grow',  label: 'نموّي',  icon: 'review',
         render: function () { return PANE.grow; } },
@@ -17985,7 +17988,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
          درجةٌ لكلِّ جزءٍ وأضعفُ ما عندك — وذاك بابُ «تقدُّمي» بعينه.
          ولا يُبنى لوحُه إلّا حين يُلمَس لسانُه، فلا يُحسَب ثمنُه على
          من جاء يَنظر خلاصتَه. */
-      { key: 'exam',  label: 'اختباري', icon: 'target',
+      { key: 'exam',  label: 'اختبِرني', icon: 'target',
         render: function () {
           return App.Exam ? App.Exam.pane() : App.el('div');
         } }
@@ -18522,6 +18525,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       'gap:9px;margin:0 0 15px;padding-bottom:16px;border-bottom:1px solid var(--hair)}',
     '#settings .st-brand strong{display:block;font-size:19px;font-weight:800;color:var(--ink)}',
     '#settings .st-brand span{display:block;font-size:13px;color:var(--ink-mut)}',
+    '#settings .st-built{margin-top:2px;font-size:12px;color:var(--ink-faint)}',
     '#settings .st-about p{margin:0 0 11px;font-size:14.5px;line-height:1.95;color:var(--ink-mut)}',
     '#settings .st-about p:last-of-type{margin-bottom:0}',
     /* الخاتمةُ مركزٌ لا سطرٌ جانبيّ: هي آخرُ ما تَقع عليه العينُ في
@@ -19281,6 +19285,15 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       return RET;
     }
 
+    /* الساعةُ باثنتَي عشرة ومساءً/صباحًا: هكذا تُقرأ عندنا */
+    function clock(d) {
+      var h = d.getHours(), m = d.getMinutes();
+      var am = h < 12;
+      var h12 = h % 12; if (!h12) h12 = 12;
+      return App.ar(h12) + ':' + App.ar(m < 10 ? '0' + m : m) +
+             ' ' + (am ? 'صباحًا' : 'مساءً');
+    }
+
     /* ═══ ٤ · عن التطبيق ══════════════════════════════════════════ */
     function paneAbout() {
       var box = App.el('div', 'st-card st-about');
@@ -19291,8 +19304,23 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       var mk = App.mark(176, 'st-mark');
       if (mk) brand.innerHTML = mk;
       else brand.appendChild(txt('strong', null, 'رتِّل وارتقِ'));
-      /* رقمٌ صحيحٌ لا كسر: «١٫٠» يقلبه ترتيبُ الاتّجاهين فيُقرأ «٠٫١» */
-      brand.appendChild(txt('span', null, 'الإصدار ' + App.ar(1)));
+      /* رقمُ النسخةِ ووقتُ بنائها: يُحقنان في البناءِ نفسِه من ملفِّ
+         VERSION ومن ساعةِ الجهازِ الباني، فلا يُكتبان بيدٍ فيَشيخان.
+         وبهما يَعرف صاحبُ التطبيقِ أيَّ نسخةٍ يَرى مستخدمُه، ويَعرف
+         المستخدمُ أنّ ما بين يديه حديث. */
+      var B = window.__BUILD || {};
+      /* الرقمُ بالأرقام العربيّةِ كسائرِ أرقامِ التطبيق، وداخلَ عازلِ
+         اتّجاهٍ (‎U+2066…U+2069‎) لئلّا تَنقلب النقطةُ في سطرٍ عربيّ
+         فتُقرأ «٢٦٫١». */
+      brand.appendChild(txt('span', 'st-ver',
+        'الإصدار \u2066' + App.ar(B.v || '—') + '\u2069'));
+      if (B.at) {
+        var d = new Date(B.at);
+        if (!isNaN(d.getTime())) {
+          brand.appendChild(txt('span', 'st-built',
+            'آخرُ تحديث: ' + App.hijri(d) + ' · ' + clock(d)));
+        }
+      }
       box.appendChild(brand);
 
       /* ثلاثُ فقراتٍ كانت تَشرح للحافظِ كيف بُني التطبيق: لا خادمَ، ولا
@@ -19321,7 +19349,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     /* ═══ الألسنة ═════════════════════════════════════════════════ */
     wrap.appendChild(App.seg([
       { key: 'me',    label: 'حسابي',      icon: 'user',    render: paneAccount },
-      { key: 'id',    label: 'هويّتي',      icon: 'user', render: paneIdentity },
+      { key: 'id',    label: 'المظهر',      icon: 'user', render: paneIdentity },
       { key: 'data',  label: 'بياناتي',     icon: 'page',    render: paneData },
       { key: 'about', label: 'عن التطبيق', icon: 'info',    render: paneAbout }
     ], {
