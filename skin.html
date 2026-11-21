@@ -1583,6 +1583,16 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 }
 .appmark img,.appmark svg{ display:block; max-width:100%; height:auto }
 
+/* ── الشعارُ في صدر كلِّ صفحةٍ رئيسة ──
+   سُئل: «كيف نَعرف أنّ هذا التطبيقَ هو رتِّل وارتقِ؟» — والجوابُ أن
+   يكون الاسمُ في أعلى كلِّ صفحةٍ يَفتحها، لا في شاشتَين فحسب. وهو
+   مُوسَّطٌ لأنّ الشعارَ كلمةٌ عريضةٌ لا خاتمٌ يَصطفّ في زاوية. */
+.brandbar{
+  display:flex; justify-content:center;
+  padding-block:2px 10px;
+}
+.brandbar .appmark{ padding:6px 10px }
+
 /* ══ 21-motion.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
    الانتقال — أن يُفهَم أين ذهبتَ لا أن تُبهَر
@@ -2858,7 +2868,7 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.29",at:"2026-11-22T00:33:36+03:00"};</script>
+<script>window.__BUILD={v:"1.30",at:"2026-11-22T01:27:07+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -3074,11 +3084,40 @@ window.App = (function () {
     root.appendChild(shell);
   }
 
+  /* الاسمُ مكتوبٌ في الشعارِ نفسِه، وقارئُ الشاشةِ يَقرأ عنوانَ
+     الصفحةِ بعدَه — فلو نُطق الشعارُ لَسُمع اسمُ التطبيقِ في صدر
+     كلِّ صفحةٍ قبل ما جاء له صاحبُه. فهو زينةٌ للعينِ لا للأذن. */
+  function brandBar() {
+    /* ‎App.mark‎ تُكتَب بعد هذا العالَمِ في الملفِّ نفسِه، وتُنادى
+       ههنا وقتَ الرسمِ لا وقتَ التعريف — فهي قائمةٌ حينئذٍ. */
+    var A = window.App;
+    var m = (A && A.mark) ? A.mark(72, 'brand-mk') : '';
+    if (!m) return null;
+    var d = el('div', 'brandbar');
+    d.setAttribute('aria-hidden', 'true');
+    d.innerHTML = m;
+    return d;
+  }
+
   function drawPane() {
     var s = screens[current];
     if (!s) { current = 'home'; s = screens[current]; }
     pane.innerHTML = '';
+    /* الشعارُ في صدر كلِّ صفحةٍ رئيسة: سُئل «كيف نَعرف أنّ هذا
+       التطبيقَ هو رتِّل وارتقِ؟» — ولم يكن له جوابٌ إلّا في شاشتَين.
+       وموضعُه ههنا لا في كلِّ وحدةٍ على حِدَة: شيءٌ واحدٌ يَظهر في
+       الخمسِ كلِّها بقَدْرٍ واحد، ولا يَسهو عنه من يُضيف شاشةً غدًا.
+       ولا يَنزل على الصحائفِ لأنّها تُرسَم في غير هذا الموضع — فصفحةُ
+       المصحفِ تَبقى للمصحفِ وحدَه. */
     var node = s.render(params);
+    /* داخلَ الشاشةِ لا بجوارها: وحداتٌ أخرى تَعتمد أنّ أوّلَ ولدٍ
+       في ‎#pane‎ هو الشاشة — فمُرشدي يَدسّ بطاقتَه فيه. فلمّا وُضع
+       الشريطُ بجوارها صار هو «الشاشةَ» عندها، فنزلت البطاقةُ داخلَه
+       وصارا صفًّا واحدًا والشعارُ في طرفه. */
+    if (node && current !== 'onboard') {
+      var bm = brandBar();
+      if (bm) node.insertBefore(bm, node.firstChild);
+    }
     if (node) pane.appendChild(node);
     window.scrollTo(0, 0);
     emit('drawn', { name: current });
@@ -11225,8 +11264,9 @@ App.mark = function (size, cls) {
 
   function emptyState() {
     var w = App.el('div', 'screen t-empty empty');
-    var mk = App.mark(140, 't-mark');  /* عرضٌ لا ضلع: الشعارُ كلمةٌ تُقرأ */
-    if (mk) { var o = App.el('div', null, mk); w.appendChild(o.firstChild); }
+    /* كان ههنا شعارٌ بمئةٍ وأربعين. ولمّا صار الشعارُ في صدر كلِّ
+       صفحةٍ صارا شعارَين في شاشةٍ واحدةٍ لا يَفصل بينهما إلّا فراغ.
+       فبَقي الأوّلُ وحدَه. */
     var h = App.el('h1');
     h.textContent = App.Words.emptyTitle();
     w.appendChild(h);
@@ -19370,7 +19410,10 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
     /* ═══ الترويسةُ الشخصيّة ═══════════════════════════════════════ */
     var hero = App.el('header', 'st-hero');
-    var ornBox = App.el('div', 'st-orn');
+    /* كانت ههنا زخرفةٌ مُحلَّقةٌ بلون الهويّة. وهي عند اثنين وأربعين
+       بكسلًا لا تُقرأ فصوصًا بل لطخةً خضراءَ بجانب الاسم، لا تَقول
+       شيئًا ولا تُزيّن. والشعارُ صار في صدر كلِّ صفحةٍ يَقول ما
+       كانت تُوهِم أنّها تقوله. فحُذفت. */
     var heroT = App.el('div', 'st-hero-t');
     /* لا اسمَ للتطبيق فوق اسم الطالب: الشعارُ ملاصقٌ له يقوله،
        فكتابتُه مرّةً ثالثةً في شاشةٍ واحدةٍ حشو. */
@@ -19378,7 +19421,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     var heroTally = txt('span', 'st-tally', '');
     heroT.appendChild(heroName);
     heroT.appendChild(heroTally);
-    hero.appendChild(ornBox);
     hero.appendChild(heroT);
     /* الترويسةُ على «حسابي» وحدَها لا على الألسنةِ الأربعة: هي
        خلاصةُ الحساب، وتَكرارُها في «بياناتي» و«عن التطبيق» يَأكل مئةَ
@@ -19407,7 +19449,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       /* ‎core:false‎ تَحذف الحلقتَين الداخليّتَين فتَبقى الهالةُ
          مصمتةً — وهي عند ٤٢ بكسلًا تُقرأ فصوصًا، أمّا المُحلَّقةُ
          فتَذوب دائرةً. */
-      ornBox.innerHTML = App.Rosette.seal({ size: 42, core: false });
     }
     refreshHero();
 
@@ -20127,9 +20168,10 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       /* الشعارُ يَحمل الاسمَ مكتوبًا، فكتابتُه بجانبه تكرارٌ لكلمةٍ
          واحدةٍ مرّتين في سطرٍ واحد. فهو وحدَه، والإصدارُ تحته. */
       var brand = App.el('div', 'st-brand');
-      var mk = App.mark(176, 'st-mark');
-      if (mk) brand.innerHTML = mk;
-      else brand.appendChild(txt('strong', null, 'رتِّل وارتقِ'));
+      /* كان ههنا الشعارُ بمئةٍ وستّةٍ وسبعين. ولمّا صار في صدر كلِّ
+         صفحةٍ صار في هذه الشاشةِ شعارانِ لا يَفصل بينهما إلّا لسانٌ
+         واحد — وهو التكرارُ الذي نَعيبه. فبَقي في صدر الصفحةِ وحدَه،
+         وبَقي ههنا ما لا يَقوله غيرُه: أيُّ نسخةٍ بين يديك ومتى. */
       /* رقمُ النسخةِ ووقتُ بنائها: يُحقنان في البناءِ نفسِه من ملفِّ
          VERSION ومن ساعةِ الجهازِ الباني، فلا يُكتبان بيدٍ فيَشيخان.
          وبهما يَعرف صاحبُ التطبيقِ أيَّ نسخةٍ يَرى مستخدمُه، ويَعرف
