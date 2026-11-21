@@ -7786,6 +7786,15 @@ App.mark = function (size, cls) {
   /* ── صيغُ الجمع ──────────────────────────────────────────────────
      العربيّةُ تُفرد وتُثنّي وتجمع، والرقمُ الجافُّ مع المفرد («٩ يوم»)
      يُفسد وقارَ الحكم. فيُصاغ النصُّ صياغةً صحيحة لا تُركَّب تركيبًا. */
+  /* ── الطريقُ القصيرُ تحت التجربة ──────────────────────────────
+     يُفتَح بإضافةِ ‎?easy=1‎ إلى العنوان، فيُجرَّب على التطبيقِ
+     المنشورِ نفسِه دون ملفٍّ ثانٍ ولا بناءٍ ثانٍ — ويُقارَن بالأصلِ
+     بتبديلِ حرفٍ في الرابط. فإذا رُضي صار هو الأصلَ وسقط الشرط. */
+  if (App.EASY == null) {
+    try { App.EASY = /[?&]easy=1/.test(location.search); }
+    catch (e) { App.EASY = false; }
+  }
+
   function phrase(n, one, two, few, many) {
     if (n === 1) return one;
     if (n === 2) return two;
@@ -8185,6 +8194,12 @@ App.mark = function (size, cls) {
     '.mnj-out-b{flex:1 1 auto;min-width:0}',
     '.mnj-out-t{display:block;font-size:14px;font-weight:700;color:var(--ink);line-height:1.4}',
     '.mnj-out-s{display:block;font-size:12.5px;color:var(--ink-mut);line-height:1.6;margin-top:2px}',
+    /* الشاشةُ القصيرة: سطرُ الضبطِ فوق لوحِ الحكم، والبدائلُ تحته
+       هادئةً — تُرى لمن بحث عنها ولا تُزاحم الزرَّ الواحد. */
+    '.ez-set{margin:0 0 10px;font-size:14px;color:var(--ink-mut);' +
+      'text-align:center}',
+    '.ez-alt{display:flex;flex-direction:column;gap:2px;margin-top:10px}',
+    '.ez-alt .btn{justify-content:center;font-size:14px;color:var(--ink-mut)}',
     '.mnj-lvl{display:flex;flex-wrap:wrap;gap:8px}',
     '.mnj-lvl .chip{flex:1 1 0;min-width:88px}',
 
@@ -8528,7 +8543,99 @@ App.mark = function (size, cls) {
   }
 
   /* ── وجهُ المعرض ─────────────────────────────────────────────── */
+  /* ── الطريقُ القصير: جوابٌ لا أسئلة ──────────────────────────
+     الطالبُ الذي لا يدري ماذا يُريد لا يُعينه أن يُسأل خمسَ مرّات:
+     نوعُ العملِ، ثمّ الطريقة، ثمّ النطاق، ثمّ الأيّام، ثمّ المقدار.
+     فتُقلَب الشاشة: يُعرَض عليه ما نُرشّحه له مضبوطًا كاملًا ومعه
+     يومُ ختامه، وزرٌّ واحد. والخمسةُ كلُّها باقيةٌ خلف سطرَين لمن
+     أرادها — لا تُحذَف خياراتٌ، بل تُزاح عن طريقِ من لا يُريدها. */
+  function viewSuggest(M, purpose) {
+    var list = M.byPurpose(purpose);
+    if (!list.length) return null;
+    /* المرشَّح: أوّلُ طريقةٍ غرضُها الأوّلُ هو ما طلبه الطالب. و«الجَمْع»
+       يَصلح للثلاثةِ جميعًا فيَتصدّر كلَّ قائمة، فلو أُخذ الأوّلُ بلا
+       تمييزٍ لَوجد من طلب «مراجعة» طريقةً عنوانُها وِردٌ جديد. */
+    var m = null, i;
+    for (i = 0; i < list.length; i++) {
+      if (list[i]['for'] && list[i]['for'][0] === purpose) { m = list[i]; break; }
+    }
+    if (!m) m = list[0];
+    if (typeof m.pre === 'function') m.pre(draft);
+    norm(draft);
+
+    var cur = GATE.filter(function (g) { return g.key === purpose; })[0];
+    var wrap = el('div', 'screen bld');
+    wrap.appendChild(topBar(cur ? cur.t : 'الطريقة', function () {
+      view = { mode: 'pick', id: null, purpose: null };
+      App.redraw();
+    }));
+
+    var head = el('section', 'sec');
+    head.appendChild(el('p', 'eyebrow', vg('المقترَحُ لك', 'المقترَحُ لكِ')));
+    head.appendChild(el('h2', 'h2', m.name));
+    head.appendChild(el('p', 'mnj-lead', m.tagline));
+    wrap.appendChild(head);
+
+    var sec = el('section', 'sec');
+    var setLine = el('p', 'ez-set');
+    sec.appendChild(setLine);
+
+    var slab = slabBlock(vg('ابدأ', 'ابدئي'), function () {
+      startManhaj(M, m);
+    });
+    sec.appendChild(slab.node);
+
+    var alt = el('div', 'ez-alt');
+    alt.appendChild(btn('btn btn-ghost', 'غيِّر النطاقَ أو الأيّامَ أو المقدار',
+      function () {
+        view = { mode: 'manhaj', id: m.id, purpose: purpose, tab: 'set' };
+        App.redraw();
+      }));
+    if (list.length > 1) {
+      alt.appendChild(btn('btn btn-ghost',
+        phrase(list.length - 1, 'طريقةٌ أخرى', 'طريقتان أخريان',
+               'طرائقُ أخرى', 'طريقةً أخرى'), function () {
+          view = { mode: 'pick', id: null, purpose: purpose, all: true };
+          App.redraw();
+        }));
+    }
+    sec.appendChild(alt);
+    wrap.appendChild(sec);
+
+    /* الضبطُ والحكمُ من المنهجيّةِ نفسِها لا من وصفٍ مكتوبٍ بيد */
+    setLine.textContent = App.join(P.titleFor(draft),
+      weekPhrase(draft.days.length), (M.LEVELS || {})[draft.level] || '');
+    var pv = [];
+    try {
+      pv = m.build({ from: draft.from, to: draft.to, scope: draft.scope,
+                     days: draft.days, level: draft.level }) || [];
+    } catch (e) { pv = []; }
+    if (!pv.length) slab.set({ bad: 'تعذّر بناءُ هذه الطريقة بهذا النطاق' });
+    else slab.set(P.project(pv[0]));
+    return wrap;
+  }
+
+  /* الإنشاءُ في موضعٍ واحد: يُنادى من الشاشةِ القصيرةِ ومن المطوّلة */
+  function startManhaj(M, m) {
+    norm(draft);
+    if (!draft.days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); return; }
+    var made = M.create(m, {
+      from: draft.from, to: draft.to, scope: draft.scope,
+      days: draft.days.slice(), level: draft.level
+    });
+    if (!made.length) { App.toast('تعذّر بناءُ هذه المنهجيّة'); return; }
+    draft = null;
+    view = { mode: 'pick', id: null, purpose: view.purpose };
+    App.toast('بُنيت منهجيّةُ ' + m.name);
+    App.go('plan', { id: made[0].id });
+  }
+
   function viewPick(M) {
+    /* الشاشةُ القصيرةُ قبل المعرض، ما لم يَطلب الطالبُ «طرائقَ أخرى» */
+    if (App.EASY && view.purpose && view.purpose !== 'all' && !view.all) {
+      var ez = viewSuggest(M, view.purpose);
+      if (ez) return ez;
+    }
     var wrap = el('div', 'screen bld');
     var inGate = !view.purpose || view.purpose === 'all';
     var cur = inGate ? null : GATE.filter(function (g) {
@@ -8538,7 +8645,10 @@ App.mark = function (size, cls) {
        الطالبُ دخل من لوحةٍ فليخرج إليها. */
     wrap.appendChild(topBar(inGate ? 'منهجٌ جديد' : (cur ? cur.t : 'الطرائق'),
       inGate ? homeBack() : function () {
-        view = { mode: 'pick', id: null, purpose: null }; App.redraw();
+        /* جاء من «طرائقُ أخرى»؟ فالرجوعُ إلى المقترَحِ لا إلى البوّابة */
+        if (App.EASY && view.all) view = { mode: 'pick', id: null, purpose: view.purpose };
+        else view = { mode: 'pick', id: null, purpose: null };
+        App.redraw();
       }));
 
     var intro = el('section', 'sec');
@@ -8792,18 +8902,7 @@ App.mark = function (size, cls) {
     PANE.out.appendChild(outSec);
 
     var slab = slabBlock(vg('ابدأ المنهجيّة', 'ابدئي المنهجيّة'), function () {
-      norm(draft);
-      /* حِرزٌ ثانٍ: الزرُّ معطّلٌ في هذه الحال، ولوحةُ المفاتيح قد تسبق الرسم */
-      if (!draft.days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); return; }
-      var made = M.create(m, {
-        from: draft.from, to: draft.to, scope: draft.scope,
-        days: draft.days.slice(), level: draft.level
-      });
-      if (!made.length) { App.toast('تعذّر بناءُ هذه المنهجيّة'); return; }
-      draft = null;                      /* المناهجُ وُلدت، فلا تُحفظ مسوّدتُها */
-      view = { mode: 'pick', id: null, purpose: view.purpose };
-      App.toast('بُنيت منهجيّةُ ' + m.name);
-      App.go('plan', { id: made[0].id });
+      startManhaj(M, m);               /* الإنشاءُ في موضعٍ واحدٍ لا اثنين */
     });
     /* ── الالتزامُ خارجَ الألسنة ──────────────────────────────────
        وُضع أوّلَ الأمرِ في لسان «ما سيُنشأ»، فأثبتت الرحلةُ ما كان
@@ -8821,7 +8920,7 @@ App.mark = function (size, cls) {
         render: function () { return PANE.set; } },
       { key: 'out', label: 'ما سيُنشأ', icon: 'check',
         render: function () { return PANE.out; } }
-    ], { cls: 'mnj-seg', start: 'how' }));
+    ], { cls: 'mnj-seg', start: view.tab || 'how' }));
 
     slab.node.classList.add('bld-slab-fixed');
     wrap.appendChild(slab.node);
