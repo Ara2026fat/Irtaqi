@@ -2858,7 +2858,7 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.27",at:"2026-11-21T22:51:18+03:00"};</script>
+<script>window.__BUILD={v:"1.28",at:"2026-11-21T23:16:19+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -5825,6 +5825,289 @@ App.mark = function (size, cls) {
   };
 
 }(window.App));
+
+/* ══ 19-pwa.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   التثبيتُ والتحديث — ما يَصِل القارئَ من خارجِ الشاشة
+   ───────────────────────────────────────────────────────────────────
+   طُلب «إشعارٌ يَأتي كلَّ من عنده التطبيقُ يَطلب منه التحديث». وههنا
+   تمييزٌ لا بدَّ منه:
+
+   **إشعارُ الجوّالِ الحقيقيُّ** (الذي يَصِل والتطبيقُ مُغلَق) لا يَقوم
+   إلّا على خادمٍ يَحفظ اشتراكَ كلِّ جهازٍ على حِدَة — ومعنى ذلك سجلٌّ
+   فيه أجهزةُ القرّاء. وقد قُطع في هذا التطبيقِ عهدٌ: لا بياناتِ أحد.
+   فلو بَنيناه نَقَضنا العهدَ من أجل سطرٍ يُقرأ.
+
+   **والبديلُ الصادق** هو هذا: التطبيقُ نفسُه يَعرف أنّ نسخةً أحدثَ
+   نزلت على الجهازِ وتَنتظر، فيُخبر صاحبَه أوّلَ ما يَفتحه. لا خادمَ
+   ولا سجلَّ ولا إذنَ إشعارات — والقارئُ يَبلغه الخبرُ في أوّلِ لحظةٍ
+   يَكون فيها قادرًا على الفعل: وهو فاتحٌ للتطبيق.
+
+   وكان في ‎sw.js‎ خللٌ أُصلح معه: كان العاملُ يُنادي ‎skipWaiting‎ في
+   تنصيبِه بلا شرط، فتُبدَّل النسخةُ تحت قارئٍ يَقرأ — صفحتُه القديمةُ
+   وملفّاتُها الجديدة. فصار الانتظارُ هو الأصل، ولا يُتخطّى إلّا
+   بضغطةٍ من صاحبِ الجهاز.
+
+   ولا شريطَ يَظهر إلّا بخبرٍ يُستحَقّ: تحديثٌ جاهزٌ بالفعل، أو دعوةٌ
+   إلى التثبيتِ تُعرَض مرّةً واحدةً بعد أن يُتِمّ القارئُ وردًا — لا في
+   وجهِ قادمٍ لم يَستقرَّ بعد.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  var ASK_KEY = 'irtaqi.pwa.ask';   /* دعوةُ التثبيت: عُرضت أو رُدّت */
+  var CHECK_MS = 6 * 3600 * 1000;   /* لا يُسأل عن نسخةٍ أحدثَ إلّا كلَّ ستِّ ساعات */
+
+  var waiting = null;    /* عاملُ خدمةٍ نزل وانتظر الإذن */
+  var deferred = null;   /* حدثُ التثبيتِ المؤجَّل من المتصفّح */
+  var lastCheck = 0;
+  var subs = [];
+  var bar = null;
+
+  /* ── حالُ التثبيت ──────────────────────────────────────────── */
+
+  function installed() {
+    try {
+      if (navigator.standalone) return true;              /* iOS */
+      return !!(window.matchMedia &&
+        (window.matchMedia('(display-mode: standalone)').matches ||
+         window.matchMedia('(display-mode: minimal-ui)').matches ||
+         window.matchMedia('(display-mode: fullscreen)').matches));
+    } catch (e) { return false; }
+  }
+
+  /* سفاري لا يُطلق ‎beforeinstallprompt‎ البتّة، فلا يُنتظَر منه زرٌّ
+     يُضغَط — بل يُقال لصاحبِه أين يَجده بيدِه. */
+  function apple() {
+    var ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+  }
+
+  function canInstall() { return !!deferred; }
+
+  function install() {
+    if (!deferred) return;
+    var d = deferred;
+    deferred = null;                       /* لا يُستعمَل الحدثُ مرّتين */
+    try {
+      d.prompt();
+      if (d.userChoice && d.userChoice.then) {
+        d.userChoice.then(function (r) {
+          if (r && r.outcome === 'accepted') {
+            mark();
+            App.toast && App.toast('ثُبِّت التطبيق.');
+          }
+          tell();
+        });
+      }
+    } catch (e) { /* متصفّحٌ رفض — لا شيءَ يُفعَل */ }
+    tell();
+  }
+
+  function asked() {
+    try { return localStorage.getItem(ASK_KEY) || ''; } catch (e) { return ''; }
+  }
+  function mark(v) {
+    try { localStorage.setItem(ASK_KEY, v || 'done'); } catch (e) {}
+  }
+
+  /* ── التحديث ───────────────────────────────────────────────── */
+
+  function ready(sw) {
+    waiting = sw;
+    tell();
+    showBar();
+  }
+
+  function hasUpdate() { return !!waiting; }
+
+  function apply() {
+    if (!waiting) { location.reload(); return; }
+    var done = false;
+    var go = function () { if (done) return; done = true; location.reload(); };
+    try {
+      navigator.serviceWorker.addEventListener('controllerchange', go);
+      waiting.postMessage({ type: 'SKIP_WAITING' });
+    } catch (e) { go(); return; }
+    /* ولو لم يَردّ العاملُ: لا يُترَك القارئُ أمام زرٍّ لا يَصنع شيئًا */
+    setTimeout(go, 2600);
+  }
+
+  function watch() {
+    if (!('serviceWorker' in navigator)) return;
+    if (!navigator.serviceWorker.getRegistration) return;
+    navigator.serviceWorker.getRegistration().then(function (reg) {
+      if (!reg) return;
+
+      /* ‎controller‎ شرطٌ لازم: بدونه هذا أوّلُ تنصيبٍ لا تحديث،
+         فلا يُقال لقارئٍ فتح التطبيقَ لتوّه «حدِّثْ». */
+      if (reg.waiting && navigator.serviceWorker.controller) ready(reg.waiting);
+
+      reg.addEventListener('updatefound', function () {
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', function () {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) ready(nw);
+        });
+      });
+
+      var ping = function () {
+        if (document.hidden) return;
+        var t = Date.now();
+        if (t - lastCheck < CHECK_MS) return;
+        lastCheck = t;
+        try { reg.update(); } catch (e) {}
+      };
+      lastCheck = Date.now();
+      document.addEventListener('visibilitychange', ping);
+    })['catch'](function () {});
+  }
+
+  /* ── الشريط ────────────────────────────────────────────────── */
+
+  function styleOnce() {
+    if (document.getElementById('pwa-css')) return;
+    var s = document.createElement('style');
+    s.id = 'pwa-css';
+    s.textContent = [
+      /* فوقَ الملاحةِ وتحتَ الإشعارِ العابر: ‎z‎ أقلُّ من ‎#toast‎ فلا
+         يَحجبه، وقاعدتُه أعلى منه بقَدرِه فلا يَركبان موضعًا واحدًا. */
+      '.pwa-bar{position:fixed;z-index:80;inset-inline:var(--pad,16px);',
+      'bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 16px);',
+      'max-width:min(460px,calc(100% - var(--pad,16px) * 2));margin-inline:auto;',
+      'display:flex;align-items:center;',
+      'gap:10px;padding:11px 14px;border-radius:var(--r-lg,18px);',
+      /* ‎surface-2‎ لا ‎surface‎: الأرضُ كريميّةٌ والسطحُ كريميٌّ مثلُها،
+         فكان الشريطُ يَذوب فيها ويُقرأ نصُّه معلَّقًا في الهواء. وهذه
+         هي أرضُ «الإشعارِ العابر» نفسُها — فالشريطانِ من جنسٍ واحد. */
+      'background:var(--surface-2);border:1px solid var(--hair);',
+      'box-shadow:0 14px 34px -14px var(--shade-3), var(--lift,none);',
+      'animation:pwa-rise .3s ease both}',
+      '@keyframes pwa-rise{from{opacity:0;transform:translateY(10px)}}',
+      '.pwa-t{flex:1;min-width:0;font-size:13.5px;line-height:1.5;color:var(--ink)}',
+      '.pwa-t small{display:block;font-size:11.5px;color:var(--ink-faint)}',
+      '.pwa-go{flex:none;padding:8px 15px;border-radius:999px;border:0;',
+      'background:var(--accent);color:var(--on-accent);font:inherit;',
+      'font-size:13px;font-weight:700;cursor:pointer}',
+      '.pwa-x{flex:none;display:grid;place-items:center;width:30px;height:30px;',
+      'border-radius:999px;border:0;background:transparent;color:var(--ink-faint);',
+      'cursor:pointer}',
+      '@media (prefers-reduced-motion:reduce){.pwa-bar{animation:none}}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+
+  function bannerShut() {
+    if (!bar) return;
+    if (bar.parentNode) bar.parentNode.removeChild(bar);
+    bar = null;
+  }
+
+  function banner(text, note, label, go, onShut) {
+    styleOnce();
+    bannerShut();
+    bar = App.el('div', 'pwa-bar');
+    bar.setAttribute('role', 'status');
+    var t = App.el('div', 'pwa-t');
+    t.appendChild(App.el('span', '', text));
+    if (note) t.appendChild(App.el('small', '', note));
+    var b = App.el('button', 'pwa-go', label);
+    b.type = 'button';
+    b.onclick = function () { bannerShut(); go(); };
+    var x = App.el('button', 'pwa-x', App.icon('close', 16));
+    x.type = 'button';
+    x.setAttribute('aria-label', 'إخفاء');
+    x.onclick = function () { bannerShut(); if (onShut) onShut(); };
+    bar.appendChild(t); bar.appendChild(b); bar.appendChild(x);
+    document.body.appendChild(bar);
+  }
+
+  /* لا يُقاطَع قادمٌ لم يَدخل بعد: شاشةُ الاستقبالِ تَسأل القارئَ عن
+     اسمِه وصيغةِ خطابِه، فلو نزل الشريطُ فوقها لَرأى أوّلَ ما يَرى
+     كلامًا عن نسخٍ وتحديثات. فيُنتظَر حتّى يَصير في التطبيق. */
+  function busy() {
+    try {
+      var r = App.route && App.route();
+      if (!r) return true;
+      /* شاشةُ الاستقبال، وصحيفةٌ مفتوحةٌ فوقَ الشاشة، وصفحةُ المصحفِ
+         وهو يَقرأ: ثلاثةُ مواضعَ لا يُقحَم فيها خبرٌ عن نسخة. */
+      return r.name === 'onboard' || r.name === 'qpage' || !!r.sheet;
+    } catch (e) { return true; }
+  }
+
+  function showBar() {
+    if (!waiting) return;
+    if (busy()) { setTimeout(showBar, 1800); return; }
+    banner('نسخةٌ أحدثُ جاهزة',
+           'لا يَضيع من حفظك شيء.',
+           'حدِّثْ الآن', apply);
+  }
+
+  /* الدعوةُ إلى التثبيت: بعد أن يُتِمّ القارئُ وردًا — لا قبلَ ذلك.
+     من أتَمَّ وردًا فقد جرّب التطبيقَ وعَرَف أيَبقى معه أم لا، فالدعوةُ
+     حينئذٍ جوابٌ لا مقاطعة. ومرّةً واحدةً لا تُعاد. */
+  function maybeInvite() {
+    if (installed() || asked()) return;
+    if (!canInstall()) return;
+    if (busy()) { setTimeout(maybeInvite, 2500); return; }
+    var p = App.state && App.state.plans;
+    var any = false, i;
+    if (p) for (i = 0; i < p.length; i++) if (p[i].done > 0) { any = true; break; }
+    if (!any) return;
+    mark('seen');
+    banner('ثبِّتْ «رتِّل وارتقِ» على جهازك',
+           'يُفتَح من شاشتك كأيِّ تطبيق.',
+           'ثبِّتْ', install, function () { mark('no'); });
+  }
+
+  /* ── من يُخبَر إذا تبدّلت الحال ─────────────────────────────── */
+
+  function on(fn) { if (typeof fn === 'function') subs.push(fn); }
+  function off(fn) {
+    for (var i = subs.length - 1; i >= 0; i--) if (subs[i] === fn) subs.splice(i, 1);
+  }
+  function tell() {
+    for (var i = 0; i < subs.length; i++) { try { subs[i](); } catch (e) {} }
+  }
+
+  /* ── الإقلاع ───────────────────────────────────────────────── */
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    tell();
+  });
+  window.addEventListener('appinstalled', function () {
+    deferred = null;
+    mark('done');
+    bannerShut();
+    tell();
+  });
+
+  function boot() {
+    watch();
+    /* لا تُزاحم الدعوةُ أوّلَ شاشةٍ يَراها: تُؤجَّل حتّى يَستقرّ. */
+    setTimeout(maybeInvite, 2500);
+  }
+  if (document.readyState === 'complete') setTimeout(boot, 400);
+  else window.addEventListener('load', function () { setTimeout(boot, 400); });
+
+  App.PWA = {
+    installed: installed,
+    apple: apple,
+    canInstall: canInstall,
+    install: install,
+    hasUpdate: hasUpdate,
+    apply: apply,
+    /* معروضةٌ ليَبلغها الحارس: مسارُ الدعوةِ لا يُمشى بيدٍ في متصفّحٍ
+       مُختبَر، فلو لم يُنادَ من خارجِه لبَقي بلا فحصٍ إلى أن يَكسِره
+       تغييرٌ لا يَنتبه له أحد. */
+    invite: maybeInvite,
+    on: on,
+    off: off
+  };
+})(window.App);
 
 /* ══ 22-breath.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -10577,7 +10860,10 @@ App.mark = function (size, cls) {
 
     var top = App.el('div', 't-top');
     var txt = App.el('div', 't-txt');
-    var kd = App.el('div', 't-kind kchip', App.icon(k.icon, 17));
+    /* الشارةُ كانت أيقونةً وكلمةً: «حفظ» مكتوبةً وبجانبها رمزُ الحفظ.
+       والرمزُ لا يَزيد على الكلمةِ شيئًا، وإنّما يُزاحمها. فالكلمةُ
+       وحدَها، ولونُ الشارةِ يَحمل النوعَ كما كان يَحمله. */
+    var kd = App.el('div', 't-kind kchip');
     kd.appendChild(document.createTextNode(k.t));
     txt.appendChild(kd);
     var ttl = App.el('h2', 't-title');
@@ -10602,9 +10888,8 @@ App.mark = function (size, cls) {
         App.ar(P.total(p) - (p.done || 0)) + ' من ' + App.ar(P.total(p)) + '</span>';
       por.appendChild(t);
       if (open) {
-        var ic = App.el('span', 't-pico', App.icon('book', 15));
-        ic.appendChild(App.el('span', null, 'اقرأ'));
-        por.appendChild(ic);
+        /* «اقرأ» كلمةٌ صريحةٌ لا تَحتاج رمزَ مصحفٍ يُترجمها */
+        por.appendChild(App.el('span', 't-pico', 'اقرأ'));
       }
     } else {
       por.innerHTML = '<span class="t-pg">اكتمل المنهجُ كلُّه</span>';
@@ -10622,7 +10907,9 @@ App.mark = function (size, cls) {
       u.setAttribute('data-fk', 'undo-' + p.id);
       act.appendChild(u);
     } else {
-      var b = btn('t-btn t-f t-grow', App.icon('check', 20) + '<span>أتممتُ</span>',
+      /* الزرُّ الأوّلُ لا يَحتاج علامةَ صحٍّ تَشرحه: هو أكبرُ ما في
+         البطاقةِ وأوضحُه، والكلمةُ عليه تامّة. */
+      var b = btn('t-btn t-f t-grow', '<span>أتممتُ</span>',
         'أتممتُ وردَ اليوم من ' + nameOf(p), function () { complete(p); });
       b.setAttribute('data-fk', 'do-' + p.id);
       act.appendChild(b);
@@ -18059,9 +18346,13 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     return ar(n) + ' جلسة';
   }
 
+  /* ‎icon‎ يُستقبَل ولا يُرسَم: كانت أربعُ أيقوناتٍ متجاورةٍ فوقَ أربعةِ
+     أرقامٍ في صفٍّ واحد — تقويمٌ وصحٌّ ومخطَّطٌ ومصحف — فيَبتدئ القارئُ
+     صفحةَ تقدُّمِه بأربعةِ رموزٍ يَحلُّها قبل أن يَبلغ رقمًا واحدًا.
+     والرقمُ تحتَه اسمُه، فما بَقِي للرمزِ معنًى يَحمله. أُبقي الوسيطُ
+     لئلّا يُغيَّر كلُّ نداءٍ لها، ولأنّ موضعَه قد يَعود. */
   function tile(icon, big, label, cls) {
     var t = el('div', 'pr-tile' + (cls ? ' ' + cls : ''));
-    t.innerHTML = App.icon(icon, 21);
     var b = el('b'); b.textContent = big;
     var s = el('span'); s.textContent = label;
     t.appendChild(b); t.appendChild(s);
@@ -18870,6 +19161,11 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     '#settings .st-row .st-rt b{display:block;font-weight:700}',
     '#settings .st-row .st-rt small{display:block;font-size:13px;font-weight:400;' +
       'color:var(--ink-mut);margin-top:2px;line-height:1.55}',
+    /* السهمُ وعدٌ بشاشةٍ تَفتح. وصفوفُ «بياناتي» لا تَفتح شاشةً: هي
+       تُنزّل ملفًّا أو تَقرؤه أو تَمحو. فكان السهمُ يَعِد بما لا يَكون،
+       ومعه أيقونةٌ أخرى في أوّلِ الصفِّ — رمزان لفعلٍ واحد. فبَقي
+       الرمزُ الذي يُميّز الصفَّ عن أخيه وسقط السهم. والقاعدةُ باقيةٌ
+       لصفٍّ يَفتح شاشةً حقًّا إن جاء. */
     '#settings .st-row .st-chev{flex:none;color:var(--ink-mut)}',
     '#settings .st-row.st-danger{color:var(--danger);border-color:var(--danger)}',
     '#settings .st-row.st-danger .ico{color:var(--danger)}',
@@ -18907,6 +19203,16 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     '#settings .st-brand strong{display:block;font-size:19px;font-weight:800;color:var(--ink)}',
     '#settings .st-brand span{display:block;font-size:13px;color:var(--ink-mut)}',
     '#settings .st-built{margin-top:2px;font-size:12px;color:var(--ink-faint)}',
+    '#settings .st-live{margin:14px 0 2px;border-top:1px solid var(--hair);' +
+      'border-bottom:1px solid var(--hair);padding:4px 0}',
+    '#settings .st-live-r{display:flex;align-items:center;gap:10px;' +
+      'padding:9px 2px;text-align:start}',
+    '#settings .st-live-r + .st-live-r{border-top:1px solid var(--hair)}',
+    '#settings .st-live-t{flex:1;min-width:0;font-size:12.5px;line-height:1.6;' +
+      'color:var(--ink-faint)}',
+    '#settings .st-live-go{flex:none;padding:7px 14px;border-radius:999px;' +
+      'border:0;background:var(--accent);color:var(--on-accent);font:inherit;' +
+      'font-size:12.5px;font-weight:700;cursor:pointer}',
     '#settings .st-about p{margin:0 0 11px;font-size:14.5px;line-height:1.95;color:var(--ink-mut)}',
     '#settings .st-about p:last-of-type{margin-bottom:0}',
     /* الخاتمةُ مركزٌ لا سطرٌ جانبيّ: هي آخرُ ما تَقع عليه العينُ في
@@ -19437,8 +19743,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       bExp.type = 'button';
       bExp.innerHTML = ic(['download'], 22) +
         '<span class="st-rt"><b>تصدير نسخة</b>' +
-        '<small>ملفٌّ فيه ملفُّك ومناهجُك وحلقاتُك.</small></span>' +
-        '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
+        '<small>ملفٌّ فيه ملفُّك ومناهجُك وحلقاتُك.</small></span>';
       bExp.onclick = function () { doExport(); };
       rows.appendChild(bExp);
 
@@ -19451,8 +19756,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
         bSeal.type = 'button';
         bSeal.innerHTML = ic(['lock'], 22) +
           '<span class="st-rt"><b>تصدير نسخةٍ مختومة</b>' +
-          '<small>بكلمةٍ تَختارها. إن نَسيتَها لم تُفتَح.</small></span>' +
-          '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
+          '<small>بكلمةٍ تَختارها. إن نَسيتَها لم تُفتَح.</small></span>';
         bSeal.onclick = function () {
           var pass = window.prompt(
             'كلمةُ الختم — اكتبها في موضعٍ تَأمَنه.\n' +
@@ -19479,8 +19783,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       bImp.htmlFor = 'st-import';
       bImp.innerHTML = ic(['upload', 'import', 'copy', 'download'], 22) +
         '<span class="st-rt"><b>استيراد نسخة</b>' +
-        '<small>تحلّ محلَّ بياناتك الحاليّة بعد فحصِ الملفّ.</small></span>' +
-        '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
+        '<small>تحلّ محلَّ بياناتك الحاليّة بعد فحصِ الملفّ.</small></span>';
       file.onchange = function () { readFile(file.files && file.files[0]); };
       fwrap.appendChild(file);
       fwrap.appendChild(bImp);
@@ -19629,8 +19932,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
           b.type = 'button';
           b.innerHTML = ic(['trash'], 22) +
             '<span class="st-rt"><b>محو كلّ شيء</b>' +
-            '<small>يُمحى ملفُّك ومناهجُك وحلقاتُك من هذا المتصفّح.</small></span>' +
-            '<span class="st-chev">' + ic(['chevron'], 18) + '</span>';
+            '<small>يُمحى ملفُّك ومناهجُك وحلقاتُك من هذا المتصفّح.</small></span>';
           b.onclick = function () { drawWipe(true); };
           wipeSlot.appendChild(b);
           return;
@@ -19675,6 +19977,64 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
              ' ' + (am ? 'صباحًا' : 'مساءً');
     }
 
+    /* ── حالُ النسخةِ وحالُ التثبيت ──────────────────────────────
+       الخبرُ قبل الزرّ: يُقال للقارئ أين هو أوّلًا، ثمّ يُعرَض عليه
+       الفعلُ إن كان ثَمَّ فعل. ومن لا شيءَ عنده يَفعله يَقرأ سطرًا
+       مطمئنًّا ويَمضي — لا زرَّ رماديًّا يَحتار فيه.
+
+       وسفاري لا يُعطي زرَّ تثبيتٍ البتّة، فلا يُصطنَع له زرٌّ كاذب:
+       يُقال لصاحبِه بأيِّ يدٍ يُثبّته بنفسه. */
+    function liveState() {
+      var P = App.PWA;
+      var box = App.el('div', 'st-live');
+      if (!P) return box;
+
+      function row(text, label, go) {
+        var r = App.el('div', 'st-live-r');
+        r.appendChild(txt('span', 'st-live-t', text));
+        if (label) {
+          var b = App.el('button', 'st-live-go', label);
+          b.type = 'button';
+          b.onclick = go;
+          r.appendChild(b);
+        }
+        return r;
+      }
+
+      function paint() {
+        box.innerHTML = '';
+        if (P.hasUpdate()) {
+          box.appendChild(row('نسخةٌ أحدثُ جاهزةٌ على جهازك.',
+            'حدِّثْ الآن', function () { P.apply(); }));
+        } else {
+          box.appendChild(row('نسختُك هي الأحدث.', null, null));
+        }
+
+        if (P.installed()) {
+          box.appendChild(row('التطبيقُ مُثبَّتٌ على جهازك.', null, null));
+        } else if (P.canInstall()) {
+          box.appendChild(row('التطبيقُ غيرُ مُثبَّت.',
+            'ثبِّتْه', function () { P.install(); }));
+        } else if (P.apple()) {
+          box.appendChild(row('التطبيقُ غيرُ مُثبَّت. افتح زِرَّ المشاركة ' +
+            'في أسفلِ سفاري، ثمّ «إضافة إلى الشاشة الرئيسية».', null, null));
+        } else {
+          box.appendChild(row('التطبيقُ غيرُ مُثبَّت. يُثبِّته متصفّحُك من ' +
+            'قائمته حين يَراك عُدتَ إليه مرّاتٍ.', null, null));
+        }
+      }
+
+      /* يُنصَت ما دام اللوحُ معروضًا: فإن نزلت نسخةٌ والقارئُ ههنا
+         تبدّل السطرُ تحت عينِه. وإذا زال اللوحُ رُفع الإنصات. */
+      var upd = function () {
+        if (!box.isConnected) { P.off(upd); return; }
+        paint();
+      };
+      P.on(upd);
+      paint();
+      return box;
+    }
+
     /* ═══ ٤ · عن التطبيق ══════════════════════════════════════════ */
     function paneAbout() {
       var box = App.el('div', 'st-card st-about');
@@ -19703,6 +20063,11 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
         }
       }
       box.appendChild(brand);
+
+      /* حالُ النسخةِ وحالُ التثبيت: خبرانِ لا يَعرفهما القارئُ إلّا
+         من ههنا — أعندي أحدثُ نسخةٍ أم نزلت واحدةٌ تَنتظر؟ وهل
+         التطبيقُ على شاشتي أم أنا في متصفّحٍ أَفقِده إن أُغلق؟ */
+      box.appendChild(liveState());
 
       /* ثلاثُ فقراتٍ كانت تَشرح للحافظِ كيف بُني التطبيق: لا خادمَ، ولا
          حساب، وأين تُخزَّن بياناتُه، وكيف تعمل الحلقات. وهو لم يَفتح

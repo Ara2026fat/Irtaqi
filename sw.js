@@ -6,7 +6,7 @@
 // يمنع ظهور زر "تثبيت التطبيق" على الجوال بلا أي رسالة خطأ مفهومة.
 // البديل: تخزين كل ملف على حدة، وتجاهل الفاشل بدل إسقاط الجميع.
 // ============================================================================
-const CACHE_NAME = 'irtaqi-cache-v27';
+const CACHE_NAME = 'irtaqi-cache-v1.28';
 
 // نقطة الدخول صارت index.html ليعمل الرابط المختصر على GitHub Pages
 // (الجذرُ أيًّا كان: github.io/Irtaqi/ أو دومينٌ خاصّ). كان الاسم
@@ -35,7 +35,14 @@ self.addEventListener('install', function (event) {
       });
     })
   );
-  self.skipWaiting();
+  // ‫لا skipWaiting() ههنا: كان العامل الجديد يَحلّ محلّ القديم وقارئٌ
+  // ‫يقرأ، فتَبقى صفحتُه القديمةُ وتُجلَب ملفّاتُها من نسخةٍ أخرى.
+  // ‫فالانتظارُ هو الأصل، ولا يُتخطّى إلّا بإذنٍ من صاحب الجهاز أدناه.
+});
+
+// ‫التطبيقُ يَطلب التخطّي حين يَضغط القارئُ «حدِّثْ الآن».
+self.addEventListener('message', function (event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', function (event) {

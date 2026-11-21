@@ -48,6 +48,24 @@ if ('serviceWorker' in navigator) {
 </html>"""
 
 
+BUILD_RE = re.compile(r'window\.__BUILD=\{v:"([^"]+)"')
+CACHE_RE = re.compile(r"(const CACHE_NAME = ')[^']*(')")
+
+
+def stamp(html: str) -> None:
+    """‫يَنقل رقمَ النسخة من الملفِّ المبنيِّ إلى اسم مخزن sw.js."""
+    m = BUILD_RE.search(html)
+    sw = HERE / 'sw.js'
+    if not m or not sw.is_file():
+        return
+    want = 'irtaqi-cache-v' + m.group(1)
+    txt = sw.read_text(encoding='utf-8')
+    new, n = CACHE_RE.subn(lambda x: x.group(1) + want + x.group(2), txt, count=1)
+    if n and new != txt:
+        sw.write_text(new, encoding='utf-8')
+        print('sw.js  · المخزن %s' % want)
+
+
 def main() -> int:
     src = Path(sys.argv[1] if len(sys.argv) > 1 else HERE.parent / 'irtaqi' / 'IRTAQI.html')
     if not src.is_file():
@@ -70,6 +88,12 @@ def main() -> int:
     # ‫فكان ملفُّ التجربة skin.html يُنسَخ باليدِ مرّةً ثمّ يُنسى — فيَفحصه
     # ‫صاحبُه وهو بناءٌ قديمٌ لا تَبلغه الإصلاحات. والنسيانُ لا يُعالَج
     # ‫بالتذكّرِ بل بإزالةِ الخطوةِ التي تُنسى.
+    # ‫رقمُ المخزنِ المؤقّتِ يُؤخَذ من رقم النسخة، لا يُكتَب بيد.
+    # ‫كان يُرفَع بـsed في سطرٍ منفصل، وخطوةٌ منفصلةٌ تُنسى: فتُنشَر نسخةٌ
+    # ‫جديدةٌ باسم مخزنٍ قديمٍ فلا يَرى أحدٌ منها شيئًا. وما يُنسى يُزال
+    # ‫لا يُتذكَّر.
+    stamp(html)
+
     out = HERE / (sys.argv[2] if len(sys.argv) > 2 else 'index.html')
     out.write_text(html, encoding='utf-8')
     print('كُتب %s — %.1f م.ب' % (out.name, out.stat().st_size / 1048576))
