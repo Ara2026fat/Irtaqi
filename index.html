@@ -1479,6 +1479,13 @@ input.inp:focus,select.inp:focus,textarea.inp:focus{
     scrollbar-width:thin;
     scrollbar-color:var(--hair) transparent;
   }
+  /* علامةُ «تحته بقيّة»: ظلٌّ داخليٌّ في الحافّةِ السفلى. وهي
+     ضرورةٌ لا زينة — شريطُ الانزلاقِ لا يَظهر على آيفون وهو ساكن،
+     فيُقرأ السطرُ المقطوعُ منتهًى وليس به. وتَزول عند بلوغِ القاع. */
+  .segpane.is-more{
+    box-shadow:inset 0 -26px 20px -20px var(--shade-3);
+    transition:box-shadow var(--mid) var(--ease);
+  }
   .segpane::-webkit-scrollbar{ width:4px }
   .segpane::-webkit-scrollbar-thumb{
     background:var(--hair); border-radius:var(--r-pill) }
@@ -2931,13 +2938,39 @@ App.seg = function (items, opts) {
   function cap() {
     if (pane.parentNode && pane.parentNode.closest
         && pane.parentNode.closest('.segpane')) return;
-    requestAnimationFrame(function () {
+    var measure = function () {
       if (!pane.isConnected) return;
       var app = document.getElementById('app');
       var pb = app ? parseFloat(getComputedStyle(app).paddingBottom) || 0 : 0;
-      var top = pane.getBoundingClientRect().top + (window.scrollY || 0);
-      pane.style.setProperty('--pane-cap', Math.ceil(top + pb + 6) + 'px');
-    });
+
+      /* نسبةً إلى النافذةِ لا إلى الوثيقة. والسقفُ يُطرَح من ‎100dvh‎
+         وهي ارتفاعُ النافذة، فلا يَصحّ أن يُقاس من أعلى الوثيقة.
+         وكانت تُزاد ‎scrollY‎: فإذا فُتحت الشاشةُ من قائمةٍ مُمرَّرةٍ
+         ولم يكن التمريرُ قد صَفَر بعدُ — وهو ما يَقع على آيفون لأنّ
+         سفاري يُصفّره متأخّرًا — صار السقفُ أكبرَ من الشاشةِ كلِّها
+         فانسحق اللوحُ إلى سطرٍ واحدٍ مقطوع. */
+      var c = Math.ceil(pane.getBoundingClientRect().top + pb + 6);
+
+      /* أرضيّةٌ لا يَنزل تحتها: أيُّ قياسٍ خاطئٍ يُفيض الصفحةَ ولا
+         يُخفي شيئًا. والفيضُ يُمرَّر، والسحقُ لا حيلةَ فيه. */
+      var vh = window.innerHeight || 0;
+      if (vh && c > vh - 200) c = vh - 200;
+      if (c < 0) c = 0;
+      pane.style.setProperty('--pane-cap', c + 'px');
+      more();
+    };
+    requestAnimationFrame(measure);
+    /* قياسةٌ ثانيةٌ بعد أن يَستقرّ شريطُ المتصفّحِ وينتهي الانتقال */
+    setTimeout(measure, 340);
+  }
+
+  /* هل تحت آخرِ سطرٍ سطر؟ شريطُ الانزلاقِ لا يَظهر على آيفون وهو
+     ساكن، فيَظنّ القارئُ أنّ المقطوعَ هو المنتهى. فتُوضَع علامةٌ
+     في حافّةِ اللوحِ السفلى ما دام فيه بقيّة. */
+  function more() {
+    if (!pane.isConnected) return;
+    var rest = pane.scrollHeight - pane.clientHeight - pane.scrollTop;
+    pane.classList.toggle('is-more', rest > 2);
   }
 
   items.forEach(function (it, i) {
@@ -2972,6 +3005,7 @@ App.seg = function (items, opts) {
     if (k >= 0) start = k;
   }
   show(start);
+  pane.addEventListener('scroll', more, { passive: true });
   wrap.recap = cap;                    /* لتُعاد القياسةُ عند تبدّلِ القياس */
   return wrap;
 };
