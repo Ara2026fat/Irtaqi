@@ -6850,13 +6850,22 @@ App.mark = function (size, cls) {
   /* الإطار: شارةٌ تقول «مثال» وسطرٌ يقول ما هو ولماذا هو هنا، ثمّ
      المحتوى معزولًا عن اللمسِ وعن قارئ الشاشةِ جميعًا — فلا يُظنّ
      إنجازًا، ولا يُقرأ على الأعمى بوصفه بياناتِه. */
-  function frame(title, node, note) {
+  /* ‎opts.open‎: يُفتَح المثالُ من أوّله. يُمرَّر حين يكون المثالُ
+     لسانًا اسمُه «مثال» — فالطالبُ طلبه بفتحِ اللسان، ولا يُطلَب
+     منه طلبُه مرّتين. وفي غيرِ ذلك يُطوى. */
+  function frame(title, node, note, opts) {
     styleOnce();
     var box = App.el('section', 'ex-frame');
+    var start = !!(opts && opts.open);
 
-    var cap = App.el('div', 'ex-cap');
+    /* الطيُّ هو الأصل: شاشةُ أوّلِ مرّةٍ كانت تَفتح المثالَ من تلقاء
+       نفسِها، فيَرى الداخلُ وردًا كاملًا ليس وردَه فيَحسبه حالَه —
+       وذلك تشويشٌ لا بيان. فصار سطرًا يُفصح عن نفسِه ويُفتَح بضغطة. */
+    var cap = App.el('button', 'ex-cap');
+    cap.type = 'button';
     cap.appendChild(App.el('span', 'ex-tag', 'مثال'));
     cap.appendChild(App.el('span', 'ex-t', title));
+    cap.appendChild(App.el('span', 'ex-chev', App.icon('chevron', 18)));
     box.appendChild(cap);
 
     var body = App.el('div', 'ex-body');
@@ -6864,11 +6873,24 @@ App.mark = function (size, cls) {
     body.appendChild(node);
     box.appendChild(body);
 
+    var n = null;
     if (note) {
-      var n = App.el('p', 'ex-note');
+      n = App.el('p', 'ex-note');
       n.textContent = note;
       box.appendChild(n);
     }
+
+    function set(open) {
+      box.classList.toggle('ex-open', open);
+      cap.setAttribute('aria-expanded', String(open));
+      cap.setAttribute('aria-label', (open ? 'إخفاءُ المثال: ' : 'عرضُ المثال: ') + title);
+      body.hidden = !open;
+      if (n) n.hidden = !open;
+    }
+    cap.addEventListener('click', function () {
+      set(cap.getAttribute('aria-expanded') !== 'true');
+    });
+    set(start);
     return box;
   }
 
@@ -6894,13 +6916,22 @@ App.mark = function (size, cls) {
 
   var CSS = [
     '.ex-frame{margin-top:18px}',
-    /* الشاشاتُ القصيرة: المثالُ أوّلُ ما يُستغنى عنه. مَن شاشتُه أقصرُ
-       من ثمانِ مئةٍ يَحتاج العنوانَ والزرَّ في شاشةٍ واحدةٍ قبل أن يَحتاج
-       أن يُريَه أحدٌ شكلَ يومِه — ويَراه بعد أوّلِ منهجٍ يُنشئه.
-       وشاشةُ «اليوم» الفارغةُ لا ألسنةَ فيها تَحمل المثالَ عنها كما في
-       «المصحف» و«تقدُّمي»، فالاستغناءُ هو بابُها الوحيدُ إلى شاشةٍ واحدة. */
-    '@media (max-height:779px){ .t-empty .ex-frame{display:none} }',
-    '.ex-cap{display:flex;align-items:center;gap:8px;margin-bottom:11px}',
+    /* كان يُحذَف من الشاشاتِ القصيرةِ لأنّه مفتوحٌ يأخذ ثُلثَ الشاشة.
+       وقد صار مطويًّا سطرًا واحدًا بأربعةٍ وأربعين بكسلًا، فلا يُزاحم
+       أحدًا — فبقي لصاحبِ الشاشةِ القصيرةِ أيضًا، يَفتحه إن أراد. */
+    /* السطرُ زرٌّ كاملُ العرض: يُلمَس بإصبعٍ ولا يُلتمَس */
+    '.ex-cap{display:flex;align-items:center;gap:8px;width:100%;',
+    '  min-height:var(--tap);padding:6px 2px;margin:0;border:0;background:none;',
+    '  text-align:start;cursor:pointer;color:inherit;font:inherit}',
+    /* ‎hidden‎ وحدَها لا تَكفي: قاعدةٌ أخرى تُعطي اللوحَ ‎display:flex‎
+       فتَغلب ‎[hidden]‎ الافتراضيّة. فيُصرَّح بالإخفاءِ هنا. */
+    '.ex-frame > [hidden]{display:none}',
+    '.ex-frame.ex-open > .ex-cap{margin-bottom:11px}',
+    '.ex-chev{margin-inline-start:auto;display:inline-flex;color:var(--ink-faint);',
+    '  transition:transform var(--mid) var(--ease)}',
+    '.ex-frame.ex-open > .ex-cap .ex-chev{transform:rotate(-90deg)}',
+    '[dir="rtl"] .ex-chev{transform:rotate(180deg)}',
+    '[dir="rtl"] .ex-frame.ex-open > .ex-cap .ex-chev{transform:rotate(-90deg)}',
     '.ex-tag{padding:2px 9px;border-radius:var(--r-pill);',
     '  background:var(--gold-soft);color:var(--gold-lit);',
     '  font-size:11px;font-weight:800}',
@@ -12283,7 +12314,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
           'هكذا يمتلئ مصحفُك بعد أربعين يومًا', ex.map,
           /* النصُّ يَصف ما تُرى لا ما تَمنّيتُه: الخريطةُ تصبغ المقروءَ
              بلونٍ واحدٍ وتُعلّم الموضعَ الحاضر، ولا تُفرّق الأنواع. */
-          'هكذا يمتلئ مصحفُك صفحةً صفحة.');
+          /* لسانُه اسمُه «مثال»: فتحُه طلبٌ له، فلا يُطلَب مرّتين */
+          'هكذا يمتلئ مصحفُك صفحةً صفحة.', { open: true });
       }
     }
 
