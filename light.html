@@ -2487,7 +2487,7 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.30",at:"2026-11-22T01:27:07+03:00"};</script>
+<script>window.__BUILD={v:"1.31",at:"2026-11-22T14:11:59+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -18851,7 +18851,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     '#settings .st-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}',
     '#settings .st-idcard{position:relative;overflow:hidden;display:flex;' +
       'flex-direction:column;align-items:center;justify-content:center;gap:9px;' +
-      'min-height:116px;padding:14px 10px;border:1.5px solid;cursor:pointer;' +
+      'min-height:98px;padding:14px 10px;border:1.5px solid;cursor:pointer;' +
       'font-family:inherit;-webkit-tap-highlight-color:transparent;' +
       'transition:transform var(--fast) var(--ease),box-shadow var(--mid) var(--ease)}',
     '#settings .st-idcard:active{transform:scale(.985)}',
@@ -18862,12 +18862,16 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
        سطحًا واحدًا عليه ثلاثةُ سطورٍ صوريّةٍ ولمسةُ لون — شاشةٌ
        مصغّرةٌ لا قائمةُ رُقَع. */
     '#settings .st-mdcard{min-height:102px;gap:10px}',
+    /* الرُّقعةُ على النصف: كانت ستّةً وستّين عرضًا فصارت ثلاثةً
+       وثلاثين، وما حولها من حشوٍ وفواصلَ على نسبتها. وهي تلميحٌ إلى
+       هيئةِ الصفحةِ لا صورةٌ لها، والتلميحُ يَكفيه الصِّغَر — وكُبرُها
+       كان يَجعلها هي البطاقةَ والاسمُ تابعًا، وإنّما الأمرُ بالعكس. */
     '#settings .st-mdface{display:flex;flex-direction:column;justify-content:center;',
-    '  gap:4px;width:66px;padding:9px 10px;border:1px solid;border-radius:9px}',
-    '#settings .st-mdface i{display:block;height:4px;border-radius:2px}',
+    '  gap:2px;width:33px;padding:5px 5px;border:1px solid;border-radius:6px}',
+    '#settings .st-mdface i{display:block;height:2px;border-radius:1px}',
     '#settings .st-mdface i:nth-child(1){width:100%}',
     '#settings .st-mdface i:nth-child(2){width:72%}',
-    '#settings .st-mdface i:nth-child(3){width:46%;height:5px}',
+    '#settings .st-mdface i:nth-child(3){width:46%;height:2.5px}',
     '#settings .st-sw{display:flex;align-items:center;gap:12px;cursor:pointer}',
     '#settings .st-sw-t{flex:1 1 auto;min-width:0}',
     '#settings .st-sw-t b{display:block;font-size:14px;font-weight:700}',
