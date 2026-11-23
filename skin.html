@@ -2913,7 +2913,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.34",at:"2026-11-23T19:20:42+03:00"};</script>
+<script>window.__BUILD={v:"1.34",at:"2026-11-23T19:29:37+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -22701,6 +22701,322 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
   App.Dar = { code: read, set: set, clear: clear, cfg: cfg, refresh: fetchCfg };
 
 }(window.App));
+
+/* ══ 70-sama.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   تجربةُ السماع — أيَصلُح المتصفّحُ حَكَمًا على التلاوة؟
+   ───────────────────────────────────────────────────────────────────
+   سُئل: ما الذي يَمنع أن أُسمّع بصوتي فيُصحّح لي؟ وهي موجودةٌ في
+   تطبيقاتٍ أخرى. والجوابُ لا يُقال بالظنّ، فهذه تجربةٌ تَحكم.
+
+   وقد كان المانعُ أمسِ قاطعًا: التعرّفُ على الصوتِ في المتصفّح
+   يَرفع صوتَ القارئِ إلى خوادمِ جوجل أو آبل. ثمّ تبدّل الحال: صار
+   في كروم تعرُّفٌ **داخلَ الجهاز** (‎processLocally‎) لا يَخرج معه
+   صوت. فسقط المانعُ الأوّلُ على كروم، وبَقي على آيفون — فسفاري
+   يَرفعه إلى آبل، وكلُّ متصفّحٍ في الآيفون سفاري في جوفه.
+
+   وبَقي المانعُ الثاني وهو الأصعب: النموذجُ مُدرَّبٌ على العربيّةِ
+   المتداولة لا على التلاوة. والمدُّ والغُنّةُ والإدغامُ والقلقلةُ
+   تُقرأ عنده لفظًا غريبًا، فيَرُدّ على القارئِ تلاوةً صحيحةً
+   ويَقول «أخطأت». وحَكَمٌ يُخطّئ المصيبَ أسوأُ من لا حَكَم — ولا
+   سيّما في مقام المصحف.
+
+   فهذه الشاشةُ تَكشف الأمرين بالعيان، في جهازِ صاحبِها ولسانِه:
+     ١ · أفي هذا الجهازِ تعرُّفٌ بالعربيّة؟ وأداخلَه أم في الخارج؟
+     ٢ · إن كان، فما جَودتُه على التلاوة؟ يُسمّع صفحةً فيُقابَل
+          ما سُمع بما في المصحف كلمةً كلمة.
+
+   وهي في SKIN وحدَها: تجربةٌ لا تَدخل التطبيقَ حتّى يُحكَم عليها.
+   ولا تَعمل إلّا على ‎https‎ — فالميكروفونُ لا يُفتَح لملفٍّ محلّيّ.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  var Q = App.Quran;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var ar = App.ar;
+
+  /* ── تسويةُ الحرفِ قبل المقابلة ──────────────────────────────
+     المسموعُ يَعود بلا تشكيلٍ ولا همزاتٍ مضبوطة، والمصحفُ مضبوطٌ
+     كلُّه. فلو قوبل الحرفُ بالحرفِ لَرُدَّ كلُّ شيءٍ خطأً. فتُسقَط
+     الحركاتُ وتُوحَّد صورُ الألفِ والياءِ والتاء، ثمّ يُقابَل. */
+  function norm(s) {
+    return String(s || '')
+      .replace(/[ً-ْٰۖ-ۭٓ-ٕ]/g, '')
+      .replace(/ـ/g, '')
+      .replace(/[آأإٱٲٳ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[^ء-ي\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /* أطولُ تسلسلٍ مشترك: يُبيّن ما سُمع على ترتيبه، ويَترك ما لم
+     يُسمَع في موضعه — لا يُقابَل كلمةً بكلمةٍ بالتوازي، فالقارئُ
+     قد يَزيد أو يَنقص فيَنخرم الصفّ كلُّه بعد الأولى. */
+  function lcs(a, b) {
+    var n = a.length, m = b.length, i, j;
+    if (!n || !m) return [];
+    var prev = new Int32Array(m + 1), cur = new Int32Array(m + 1);
+    var keep = [];
+    for (i = 0; i < n; i++) keep.push(new Uint8Array(m + 1));
+    for (i = 1; i <= n; i++) {
+      for (j = 1; j <= m; j++) {
+        if (a[i - 1] === b[j - 1]) { cur[j] = prev[j - 1] + 1; keep[i - 1][j] = 1; }
+        else if (prev[j] >= cur[j - 1]) { cur[j] = prev[j]; keep[i - 1][j] = 2; }
+        else { cur[j] = cur[j - 1]; keep[i - 1][j] = 3; }
+      }
+      prev.set(cur);
+      cur[0] = 0;
+    }
+    var hit = {}, x = n, y = m;
+    while (x > 0 && y > 0) {
+      var k = keep[x - 1][y];
+      if (k === 1) { hit[x - 1] = true; x--; y--; }
+      else if (k === 2) x--;
+      else y--;
+    }
+    return hit;
+  }
+
+  function pageWords(p) {
+    var vs = Q.page(p) || [], out = [];
+    vs.forEach(function (v) {
+      String(v.t).split(/\s+/).filter(Boolean).forEach(function (w) {
+        out.push({ raw: w, n: norm(w), s: v.s, a: v.a });
+      });
+    });
+    return out;
+  }
+
+  /* ── الشاشة ─────────────────────────────────────────────────── */
+  App.screen('sama', function (params) {
+    styleOnce();
+    var p = +(params && params.p) || 1;
+    var wrap = App.el('section', 'screen sa-wrap');
+
+    var h = App.el('header', 'sa-head');
+    h.appendChild(App.el('h1', 'sa-t', 'تجربةُ السماع'));
+    h.appendChild(App.el('p', 'sa-sub',
+      'صفحة ' + ar(p) + ' · تجربةٌ لا تَدخل التطبيقَ حتّى يُحكَم عليها'));
+    wrap.appendChild(h);
+
+    var diag = App.el('div', 'sa-diag');
+    wrap.appendChild(diag);
+
+    var acts = App.el('div', 'sa-acts');
+    var go = App.el('button', 'btn btn-pri btn-block');
+    go.type = 'button';
+    go.textContent = 'ابدأ السماع';
+    go.disabled = true;
+    acts.appendChild(go);
+    wrap.appendChild(acts);
+
+    var live = App.el('p', 'sa-live');
+    wrap.appendChild(live);
+
+    var out = App.el('div', 'sa-out');
+    wrap.appendChild(out);
+
+    /* ١ · ما الذي في هذا الجهاز؟ */
+    function line(k, v, ok) {
+      var r = App.el('div', 'sa-row' + (ok === true ? ' sa-ok' : ok === false ? ' sa-no' : ''));
+      r.appendChild(App.el('span', 'sa-k', k));
+      r.appendChild(App.el('span', 'sa-v', v));
+      diag.appendChild(r);
+      return r;
+    }
+
+    if (!SR) {
+      line('واجهةُ التعرّف', 'غيرُ موجودةٍ في هذا المتصفّح', false);
+      line('الحُكم', 'لا سبيلَ إلى السماع ههنا. جرّب كروم على أندرويد.');
+      return wrap;
+    }
+    line('واجهةُ التعرّف', 'موجودة', true);
+    line('الاتّصال', location.protocol === 'https:' ? 'آمِنٌ (https)'
+         : 'غيرُ آمِن — الميكروفونُ لا يُفتَح إلّا على https',
+         location.protocol === 'https:');
+
+    var localRow = line('داخلَ الجهاز', 'يُفحَص…');
+    var anyRow = line('بالعربيّة', 'يُفحَص…');
+    var local = false;
+
+    /* لا يُنادى الفحصُ من تلقاءِ الشاشة. جُرّب في متصفّحٍ مُختبَرٍ بلا
+       خدمةِ كلامٍ فأسقط الصفحةَ كلَّها — سقوطًا لا يُمسكه ‎try‎ لأنّه
+       في العارضِ نفسِه لا في الشيفرة. وما كان كذلك لا يُستدعى إلّا
+       بيدِ صاحبِ الجهاز، فإن سقط سقط وهو يَعلم لِمَ ضغط. */
+    function probe() {
+      if (!SR.available) {
+        localRow.className = 'sa-row sa-no';
+        localRow.lastChild.textContent =
+          'المتصفّحُ لا يَعرف الفحصَ — فالتعرّفُ عنده في الخارجِ قطعًا';
+        anyRow.lastChild.textContent = 'يُجرَّب عند البدء';
+        go.disabled = false;
+        return;
+      }
+      var LANGS = ['ar-SA', 'ar'];
+      SR.available({ langs: LANGS, processLocally: true }).then(function (r) {
+        local = (r === 'available');
+        localRow.className = 'sa-row ' + (local ? 'sa-ok' : 'sa-no');
+        localRow.lastChild.textContent =
+          r === 'available' ? 'نعم — الصوتُ لا يَخرج من جهازك'
+          : r === 'downloadable' ? 'يُمكن تنزيلُ حزمةٍ عربيّة (اضغط «نزِّل»)'
+          : r === 'downloading' ? 'الحزمةُ تَنزل الآن'
+          : 'لا — لا حزمةَ عربيّةً داخلَ هذا الجهاز';
+        if (r === 'downloadable') {
+          var dl = App.el('button', 'btn btn-ghost btn-block');
+          dl.type = 'button';
+          dl.textContent = 'نزِّل الحزمةَ العربيّة';
+          dl.onclick = function () {
+            dl.disabled = true; dl.textContent = 'يَنزل…';
+            SR.install({ langs: LANGS, processLocally: true })
+              .then(function (okk) {
+                dl.textContent = okk ? 'نزلت — أعِد فتحَ الشاشة' : 'تعذّر التنزيل';
+              })['catch'](function () { dl.textContent = 'تعذّر التنزيل'; });
+          };
+          acts.insertBefore(dl, go);
+        }
+        return SR.available({ langs: LANGS, processLocally: false });
+      }).then(function (r2) {
+        anyRow.className = 'sa-row ' + (r2 === 'available' ? 'sa-ok' : 'sa-no');
+        anyRow.lastChild.textContent =
+          r2 === 'available'
+            ? (local ? 'نعم' : 'نعم — لكن عبرَ خادمٍ خارجيّ، أي أنّ صوتَك يَخرج')
+            : 'لا يَدعم العربيّةَ أصلًا';
+        go.disabled = false;
+      })['catch'](function () {
+        localRow.lastChild.textContent = 'تعذّر الفحص';
+        go.disabled = false;
+      });
+    }
+    var pb = App.el('button', 'btn btn-ghost btn-block');
+    pb.type = 'button';
+    pb.textContent = 'افحص جهازي';
+    pb.onclick = function () {
+      pb.disabled = true;
+      pb.textContent = 'يُفحَص…';
+      probe();
+      setTimeout(function () {
+        if (pb.parentNode) pb.parentNode.removeChild(pb);
+      }, 1200);
+    };
+    acts.insertBefore(pb, go);
+    localRow.lastChild.textContent = 'اضغط «افحص جهازي»';
+    anyRow.lastChild.textContent = 'اضغط «افحص جهازي»';
+    go.disabled = false;
+
+    /* ٢ · التجربةُ نفسها */
+    var rec = null, heard = '', running = false;
+
+    go.onclick = function () {
+      if (running) { try { rec.stop(); } catch (e) {} return; }
+      heard = ''; live.textContent = ''; out.innerHTML = '';
+      try { rec = new SR(); } catch (e) { live.textContent = 'تعذّر البدء.'; return; }
+      rec.lang = 'ar-SA';
+      rec.continuous = true;
+      rec.interimResults = true;
+      if (local) { try { rec.processLocally = true; } catch (e) {} }
+
+      rec.onresult = function (ev) {
+        var fin = '', tmp = '', i;
+        for (i = ev.resultIndex; i < ev.results.length; i++) {
+          if (ev.results[i].isFinal) fin += ev.results[i][0].transcript + ' ';
+          else tmp += ev.results[i][0].transcript + ' ';
+        }
+        if (fin) heard += fin;
+        live.textContent = (heard + tmp).trim();
+      };
+      rec.onerror = function (e) {
+        live.textContent = 'خطأ: ' + (e && e.error ? e.error : 'غيرُ معروف');
+      };
+      rec.onend = function () {
+        running = false;
+        go.textContent = 'ابدأ السماع';
+        judge();
+      };
+      try { rec.start(); } catch (e) { live.textContent = 'تعذّر فتحُ الميكروفون.'; return; }
+      running = true;
+      go.textContent = 'أوقِف';
+      live.textContent = 'اقرأ…';
+    };
+
+    function judge() {
+      out.innerHTML = '';
+      var said = norm(heard).split(' ').filter(Boolean);
+      var words = pageWords(p);
+      if (!said.length) {
+        out.appendChild(App.el('p', 'sa-note', 'لم يُسمَع شيء.'));
+        return;
+      }
+      var hit = lcs(words.map(function (w) { return w.n; }), said);
+      var n = 0, box = App.el('div', 'sa-text');
+      words.forEach(function (w, i) {
+        if (i) box.appendChild(document.createTextNode(' '));
+        var sp = App.el('span', hit[i] ? 'sa-w sa-hit' : 'sa-w sa-miss');
+        sp.textContent = w.raw;
+        box.appendChild(sp);
+        if (hit[i]) n++;
+      });
+      var pct = Math.round((n / words.length) * 100);
+      var s = App.el('p', 'sa-score');
+      s.textContent = 'طابَق ' + ar(n) + ' من ' + ar(words.length)
+        + ' كلمة (' + ar(pct) + '٪). والمُلوَّنُ بالأحمرِ ما لم يُطابِق.';
+      out.appendChild(s);
+      out.appendChild(box);
+      var raw = App.el('p', 'sa-note');
+      raw.textContent = 'ما سَمِعه المتصفّحُ حرفيًّا: ' + heard.trim();
+      out.appendChild(raw);
+      out.appendChild(App.el('p', 'sa-note',
+        'احكُمْ بنفسك: إن كان ما لم يُطابِق قد قرأتَه صحيحًا، فالآلةُ ' +
+        'هي المخطئة — وتلك هي العِلّة.'));
+    }
+
+    return wrap;
+  }, { full: true });
+
+  /* مدخلٌ من صفحةِ المصحف — في الكسوةِ وحدَها */
+  App.on_('qpage', function (d) {
+    if (!d || !d.slot) return;
+    styleOnce();
+    var b = App.el('button', 'btn btn-ghost btn-block sa-entry');
+    b.type = 'button';
+    b.textContent = 'تجربة: صحِّحْ بصوتي';
+    b.onclick = function () { App.go('sama', { p: d.p }); };
+    d.slot.appendChild(b);
+  });
+
+  var done = false;
+  function styleOnce() {
+    if (done) return; done = true;
+    var s = document.createElement('style');
+    s.textContent = [
+      '.sa-wrap{padding-block-end:28px}',
+      '.sa-t{font-size:22px;margin:0}',
+      '.sa-sub{font-size:12.5px;color:var(--ink-faint);margin:4px 0 14px}',
+      '.sa-diag{border:1px solid var(--hair);border-radius:14px;overflow:hidden;',
+      '  margin-block-end:14px}',
+      '.sa-row{display:flex;gap:10px;padding:10px 12px;font-size:13px;',
+      '  align-items:baseline}',
+      '.sa-row + .sa-row{border-top:1px solid var(--hair)}',
+      '.sa-k{flex:none;min-width:7.5em;color:var(--ink-faint)}',
+      '.sa-v{flex:1;color:var(--ink)}',
+      '.sa-ok .sa-v{color:var(--accent);font-weight:700}',
+      '.sa-no .sa-v{color:var(--danger,#a33);font-weight:700}',
+      '.sa-live{min-height:2.4em;margin:12px 0;font-size:15px;line-height:1.9;',
+      '  color:var(--ink-mut)}',
+      '.sa-score{font-size:14px;font-weight:700;margin:14px 0 8px}',
+      '.sa-text{font-size:20px;line-height:2.3;text-align:start}',
+      '.sa-hit{color:var(--ink)}',
+      '.sa-miss{color:var(--danger,#a33);text-decoration:underline wavy;',
+      '  text-underline-offset:7px}',
+      '.sa-note{font-size:12px;color:var(--ink-faint);line-height:1.8;',
+      '  margin-block-start:10px}',
+      '.sa-entry{margin-block-start:10px}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+})(window.App);
 </script>
 <script>
 /* الإقلاعُ آخرَ شيء: كلُّ الوحدات سجّلت شاشاتِها وتبويباتِها قبله. */
