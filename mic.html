@@ -127,6 +127,14 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
     <p class="lead">خمسُ درجات. كلُّ درجةٍ تُثبِت شيئًا واحدًا. فحيثما تَقف، هناك العطل.</p>
   </header>
 
+  <!-- ٠ · البابُ الذي دخلتَ منه: يُفحَص قبل كلِّ شيء -->
+  <section class="fix" id="door" hidden>
+    <h3 id="doort"></h3>
+    <ol id="doorsteps"></ol>
+    <div class="urlbox" id="doorurl"></div>
+    <div class="row"><button id="bcopyurl" type="button">انسخِ العنوان</button></div>
+  </section>
+
   <!-- ١ -->
   <section class="step">
     <div class="step-h"><span class="chip" id="c1">١</span>
@@ -234,6 +242,66 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
   function ar(n) {
     return String(n).replace(/[0-9]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'[+d]; });
   }
+
+  /* ══ ٠ · البابُ الذي دخلتَ منه ═══════════════════════════════
+     هذا أوّلُ ما يُفحَص، لأنّه أكثرُ الأبوابِ خطأً وأخفاها.
+
+     وقع هذا بعينِه: فُتحت الصفحةُ داخلَ عارضِ تطبيقِ كلود
+     (WebView)، فجاء السجلُّ هكذا:
+       UA=… ; wv) … Claude/1.26…
+       secure=true   origin=null
+       getUserMedia FAILED: NotAllowedError  (في أربعين جزءًا من
+                                              الثانيةِ وبلا سؤال)
+     و‎origin=null‎ هو الحكم: الصفحةُ لا أصلَ لها، وما لا أصلَ له
+     لا يُمنَح إذنًا أبدًا ولا يُسأل عنه صاحبُ الجهاز. فليس
+     العطلُ في الجوّالِ ولا في الشيفرة، بل في البابِ نفسِه.
+
+     ولا يُعالَج هذا بشيءٍ في الصفحة: يُفتَح من متصفّحٍ حقيقيٍّ
+     بعنوانٍ حقيقيّ، وإلّا فلا. فتُقال الحقيقةُ ويُدَلّ على
+     الباب. */
+  (function door() {
+    var ua = navigator.userAgent;
+    var inApp = /; wv\)/.test(ua) || /Claude\//.test(ua)
+             || /FBAN|FBAV|Instagram|Line\/|Twitter/.test(ua);
+    var noOrigin = (location.origin === 'null' || !location.origin
+                 || location.protocol === 'file:' || location.protocol === 'content:');
+    if (!inApp && !noOrigin) return;
+
+    var d = document.getElementById('door');
+    var t = document.getElementById('doort');
+    var ol = document.getElementById('doorsteps');
+    var box = document.getElementById('doorurl');
+    d.hidden = false;
+
+    var L = [];
+    if (noOrigin) {
+      t.textContent = 'توقّفْ — الميكروفونُ لن يَعمل ههنا مهما فعلت';
+      L.push('هذه الصفحةُ مفتوحةٌ <b>من ملفٍّ لا من عنوان</b> '
+        + '(<code>origin = null</code>). والمتصفّحُ لا يَمنح الميكروفونَ '
+        + 'لصفحةٍ بلا عنوان، ولا يَسألك عنه أصلًا — فيَرفض في طَرفةِ عين.');
+    } else {
+      t.textContent = 'توقّفْ — أنت داخلَ عارضِ تطبيقٍ لا داخلَ متصفّح';
+      L.push('أنت تَقرأ هذه الصفحةَ <b>داخل تطبيقٍ آخر</b> '
+        + '(عارضٌ مدمَجٌ — WebView). وهذه العوارضُ لا تُعطي الميكروفونَ '
+        + 'للصفحات، ولا تَملك أن تَسألك الإذن.');
+    }
+    L.push('<b>الحلّ:</b> ارفع الحزمةَ إلى الموقع، ثمّ افتح '
+      + '<b>كروم</b> واكتب العنوانَ الذي تحت — أو انسخه والصقْه في كروم.');
+    L.push('ثمّ عُدْ إلى هذه الدرجاتِ من هناك.');
+    L.forEach(function (x) {
+      var li = document.createElement('li'); li.innerHTML = x; ol.appendChild(li);
+    });
+    box.textContent = 'https://rattilwartaqi.com/mic.html';
+
+    document.getElementById('bcopyurl').onclick = function () {
+      var b = this;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('https://rattilwartaqi.com/mic.html')
+          .then(function () { b.textContent = 'نُسخ — الصقْه في كروم'; })
+          .catch(function () { b.textContent = 'انسخه بيدك من فوق'; });
+      } else b.textContent = 'انسخه بيدك من فوق';
+    };
+  })();
 
   /* ── ١ · المتصفّح ─────────────────────────────────────────── */
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
