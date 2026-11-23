@@ -2571,7 +2571,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.42",at:"2026-11-23T22:40:25+03:00"};</script>
+<script>window.__BUILD={v:"1.43",at:"2026-11-23T23:27:09+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14453,9 +14453,6 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     if (/iPad|iPhone|iPod/.test(ua)) return true;
     return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
   }
-  function onDevice() {
-    return !apple() && !!(SR && SR.available);
-  }
 
   /* ── تسويةُ الحرف ───────────────────────────────────────────── */
   function norm(s) {
@@ -14546,11 +14543,26 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       warn.textContent = 'في هذا الجهاز: صوتُك يُرسَل إلى آبل ليُفهَم — '
         + 'لا يَبقى فيه. وقد يَنقطع السماعُ عند الوقف، فتَضغط «ابدأ» ثانية.';
       wrap.appendChild(warn);
-    } else if (!onDevice()) {
+    } else {
       wrap.appendChild(App.el('p', 'sa-warn',
-        'قد يُرسَل صوتُك إلى خادمِ المتصفّحِ ليُفهَم. '
-        + 'وكروم الحديثُ يَفهمه داخلَ الجهازِ إن نزلت الحزمةُ العربيّة.'));
+        'صوتُك يُرسَل إلى خادمِ المتصفّحِ ليُفهَم، ولا يَمرّ بنا '
+        + 'ولا يُحفَظ عندنا. والسردُ يَطلب اتّصالًا.'));
     }
+
+    /* ══ سطرُ الحال ═════════════════════════════════════════════
+       قال صاحبُ التطبيق: «أنا أسرُد ولا شيءَ يتغيّر.» وكانت
+       الشاشةُ لا تَملك ما تُجيبه به: عدّادٌ واقفٌ على الصفرِ وزرٌّ
+       أحمر، والخبرُ — إن كان — في سطرٍ تحتَ الطَّيِّ لا يُرى.
+
+       فصار ههنا، فوقَ اللوحِ لا تحتَه، ويَقول أيَّ الثلاثةِ وقع:
+       لم يُفتَح الميكروفون، أو فُتح ولم يَصِل صوت، أو وصل صوتٌ
+       وهذا نصُّه — فإن ظَهر النصُّ ولم تَتقدّم الصفحةُ فالعلّةُ
+       في المطابقةِ لا في السماع. وبهذا يُشخَّص العطلُ من الجهازِ
+       نفسِه، ولا أملك أنا أن أسمعَ بأذنِه. */
+    var state = App.el('p', 'sa-state');
+    state.setAttribute('aria-live', 'polite');
+    state.textContent = 'اضغط «ابدأ السرد»، ثمّ اقرأ.';
+    wrap.appendChild(state);
 
     /* لوحُ الصفحة: كلُّ كلمةٍ موضعُها محفوظٌ وحبرُها غائب */
     var sheet = App.el('div', 'sa-page');
@@ -14591,6 +14603,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     wrap.appendChild(hint);
 
     var ptr = 0, rec = null, running = false, spin = 0, startedAt = 0;
+    var gotAny = false;
+
+    /* ‎0‎ خبرٌ · ‎1‎ عطلٌ يَمنع · ‎2‎ تنبيهٌ لا يَمنع */
+    function say(t, kind) {
+      state.textContent = t;
+      state.className = 'sa-state' + (kind === 1 ? ' sa-bad'
+                                    : kind === 2 ? ' sa-warn-l' : '');
+    }
 
     function paint() {
       var i;
@@ -14621,30 +14641,60 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       if (j !== ptr) { ptr = j; paint(); }
     }
 
+    /* صمتٌ طويلٌ بعد الفتح: خبرٌ، لا سكوت */
+    var deaf = 0;
+    function watchSilence() {
+      clearTimeout(deaf);
+      deaf = setTimeout(function () {
+        if (running && !gotAny) {
+          state.textContent = 'الميكروفونُ مفتوحٌ ولم يَصِل منه شيء. '
+            + 'تأكّد أنّك أذِنتَ للموقعِ بالميكروفون، وأنّ سمّاعةً '
+            + 'موصولةً لا تَسرق الصوت.';
+          state.className = 'sa-state sa-bad';
+        }
+      }, 7000);
+    }
+
     go.onclick = function () {
       if (running) { try { rec.stop(); } catch (e) {} return; }
-      try { rec = new SR(); } catch (e) { hint.textContent = 'تعذّر البدء.'; return; }
+      try { rec = new SR(); } catch (e) { say('تعذّر البدء.', 1); return; }
       rec.lang = 'ar-SA';
       rec.continuous = true;
       rec.interimResults = true;
       rec.maxAlternatives = 1;
-      /* إن كان في الجهازِ تعرُّفٌ داخليٌّ فهو أَولى: لا يَخرج الصوت */
-      try { rec.processLocally = true; } catch (e) {}
+      /* ‎processLocally‎ لا تُطلَب ههنا.
+         كانت تُضبَط دائمًا، وهي في كروم تَعني: «لا تَعمل إلّا
+         بالتعرّفِ الذي في الجهاز». فإن لم تَكن الحزمةُ العربيّةُ
+         منزَّلةً — وهي ليست منزَّلةً في أكثرِ الأجهزة — لم يَصِل
+         من الميكروفونِ شيءٌ أصلًا، ولا خطأَ ظاهرًا يُنبّه.
+         وهذا عينُ ما وقع: «أنا أسرُد ولا شيءَ يتغيّر.»
+         فالأصلُ اليومَ ما يَعمل، والتحذيرُ أعلاه قائمٌ صريحٌ
+         بأنّ الصوتَ قد يَخرج ليُفهَم. */
 
       rec.onresult = function (ev) {
         var all = '', i;
         /* من أوّلِ النتائجِ لا من ‎resultIndex‎: التعرّفُ يُراجع حَدسَه */
         for (i = 0; i < ev.results.length; i++) all += ev.results[i][0].transcript + ' ';
+        gotAny = true;
+        clearTimeout(deaf);
+        var before = ptr;
         advance(all);
+        var tail = all.trim().split(/\s+/).slice(-6).join(' ');
+        if (ptr > before) say('سُمع: ' + tail, 0);
+        else say('سُمع: ' + tail + ' — ولم تُطابِق الكلمةَ المنتظَرة.', 2);
       };
       rec.onerror = function (e) {
         var k = e && e.error;
-        hint.textContent =
-          k === 'not-allowed' ? 'لم يُؤذَن للميكروفون.'
-          : k === 'no-speech' ? 'لم يُسمَع شيء.'
-          : k === 'language-not-supported' ? 'العربيّةُ غيرُ مدعومةٍ في هذا الجهاز.'
-          : k === 'network' ? 'التعرّفُ يَطلب شبكةً في هذا المتصفّح.'
-          : 'تعذّر: ' + (k || 'غيرُ معروف');
+        say(
+          k === 'not-allowed' || k === 'service-not-allowed'
+            ? 'لم يُؤذَن للميكروفون. افتح إعداداتِ الموقعِ في المتصفّحِ وأذَنْ له.'
+          : k === 'no-speech' ? 'لم يُسمَع شيءٌ بعد — اقرأ بصوتٍ أوضح.'
+          : k === 'language-not-supported'
+            ? 'العربيّةُ غيرُ مدعومةٍ في تعرُّفِ هذا الجهاز.'
+          : k === 'audio-capture' ? 'لم يُعثَر على ميكروفون.'
+          : k === 'network' ? 'التعرُّفُ يَطلب شبكةً، والشبكةُ منقطعة.'
+          : 'تعذّر: ' + (k || 'غيرُ معروف'),
+          k === 'no-speech' ? 2 : 1);
       };
       rec.onend = function () {
         /* السردُ يَطول والصمتُ يَقطع: يُعاد التشغيلُ ما دام القارئُ
@@ -14661,27 +14711,32 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
             startedAt = Date.now();
             try { rec.start(); return; } catch (e) {}
           } else {
-            hint.textContent = 'انقطع السماعُ مرّاتٍ متتابعة. '
-              + 'اضغط «ابدأ السرد» من جديدٍ لتُكمل من موضعك.';
+            say('انقطع السماعُ مرّاتٍ متتابعة. '
+              + 'اضغط «ابدأ السرد» من جديدٍ لتُكمل من موضعك.', 1);
           }
         }
+        clearTimeout(deaf);
         running = false;
         go.textContent = 'ابدأ السرد';
         go.classList.remove('sa-live');
         paint();
       };
       spin = 0;
+      gotAny = false;
       startedAt = Date.now();
-      try { rec.start(); } catch (e) { hint.textContent = 'تعذّر فتحُ الميكروفون.'; return; }
+      try { rec.start(); } catch (e) { say('تعذّر فتحُ الميكروفون.', 1); return; }
       running = true;
       go.textContent = 'أوقِف';
       go.classList.add('sa-live');
-      hint.textContent = 'اقرأ. ولن تَظهر كلمةٌ حتّى تَقولها.';
+      say('يَستمع… اقرأ، ولن تَظهر كلمةٌ حتّى تَقولها.', 0);
+      watchSilence();
+      hint.textContent = '';
       paint();
     };
 
     wrap.addEventListener('screen:leave', function () {
       running = false;
+      clearTimeout(deaf);
       if (rec) { try { rec.stop(); } catch (e) {} }
     });
 
@@ -14749,6 +14804,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       '  margin-block-end:12px}',
       '.sa-note{font-size:12.5px;color:var(--ink-faint);line-height:1.8;',
       '  margin-block-start:12px}',
+      /* سطرُ الحالِ فوقَ اللوح: يُقرَأ ولا يَصيح، ويَتلوّن عند العطل */
+      '.sa-state{font-size:12.5px;line-height:1.8;color:var(--ink-mut);',
+      '  margin:0 0 10px;min-height:1.8em;overflow-wrap:break-word}',
+      '.sa-state.sa-bad{color:var(--danger,#a33);font-weight:700}',
+      '.sa-state.sa-warn-l{color:var(--gold-lit)}',
       '.sa-entry{margin-block-start:10px}'
     ].join('');
     document.head.appendChild(s);
