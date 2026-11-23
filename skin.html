@@ -2929,7 +2929,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.39",at:"2026-11-23T21:21:24+03:00"};</script>
+<script>window.__BUILD={v:"1.40",at:"2026-11-23T22:08:24+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14087,6 +14087,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     top.appendChild(quit);
     w.appendChild(top);
 
+    /* موضعٌ تَنزل فيه طرائقُ تسميعٍ أخرى — كما تَنزل على صفحةِ
+       المصحف. وأوّلُها السردُ بالصوت: قال صاحبُ التطبيقِ وهو في
+       هذه الشاشةِ «هذه الطريقةُ القديمة»، وكانت الجديدةُ في ملفٍّ
+       لا يَبلغه أحد. فصارت تُعرَض ههنا بجوارها. */
+    var slot = App.el('div', 'tm-slot');
+    w.appendChild(slot);
+    App.emit('tasmee', { p: p, slot: slot, verses: list });
+
     /* ── الموضعُ من الجلسة: خبرٌ لا درجة ── */
     var posWrap = App.el('div', 'tm-pos');
     var posT = App.el('span', 'tm-pos-t');
@@ -14441,6 +14449,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '.tm-hint{display:flex;align-items:center;gap:7px;margin-block-start:14px;',
     '  font-size:12.5px;font-weight:600;color:var(--ink-mut)}',
     '.tm-hint .ico{flex:none;color:var(--ink-mut)}',
+    '.tm-slot:not(:empty){margin-block:4px 10px}',
     '.tm-note{margin-block-start:8px;font-size:12px;color:var(--ink-mut)}',
     /* ── الكلمةُ تُلمَس ──
        زرٌّ بلا هيئةِ زرّ: لا إطارَ ولا أرضَ ولا لونَ يُخالف جارتَه،
@@ -14490,6 +14499,355 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 /* سجلُّ الزلل مفتاحٌ أعلى تَملكه هذه الوحدة: يُسجَّل لئلّا يَحذفه
    الاستيرادُ بقائمتِه البيضاء — وكان يَسقط صامتًا في كلِّ استيراد. */
 if (window.App && window.App.ownState) window.App.ownState('slips');
+
+/* ══ 69-sama.js ══ */
+/* ═══════════════════════════════════════════════════════════════════
+   السردُ والصفحةُ تَتبعك
+   ───────────────────────────────────────────────────────────────────
+   طُلب هذا بعينه: «تَظهر الصفحةُ بيضاء، فإذا تكلّمتُ وسَمِعني الجهازُ
+   بدأ يُعطيني الآيات. لا دخلَ له بالغُنّةِ ولا بالتجويد — الآياتُ
+   فقط. فإذا وقفتُ وقف، ولا يَفتح عليَّ، وإن أخطأتُ وقف أيضًا.»
+
+   وهذا غيرُ الذي رددتُه قبلُ. ذاك حَكَمٌ على التلاوةِ يَقول «أخطأت»،
+   وهذا مِرآةٌ لا تَقول شيئًا: إن سرَدتَ مضت، وإن وقفتَ وقفت. ولا
+   تَنطق بحُكم، فلا تَظلم. وغايةُ ما يَقع عند خطأِ الآلةِ أن تَقف
+   الصفحةُ فتُعيد الكلمة — ولا تُرَدّ عليك تلاوتُك بالخطأ.
+
+   ولذلك لا يُشترَط للمطابقةِ إلّا **هُويّةُ الكلمة**: تُسقَط الحركاتُ
+   وتُوحَّد الهمزاتُ والألفُ المقصورةُ والتاءُ المربوطة. فالمدُّ
+   والغُنّةُ والقلقلةُ لا أثرَ لها، لأنّها لا تُغيّر حروفَ الكلمة.
+
+   ── كيف لا يُفتَح عليك ──
+   المطابقةُ متسلسلةٌ لا تَقفز: يُمَرّ على ما سُمع، فما طابَق الكلمةَ
+   المنتظَرةَ كُشِفت وانتُقل إلى التي بعدها، وما لم يُطابِق طُرح
+   وبَقيت المنتظَرةُ منتظَرة. فالمسموعُ يُتجاوَز، والمصحفُ لا
+   يُتجاوَز كلمةٌ منه أبدًا. وبهذا: إن أخطأتَ وقفت، وإن سكتَّ وقفت،
+   ولا تَتقدّم خطوةً لم تَقُلها.
+
+   وتُعاد المطابقةُ من أوّلها عند كلِّ ما يَرِد: فالتعرّفُ يُراجع
+   حَدسَه ويُبدّل ما قاله قبل قليل، فلو بُني على حَدسٍ مرحليٍّ لَثبت
+   الغلطُ ولم يُمحَ. وإعادةُ مئةِ كلمةٍ على مئةٍ لا تُحَسّ.
+
+   وهي في الكسوةِ وحدَها حتّى يُحكَم عليها، ولا تَعمل إلّا على https:
+   الميكروفونُ لا يُفتَح لملفٍّ محلّيّ.
+   ═══════════════════════════════════════════════════════════════════ */
+(function (App) {
+  'use strict';
+
+  var Q = App.Quran;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var ar = App.ar;
+
+  /* الآيفونُ حالةٌ على حِدَة: كلُّ متصفّحٍ فيه سفاري في جوفه، وسفاري
+     لا يَعرف ‎processLocally‎ ولا ‎available‎ — فهي من كروم. وتعرُّفُه
+     يَمضي إلى آبل، فالصوتُ يَخرج من الجهاز. ويُقال هذا للقارئِ
+     صريحًا، فليس لنا أن نُرسل صوتَ أحدٍ ونَسكت. */
+  function apple() {
+    var ua = navigator.userAgent || '';
+    if (/iPad|iPhone|iPod/.test(ua)) return true;
+    return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+  }
+  function onDevice() {
+    return !apple() && !!(SR && SR.available);
+  }
+
+  /* ── تسويةُ الحرف ───────────────────────────────────────────── */
+  function norm(s) {
+    return String(s || '')
+      .replace(/[ً-ْٰۖ-ۭٓ-ٕ]/g, '')
+      .replace(/ـ/g, '')
+      .replace(/[آأإٱٲٳ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[^ء-ي\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  /* مسافةُ تحريرٍ بحدٍّ واحد: التعرّفُ يُبدّل حرفًا أو يُسقطه، وذاك
+     ضوضاءُ آلةٍ لا خطأُ قارئ. ولا يُتسامَح في القصيرِ لئلّا تَلتبس
+     كلمةٌ بغيرها — «مِن» و«عن» حرفانِ لا ثالثَ لهما. */
+  function near(a, b) {
+    if (a === b) return true;
+    if (a.length < 4 || b.length < 4) return false;
+    if (Math.abs(a.length - b.length) > 1) return false;
+    var i = 0, j = 0, bad = 0;
+    while (i < a.length && j < b.length) {
+      if (a.charAt(i) === b.charAt(j)) { i++; j++; continue; }
+      if (++bad > 1) return false;
+      if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else { i++; j++; }
+    }
+    return bad + (a.length - i) + (b.length - j) <= 1;
+  }
+
+  function pageWords(p) {
+    var vs = Q.page(p) || [], out = [];
+    vs.forEach(function (v, vi) {
+      String(v.t).split(/\s+/).filter(Boolean).forEach(function (w, wi) {
+        out.push({ raw: w, n: norm(w), vi: vi, first: wi === 0, v: v });
+      });
+    });
+    return { words: out, verses: vs };
+  }
+
+  /* ── الشاشة ─────────────────────────────────────────────────── */
+  App.screen('sama', function (params) {
+    styleOnce();
+    var p = +(params && params.p) || 1;
+    var pg = pageWords(p);
+    var words = pg.words;
+    var wrap = App.el('section', 'screen sa-wrap');
+
+    /* الصحيفةُ تَملأ الشاشةَ ولا مَخرجَ لها إلّا Escape — وليس في
+       الجوّالِ Escape. فمَخرجُها بيدها، كما في شاشةِ التسميع. */
+    var h = App.el('header', 'sa-head');
+    var ht = App.el('div', 'sa-ht');
+    ht.appendChild(App.el('h1', 'sa-t', 'اسرُدْ، والصفحةُ تَتبعك'));
+    /* الفاصلةُ المنقوطةُ وسطَ السطرِ تُشبِه الصفرَ العربيَّ إذا جاورت
+       رقمًا: «صفحة ١ · لا» تُقرَأ «صفحة ١٠ لا». فالشَّرطةُ أسلم. */
+    ht.appendChild(App.el('p', 'sa-sub', 'صفحة ' + ar(p)
+      + ' — لا تَتقدّم كلمةً حتّى تَقولها'));
+    h.appendChild(ht);
+    var quit = App.el('button', 'btn btn-quiet btn-sm sa-quit');
+    quit.type = 'button';
+    quit.textContent = 'إنهاء';
+    quit.onclick = function () {
+      running = false;
+      if (rec) { try { rec.stop(); } catch (e) {} }
+      if (App.closeSheet) App.closeSheet();
+      else App.go('home');
+    };
+    h.appendChild(quit);
+    wrap.appendChild(h);
+
+    if (!SR) {
+      wrap.appendChild(App.el('p', 'sa-note',
+        'هذا المتصفّحُ لا يَسمع. جرّب كروم على أندرويد.'));
+      return wrap;
+    }
+    /* المِعيارُ هو السِّياقُ الآمِنُ لا الحرفُ «https»: فالعنوانُ
+       المحلّيُّ ‎127.0.0.1‎ آمِنٌ عند المتصفّحِ ويُفتَح فيه الميكروفون،
+       وكنّا نُنذِر فيه بلا سبب. */
+    if (window.isSecureContext === false) {
+      wrap.appendChild(App.el('p', 'sa-note',
+        'الميكروفونُ لا يُفتَح إلّا على اتّصالٍ آمِن (https). '
+        + 'افتح الصفحةَ من الرابطِ لا من ملفٍّ مُنزَّل.'));
+    }
+    if (apple()) {
+      var warn = App.el('p', 'sa-warn');
+      warn.textContent = 'في هذا الجهاز: صوتُك يُرسَل إلى آبل ليُفهَم — '
+        + 'لا يَبقى فيه. وقد يَنقطع السماعُ عند الوقف، فتَضغط «ابدأ» ثانية.';
+      wrap.appendChild(warn);
+    } else if (!onDevice()) {
+      wrap.appendChild(App.el('p', 'sa-warn',
+        'قد يُرسَل صوتُك إلى خادمِ المتصفّحِ ليُفهَم. '
+        + 'وكروم الحديثُ يَفهمه داخلَ الجهازِ إن نزلت الحزمةُ العربيّة.'));
+    }
+
+    /* لوحُ الصفحة: كلُّ كلمةٍ موضعُها محفوظٌ وحبرُها غائب */
+    var sheet = App.el('div', 'sa-page');
+    var spans = [];
+    words.forEach(function (w, i) {
+      if (i && w.first) {
+        var br = App.el('span', 'sa-mark');
+        br.textContent = ' ';
+        sheet.appendChild(br);
+      } else if (i) sheet.appendChild(document.createTextNode(' '));
+      var sp = App.el('span', 'sa-w');
+      /* ‎data-veil‎ يَقول للفاحص: حبرُ هذه مَستورٌ عمدًا، فلا تَقِسه
+         تباينًا. ويُرفَع عنها متى انكشفت، فتَعود تحت الحراسة. */
+      sp.setAttribute('data-veil', '1');
+      sp.textContent = w.raw;
+      sheet.appendChild(sp);
+      spans.push(sp);
+    });
+    wrap.appendChild(sheet);
+
+    var bar = App.el('div', 'sa-bar');
+    var pos = App.el('span', 'sa-pos');
+    bar.appendChild(pos);
+    wrap.appendChild(bar);
+
+    var go = App.el('button', 'btn btn-pri btn-block sa-go');
+    go.type = 'button';
+    go.textContent = 'ابدأ السرد';
+    wrap.appendChild(go);
+
+    var again = App.el('button', 'btn btn-ghost btn-block');
+    again.type = 'button';
+    again.textContent = 'من أوّل الصفحة';
+    again.onclick = function () { reset(); };
+    wrap.appendChild(again);
+
+    var hint = App.el('p', 'sa-note');
+    wrap.appendChild(hint);
+
+    var ptr = 0, rec = null, running = false, spin = 0, startedAt = 0;
+
+    function paint() {
+      var i;
+      for (i = 0; i < spans.length; i++) {
+        spans[i].classList.toggle('sa-on', i < ptr);
+        if (i < ptr) spans[i].removeAttribute('data-veil');
+        else spans[i].setAttribute('data-veil', '1');
+      }
+      pos.textContent = ar(ptr) + ' من ' + ar(words.length) + ' كلمة';
+      /* الكلمةُ المنتظَرةُ تُقرَّب إلى العين، ولا يُكشَف عنها شيء */
+      if (ptr < spans.length && running) {
+        try { spans[ptr].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+        catch (e) {}
+      }
+    }
+
+    function reset() { ptr = 0; paint(); }
+    reset();
+
+    /* ── المطابقة ────────────────────────────────────────────── */
+    function advance(heard) {
+      var toks = norm(heard).split(' ').filter(Boolean);
+      var i = 0, j = 0;
+      while (i < toks.length && j < words.length) {
+        if (near(toks[i], words[j].n)) { j++; i++; }
+        else i++;          /* يُطرَح المسموعُ، ولا تُطرَح كلمةُ المصحف */
+      }
+      if (j !== ptr) { ptr = j; paint(); }
+    }
+
+    go.onclick = function () {
+      if (running) { try { rec.stop(); } catch (e) {} return; }
+      try { rec = new SR(); } catch (e) { hint.textContent = 'تعذّر البدء.'; return; }
+      rec.lang = 'ar-SA';
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      /* إن كان في الجهازِ تعرُّفٌ داخليٌّ فهو أَولى: لا يَخرج الصوت */
+      try { rec.processLocally = true; } catch (e) {}
+
+      rec.onresult = function (ev) {
+        var all = '', i;
+        /* من أوّلِ النتائجِ لا من ‎resultIndex‎: التعرّفُ يُراجع حَدسَه */
+        for (i = 0; i < ev.results.length; i++) all += ev.results[i][0].transcript + ' ';
+        advance(all);
+      };
+      rec.onerror = function (e) {
+        var k = e && e.error;
+        hint.textContent =
+          k === 'not-allowed' ? 'لم يُؤذَن للميكروفون.'
+          : k === 'no-speech' ? 'لم يُسمَع شيء.'
+          : k === 'language-not-supported' ? 'العربيّةُ غيرُ مدعومةٍ في هذا الجهاز.'
+          : k === 'network' ? 'التعرّفُ يَطلب شبكةً في هذا المتصفّح.'
+          : 'تعذّر: ' + (k || 'غيرُ معروف');
+      };
+      rec.onend = function () {
+        /* السردُ يَطول والصمتُ يَقطع: يُعاد التشغيلُ ما دام القارئُ
+           لم يَضغط «أوقِف». وما كُشِف يَبقى مكشوفًا.
+
+           وحَدٌّ يَمنع الدَّوران: إن عاد ينتهي من فورِه مرّاتٍ
+           متتابعةً فذاك تعذُّرٌ لا صمتٌ — وسفاري يَقطع عند كلِّ
+           وقفة. فيُوقَف ويُقال، ولا يُترَك يُعيد فتحَ الميكروفون
+           بلا انتهاء. */
+        if (running) {
+          var quick = (Date.now() - startedAt) < 400;
+          spin = quick ? spin + 1 : 0;
+          if (spin < 6) {
+            startedAt = Date.now();
+            try { rec.start(); return; } catch (e) {}
+          } else {
+            hint.textContent = 'انقطع السماعُ مرّاتٍ متتابعة. '
+              + 'اضغط «ابدأ السرد» من جديدٍ لتُكمل من موضعك.';
+          }
+        }
+        running = false;
+        go.textContent = 'ابدأ السرد';
+        go.classList.remove('sa-live');
+        paint();
+      };
+      spin = 0;
+      startedAt = Date.now();
+      try { rec.start(); } catch (e) { hint.textContent = 'تعذّر فتحُ الميكروفون.'; return; }
+      running = true;
+      go.textContent = 'أوقِف';
+      go.classList.add('sa-live');
+      hint.textContent = 'اقرأ. ولن تَظهر كلمةٌ حتّى تَقولها.';
+      paint();
+    };
+
+    wrap.addEventListener('screen:leave', function () {
+      running = false;
+      if (rec) { try { rec.stop(); } catch (e) {} }
+    });
+
+    return wrap;
+  }, { full: true });
+
+  /* مدخلٌ من صفحةِ المصحف، بعد «سمِّع هذه الصفحة» مباشرةً: الطريقتان
+     متجاورتانِ فيَختار القارئُ بينهما ولا يَبحث عن إحداهما. */
+  App.on_('qpage', function (d) {
+    if (!d || !d.slot || !SR) return;
+    styleOnce();
+    var b = App.el('button', 'btn btn-ghost btn-block sa-entry');
+    b.type = 'button';
+    b.textContent = 'اسرُدْ بصوتك، والصفحةُ تَتبعك';
+    b.onclick = function () { App.go('sama', { p: d.p }); };
+    var first = d.slot.querySelector('.tm-entry');
+    if (first && first.nextSibling) d.slot.insertBefore(b, first.nextSibling);
+    else if (first) d.slot.appendChild(b);
+    else d.slot.insertBefore(b, d.slot.firstChild);
+  });
+
+  /* ومدخلٌ من شاشةِ التسميعِ نفسِها: قال صاحبُ التطبيقِ وهو فيها
+     «هذه الطريقةُ القديمة» — والجديدةُ كانت في ملفِّ تجربةٍ لا
+     يَبلغه أحد. فصارت بجوارها، في رأسِ الشاشةِ لا في ذيلها. */
+  App.on_('tasmee', function (d) {
+    if (!d || !d.slot || !SR) return;
+    styleOnce();
+    var b = App.el('button', 'btn btn-ghost btn-block sa-entry');
+    b.type = 'button';
+    b.textContent = 'اسرُدْ بصوتك، والصفحةُ تَتبعك';
+    b.onclick = function () { App.go('sama', { p: d.p }); };
+    d.slot.appendChild(b);
+  });
+
+  var done = false;
+  function styleOnce() {
+    if (done) return; done = true;
+    var s = document.createElement('style');
+    s.textContent = [
+      '.sa-wrap{padding-block-end:28px}',
+      '.sa-head{display:flex;align-items:flex-start;gap:10px;',
+      '  margin-block-end:14px}',
+      '.sa-ht{flex:1 1 auto;min-width:0}',
+      '.sa-quit{flex:0 0 auto;margin-block-start:2px}',
+      '.sa-t{font-size:21px;margin:0}',
+      '.sa-sub{font-size:12.5px;color:var(--ink-faint);margin:4px 0 0}',
+      /* الصفحةُ بيضاء: الكلماتُ موجودةٌ بمواضعها وأحجامِها، وحبرُها
+         شفّافٌ حتّى تُقال. فيَرى القارئُ أين هو من الصفحةِ ولا يَرى
+         ما فيها — وهو عَونٌ على الموضعِ لا على اللفظ. */
+      '.sa-page{font-size:21px;line-height:2.5;text-align:start;',
+      '  min-height:40vh;padding:16px 14px;border-radius:16px;',
+      '  background:var(--surface);border:1px solid var(--hair)}',
+      '.sa-w{color:transparent;border-radius:4px;',
+      '  background:var(--surface-2);box-shadow:0 0 0 2px var(--surface-2)}',
+      '.sa-w.sa-on{color:var(--ink);background:none;box-shadow:none}',
+      '@media (prefers-reduced-motion:no-preference){',
+      '  .sa-w.sa-on{animation:sa-in .28s ease both}}',
+      '@keyframes sa-in{from{opacity:0}}',
+      '.sa-mark{display:block;height:6px}',
+      '.sa-bar{display:flex;justify-content:flex-end;margin:10px 2px 12px}',
+      '.sa-pos{font-size:12px;color:var(--ink-faint)}',
+      '.sa-go.sa-live{background:var(--danger,#a33)}',
+      '.sa-warn{font-size:12.5px;line-height:1.8;color:var(--ink);',
+      '  background:var(--gold-soft);border-radius:12px;padding:10px 12px;',
+      '  margin-block-end:12px}',
+      '.sa-note{font-size:12.5px;color:var(--ink-faint);line-height:1.8;',
+      '  margin-block-start:12px}',
+      '.sa-entry{margin-block-start:10px}'
+    ].join('');
+    document.head.appendChild(s);
+  }
+})(window.App);
 
 /* ══ 70-share.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -22825,310 +23183,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
   App.Dar = { code: read, set: set, clear: clear, cfg: cfg, refresh: fetchCfg };
 
 }(window.App));
-
-/* ══ 70-sama.js ══ */
-/* ═══════════════════════════════════════════════════════════════════
-   السردُ والصفحةُ تَتبعك
-   ───────────────────────────────────────────────────────────────────
-   طُلب هذا بعينه: «تَظهر الصفحةُ بيضاء، فإذا تكلّمتُ وسَمِعني الجهازُ
-   بدأ يُعطيني الآيات. لا دخلَ له بالغُنّةِ ولا بالتجويد — الآياتُ
-   فقط. فإذا وقفتُ وقف، ولا يَفتح عليَّ، وإن أخطأتُ وقف أيضًا.»
-
-   وهذا غيرُ الذي رددتُه قبلُ. ذاك حَكَمٌ على التلاوةِ يَقول «أخطأت»،
-   وهذا مِرآةٌ لا تَقول شيئًا: إن سرَدتَ مضت، وإن وقفتَ وقفت. ولا
-   تَنطق بحُكم، فلا تَظلم. وغايةُ ما يَقع عند خطأِ الآلةِ أن تَقف
-   الصفحةُ فتُعيد الكلمة — ولا تُرَدّ عليك تلاوتُك بالخطأ.
-
-   ولذلك لا يُشترَط للمطابقةِ إلّا **هُويّةُ الكلمة**: تُسقَط الحركاتُ
-   وتُوحَّد الهمزاتُ والألفُ المقصورةُ والتاءُ المربوطة. فالمدُّ
-   والغُنّةُ والقلقلةُ لا أثرَ لها، لأنّها لا تُغيّر حروفَ الكلمة.
-
-   ── كيف لا يُفتَح عليك ──
-   المطابقةُ متسلسلةٌ لا تَقفز: يُمَرّ على ما سُمع، فما طابَق الكلمةَ
-   المنتظَرةَ كُشِفت وانتُقل إلى التي بعدها، وما لم يُطابِق طُرح
-   وبَقيت المنتظَرةُ منتظَرة. فالمسموعُ يُتجاوَز، والمصحفُ لا
-   يُتجاوَز كلمةٌ منه أبدًا. وبهذا: إن أخطأتَ وقفت، وإن سكتَّ وقفت،
-   ولا تَتقدّم خطوةً لم تَقُلها.
-
-   وتُعاد المطابقةُ من أوّلها عند كلِّ ما يَرِد: فالتعرّفُ يُراجع
-   حَدسَه ويُبدّل ما قاله قبل قليل، فلو بُني على حَدسٍ مرحليٍّ لَثبت
-   الغلطُ ولم يُمحَ. وإعادةُ مئةِ كلمةٍ على مئةٍ لا تُحَسّ.
-
-   وهي في الكسوةِ وحدَها حتّى يُحكَم عليها، ولا تَعمل إلّا على https:
-   الميكروفونُ لا يُفتَح لملفٍّ محلّيّ.
-   ═══════════════════════════════════════════════════════════════════ */
-(function (App) {
-  'use strict';
-
-  var Q = App.Quran;
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  var ar = App.ar;
-
-  /* الآيفونُ حالةٌ على حِدَة: كلُّ متصفّحٍ فيه سفاري في جوفه، وسفاري
-     لا يَعرف ‎processLocally‎ ولا ‎available‎ — فهي من كروم. وتعرُّفُه
-     يَمضي إلى آبل، فالصوتُ يَخرج من الجهاز. ويُقال هذا للقارئِ
-     صريحًا، فليس لنا أن نُرسل صوتَ أحدٍ ونَسكت. */
-  function apple() {
-    var ua = navigator.userAgent || '';
-    if (/iPad|iPhone|iPod/.test(ua)) return true;
-    return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
-  }
-  function onDevice() {
-    return !apple() && !!(SR && SR.available);
-  }
-
-  /* ── تسويةُ الحرف ───────────────────────────────────────────── */
-  function norm(s) {
-    return String(s || '')
-      .replace(/[ً-ْٰۖ-ۭٓ-ٕ]/g, '')
-      .replace(/ـ/g, '')
-      .replace(/[آأإٱٲٳ]/g, 'ا')
-      .replace(/ى/g, 'ي')
-      .replace(/ة/g, 'ه')
-      .replace(/[^ء-ي\s]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  /* مسافةُ تحريرٍ بحدٍّ واحد: التعرّفُ يُبدّل حرفًا أو يُسقطه، وذاك
-     ضوضاءُ آلةٍ لا خطأُ قارئ. ولا يُتسامَح في القصيرِ لئلّا تَلتبس
-     كلمةٌ بغيرها — «مِن» و«عن» حرفانِ لا ثالثَ لهما. */
-  function near(a, b) {
-    if (a === b) return true;
-    if (a.length < 4 || b.length < 4) return false;
-    if (Math.abs(a.length - b.length) > 1) return false;
-    var i = 0, j = 0, bad = 0;
-    while (i < a.length && j < b.length) {
-      if (a.charAt(i) === b.charAt(j)) { i++; j++; continue; }
-      if (++bad > 1) return false;
-      if (a.length > b.length) i++;
-      else if (b.length > a.length) j++;
-      else { i++; j++; }
-    }
-    return bad + (a.length - i) + (b.length - j) <= 1;
-  }
-
-  function pageWords(p) {
-    var vs = Q.page(p) || [], out = [];
-    vs.forEach(function (v, vi) {
-      String(v.t).split(/\s+/).filter(Boolean).forEach(function (w, wi) {
-        out.push({ raw: w, n: norm(w), vi: vi, first: wi === 0, v: v });
-      });
-    });
-    return { words: out, verses: vs };
-  }
-
-  /* ── الشاشة ─────────────────────────────────────────────────── */
-  App.screen('sama', function (params) {
-    styleOnce();
-    var p = +(params && params.p) || 1;
-    var pg = pageWords(p);
-    var words = pg.words;
-    var wrap = App.el('section', 'screen sa-wrap');
-
-    var h = App.el('header', 'sa-head');
-    h.appendChild(App.el('h1', 'sa-t', 'اسرُدْ، والصفحةُ تَتبعك'));
-    h.appendChild(App.el('p', 'sa-sub', 'صفحة ' + ar(p)
-      + ' · لا تَتقدّم كلمةً حتّى تَقولها'));
-    wrap.appendChild(h);
-
-    if (!SR) {
-      wrap.appendChild(App.el('p', 'sa-note',
-        'هذا المتصفّحُ لا يَسمع. جرّب كروم على أندرويد.'));
-      return wrap;
-    }
-    if (location.protocol !== 'https:') {
-      wrap.appendChild(App.el('p', 'sa-note',
-        'الميكروفونُ لا يُفتَح إلّا على اتّصالٍ آمِن (https). '
-        + 'افتح الصفحةَ من الرابطِ لا من ملفٍّ مُنزَّل.'));
-    }
-    if (apple()) {
-      var warn = App.el('p', 'sa-warn');
-      warn.textContent = 'في هذا الجهاز: صوتُك يُرسَل إلى آبل ليُفهَم — '
-        + 'لا يَبقى فيه. وقد يَنقطع السماعُ عند الوقف، فتَضغط «ابدأ» ثانية.';
-      wrap.appendChild(warn);
-    } else if (!onDevice()) {
-      wrap.appendChild(App.el('p', 'sa-warn',
-        'قد يُرسَل صوتُك إلى خادمِ المتصفّحِ ليُفهَم. '
-        + 'وكروم الحديثُ يَفهمه داخلَ الجهازِ إن نزلت الحزمةُ العربيّة.'));
-    }
-
-    /* لوحُ الصفحة: كلُّ كلمةٍ موضعُها محفوظٌ وحبرُها غائب */
-    var sheet = App.el('div', 'sa-page');
-    var spans = [];
-    words.forEach(function (w, i) {
-      if (i && w.first) {
-        var br = App.el('span', 'sa-mark');
-        br.textContent = ' ';
-        sheet.appendChild(br);
-      } else if (i) sheet.appendChild(document.createTextNode(' '));
-      var sp = App.el('span', 'sa-w');
-      sp.textContent = w.raw;
-      sheet.appendChild(sp);
-      spans.push(sp);
-    });
-    wrap.appendChild(sheet);
-
-    var bar = App.el('div', 'sa-bar');
-    var pos = App.el('span', 'sa-pos');
-    bar.appendChild(pos);
-    wrap.appendChild(bar);
-
-    var go = App.el('button', 'btn btn-pri btn-block sa-go');
-    go.type = 'button';
-    go.textContent = 'ابدأ السرد';
-    wrap.appendChild(go);
-
-    var again = App.el('button', 'btn btn-ghost btn-block');
-    again.type = 'button';
-    again.textContent = 'من أوّل الصفحة';
-    again.onclick = function () { reset(); };
-    wrap.appendChild(again);
-
-    var hint = App.el('p', 'sa-note');
-    wrap.appendChild(hint);
-
-    var ptr = 0, rec = null, running = false, spin = 0, startedAt = 0;
-
-    function paint() {
-      var i;
-      for (i = 0; i < spans.length; i++) {
-        spans[i].classList.toggle('sa-on', i < ptr);
-      }
-      pos.textContent = ar(ptr) + ' من ' + ar(words.length) + ' كلمة';
-      /* الكلمةُ المنتظَرةُ تُقرَّب إلى العين، ولا يُكشَف عنها شيء */
-      if (ptr < spans.length && running) {
-        try { spans[ptr].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-        catch (e) {}
-      }
-    }
-
-    function reset() { ptr = 0; paint(); }
-    reset();
-
-    /* ── المطابقة ────────────────────────────────────────────── */
-    function advance(heard) {
-      var toks = norm(heard).split(' ').filter(Boolean);
-      var i = 0, j = 0;
-      while (i < toks.length && j < words.length) {
-        if (near(toks[i], words[j].n)) { j++; i++; }
-        else i++;          /* يُطرَح المسموعُ، ولا تُطرَح كلمةُ المصحف */
-      }
-      if (j !== ptr) { ptr = j; paint(); }
-    }
-
-    go.onclick = function () {
-      if (running) { try { rec.stop(); } catch (e) {} return; }
-      try { rec = new SR(); } catch (e) { hint.textContent = 'تعذّر البدء.'; return; }
-      rec.lang = 'ar-SA';
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.maxAlternatives = 1;
-      /* إن كان في الجهازِ تعرُّفٌ داخليٌّ فهو أَولى: لا يَخرج الصوت */
-      try { rec.processLocally = true; } catch (e) {}
-
-      rec.onresult = function (ev) {
-        var all = '', i;
-        /* من أوّلِ النتائجِ لا من ‎resultIndex‎: التعرّفُ يُراجع حَدسَه */
-        for (i = 0; i < ev.results.length; i++) all += ev.results[i][0].transcript + ' ';
-        advance(all);
-      };
-      rec.onerror = function (e) {
-        var k = e && e.error;
-        hint.textContent =
-          k === 'not-allowed' ? 'لم يُؤذَن للميكروفون.'
-          : k === 'no-speech' ? 'لم يُسمَع شيء.'
-          : k === 'language-not-supported' ? 'العربيّةُ غيرُ مدعومةٍ في هذا الجهاز.'
-          : k === 'network' ? 'التعرّفُ يَطلب شبكةً في هذا المتصفّح.'
-          : 'تعذّر: ' + (k || 'غيرُ معروف');
-      };
-      rec.onend = function () {
-        /* السردُ يَطول والصمتُ يَقطع: يُعاد التشغيلُ ما دام القارئُ
-           لم يَضغط «أوقِف». وما كُشِف يَبقى مكشوفًا.
-
-           وحَدٌّ يَمنع الدَّوران: إن عاد ينتهي من فورِه مرّاتٍ
-           متتابعةً فذاك تعذُّرٌ لا صمتٌ — وسفاري يَقطع عند كلِّ
-           وقفة. فيُوقَف ويُقال، ولا يُترَك يُعيد فتحَ الميكروفون
-           بلا انتهاء. */
-        if (running) {
-          var quick = (Date.now() - startedAt) < 400;
-          spin = quick ? spin + 1 : 0;
-          if (spin < 6) {
-            startedAt = Date.now();
-            try { rec.start(); return; } catch (e) {}
-          } else {
-            hint.textContent = 'انقطع السماعُ مرّاتٍ متتابعة. '
-              + 'اضغط «ابدأ السرد» من جديدٍ لتُكمل من موضعك.';
-          }
-        }
-        running = false;
-        go.textContent = 'ابدأ السرد';
-        go.classList.remove('sa-live');
-        paint();
-      };
-      spin = 0;
-      startedAt = Date.now();
-      try { rec.start(); } catch (e) { hint.textContent = 'تعذّر فتحُ الميكروفون.'; return; }
-      running = true;
-      go.textContent = 'أوقِف';
-      go.classList.add('sa-live');
-      hint.textContent = 'اقرأ. ولن تَظهر كلمةٌ حتّى تَقولها.';
-      paint();
-    };
-
-    wrap.addEventListener('screen:leave', function () {
-      running = false;
-      if (rec) { try { rec.stop(); } catch (e) {} }
-    });
-
-    return wrap;
-  }, { full: true });
-
-  /* مدخلٌ من صفحةِ المصحف — في الكسوةِ وحدَها */
-  App.on_('qpage', function (d) {
-    if (!d || !d.slot) return;
-    styleOnce();
-    var b = App.el('button', 'btn btn-ghost btn-block sa-entry');
-    b.type = 'button';
-    b.textContent = 'اسرُدْ والصفحةُ تَتبعك';
-    b.onclick = function () { App.go('sama', { p: d.p }); };
-    d.slot.appendChild(b);
-  });
-
-  var done = false;
-  function styleOnce() {
-    if (done) return; done = true;
-    var s = document.createElement('style');
-    s.textContent = [
-      '.sa-wrap{padding-block-end:28px}',
-      '.sa-t{font-size:21px;margin:0}',
-      '.sa-sub{font-size:12.5px;color:var(--ink-faint);margin:4px 0 14px}',
-      /* الصفحةُ بيضاء: الكلماتُ موجودةٌ بمواضعها وأحجامِها، وحبرُها
-         شفّافٌ حتّى تُقال. فيَرى القارئُ أين هو من الصفحةِ ولا يَرى
-         ما فيها — وهو عَونٌ على الموضعِ لا على اللفظ. */
-      '.sa-page{font-size:21px;line-height:2.5;text-align:start;',
-      '  min-height:40vh;padding:16px 14px;border-radius:16px;',
-      '  background:var(--surface);border:1px solid var(--hair)}',
-      '.sa-w{color:transparent;border-radius:4px;',
-      '  background:var(--surface-2);box-shadow:0 0 0 2px var(--surface-2)}',
-      '.sa-w.sa-on{color:var(--ink);background:none;box-shadow:none}',
-      '@media (prefers-reduced-motion:no-preference){',
-      '  .sa-w.sa-on{animation:sa-in .28s ease both}}',
-      '@keyframes sa-in{from{opacity:0}}',
-      '.sa-mark{display:block;height:6px}',
-      '.sa-bar{display:flex;justify-content:flex-end;margin:10px 2px 12px}',
-      '.sa-pos{font-size:12px;color:var(--ink-faint)}',
-      '.sa-go.sa-live{background:var(--danger,#a33)}',
-      '.sa-warn{font-size:12.5px;line-height:1.8;color:var(--ink);',
-      '  background:var(--gold-soft);border-radius:12px;padding:10px 12px;',
-      '  margin-block-end:12px}',
-      '.sa-note{font-size:12.5px;color:var(--ink-faint);line-height:1.8;',
-      '  margin-block-start:12px}',
-      '.sa-entry{margin-block-start:10px}'
-    ].join('');
-    document.head.appendChild(s);
-  }
-})(window.App);
 </script>
 <script>
 /* الإقلاعُ آخرَ شيء: كلُّ الوحدات سجّلت شاشاتِها وتبويباتِها قبله. */
