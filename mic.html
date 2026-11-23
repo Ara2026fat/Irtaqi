@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>فحصُ السرد</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap">
+<style>
+/* ملفُّ فحصٍ قائمٌ بنفسه: لا يَعتمد على شيءٍ من التطبيق، وغايتُه
+   أن يُجيب عن سؤالٍ واحد — أين يَقف السرد؟ خمسُ درجاتٍ متتابعة،
+   كلُّ درجةٍ تُثبِت شيئًا واحدًا وتَنفي شيئًا واحدًا. */
+:root{
+  --bg:#FBF3DE; --surface:#FFFDF7; --surface-2:#F4EEDC;
+  --ink:#1F3A2E; --ink-mut:#5E6F63; --hair:#E2D9C0;
+  --accent:#15603F; --gold:#B8860B; --ok:#15603F; --bad:#A33224;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#141A16; --surface:#1B2320; --surface-2:#232D28;
+  --ink:#E9EFE9; --ink-mut:#9FB0A4; --hair:#33403A;
+  --accent:#4FB487; --gold:#D9A93A; --ok:#4FB487; --bad:#E4786A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141A16; --surface:#1B2320; --surface-2:#232D28;
+  --ink:#E9EFE9; --ink-mut:#9FB0A4; --hair:#33403A;
+  --accent:#4FB487; --gold:#D9A93A; --ok:#4FB487; --bad:#E4786A;
+  color-scheme:dark;
+}
+*{ box-sizing:border-box }
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Amiri", "Scheherazade New", Georgia, serif;
+  font-size:16px; line-height:1.8; font-weight:700;
+  padding-inline:max(16px, env(safe-area-inset-left,0px)) max(16px, env(safe-area-inset-right,0px));
+  padding-block:20px 48px;
+}
+.wrap{ max-width:620px; margin-inline:auto; display:flex; flex-direction:column; gap:18px }
+h1{ font-size:26px; margin:0; line-height:1.3 }
+.lead{ font-weight:400; color:var(--ink-mut); font-size:14.5px; margin:0 }
+
+.step{
+  background:var(--surface); border:1px solid var(--hair);
+  border-radius:16px; padding:14px 15px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.step-h{ display:flex; align-items:center; gap:9px }
+.chip{
+  flex:0 0 auto; width:26px; height:26px; border-radius:50%;
+  display:grid; place-items:center; font-size:15px; font-weight:700;
+  background:var(--surface-2); color:var(--ink-mut);
+}
+.chip.ok{ background:var(--ok); color:#fff }
+.chip.bad{ background:var(--bad); color:#fff }
+.step-t{ font-size:16.5px; flex:1 1 auto; min-width:0 }
+.verdict{ font-size:14px; font-weight:400; color:var(--ink-mut); margin:0; overflow-wrap:break-word }
+.verdict.ok{ color:var(--ok); font-weight:700 }
+.verdict.bad{ color:var(--bad); font-weight:700 }
+
+button{
+  font:inherit; font-size:16px; font-weight:700; cursor:pointer;
+  border:0; border-radius:999px; padding:13px 18px; min-height:48px;
+  background:var(--accent); color:#fff;
+}
+button.ghost{ background:var(--surface-2); color:var(--ink) }
+button[disabled]{ opacity:.45; cursor:default }
+button:focus-visible{ outline:2px solid var(--gold); outline-offset:2px }
+.row{ display:flex; gap:9px; flex-wrap:wrap }
+.row>button{ flex:1 1 150px }
+
+/* مِقياسُ الصوت: يُثبِت أنّ الميكروفونَ يَلتقط، وهو غيرُ أن يَفهم */
+.meter{ height:14px; border-radius:999px; background:var(--surface-2); overflow:hidden }
+.meter>i{ display:block; height:100%; width:0; background:var(--accent); transition:width .08s linear }
+
+.heard{
+  font-size:15px; font-weight:400; line-height:2;
+  background:var(--surface-2); border-radius:12px; padding:10px 12px;
+  min-height:3.4em; overflow-wrap:break-word;
+}
+
+/* لوحُ الصفحة: الكلماتُ بمواضعها وحبرُها غائبٌ حتّى تُقال */
+.page{ font-size:21px; line-height:2.5; min-height:7em }
+.w{ color:transparent; background:var(--surface-2); border-radius:4px;
+    box-shadow:0 0 0 2px var(--surface-2) }
+.w.on{ color:var(--ink); background:none; box-shadow:none }
+.brk{ display:block; height:6px }
+.count{ font-size:13.5px; font-weight:400; color:var(--ink-mut) }
+
+label.opt{ display:flex; gap:9px; align-items:flex-start; font-size:14px;
+  font-weight:400; color:var(--ink-mut); cursor:pointer }
+label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
+
+.log{
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:11.5px; font-weight:400; line-height:1.75; direction:ltr; text-align:left;
+  background:var(--surface-2); border-radius:12px; padding:10px 12px;
+  max-height:240px; overflow:auto; white-space:pre-wrap; overflow-wrap:break-word;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>فحصُ السرد</h1>
+    <p class="lead">خمسُ درجات. كلُّ درجةٍ تُثبِت شيئًا واحدًا. فحيثما تَقف، هناك العطل.</p>
+  </header>
+
+  <!-- ١ -->
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c1">١</span>
+      <b class="step-t">هل يَعرف المتصفّحُ التعرّفَ على الكلام؟</b></div>
+    <p class="verdict" id="v1">…</p>
+  </section>
+
+  <!-- ٢ -->
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c2">٢</span>
+      <b class="step-t">هل الاتّصالُ آمِن؟</b></div>
+    <p class="verdict" id="v2">…</p>
+  </section>
+
+  <!-- ٣ -->
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c3">٣</span>
+      <b class="step-t">هل يَلتقط الميكروفونُ صوتَك؟</b></div>
+    <p class="verdict" id="v3">اضغط، ثمّ تكلّم: إن تحرّك الشريطُ فالميكروفونُ يَعمل.</p>
+    <div class="meter"><i id="lvl"></i></div>
+    <div class="row">
+      <button id="b3" type="button">افتح الميكروفون</button>
+      <button id="b3x" type="button" class="ghost" disabled>أغلِقه</button>
+    </div>
+  </section>
+
+  <!-- ٤ -->
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c4">٤</span>
+      <b class="step-t">هل يُرجِع التعرّفُ نصًّا؟</b></div>
+    <p class="verdict" id="v4">اقرأ الفاتحةَ، وانظر: أيَظهر نصٌّ في الصندوق؟</p>
+    <div class="heard" id="heard">—</div>
+    <label class="opt">
+      <input type="checkbox" id="local">
+      <span>اشترِطْ تعرُّفًا داخلَ الجهاز (processLocally). هذا هو المتّهَمُ الأوّل: إن
+      عَمِل السردُ بلا علامةٍ وتوقّف بعلامة، فالعلّةُ وُجدت.</span>
+    </label>
+    <div class="row">
+      <button id="b4" type="button">ابدأ السرد</button>
+      <button id="b4x" type="button" class="ghost" disabled>أوقِف</button>
+    </div>
+  </section>
+
+  <!-- ٥ -->
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c5">٥</span>
+      <b class="step-t">هل تَنكشف الكلماتُ على قَدرِ ما تَقول؟</b></div>
+    <p class="verdict" id="v5">هذه الفاتحة. لن تَظهر كلمةٌ حتّى تَقولها.</p>
+    <div class="page" id="page"></div>
+    <p class="count" id="count">٠ من ٢٩ كلمة</p>
+    <div class="row"><button id="b5" type="button" class="ghost">من أوّل الصفحة</button></div>
+  </section>
+
+  <section class="step">
+    <div class="step-h"><span class="chip" id="c6">٦</span>
+      <b class="step-t">السجلّ</b></div>
+    <p class="verdict">كلُّ ما وقع، بالثانية. صوِّرْه وأرسِلْه إن لم يَتّضح شيء.</p>
+    <div class="log" id="log"></div>
+    <div class="row"><button id="bcopy" type="button" class="ghost">انسخ السجلّ</button></div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var SURA = [
+    'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+    'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ',
+    'ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+    'مَٰلِكِ يَوْمِ ٱلدِّينِ',
+    'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',
+    'ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ',
+    'صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ'
+  ];
+
+  var T0 = Date.now();
+  var logEl = document.getElementById('log');
+  var lines = [];
+  function log(s) {
+    var t = ((Date.now() - T0) / 1000).toFixed(2);
+    lines.push(t + 's  ' + s);
+    logEl.textContent = lines.join('\n');
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+  function mark(n, state, msg) {
+    var c = document.getElementById('c' + n), v = document.getElementById('v' + n);
+    c.className = 'chip' + (state ? ' ' + state : '');
+    c.textContent = state === 'ok' ? '✓' : state === 'bad' ? '✗' : ['','١','٢','٣','٤','٥','٦'][n];
+    if (msg != null) { v.textContent = msg; v.className = 'verdict' + (state ? ' ' + state : ''); }
+  }
+  function ar(n) {
+    return String(n).replace(/[0-9]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'[+d]; });
+  }
+
+  /* ── ١ · المتصفّح ─────────────────────────────────────────── */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var which = window.SpeechRecognition ? 'SpeechRecognition'
+            : window.webkitSpeechRecognition ? 'webkitSpeechRecognition' : null;
+  if (SR) mark(1, 'ok', 'نعم — ' + which + '. ونوعُ الجهاز: ' + nav());
+  else mark(1, 'bad', 'لا. هذا المتصفّحُ لا يَملك التعرّفَ على الكلام. جرّب كروم.');
+  log('SR=' + (which || 'none'));
+  log('UA=' + navigator.userAgent);
+
+  function nav() {
+    var u = navigator.userAgent;
+    if (/iPhone|iPad|iPod/.test(u)) return 'آيفون/آيباد';
+    if (/Android/.test(u)) return 'أندرويد';
+    return 'حاسوب';
+  }
+
+  /* ── ٢ · السياقُ الآمن ────────────────────────────────────── */
+  if (window.isSecureContext) {
+    mark(2, 'ok', 'نعم — ' + location.protocol + '//' + location.host);
+  } else {
+    mark(2, 'bad', 'لا. الميكروفونُ لا يُفتَح إلّا على https أو على الجهازِ نفسِه. '
+      + 'العنوانُ الآن: ' + location.href.slice(0, 60));
+  }
+  log('secure=' + window.isSecureContext + ' origin=' + location.origin);
+
+  /* ── ٣ · الميكروفون ──────────────────────────────────────── */
+  var stream = null, ac = null, raf = 0;
+  var lvl = document.getElementById('lvl');
+  var b3 = document.getElementById('b3'), b3x = document.getElementById('b3x');
+  var peak = 0;
+
+  b3.onclick = function () {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      mark(3, 'bad', 'هذا المتصفّحُ لا يُعطي الميكروفونَ للصفحات.');
+      log('getUserMedia missing'); return;
+    }
+    mark(3, null, 'يُطلَب الإذن…');
+    log('getUserMedia…');
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+      stream = s;
+      var tr = s.getAudioTracks()[0];
+      log('mic granted: ' + (tr && tr.label ? tr.label : 'بلا اسم'));
+      mark(3, null, 'فُتح الميكروفون' + (tr && tr.label ? ' (' + tr.label + ')' : '')
+        + '. تكلّمِ الآن وانظر الشريط.');
+      b3.disabled = true; b3x.disabled = false;
+
+      var AC = window.AudioContext || window.webkitAudioContext;
+      ac = new AC();
+      var src = ac.createMediaStreamSource(s);
+      var an = ac.createAnalyser();
+      an.fftSize = 1024;
+      src.connect(an);
+      var buf = new Uint8Array(an.fftSize);
+      (function tick() {
+        an.getByteTimeDomainData(buf);
+        var sum = 0, i;
+        for (i = 0; i < buf.length; i++) { var d = (buf[i] - 128) / 128; sum += d * d; }
+        var rms = Math.sqrt(sum / buf.length);
+        var pct = Math.min(100, Math.round(rms * 320));
+        lvl.style.width = pct + '%';
+        if (pct > peak) {
+          peak = pct;
+          if (peak > 8) mark(3, 'ok', 'نعم — الميكروفونُ يَلتقط صوتَك. '
+            + 'فإن وقف السردُ بعد هذا فالعطلُ في التعرّفِ لا في الميكروفون.');
+        }
+        raf = requestAnimationFrame(tick);
+      })();
+    }).catch(function (e) {
+      mark(3, 'bad', 'لم يُفتَح: ' + (e && e.name) + '. '
+        + (e && e.name === 'NotAllowedError'
+            ? 'أنت مَنعتَ الميكروفونَ لهذا الموقع. افتح إعداداتِ الموقعِ في المتصفّحِ وأذَنْ له.'
+            : e && e.name === 'NotFoundError' ? 'لا يُوجد ميكروفونٌ في الجهاز.'
+            : 'قد تَكون سمّاعةٌ موصولةٌ تَأخذ الصوت.'));
+      log('getUserMedia FAILED: ' + (e && e.name) + ' ' + (e && e.message));
+    });
+  };
+  b3x.onclick = function () {
+    if (raf) cancelAnimationFrame(raf), raf = 0;
+    if (ac) { try { ac.close(); } catch (e) {} ac = null; }
+    if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+    lvl.style.width = '0'; b3.disabled = false; b3x.disabled = true;
+    log('mic closed');
+  };
+
+  /* ── اللوح ───────────────────────────────────────────────── */
+  /* الألفُ الخنجريّة (ٰ ‎U+0670‎) موضعُ الخلاف: هي ألفٌ محذوفةٌ من
+     الرسمِ ومنطوقةٌ باللسان. فإن مُحيت صارت «مَٰلِكِ» ← «ملك»
+     واللسانُ يَقول «مالك» فلا تُطابِق؛ وإن صارت ألفًا صارت
+     «هَٰذَا» ← «هاذا» واللسانُ يَقول «هذا» فلا تُطابِق أيضًا.
+     فللكلمةِ صورتان، وتُقبَل إن طابَقت إحداهما. */
+  function strip(s) {
+    return String(s || '')
+      .replace(/[ً-ْۖ-ۭٓ-ٕ]/g, '')
+      .replace(/ـ/g, '');
+  }
+  function tidy(s) {
+    return s
+      .replace(/[آأإٱٲٳ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[^ء-ي\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function norm(s)  { return tidy(strip(s).replace(/ٰ/g, '')); }
+  function norm2(s) { return tidy(strip(s).replace(/ٰ/g, 'ا')); }
+  function near(a, b) {
+    if (a === b) return true;
+    if (a.length < 4 || b.length < 4) return false;
+    if (Math.abs(a.length - b.length) > 1) return false;
+    var i = 0, j = 0, bad = 0;
+    while (i < a.length && j < b.length) {
+      if (a.charAt(i) === b.charAt(j)) { i++; j++; continue; }
+      if (++bad > 1) return false;
+      if (a.length > b.length) i++;
+      else if (b.length > a.length) j++;
+      else { i++; j++; }
+    }
+    return bad + (a.length - i) + (b.length - j) <= 1;
+  }
+
+  var words = [], spans = [], ptr = 0;
+  var pageEl = document.getElementById('page'), countEl = document.getElementById('count');
+  SURA.forEach(function (v, vi) {
+    v.split(/\s+/).filter(Boolean).forEach(function (raw, wi) {
+      words.push({ raw: raw, n: norm(raw), n2: norm2(raw), first: wi === 0 });
+    });
+  });
+  words.forEach(function (w, i) {
+    if (i && w.first) {
+      var br = document.createElement('span'); br.className = 'brk'; br.textContent = ' ';
+      pageEl.appendChild(br);
+    } else if (i) pageEl.appendChild(document.createTextNode(' '));
+    var sp = document.createElement('span');
+    sp.className = 'w'; sp.textContent = w.raw;
+    pageEl.appendChild(sp); spans.push(sp);
+  });
+  function paint() {
+    for (var i = 0; i < spans.length; i++) spans[i].classList.toggle('on', i < ptr);
+    countEl.textContent = ar(ptr) + ' من ' + ar(words.length) + ' كلمة';
+    if (ptr >= words.length) mark(5, 'ok', 'انكشفت الصفحةُ كلُّها. السردُ يَعمل.');
+    else if (ptr > 0) mark(5, 'ok', 'تَنكشف على قَدرِ ما تَقول — ' + ar(ptr) + ' كلمة.');
+  }
+  function advance(heard) {
+    var toks = norm(heard).split(' ').filter(Boolean);
+    var i = 0, j = 0;
+    while (i < toks.length && j < words.length) {
+      if (near(toks[i], words[j].n) || near(toks[i], words[j].n2)) { j++; i++; }
+      else i++;
+    }
+    if (j !== ptr) { ptr = j; paint(); }
+  }
+  document.getElementById('b5').onclick = function () {
+    ptr = 0; paint(); mark(5, null, 'هذه الفاتحة. لن تَظهر كلمةٌ حتّى تَقولها.');
+    log('board reset');
+  };
+  paint();
+  mark(5, null, 'هذه الفاتحة. لن تَظهر كلمةٌ حتّى تَقولها.');
+
+  /* ── ٤ · التعرّف ─────────────────────────────────────────── */
+  var rec = null, running = false, gotText = false, deaf = 0;
+  var heardEl = document.getElementById('heard');
+  var b4 = document.getElementById('b4'), b4x = document.getElementById('b4x');
+  var localBox = document.getElementById('local');
+
+  if (!SR) { b4.disabled = true; mark(4, 'bad', 'لا تعرُّفَ في هذا المتصفّح.'); }
+
+  b4.onclick = function () {
+    if (running || !SR) return;
+    try { rec = new SR(); }
+    catch (e) { mark(4, 'bad', 'تعذّر إنشاؤه: ' + e.message); log('new SR failed: ' + e.message); return; }
+
+    rec.lang = 'ar-SA';
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    if (localBox.checked) { try { rec.processLocally = true; } catch (e) {} }
+    log('start  lang=ar-SA continuous=1 interim=1 processLocally=' + !!localBox.checked);
+
+    ['audiostart', 'soundstart', 'speechstart', 'speechend', 'soundend', 'audioend', 'start']
+      .forEach(function (ev) { rec['on' + ev] = function () { log('event: ' + ev); }; });
+
+    rec.onresult = function (e) {
+      var all = '', i;
+      for (i = 0; i < e.results.length; i++) all += e.results[i][0].transcript + ' ';
+      all = all.trim();
+      gotText = true;
+      clearTimeout(deaf);
+      heardEl.textContent = all || '—';
+      mark(4, 'ok', 'نعم — وصل نصٌّ من التعرّف.');
+      log('result: ' + all.slice(-90));
+      advance(all);
+    };
+    rec.onerror = function (e) {
+      var k = e && e.error;
+      log('ERROR: ' + k);
+      mark(4, 'bad', 'خطأ: ' + k + ' — ' + ({
+        'not-allowed': 'لم يُؤذَن للميكروفون.',
+        'service-not-allowed': 'المتصفّحُ مَنع خدمةَ التعرّف.',
+        'no-speech': 'لم يُسمَع كلام.',
+        'audio-capture': 'لا ميكروفون.',
+        'network': 'التعرّفُ يَطلب شبكةً ولم يَصِل إليها.',
+        'language-not-supported': 'العربيّةُ غيرُ مدعومةٍ ههنا.'
+      }[k] || 'غيرُ معروف'));
+    };
+    rec.onend = function () {
+      log('event: end  (running=' + running + ')');
+      if (running) { try { rec.start(); log('restart'); return; } catch (e) { log('restart failed'); } }
+      running = false; b4.disabled = false; b4x.disabled = true;
+    };
+
+    try { rec.start(); }
+    catch (e) { mark(4, 'bad', 'تعذّر البدء: ' + e.message); log('start failed: ' + e.message); return; }
+
+    running = true; gotText = false;
+    b4.disabled = true; b4x.disabled = false;
+    mark(4, null, 'يَستمع… اقرأ الفاتحة.');
+    clearTimeout(deaf);
+    deaf = setTimeout(function () {
+      if (running && !gotText) {
+        mark(4, 'bad', 'مرّت ثمانِ ثوانٍ ولم يَصِل نصٌّ ولا خطأ. '
+          + (localBox.checked
+              ? 'والعلامةُ موضوعة — أزِلْها وجرّب ثانيةً، فهذا هو المتّهَمُ الأوّل.'
+              : 'انظر الدرجةَ الثالثة: إن كان الشريطُ يتحرّكُ فالميكروفونُ سليمٌ '
+                + 'والعطلُ في خدمةِ التعرّف.'));
+        log('SILENT: no result, no error, 8s');
+      }
+    }, 8000);
+  };
+  b4x.onclick = function () {
+    running = false; clearTimeout(deaf);
+    if (rec) { try { rec.stop(); } catch (e) {} }
+    b4.disabled = false; b4x.disabled = true;
+    log('stopped by user');
+  };
+
+  /* ── نسخُ السجلّ ─────────────────────────────────────────── */
+  document.getElementById('bcopy').onclick = function () {
+    var t = lines.join('\n');
+    var b = this;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () {
+        b.textContent = 'نُسخ'; setTimeout(function () { b.textContent = 'انسخ السجلّ'; }, 1600);
+      }).catch(select);
+    } else select();
+    function select() {
+      var r = document.createRange(); r.selectNodeContents(logEl);
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = 'حُدِّد — انسخه بيدك';
+    }
+  };
+
+  log('page ready');
+})();
+</script>
+</body>
+</html>

@@ -2952,7 +2952,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.43",at:"2026-11-23T23:27:09+03:00"};</script>
+<script>window.__BUILD={v:"1.44",at:"2026-11-23T23:43:44+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14835,11 +14835,25 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return /Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1;
   }
 
-  /* ── تسويةُ الحرف ───────────────────────────────────────────── */
-  function norm(s) {
+  /* ── تسويةُ الحرف ─────────────────────────────────────────────
+     والألفُ الخنجريّة (ٰ ‎U+0670‎) موضعُ خلافٍ لا يُحسَم بصورةٍ
+     واحدة: هي ألفٌ محذوفةٌ من الرسمِ منطوقةٌ باللسان. فإن مُحيت
+     صارت «مَٰلِكِ» ← «ملك» واللسانُ يَقول «مالك» فلا تُطابِق —
+     وعندها تَقف الصفحةُ عند الكلمةِ الحاديةَ عشرةَ من الفاتحةِ
+     ولا تَبرح، وهو ما وقع. وإن صارت ألفًا صارت «هَٰذَا» ←
+     «هاذا» واللسانُ يَقول «هذا» فلا تُطابِق أيضًا.
+
+     فلكلِّ كلمةٍ صورتان، وتُقبَل إن طابَقت إحداهما. ولم يَكشف
+     هذا الحارسُ الأوّل لأنّه كان يُجرّد نصَّ المصحفِ بالطريقةِ
+     نفسِها ثمّ يُقابله بنفسِه — فحصٌ يَشهد لنفسه. فصار يُقابَل
+     بنصٍّ مكتوبٍ باليدِ كما يَنطق الناس. */
+  function strip(s) {
     return String(s || '')
-      .replace(/[ً-ْٰۖ-ۭٓ-ٕ]/g, '')
-      .replace(/ـ/g, '')
+      .replace(/[ً-ْۖ-ۭٓ-ٕ]/g, '')
+      .replace(/ـ/g, '');
+  }
+  function tidy(s) {
+    return s
       .replace(/[آأإٱٲٳ]/g, 'ا')
       .replace(/ى/g, 'ي')
       .replace(/ة/g, 'ه')
@@ -14847,6 +14861,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       .replace(/\s+/g, ' ')
       .trim();
   }
+  function norm(s)  { return tidy(strip(s).replace(/ٰ/g, '')); }
+  function norm2(s) { return tidy(strip(s).replace(/ٰ/g, 'ا')); }
 
   /* مسافةُ تحريرٍ بحدٍّ واحد: التعرّفُ يُبدّل حرفًا أو يُسقطه، وذاك
      ضوضاءُ آلةٍ لا خطأُ قارئ. ولا يُتسامَح في القصيرِ لئلّا تَلتبس
@@ -14870,7 +14886,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var vs = Q.page(p) || [], out = [];
     vs.forEach(function (v, vi) {
       String(v.t).split(/\s+/).filter(Boolean).forEach(function (w, wi) {
-        out.push({ raw: w, n: norm(w), vi: vi, first: wi === 0, v: v });
+        out.push({ raw: w, n: norm(w), n2: norm2(w), vi: vi, first: wi === 0, v: v });
       });
     });
     return { words: out, verses: vs };
@@ -15016,7 +15032,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var toks = norm(heard).split(' ').filter(Boolean);
       var i = 0, j = 0;
       while (i < toks.length && j < words.length) {
-        if (near(toks[i], words[j].n)) { j++; i++; }
+        if (near(toks[i], words[j].n) || near(toks[i], words[j].n2)) { j++; i++; }
         else i++;          /* يُطرَح المسموعُ، ولا تُطرَح كلمةُ المصحف */
       }
       if (j !== ptr) { ptr = j; paint(); }
