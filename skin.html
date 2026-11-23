@@ -2913,7 +2913,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.32",at:"2026-11-22T17:48:55+03:00"};</script>
+<script>window.__BUILD={v:"1.33",at:"2026-11-23T17:03:56+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13818,7 +13818,54 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var b = bag(), k = vkey(v), r = b[k];
     if (!r) return;
     r.n = (+r.n || 0) - 1;
-    if (r.n <= 0) delete b[k]; else b[k] = r;
+    /* أصاب الآيةَ كلَّها فقد أصاب كلَّ كلمةٍ فيها: تَنقص عدادُ كلِّ
+       كلمةٍ واحدًا كما يَنقص عدادُ الآية. وما بَلغ الصفرَ سقط. */
+    if (r.w) {
+      var any = false, i;
+      for (i in r.w) if (r.w.hasOwnProperty(i)) {
+        r.w[i] = (+r.w[i] || 0) - 1;
+        if (r.w[i] <= 0) delete r.w[i]; else any = true;
+      }
+      if (!any) delete r.w;
+    }
+    if (r.n <= 0 && !r.w) delete b[k];
+    else { if (r.n < 0) r.n = 0; b[k] = r; }
+    App.save();
+  }
+
+  /* ═══ الكلمةُ بعينها ═══════════════════════════════════════════
+     كان الإقرارُ على الآيةِ كلِّها: «زَلَلتُ فيها». وأكثرُ الزللِ
+     ليس في الآيةِ بل في كلمةٍ منها — لفظٌ يَلتبس بأخيه في موضعٍ
+     آخر، أو مدٌّ يَسبق. فمن عَلِم موضعَ تعثّرِه بعينه أعاده، ومن
+     عَلِم الآيةَ وحدَها أعاد ما يَعرفه معها.
+
+     ولا تُطلَب الكلمةُ قبل الكشف: الإشارةُ إلى موضعِ الصعوبةِ وهو
+     مستورٌ عَونٌ يُفسد الاستذكار. وبعد الكشفِ تُلمَس، فيَكون
+     الإقرارُ على ما جرى لا على ما سيَجري.
+
+     والعَدُّ كعَدِّ الآية: كلمةٌ زُلّ فيها ثلاثًا تُطلَب لها ثلاثُ
+     إصابات. ولا تُرسَم على المسطّراتِ المستورةِ البتّة — إنّما
+     تُرسَم على الكلمةِ مكشوفةً، فيَرى صاحبُها سِجِلَّه بعد أن
+     يُحاسِب نفسَه لا قبلَه. */
+  function wordsOf(v) {
+    var r = bag()[vkey(v)];
+    return (r && r.w && typeof r.w === 'object') ? r.w : null;
+  }
+  function wordSlip(v) {
+    var w = wordsOf(v), i, n = 0;
+    if (w) for (i in w) if (w.hasOwnProperty(i) && +w[i] > 0) n++;
+    return n;
+  }
+  function markWords(v, idx) {
+    if (!idx || !idx.length) return;
+    var b = bag(), k = vkey(v);
+    var r = (b[k] && typeof b[k] === 'object') ? b[k] : { n: 0 };
+    if (!r.w || typeof r.w !== 'object') r.w = {};
+    idx.forEach(function (i) {
+      r.w[i] = Math.min(9, (+r.w[i] || 0) + 1);
+    });
+    r.at = App.dateKey(new Date());
+    b[k] = r;
     App.save();
   }
   function rung() {
@@ -13877,13 +13924,43 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     return box;
   }
 
-  function fullBox(v) {
+  /* ‎pick‎ مصفوفةٌ تَجمع ما لُمِس. وبها تَصير كلُّ كلمةٍ زرًّا، ولا
+     تُبدَّل حروفُها ولا يُزاد عليها شيء: النصُّ هو النصُّ، وإنّما
+     لُفَّ في وعاءٍ يُلمَس. ومن لم يَلمس شيئًا فحالُه كما كانت. */
+  function fullBox(v, pick) {
     var box = App.el('div', 'tm-ayah');
-    box.appendChild(document.createTextNode(String(v.t) + ' '));
+    var was = wordsOf(v);
+    var words = String(v.t).split(/\s+/).filter(Boolean);
+    words.forEach(function (word, i) {
+      if (i) box.appendChild(document.createTextNode(' '));
+      if (!pick) { box.appendChild(document.createTextNode(word)); return; }
+      var w = App.el('button', 'tm-w');
+      w.type = 'button';
+      w.textContent = word;
+      if (was && +was[i] > 0) w.classList.add('tm-was');
+      w.setAttribute('aria-pressed', 'false');
+      w.setAttribute('aria-label', 'تعثّرتُ في: ' + word);
+      w.onclick = function () {
+        var at = pick.indexOf(i);
+        if (at < 0) pick.push(i); else pick.splice(at, 1);
+        var on = pick.indexOf(i) >= 0;
+        w.classList.toggle('tm-on', on);
+        w.setAttribute('aria-pressed', String(on));
+      };
+      box.appendChild(w);
+    });
+    box.appendChild(document.createTextNode(' '));
     var n = App.el('span', 'tm-n');
     n.textContent = ar(v.a);
     box.appendChild(n);
     return box;
+  }
+
+  function wordWord(n) {
+    if (n === 1) return 'كلمةٌ';
+    if (n === 2) return 'كلمتان';
+    if (n <= 10) return ar(n) + ' كلماتٍ';
+    return ar(n) + ' كلمةً';
   }
 
   function ayatWord(n, gen) {
@@ -13907,7 +13984,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     if (!list.length) { list = all.slice(); only = false; }
 
     var at = 0, open = false, over = !list.length;
-    var slips = [], hits = 0;
+    var slips = [], hits = 0, words = 0;
 
     var w = App.el('div', 'screen tm');
 
@@ -14015,14 +14092,19 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       card.appendChild(cap);
 
       if (open) {
-        card.appendChild(fullBox(v));
+        var pick = [];
+        card.appendChild(fullBox(v, pick));
+        var tip = App.el('p', 'tm-pick');
+        tip.textContent = vg('إن تعثّرتَ في كلمةٍ فالمسْها.',
+                             'إن تعثّرتِ في كلمةٍ فالمسيها.');
+        card.appendChild(tip);
         if (v.sajda) {
           var sj = App.el('span', 'tm-sajda');
           sj.textContent = 'سجدة';
           card.appendChild(sj);
         }
         stage.appendChild(card);
-        stage.appendChild(judge(v));
+        stage.appendChild(judge(v, pick));
       } else {
         var btn = App.el('button', 'tm-reveal');
         btn.type = 'button';
@@ -14046,17 +14128,21 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     }
 
     /* ── الإقرار: زرّان متساويان، ولا ثالثَ يُغري بالتهرّب ── */
-    function judge(v) {
+    function judge(v, pick) {
       var row = App.el('div', 'tm-judge');
       var a = App.el('button', 'btn tm-j tm-j-ok');
       a.type = 'button';
       a.textContent = 'أصبتُ';
+      /* مَن لمَس كلماتٍ ثمّ قال «أصبتُ» فقد بدا له: يُؤخَذ بقولِه
+         الآخرِ ويُطرَح اللمس. ولا يُعارَض إقرارُ المرءِ على نفسِه. */
       a.onclick = function () { markOk(v); hits++; next(); };
       var b = App.el('button', 'btn tm-j tm-j-slip');
       b.type = 'button';
       b.textContent = 'زَلَلتُ';
       b.onclick = function () {
         markSlip(v);
+        markWords(v, pick);
+        if (pick && pick.length) words += pick.length;
         if (slips.indexOf(v) < 0) slips.push(v);
         next();
       };
@@ -14097,7 +14183,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         s.textContent = 'مضت بلا زَلل.';
       } else {
         s.textContent = vg('زَلَلتَ في ', 'زَلَلتِ في ')
-          + ayatWord(slips.length, true) + '، وهي مُسجَّلةٌ لتُعاد.';
+          + ayatWord(slips.length, true)
+          + (words ? '، و' + wordWord(words) + ' بعينها' : '')
+          + '، وهي مُسجَّلةٌ لتُعاد.';
       }
       box.appendChild(s);
 
@@ -14110,8 +14198,19 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
           var k = App.el('b', 'tm-li-k');
           k.textContent = Q.name(v.s) + ' ' + ar(v.a);
           li.appendChild(k);
+          /* وههنا ثمرةُ اللمس: الكلمةُ التي تعثّر فيها تَبين في
+             سياقها لا في قائمةٍ مجرّدة — فالكلمةُ وحدَها لا تُحفَظ،
+             وإنّما تُحفَظ في موضعِها من الآية. */
           var tx = App.el('span', 'tm-li-t');
-          tx.textContent = String(v.t);
+          var mk = wordsOf(v);
+          String(v.t).split(/\s+/).filter(Boolean).forEach(function (word, i) {
+            if (i) tx.appendChild(document.createTextNode(' '));
+            if (mk && +mk[i] > 0) {
+              var em = App.el('b', 'tm-li-w');
+              em.textContent = word;
+              tx.appendChild(em);
+            } else tx.appendChild(document.createTextNode(word));
+          });
           li.appendChild(tx);
           ul.appendChild(li);
         });
@@ -14255,6 +14354,21 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '  font-size:12.5px;font-weight:600;color:var(--ink-mut)}',
     '.tm-hint .ico{flex:none;color:var(--ink-mut)}',
     '.tm-note{margin-block-start:8px;font-size:12px;color:var(--ink-mut)}',
+    /* ── الكلمةُ تُلمَس ──
+       زرٌّ بلا هيئةِ زرّ: لا إطارَ ولا أرضَ ولا لونَ يُخالف جارتَه،
+       فالآيةُ تَبقى آيةً تُقرأ لا صفًّا من الأزرار. وإنّما يَظهر
+       أثرُ اللمسِ بعد اللمس. ومساحةُ اللمسِ موسَّعةٌ بالحشوِ لا
+       بالتباعد، فلا يَنفرط نظمُ الكلامِ لأجلِ الإصبع. */
+    '.tm-w{font:inherit;color:inherit;background:none;border:0;padding:1px 2px;',
+    '  margin:0;border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent}',
+    '.tm-w.tm-on{box-shadow:inset 0 -3px 0 var(--gold);color:var(--ink)}',
+    /* سِجِلٌّ لا وَسْم: ما زُلّ فيه قبلُ يُخطَّط تحته خطًّا خافتًا
+       متقطّعًا — يُرى عند التأمّلِ ولا يَصرخ في وجهِ القارئ. */
+    '.tm-w.tm-was{text-decoration:underline dotted;',
+    '  text-decoration-color:var(--ink-faint);text-underline-offset:6px}',
+    '.tm-pick{margin-block-start:10px;font-size:12px;color:var(--ink-faint)}',
+    '@media (prefers-reduced-motion:no-preference){',
+    '  .tm-w{transition:background var(--fast,.14s) ease}}',
     /* الآيةُ السابقةُ: سطرٌ واحدٌ خافتٌ يَقول «أنت هنا» ولا يُقرأ نصًّا */
     '.tm-prev{font-size:13px;line-height:1.9;color:var(--ink-mut);',
     '  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
@@ -14276,6 +14390,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '  background:var(--surface-2);box-shadow:var(--lift)}',
     '.tm-li-k{display:block;margin-block-end:3px;font-size:12px;',
     '  font-weight:800;color:var(--ink-mut)}',
+    '.tm-li-w{color:var(--gold);font-weight:800;' +
+    '  box-shadow:inset 0 -2px 0 var(--gold-soft)}',
     '.tm-li-t{display:block;font-size:15px;line-height:1.95;color:var(--ink);',
     '  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
     '.tm-acts{display:flex;flex-direction:column;gap:10px;margin-block-start:4px}'
@@ -16113,12 +16229,23 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     for (k in sl) {
       if (!sl.hasOwnProperty(k) || k.charAt(0) === '_') continue;
       v = sl[k];
-      if (!v || !(+v.n > 0)) continue;
+      if (!v) continue;
+      var n = (+v.n > 0) ? +v.n : 0;
+      /* والكلمةُ المتعثَّرُ فيها ضَعفٌ قائمٌ وإن كُفِّرت الآيةُ: تُحسَب
+         نصفَ زلّة — دون الآيةِ لأنّها أضيقُ منها موضعًا، وفوقَ الصفرِ
+         لأنّها لم تُتقَن بعد. وبهذا يَسأل الامتحانُ عمّا تعثّر فيه
+         لسانُه بعينه، لا عن الآيةِ جملةً. */
+      var w = 0, wi;
+      if (v.w) for (wi in v.w) {
+        if (v.w.hasOwnProperty(wi) && +v.w[wi] > 0) w += +v.w[wi];
+      }
+      var tot = n + w * 0.5;
+      if (!tot) continue;
       var parts = k.split(':');
       full = Q.verse(+parts[0], +parts[1]);
       if (!full) continue;
       var j = Q.juzOf(full.p);
-      out[j] = (out[j] || 0) + (+v.n);
+      out[j] = (out[j] || 0) + tot;
     }
     return out;
   }
