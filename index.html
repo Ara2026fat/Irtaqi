@@ -1604,10 +1604,33 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
    يكون الاسمُ في أعلى كلِّ صفحةٍ يَفتحها، لا في شاشتَين فحسب. وهو
    مُوسَّطٌ لأنّ الشعارَ كلمةٌ عريضةٌ لا خاتمٌ يَصطفّ في زاوية. */
 .brandbar{
-  display:flex; justify-content:center;
+  display:flex; justify-content:center; align-items:center;
   padding-block:2px 10px;
+  /* بعضُ الشاشاتِ عمودٌ مرن بـ‎align-items:center‎ (شاشةُ اليومِ
+     الفارغةُ منها)، فيَنكمش الشريطُ إلى عرضِ الشعارِ وحدَه —
+     ومعه يَنكمش مُسنَدُ الزرِّ المطلَقِ فيَقع على الشعارِ لا في
+     الطرف. فيُمدّ الشريطُ عرضَ الشاشةِ أيًّا كان أبوه. */
+  align-self:stretch;
 }
 .brandbar .appmark{ padding:6px 10px }
+
+/* ── الإعداداتُ عن يسارِ الشعار ──
+   الشعارُ يَبقى مُوسَّطًا على الشاشةِ لا على ما بقي منها، فالزرُّ
+   مرفوعٌ من مجرى الصفِّ ومثبَّتٌ في الطرف. و‎inset-inline-end‎ هي
+   اليسارُ في اتّجاهِ العربيّة، فلا يُكتَب ‎left‎ فيَنقلب في غيرها. */
+.brand-set{
+  position:absolute; inset-inline-end:0; top:50%;
+  translate:0 -50%;
+  width:var(--tap); height:var(--tap);
+  display:grid; place-items:center;
+  color:var(--ink-mut);
+  border-radius:var(--r-sm);
+  transition:color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.brand-set:hover{ color:var(--ink); background:var(--hair-2) }
+.brand-set:active{ scale:.94 }
+.brand-set[aria-current="page"]{ color:var(--accent) }
+.brand-set:focus-visible{ outline:2px solid var(--gold-lit); outline-offset:2px }
 
 /* ══ 21-motion.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -2548,7 +2571,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.41",at:"2026-11-23T22:18:43+03:00"};</script>
+<script>window.__BUILD={v:"1.42",at:"2026-11-23T22:40:25+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -2774,8 +2797,25 @@ window.App = (function () {
     var m = (A && A.mark) ? A.mark(72, 'brand-mk') : '';
     if (!m) return null;
     var d = el('div', 'brandbar');
-    d.setAttribute('aria-hidden', 'true');
-    d.innerHTML = m;
+    var logo = el('span', 'brand-logo');
+    logo.setAttribute('aria-hidden', 'true');   /* الاسمُ في الصورةِ لا يُنطَق */
+    logo.innerHTML = m;
+    d.appendChild(logo);
+
+    /* الإعداداتُ عن يسارِ الشعار: خرجت من الشريطِ السفليِّ ليَرجع
+       إليه «حلقتي» — والشريطُ خمسةٌ لا يَزيد. وهي فعلٌ طرفيٌّ
+       يُقصَد مرّةً في الشهر، فموضعُها الزاويةُ لا وسطُ الطريق.
+       وأيقونتُها خطّان في كلٍّ منهما حلقة. */
+    if (screens.settings) {
+      var g = el('button', 'brand-set');
+      g.type = 'button';
+      g.innerHTML = icon('settings', 21);
+      g.setAttribute('aria-label', 'الإعدادات');
+      g.title = 'الإعدادات';
+      g.onclick = function () { go('settings'); };
+      if (current === 'settings') g.setAttribute('aria-current', 'page');
+      d.appendChild(g);
+    }
     return d;
   }
 
@@ -18706,26 +18746,12 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     return root;
   });
 
-  /* ══ أين تَسكن «حلقتي» ══════════════════════════════════════
-     كانت لسانًا في الشريطِ السفليّ، فأزاحها «سمِّع». قال صاحبُ
-     التطبيق: «أهمُّ عندي من حلقتي.» والشريطُ لا يَحمل ستّةً: على
-     عرضِ ٣٩٠ يَصير العمودُ خمسةً وستّين بكسلًا، و«الإعدادات» عند
-     ١١٫٥px لا تَسَعها، فتَلتفّ أو تُقَصّ — وقد رأينا هذا في
-     أسماءِ الأيّامِ من قبل.
-
-     فنزلت إلى رأسِ «تقدُّمي»، لا إلى ذيلِها ولا إلى دُرجِ
-     الإعدادات: السؤالُ واحدٌ في الشاشتَين — «أين أنا؟» — وإنّما
-     تُجيبه إحداهما عنه وحدَه والأخرى عنه بين إخوانه. ومسارُ
-     ‎circles‎ باقٍ كما هو، فكلُّ رابطِ دعوةٍ قديمٍ يَعمل. */
-  App.on_('stats-bar', function (d) {
-    if (!d || !d.bar) return;
-    var b = App.el('button', 'btn btn-ghost btn-sm bar-end st-circ');
-    b.type = 'button';
-    b.innerHTML = App.icon('circles', 17);
-    b.appendChild(App.el('span', null, 'حلقتي'));
-    b.onclick = function () { App.go('circles'); };
-    d.bar.appendChild(b);
-  });
+  /* ══ «حلقتي» في الشريطِ السفليّ ═══════════════════════════════
+     خرجت منه حينًا ليَدخله «سمِّع»، ثمّ رجعت: الشريطُ يَحمل خمسةً
+     لا ستّة، فلمّا صعدت «الإعدادات» إلى يسارِ الشعارِ في الصدر
+     خلا لها موضعُها. وهذا أصوبُ من الأوّل: الحلقةُ تُقصَد كلَّ
+     يومٍ والإعداداتُ مرّةً في الشهر. */
+  App.tab('circles', 'حلقتي', 'circles');
 
   /* ══════════════ الدعوةُ في شظيّة الرابط ══════════════
      تُقرأ قبل كلِّ شيءٍ وتُمحى فورًا: تحديثُ الصفحة بعدها لا يُعيد
@@ -19137,8 +19163,8 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     var bar = el('div', 'bar');
     var ttl = el('h1', 'h1 bar-t'); ttl.textContent = 'تقدُّمي';
     bar.appendChild(ttl);
-    /* موضعٌ تَنزل فيه أفعالٌ طرفيّةٌ من وحداتٍ أخرى — وأوّلُها
-       «حلقتي» بعدَ أن خرجت من الشريطِ السفليّ. */
+    /* موضعٌ تَنزل فيه أفعالٌ طرفيّةٌ من وحداتٍ أخرى. وهو اليومَ
+       خالٍ: رجعت «حلقتي» إلى الشريطِ السفليّ. */
     App.emit('stats-bar', { bar: bar });
     wrap.appendChild(bar);
 
@@ -20792,7 +20818,10 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
   }
 
   App.screen('settings', render);
-  App.tab('settings', 'الإعدادات', 'settings');
+  /* ولا لسانَ لها في الشريطِ السفليّ: صعدت إلى يسارِ الشعارِ في
+     صدرِ كلِّ صفحة (‎brandBar‎ في ‎00-core‎)، وأخلت موضعَها
+     لـ«حلقتي». وهي فعلٌ يُقصَد مرّةً في الشهر، والشريطُ لما
+     يُقصَد كلَّ يوم. */
 })(window.App);
 
 /* نمطُ الشعارِ كلُّه في ‎.appmark‎ بـ‎20-shell‎ — موضعٌ واحدٌ
