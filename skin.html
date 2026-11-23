@@ -2929,7 +2929,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.40",at:"2026-11-23T22:08:24+03:00"};</script>
+<script>window.__BUILD={v:"1.41",at:"2026-11-23T22:18:43+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13808,6 +13808,253 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
 }(window.App));
 
+/* ══ 67-samme.js ══ */
+/* ══ 67-samme.js — سمِّع: التسميعُ الحُرّ ═══════════════════════════
+   كان التسميعُ فعلًا لا يُبلَغ إلّا بصفحة: تَفتح المصحفَ، وتَنتقي
+   خليّةً من ستّمئةٍ وأربع، وتَقرأ، ثمّ تَجد تحتَ اللوحِ «سمِّع هذه
+   الصفحة». وهذا صحيحٌ في المنطقِ وخاطئٌ في المرتبة: التسميعُ هو
+   ما جاء القارئُ من أجلِه، فلا يُجعَل ذيلًا لشاشةِ قراءة.
+
+   قال صاحبُ التطبيق: «أريد في الصفحةِ الرئيسيّةِ أيقونةً اسمُها
+   سمِّع، هي أهمُّ عندي من حلقتي — التسميعُ الحرُّ الذي ليس مربوطًا
+   بمنهج.» فصار لسانًا من ألسنةِ الشريطِ السفليّ، وخرجت «حلقتي»
+   إلى رأسِ «تقدُّمي» — والشريطُ خمسةٌ لا يَزيد: ستّةُ ألسنةٍ على
+   عرضِ ٣٩٠ تُضيّق العمودَ عن «الإعدادات» فتَلتفّ الكلمةُ أو تُقَصّ.
+
+   وهذه الشاشةُ سؤالان لا ثالثَ لهما:
+     أيَّ موضعٍ تُسمِّع؟   ·   وكيف تُسمِّعه؟
+   فالموضعُ سورةٌ ثمّ صفحةٌ من صفحاتها، والكيفُ طريقتان:
+   سترٌ وكشفٌ باليد، أو سَردٌ بالصوتِ والصفحةُ تَتبعك.
+
+   ولا رقمَ لاتينيًّا في قائمةٍ ولا في حقل: الصفحاتُ تُعرَض أسماءً
+   مرقومةً بالهنديّة في ‎<option>‎، فلا يُحتاج إلى ‎input[number]‎
+   وهو الذي يَفرض أرقامَ لوحةِ المفاتيح على عينِ القارئ. */
+(function (App) {
+  'use strict';
+
+  var Q = App.Quran, ar = App.ar;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  /* ── ذاكرةُ الموضع ───────────────────────────────────────────
+     مفتاحٌ أعلى مملوكٌ لهذه الوحدة، ويُسجَّل في ‎ownState‎ لئلّا
+     يَحذفه الاستيرادُ بقائمتِه البيضاء. */
+  function lastPage() {
+    var s = App.state.samme;
+    return (s && +s.p > 0 && +s.p <= 604) ? +s.p : 0;
+  }
+  function remember(p) {
+    App.state.samme = { p: +p, at: App.dateKey() };
+    App.save();
+  }
+
+  /* ── صفحاتُ السورة ──────────────────────────────────────────
+     تُؤخَذ من آياتِها لا من حسابِ «أوّلُ التالية ناقصًا واحدًا»:
+     الصفحةُ الواحدةُ تَحمل آخرَ سورةٍ وأوّلَ أخرى، فالحسابُ يُسقِط
+     صفحةً مشتركةً من إحداهما. */
+  function pagesOf(s) {
+    var vs = Q.surah(s) || [], out = [], seen = {};
+    for (var i = 0; i < vs.length; i++) {
+      var p = vs[i].p;
+      if (!seen[p]) { seen[p] = 1; out.push(p); }
+    }
+    return out;
+  }
+
+  /* ── صفحاتٌ فيها زلل ────────────────────────────────────────
+     السجلُّ مفاتيحُه «سورة:آية»، والقارئُ يُسمِّع صفحةً لا آية.
+     فتُجمَع الآياتُ على صفحاتها، وتُقدَّم الأكثرُ زللًا. */
+  function slipPages() {
+    var b = App.state.slips || {}, by = {}, k;
+    for (k in b) {
+      if (!b.hasOwnProperty(k)) continue;
+      var r = b[k];
+      if (!r || !(+r.n > 0)) continue;
+      var kk = String(k).split(':');
+      var v = Q.verse(+kk[0], +kk[1]);
+      if (!v) continue;
+      by[v.p] = (by[v.p] || 0) + 1;
+    }
+    var out = [];
+    for (k in by) if (by.hasOwnProperty(k)) out.push({ p: +k, n: by[k] });
+    out.sort(function (a, b2) { return b2.n - a.n || a.p - b2.p; });
+    return out;
+  }
+
+  function ayaWord(n) {
+    return n === 1 ? 'آيةٌ واحدة'
+         : n === 2 ? 'آيتان'
+         : n <= 10 ? ar(n) + ' آيات'
+         : ar(n) + ' آية';
+  }
+
+  function placeLine(p) {
+    return 'سورة ' + Q.name(Q.surahOf(p)) + ' · الجزء ' + ar(Q.juzOf(p));
+  }
+
+  /* ── الشاشة ─────────────────────────────────────────────────── */
+  App.screen('samme', function () {
+    var gate = App.Packs && App.Packs.gate('سمِّع من حفظك', 'text');
+    if (gate) return gate;
+    styleOnce();
+
+    var w = App.el('div', 'stack-lg sm');
+
+    var bar = App.el('div', 'bar');
+    bar.appendChild(App.el('h1', 'h1 bar-t', 'سمِّع'));
+    w.appendChild(bar);
+
+    w.appendChild(App.el('p', 'body sm-lead',
+      'من حفظك، بلا منهجٍ ولا موعد. اختر موضعًا، ثمّ اختر كيف تُسمِّعه.'));
+
+    /* ما يُسمَّع الآن: صفحةٌ واحدةٌ، تُنتقى سورةً ثمّ صفحةً منها */
+    var cur = lastPage() || 1;
+
+    var card = App.el('section', 'card sm-pick');
+
+    var sSel = App.el('select', 'inp sm-sel');
+    sSel.id = 'sm-surah';
+    var names = Q.names();
+    for (var i = 0; i < names.length; i++) {
+      var o = document.createElement('option');
+      o.value = String(names[i].s);
+      o.textContent = names[i].name;
+      sSel.appendChild(o);
+    }
+    card.appendChild(field('السورة', sSel));
+
+    var pSel = App.el('select', 'inp sm-sel');
+    pSel.id = 'sm-page';
+    card.appendChild(field('الصفحة', pSel));
+
+    var place = App.el('p', 'small sm-place');
+    place.setAttribute('aria-live', 'polite');
+    card.appendChild(place);
+
+    w.appendChild(card);
+
+    /* الطريقتان: اليدُ أوّلًا لأنّها تَعمل في كلِّ جهاز، والصوتُ
+       بعدَها لأنّه يَطلب ميكروفونًا وإذنًا وقد لا يُتاحان. */
+    var acts = App.el('div', 'sm-acts');
+
+    var bTas = App.el('button', 'btn btn-pri btn-block');
+    bTas.type = 'button';
+    bTas.innerHTML = App.icon('tm-veil', 19);
+    bTas.appendChild(App.el('span', null, 'سمِّع بالستر والكشف'));
+    bTas.onclick = function () { remember(cur); App.go('tasmee', { p: cur }); };
+    acts.appendChild(bTas);
+
+    var bSam = null;
+    if (SR) {
+      bSam = App.el('button', 'btn btn-ghost btn-block');
+      bSam.type = 'button';
+      bSam.textContent = 'اسرُدْ بصوتك، والصفحةُ تَتبعك';
+      bSam.onclick = function () { remember(cur); App.go('sama', { p: cur }); };
+      acts.appendChild(bSam);
+    }
+    w.appendChild(acts);
+
+    /* ── ما زُلّ فيه ──
+       أنفعُ ما في هذه الشاشة: موضعٌ أخطأتَ فيه مرّةً أحقُّ بوقتِك
+       من موضعٍ لم تُخطئ فيه قطّ. ولا تَظهر إن لم يكن في السجلِّ شيء. */
+    var sl = slipPages();
+    if (sl.length) {
+      var sec = App.el('section', 'sec sm-slips');
+      var hd = App.el('div', 'sec-h');
+      hd.appendChild(App.el('h2', 'h2', 'ما زَلَلتُ فيه'));
+      hd.appendChild(App.el('p', 'small',
+        'مواضعُ لم تُكفِّرها إصابةٌ بعد. تُفتَح على آياتِها وحدَها.'));
+      sec.appendChild(hd);
+      var list = App.el('div', 'stack-sm');
+      sl.slice(0, 6).forEach(function (r) {
+        var b = App.el('button', 'listrow sm-slip');
+        b.type = 'button';
+        var tx = App.el('div', 'sm-slip-t');
+        tx.appendChild(App.el('b', null, 'صفحة ' + ar(r.p)));
+        /* العددُ أوّلًا لا آخرًا: «الجزء ٢٩ · آيتان» تُقرَأ
+           «الجزء ٢٩٠ آيتان» — الفاصلةُ الوسطى تُشبِه الصفرَ
+           العربيَّ متى جاورت رقمًا. */
+        tx.appendChild(App.el('span', 'small', ayaWord(r.n) + ' · ' + placeLine(r.p)));
+        b.appendChild(tx);
+        b.onclick = function () {
+          remember(r.p);
+          App.go('tasmee', { p: r.p, only: 'slips' });
+        };
+        list.appendChild(b);
+      });
+      sec.appendChild(list);
+      if (sl.length > 6) {
+        sec.appendChild(App.el('p', 'small sm-more',
+          'وفي المصحفِ ' + ar(sl.length - 6) + ' صفحةً أخرى فيها زلل.'));
+      }
+      w.appendChild(sec);
+    }
+
+    /* ── الربط ─────────────────────────────────────────────────
+       الاختياران مَشهدان لموضعٍ واحد: تبديلُ السورةِ يَبني صفحاتِها
+       ويَقف على أوّلها، وتبديلُ الصفحةِ يُبقي السورةَ كما هي. */
+    function fillPages(s, want) {
+      var ps = pagesOf(s);
+      pSel.textContent = '';
+      for (var j = 0; j < ps.length; j++) {
+        var o = document.createElement('option');
+        o.value = String(ps[j]);
+        o.textContent = 'صفحة ' + ar(ps[j]);
+        pSel.appendChild(o);
+      }
+      cur = (want && ps.indexOf(want) >= 0) ? want : (ps[0] || 1);
+      pSel.value = String(cur);
+      paint();
+    }
+    function paint() {
+      place.textContent = placeLine(cur);
+      bTas.setAttribute('aria-label', 'سمِّع صفحة ' + ar(cur) + ' بالستر والكشف');
+      if (bSam) bSam.setAttribute('aria-label', 'اسرُدْ صفحة ' + ar(cur) + ' بصوتك');
+    }
+    sSel.onchange = function () { fillPages(+sSel.value, 0); };
+    pSel.onchange = function () { cur = +pSel.value; paint(); };
+
+    sSel.value = String(Q.surahOf(cur));
+    fillPages(Q.surahOf(cur), cur);
+
+    return w;
+  });
+
+  function field(label, control) {
+    var f = App.el('div', 'sm-field');
+    var l = App.el('label', 'sm-lbl', label);
+    l.setAttribute('for', control.id);
+    f.appendChild(l);
+    f.appendChild(control);
+    return f;
+  }
+
+  function styleOnce() {
+    if (document.getElementById('sm-css')) return;
+    var el = App.el('style');
+    el.id = 'sm-css';
+    el.textContent = [
+      '.sm-lead{margin-block:-4px 0}',
+      '.sm-pick{display:flex;flex-direction:column;gap:12px}',
+      '.sm-field{display:flex;align-items:center;gap:10px}',
+      '.sm-lbl{flex:0 0 58px;font-size:13.5px;font-weight:700;color:var(--ink-mut)}',
+      '.sm-sel{flex:1 1 auto;min-width:0}',
+      '.sm-place{margin:0;padding-block-start:2px}',
+      '.sm-acts{display:flex;flex-direction:column;gap:10px}',
+      '.sm-slip{display:flex;align-items:center;gap:10px;width:100%;text-align:start}',
+      '.sm-slip-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}',
+      '.sm-slip-t .small{color:var(--ink-mut)}',
+      '.sm-more{margin:2px 0 0}'
+    ].join('\n');
+    document.head.appendChild(el);
+  }
+
+  App.tab('samme', 'سمِّع', 'tm-veil');
+
+}(window.App));
+
+/* موضعُ آخرِ تسميعٍ حُرٍّ مفتاحٌ أعلى تَملكه هذه الوحدة */
+if (window.App && window.App.ownState) window.App.ownState('samme');
+
 /* ══ 68-tasmee.js ══ */
 /* ══ 68-tasmee.js — التسميع ═══════════════════════════════════════
    كان التطبيقُ يُخطّط ويُسجّل ويُحصي، وبين «هذا وِردك» و«أتممتُه»
@@ -18840,7 +19087,26 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     return root;
   });
 
-  App.tab('circles', 'حلقتي', 'circles');
+  /* ══ أين تَسكن «حلقتي» ══════════════════════════════════════
+     كانت لسانًا في الشريطِ السفليّ، فأزاحها «سمِّع». قال صاحبُ
+     التطبيق: «أهمُّ عندي من حلقتي.» والشريطُ لا يَحمل ستّةً: على
+     عرضِ ٣٩٠ يَصير العمودُ خمسةً وستّين بكسلًا، و«الإعدادات» عند
+     ١١٫٥px لا تَسَعها، فتَلتفّ أو تُقَصّ — وقد رأينا هذا في
+     أسماءِ الأيّامِ من قبل.
+
+     فنزلت إلى رأسِ «تقدُّمي»، لا إلى ذيلِها ولا إلى دُرجِ
+     الإعدادات: السؤالُ واحدٌ في الشاشتَين — «أين أنا؟» — وإنّما
+     تُجيبه إحداهما عنه وحدَه والأخرى عنه بين إخوانه. ومسارُ
+     ‎circles‎ باقٍ كما هو، فكلُّ رابطِ دعوةٍ قديمٍ يَعمل. */
+  App.on_('stats-bar', function (d) {
+    if (!d || !d.bar) return;
+    var b = App.el('button', 'btn btn-ghost btn-sm bar-end st-circ');
+    b.type = 'button';
+    b.innerHTML = App.icon('circles', 17);
+    b.appendChild(App.el('span', null, 'حلقتي'));
+    b.onclick = function () { App.go('circles'); };
+    d.bar.appendChild(b);
+  });
 
   /* ══════════════ الدعوةُ في شظيّة الرابط ══════════════
      تُقرأ قبل كلِّ شيءٍ وتُمحى فورًا: تحديثُ الصفحة بعدها لا يُعيد
@@ -19252,6 +19518,9 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     var bar = el('div', 'bar');
     var ttl = el('h1', 'h1 bar-t'); ttl.textContent = 'تقدُّمي';
     bar.appendChild(ttl);
+    /* موضعٌ تَنزل فيه أفعالٌ طرفيّةٌ من وحداتٍ أخرى — وأوّلُها
+       «حلقتي» بعدَ أن خرجت من الشريطِ السفليّ. */
+    App.emit('stats-bar', { bar: bar });
     wrap.appendChild(bar);
 
     var plans = App.state.plans || [], logs = allLogs();
