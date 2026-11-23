@@ -2913,7 +2913,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.35",at:"2026-11-23T20:39:37+03:00"};</script>
+<script>window.__BUILD={v:"1.36",at:"2026-11-23T20:50:03+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -18531,6 +18531,13 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     '.st-emb .i3{width:100%;height:100%}',
     /* ١ · أربعُ بلاطاتٍ في صفٍّ: أرقامُ اليوم في لمحة */
     '.pr-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}',
+    /* الدعوةُ لا بطاقةَ لها: البطاقةُ وعاءٌ لبياناتٍ تُقارَن، وهذه
+       كلامٌ يُقرأ مرّةً ثمّ يَزول. فلا إطارَ ولا ظلّ — سطرٌ في
+       الفراغِ يَسهُل أن يُصدَّق. */
+    '.pr-invite{text-align:start;padding:18px 2px 4px;max-width:34em}',
+    '.pr-inv-h{font-size:19px;font-weight:800;color:var(--ink);margin:0 0 8px}',
+    '.pr-inv-p{font-size:14px;line-height:1.95;color:var(--ink-mut);margin:0 0 18px}',
+    '.pr-invite .btn{min-height:46px;padding-inline:22px}',
     '.pr-tile{display:flex;flex-direction:column;align-items:center;gap:5px;',
     '  padding:13px 5px 11px;border-radius:var(--r-md);background:var(--surface);',
     '  border:1px solid var(--hair);text-align:center}',
@@ -18887,6 +18894,39 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     var hw = App.state.hifz && App.state.hifz.log
           && App.state.hifz.log[App.dateKey()];
     if (hw) todayN += (hw.n || 0) + (hw.r || 0);
+    /* ══ قبل أوّلِ وِرد: دعوةٌ لا جدارُ أصفار ══════════════════════
+       مَن فتح هذه الشاشةَ ولمّا يُسجّل شيئًا كان يَستقبله أربعةُ
+       أصفارٍ في صفٍّ، وحلقةٌ على صفرٍ بالمئة، وثمانيةٌ وعشرون مربّعًا
+       فارغة. وذاك تقريرُ فشلٍ عن عملٍ لم يَبدأ بعد — والصفحةُ
+       الفارغةُ موضعُ دعوةٍ لا موضعُ حساب.
+
+       فإذا لم يُسجَّل شيءٌ قطُّ طُويت البلاطاتُ والحلقةُ والشبكة،
+       وبَقي سطرٌ واحدٌ يَقول ما الذي يَملأ هذه الشاشة، وزرٌّ يَمضي
+       إلى وِردِ اليوم. فإذا سُجّل أوّلُ وِردٍ عادت كما كانت. */
+    var bare = !total && !todayN;   /* لم يُسجَّل شيءٌ بعد */
+    if (bare) {
+      var inv = el('section', 'sec pr-invite');
+      var ih = el('h2', 'pr-inv-h');
+      ih.textContent = 'لم تُسجّلْ وِردًا بعد';
+      inv.appendChild(ih);
+      var ip = el('p', 'pr-inv-p');
+      ip.textContent = plans.length
+        ? 'منهجُك قائم. وأوّلُ وِردٍ تُتمّه يَفتح هذه الصفحة: '
+          + 'ما بلغتَه من المصحف، وأيّامُ مواظبتك، ومواضعُ زللك.'
+        : 'ابنِ منهجًا، ثمّ أتمِمْ وِردَ يومٍ واحد — تَبدأ هذه الصفحةُ '
+          + 'بالامتلاء من يومها.';
+      inv.appendChild(ip);
+      var ib = el('button', 'btn btn-pri');
+      ib.type = 'button';
+      ib.textContent = plans.length ? 'افتح وِردَ اليوم' : 'ابنِ منهجك';
+      ib.onclick = function () {
+        if (plans.length) App.go('home');
+        else App.go('builder');
+      };
+      inv.appendChild(ib);
+      PANE.now.appendChild(inv);
+    }
+
     var s1 = el('section', 'sec');
     var tiles = el('div', 'pr-tiles');
     tiles.appendChild(tile('calendar', ar(P.streak()), 'يومَ مواظبة'));
@@ -18894,14 +18934,14 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     tiles.appendChild(tile('chart', ar(total), 'صفحةً سُجّلت'));
     tiles.appendChild(tile('book', ar(plans.length), 'منهجًا'));
     s1.appendChild(tiles);
-    PANE.now.appendChild(s1);
+    if (!bare) PANE.now.appendChild(s1);
 
     /* ٢ · البؤرة */
     var s2 = el('section', 'sec');
     var c2 = el('article', 'card');
     c2.appendChild(hero(covered));
     s2.appendChild(c2);
-    PANE.now.appendChild(s2);
+    if (!bare) PANE.now.appendChild(s2);
 
     /* ٣ · الأنواع — عمودُ اللوحة */
     var rows = kindRows();
@@ -18937,7 +18977,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     cA.appendChild(el('div', 'h3', 'نشاطُك ٢٨ يومًا'));
     cA.appendChild(el('div', 'small', App.Words.dotsNote(dd.on)));
     cA.appendChild(dd.node);
-    PANE.now.appendChild(cA);
+    if (!bare) PANE.now.appendChild(cA);
 
     var care = needsCare();
     var cB = el('article', 'card');
