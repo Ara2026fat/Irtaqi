@@ -2548,7 +2548,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.38",at:"2026-11-23T21:03:47+03:00"};</script>
+<script>window.__BUILD={v:"1.39",at:"2026-11-23T21:21:24+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -10267,7 +10267,18 @@ App.mark = function (size, cls) {
     '.t-port.t-open{display:flex;align-items:center;gap:10px;flex-wrap:wrap;'
       + 'width:100%;text-align:start}',
     '.t-port.t-open .t-ptxt{flex:1 1 auto;min-width:0}',
-    /* الزرّانِ معًا، وينزلانِ سطرًا إن ضاق الأوّل */
+    /* ── صفُّ الفعلَين: أوّلُ ما يُرى وأعرضُه ── */
+    '.t-go2{display:flex;gap:9px;margin-block-start:12px}',
+    '.t-go{flex:1 1 0;min-height:52px;border:0;cursor:pointer;font:inherit;'
+      + 'display:inline-flex;align-items:center;justify-content:center;'
+      + 'border-radius:var(--r-pill);font-size:16px;font-weight:700;'
+      + 'transition:filter var(--fast) var(--ease)}',
+    '.t-go:active{filter:brightness(.95);scale:.985}',
+    '.t-go-read{background:var(--gold-soft);color:var(--gold-lit)}',
+    '.t-go-tas{background:var(--accent);color:var(--on-accent)}',
+    /* والتسجيلُ مُفرَّغ: حاضرٌ لا يُزاحم */
+    '.t-btn.t-rec,.t-btn.t-f.t-rec{background:transparent;color:var(--ink);'
+      + 'box-shadow:inset 0 0 0 1.5px var(--hair)}',
     '.t-port.t-open .t-two{flex:0 0 auto;display:flex;gap:6px}',
     /* ‎44‎ أدنى ما تَبلغه الإصبع: كانا سطرًا داخلَ زرٍّ عريضٍ فكفاه
        عَرضُه، فلمّا صارا زرَّين وجب لكلٍّ منهما قَدرُه. */
@@ -10656,20 +10667,35 @@ App.mark = function (size, cls) {
         (r.count === 1 ? ' صفحة' : ' صفحات') + ' · بقي ' +
         App.ar(P.total(p) - (p.done || 0)) + ' من ' + App.ar(P.total(p)) + '</span>';
       por.appendChild(t);
-      if (open) {
-        var two = App.el('div', 't-two');
-        two.appendChild(pill('اقرأ', 't-pico', function () {
-          App.go('qpage', { p: r.from });
-        }, 'اقرأ ' + portionText(r)));
-        two.appendChild(pill('سمِّع', 't-pico t-pico-2', function () {
-          App.go('tasmee', { p: r.from });
-        }, 'سمِّع ' + portionText(r) + ' من حفظك'));
-        por.appendChild(two);
-      }
     } else {
       por.innerHTML = '<span class="t-pg">اكتمل المنهجُ كلُّه</span>';
     }
     inn.appendChild(por);
+
+    /* ══ العملُ أوّلًا، والتسجيلُ بعده ══════════════════════════════
+       كان «أتممتُ» أكبرَ ما في البطاقةِ وأخضرَه، و«اقرأ» و«سمِّع»
+       حبّتَين صغيرتَين في لوحٍ داخليّ. فأوّلُ ما تَقع عليه العينُ
+       زرُّ تسجيلٍ، والعملُ نفسُه — أن يَقرأ ويُسمّع — في الحاشية.
+       وقال صاحبُ التطبيقِ مرّتين: لِمَ أتعب حتّى أجد المصحفَ
+       والتسميع؟ والحقُّ معه: هذا تطبيقُ حفظٍ لا دفترُ حسابات.
+
+       فصار الفعلانِ صفًّا أوّلَ بعرضِ البطاقة، و«أتممتُ» تحتَهما
+       مُفرَّغًا — يُرى ولا يُزاحم. ومَن فرغ من وِردِه يَجده حيث
+       تركه، ومَن لم يَبدأ يَرى أوّلًا ما يَبدأ به. */
+    if (r && (canRead() || canTasmee())) {
+      var go2 = App.el('div', 't-go2');
+      if (canRead()) {
+        go2.appendChild(pill('اقرأ', 't-go t-go-read', function () {
+          App.go('qpage', { p: r.from });
+        }, 'اقرأ ' + portionText(r)));
+      }
+      if (canTasmee()) {
+        go2.appendChild(pill('سمِّع', 't-go t-go-tas', function () {
+          App.go('tasmee', { p: r.from });
+        }, 'سمِّع ' + portionText(r) + ' من حفظك'));
+      }
+      inn.appendChild(go2);
+    }
 
     var act = App.el('div', 't-act');
     if (did > 0) {
@@ -10684,7 +10710,7 @@ App.mark = function (size, cls) {
     } else {
       /* الزرُّ الأوّلُ لا يَحتاج علامةَ صحٍّ تَشرحه: هو أكبرُ ما في
          البطاقةِ وأوضحُه، والكلمةُ عليه تامّة. */
-      var b = btn('t-btn t-f t-grow', '<span>أتممتُ</span>',
+      var b = btn('t-btn t-f t-grow t-rec', '<span>أتممتُ</span>',
         'أتممتُ وردَ اليوم من ' + nameOf(p), function () { complete(p); });
       b.setAttribute('data-fk', 'do-' + p.id);
       act.appendChild(b);
@@ -12560,7 +12586,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
   App.screen('mushaf', draw);
 
-  App.tab('mushaf', 'المصحف', 'mushaf');
+  App.tab('mushaf', 'المصحف', 'book');   /* كان 'mushaf' فيُرسَم شبكةً تُقرأ جدولًا */
 })(window.App);
 
 /* ══ 62-page.js ══ */
