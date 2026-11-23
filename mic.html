@@ -259,22 +259,38 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
      ولا يُعالَج هذا بشيءٍ في الصفحة: يُفتَح من متصفّحٍ حقيقيٍّ
      بعنوانٍ حقيقيّ، وإلّا فلا. فتُقال الحقيقةُ ويُدَلّ على
      الباب. */
-  (function door() {
+  function showDoor(forced) {
     var ua = navigator.userAgent;
     var inApp = /; wv\)/.test(ua) || /Claude\//.test(ua)
              || /FBAN|FBAV|Instagram|Line\/|Twitter/.test(ua);
-    var noOrigin = (location.origin === 'null' || !location.origin
-                 || location.protocol === 'file:' || location.protocol === 'content:');
-    if (!inApp && !noOrigin) return;
+    /* المِعيارُ الأبسطُ والأوسعُ إحاطة: صفحةٌ ليست على ‎http‎ ولا
+       ‎https‎ ليست صفحةَ وِبٍّ حقيقيّةً بالنسبةِ إلى الأذونات —
+       ‎file:‎ و‎content:‎ و‎about:‎ و‎blob:‎ سواء. وقد جاء من جهازِ
+       صاحبِ التطبيقِ ‎about://‎ فلم يَلقَطه الشرطُ الأوّل. */
+    var http = (location.protocol === 'https:' || location.protocol === 'http:');
+    var noOrigin = !http || location.origin === 'null' || !location.origin;
+    if (!inApp && !noOrigin && !forced) return;
 
     var d = document.getElementById('door');
+    if (!d.hidden) return;            /* قيل مرّةً، فلا يُعاد */
     var t = document.getElementById('doort');
     var ol = document.getElementById('doorsteps');
     var box = document.getElementById('doorurl');
     d.hidden = false;
 
     var L = [];
-    if (noOrigin) {
+    if (forced) {
+      /* الحُجّةُ القاطعة: جاءت من المتصفّحِ نفسِه بلفظها.
+         ‎Permission Policy‎ هي الإطارُ الحاوي يَمنع الميكروفونَ
+         عن الصفحة — لا الجهازُ ولا الموقع. ولا يُبدَّل هذا من
+         داخلِ الصفحةِ ولا من إعداداتِ الجوّال. */
+      t.textContent = 'توقّفْ — الإطارُ الحاوي يَمنع الميكروفون';
+      L.push('قال المتصفّحُ حرفيًّا: <b>Permission Policy is not enabled</b>. '
+        + 'ومعناه أنّ البرنامجَ الذي يَعرض هذه الصفحةَ لم يَأذَن لها '
+        + 'بالميكروفونِ أصلًا — فلا يُسأل صاحبُ الجهازِ ولا يُفيد إذنُه.');
+      L.push('ولا يُبدَّل هذا من داخلِ الصفحةِ ولا من إعداداتِ الجوّال. '
+        + 'العلاجُ واحدٌ: <b>افتحها في متصفّحٍ حقيقيّ</b>.');
+    } else if (noOrigin) {
       t.textContent = 'توقّفْ — الميكروفونُ لن يَعمل ههنا مهما فعلت';
       L.push('هذه الصفحةُ مفتوحةٌ <b>من ملفٍّ لا من عنوان</b> '
         + '(<code>origin = null</code>). والمتصفّحُ لا يَمنح الميكروفونَ '
@@ -301,7 +317,15 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
           .catch(function () { b.textContent = 'انسخه بيدك من فوق'; });
       } else b.textContent = 'انسخه بيدك من فوق';
     };
-  })();
+    try { d.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) {}
+  }
+  showDoor(false);
+
+  /* توقيعُ الإطارِ المانع، أينما ظَهر */
+  function policyBlocked(msg) {
+    return /Permission Policy|permissions policy|not allowed by the user agent/i
+      .test(String(msg || ''));
+  }
 
   /* ── ١ · المتصفّح ─────────────────────────────────────────── */
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -534,6 +558,12 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
       var n = e && e.name;
       log('getUserMedia FAILED: ' + n + ' ' + (e && e.message));
       permState(showPerm);
+      if (policyBlocked(e && e.message)) {
+        mark(3, 'bad', 'الإطارُ الحاوي يَمنع الميكروفونَ عن الصفحة — '
+          + 'لا الجهازُ ولا الإذن. انظر أعلى الصفحة.');
+        showDoor(true);
+        b3.disabled = false; return;
+      }
       if (n === 'NotAllowedError' || n === 'SecurityError') {
         mark(3, 'bad', 'مَنَعَ الجهازُ الميكروفونَ لهذه الصفحة. '
           + 'وتحتَ هذا طريقُ الإذنِ في جهازك — ثلاثُ لمسات.');
@@ -689,7 +719,15 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
     };
 
     try { rec.start(); }
-    catch (e) { mark(4, 'bad', 'تعذّر البدء: ' + e.message); log('start failed: ' + e.message); return; }
+    catch (e) {
+      log('start failed: ' + e.message);
+      if (policyBlocked(e.message)) {
+        mark(4, 'bad', 'الإطارُ الحاوي يَمنع التعرّفَ عن الصفحة. '
+          + 'ليس العطلُ في جهازك ولا في الإذن — انظر أعلى الصفحة.');
+        showDoor(true);
+      } else mark(4, 'bad', 'تعذّر البدء: ' + e.message);
+      return;
+    }
 
     running = true; gotText = false;
     b4.disabled = true; b4x.disabled = false;
