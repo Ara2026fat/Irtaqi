@@ -30,6 +30,7 @@
   color-scheme:dark;
 }
 *{ box-sizing:border-box }
+[hidden]{ display:none !important }
 body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:"Amiri", "Scheherazade New", Georgia, serif;
@@ -88,6 +89,24 @@ button:focus-visible{ outline:2px solid var(--gold); outline-offset:2px }
 .brk{ display:block; height:6px }
 .count{ font-size:13.5px; font-weight:400; color:var(--ink-mut) }
 
+/* مساعِدُ الإذن: لا تَستطيع صفحةٌ أن تَفتح إعداداتِ المتصفّحِ بنفسها،
+   فأقربُ ما تَستطيع أن تَدلّ على الطريقِ بعينه في هذا الجهازِ بعينِه */
+.fix{
+  background:var(--surface-2); border-radius:12px; padding:12px 14px;
+  display:flex; flex-direction:column; gap:10px;
+  border-inline-start:3px solid var(--gold);
+}
+.fix h3{ margin:0; font-size:15.5px }
+.fix ol{ margin:0; padding-inline-start:22px; font-size:14.5px; font-weight:400;
+  display:flex; flex-direction:column; gap:6px;
+  list-style-type:arabic-indic }   /* ١ ٢ ٣ لا 1 2 3 */
+.fix b{ color:var(--accent) }
+.urlbox{
+  font-family:ui-monospace, Menlo, monospace; font-size:12px; font-weight:400;
+  direction:ltr; text-align:left; background:var(--surface);
+  border:1px solid var(--hair); border-radius:8px; padding:8px 10px;
+  overflow-wrap:break-word;
+}
 label.opt{ display:flex; gap:9px; align-items:flex-start; font-size:14px;
   font-weight:400; color:var(--ink-mut); cursor:pointer }
 label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
@@ -128,9 +147,21 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
       <b class="step-t">هل يَلتقط الميكروفونُ صوتَك؟</b></div>
     <p class="verdict" id="v3">اضغط، ثمّ تكلّم: إن تحرّك الشريطُ فالميكروفونُ يَعمل.</p>
     <div class="meter"><i id="lvl"></i></div>
+    <p class="count" id="perm">حالةُ الإذن: تُقرَأ…</p>
     <div class="row">
       <button id="b3" type="button">افتح الميكروفون</button>
       <button id="b3x" type="button" class="ghost" disabled>أغلِقه</button>
+    </div>
+
+    <div class="fix" id="fix" hidden>
+      <h3 id="fixt">كيف تَأذَن للميكروفونِ في جهازك</h3>
+      <ol id="fixsteps"></ol>
+      <div class="urlbox" id="urlbox" hidden></div>
+      <p class="count" id="devs"></p>
+      <div class="row">
+        <button id="bretry" type="button">جرّبِ الآن</button>
+        <button id="breload" type="button" class="ghost">أعِد تحميلَ الصفحة</button>
+      </div>
     </div>
   </section>
 
@@ -235,6 +266,163 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
   var b3 = document.getElementById('b3'), b3x = document.getElementById('b3x');
   var peak = 0;
 
+  /* ══ مساعِدُ الإذن ═══════════════════════════════════════════
+     قال صاحبُ التطبيق: «إن لم يَكن الميكروفونُ يَعمل، فليَفتح لي
+     الإعداداتِ حتّى أُشغِّله.» ولا تَملك صفحةُ وِبٍّ أن تَفتح
+     إعداداتِ المتصفّحِ ولا إعداداتِ الجوّال — لا سبيلَ إليه في
+     أندرويدَ ولا في iOS، ولو مَلكته الصفحاتُ لَفتحته صفحاتُ
+     السوء. فأقصى ما تَملك — وهو ما صُنع ههنا — ثلاثةٌ:
+       · أن تَقرأ حالَ الإذنِ فتَعرف أمَمنوعٌ هو أم لم يُسأل بعد.
+       · أن تَعرف أين أنت: متصفّحٌ له شريطُ عنوان، أم تطبيقٌ
+         مثبَّتٌ لا شريطَ له — والطريقُ مختلفٌ بينهما اختلافًا
+         تامًّا، وهذا أكثرُ ما يُضِلّ.
+       · أن تَدلّك على الطريقِ بعينِه، خطوةً خطوة، ثمّ تُعيد
+         الطلبَ بلمسةٍ واحدةٍ متى رجعت. */
+  var fix = document.getElementById('fix');
+  var fixT = document.getElementById('fixt');
+  var fixSteps = document.getElementById('fixsteps');
+  var urlbox = document.getElementById('urlbox');
+  var devsEl = document.getElementById('devs');
+  var permEl = document.getElementById('perm');
+
+  var UA = navigator.userAgent;
+  var isAndroid = /Android/.test(UA);
+  var isIOS = /iPhone|iPad|iPod/.test(UA)
+           || (/Macintosh/.test(UA) && (navigator.maxTouchPoints || 0) > 1);
+  var standalone = !!(window.matchMedia
+      && (matchMedia('(display-mode: standalone)').matches
+       || matchMedia('(display-mode: fullscreen)').matches))
+    || navigator.standalone === true;
+  log('standalone=' + standalone + ' android=' + isAndroid + ' ios=' + isIOS);
+
+  function permState(cb) {
+    if (!navigator.permissions || !navigator.permissions.query) { cb(null); return; }
+    try {
+      navigator.permissions.query({ name: 'microphone' }).then(function (p) {
+        cb(p.state);
+        p.onchange = function () {
+          log('permission changed: ' + p.state);
+          showPerm(p.state);
+          if (p.state === 'granted') { fix.hidden = true; }
+        };
+      }).catch(function () { cb(null); });
+    } catch (e) { cb(null); }
+  }
+  function showPerm(s) {
+    permEl.textContent = 'حالةُ الإذن: ' + (
+      s === 'granted' ? 'ممنوح' :
+      s === 'denied'  ? 'مرفوض — وهذا هو سببُ التوقّف' :
+      s === 'prompt'  ? 'لم يُسأل بعد' : 'لا يَقولها هذا المتصفّح');
+  }
+  /* إن كان مرفوضًا من قبلُ فلا يُنتظَر أن يَضغط ويَفشل: يُقال له
+     الآن، فالسؤالُ قد سُئل وأُجيب بـ«لا» ولن يُسأل ثانية. */
+  permState(function (s) {
+    showPerm(s);
+    log('permission=' + (s || 'unknown'));
+    if (s === 'denied') {
+      mark(3, 'bad', 'الإذنُ مرفوضٌ من قبل. المتصفّحُ لن يَسألك ثانيةً '
+        + 'حتّى تُبدّله بيدك — وهذا طريقُه.');
+      showFix('denied');
+    }
+  });
+
+  /* قائمةُ الميكروفونات: سمّاعةٌ موصولةٌ تَصير الميكروفونَ الافتراضيَّ
+     وقد لا تَحمل ميكروفونًا، فيَسكت الجهازُ وهو سليم. */
+  function listDevs() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+    navigator.mediaDevices.enumerateDevices().then(function (ds) {
+      var mics = ds.filter(function (d) { return d.kind === 'audioinput'; });
+      log('mics=' + mics.length + ' ' + mics.map(function (m) {
+        return m.label || '(بلا اسم)'; }).join(' | '));
+      devsEl.textContent = mics.length
+        ? 'الميكروفوناتُ في جهازك: ' + mics.map(function (m, i) {
+            return m.label || ('ميكروفون ' + ar(i + 1)); }).join(' · ')
+        : 'لم يُعثَر على ميكروفونٍ في الجهاز.';
+    }).catch(function () {});
+  }
+
+  function steps(list) {
+    fixSteps.textContent = '';
+    list.forEach(function (t) {
+      var li = document.createElement('li');
+      li.innerHTML = t;
+      fixSteps.appendChild(li);
+    });
+  }
+
+  function showFix(reason) {
+    fix.hidden = false;
+    urlbox.hidden = true;
+    listDevs();
+
+    if (reason === 'nodevice') {
+      fixT.textContent = 'لا يُوجد ميكروفونٌ متاحٌ الآن';
+      steps([
+        'إن كانت <b>سمّاعةٌ موصولةً</b> — بسلكٍ أو ببلوتوث — فافصِلْها: '
+        + 'بعضُها يَصير الميكروفونَ الافتراضيَّ وهو لا يَحمل ميكروفونًا.',
+        'أغلِقْ أيَّ تطبيقٍ يُسجّل الآن (مكالمة، مسجِّل، واتساب).',
+        'ثمّ اضغط <b>جرّبِ الآن</b>.'
+      ]);
+      return;
+    }
+
+    fixT.textContent = 'الإذنُ مرفوض — وهذا طريقُه في جهازك';
+
+    if (standalone) {
+      /* التطبيقُ المثبَّتُ لا شريطَ عنوانٍ فيه، فلا قُفلَ يُلمَس.
+         وإذنُه عند أندرويدَ إذنُ تطبيقٍ لا إذنُ موقع. */
+      steps([
+        'أنت في <b>التطبيقِ المثبَّت</b>، ولا شريطَ عنوانٍ فيه — '
+        + 'فالطريقُ من إعداداتِ الجوّالِ لا من المتصفّح.',
+        isIOS
+          ? 'إعداداتُ الجوّال ← مرِّرْ إلى أسفلَ حتّى تَجد اسمَ التطبيق '
+            + '← <b>الميكروفون</b> ← شغِّلْه.'
+          : 'اخرج إلى شاشةِ الجوّال، واضغط <b>مطوّلًا</b> على أيقونةِ التطبيق '
+            + '← <b>معلومات التطبيق</b> (ⓘ) ← <b>الأذونات</b> ← '
+            + '<b>الميكروفون</b> ← <b>السماح</b>.',
+        'ثمّ ارجع وأعِدْ تحميلَ الصفحة.',
+        'وإن لم تَجد الأذونات، فافتح هذه الصفحةَ في <b>المتصفّحِ</b> نفسِه '
+        + '(كروم أو سفاري) — هناك طريقٌ أقصر. انسخِ العنوانَ من تحت.'
+      ]);
+      urlbox.hidden = false;
+      urlbox.textContent = location.href;
+      return;
+    }
+
+    if (isIOS) {
+      steps([
+        'في شريطِ العنوانِ المسْ <b>اﭑ</b> (على يسارِ العنوان) ← '
+        + '<b>إعدادات الموقع</b> ← <b>الميكروفون</b> ← <b>السماح</b>.',
+        'وإن لم تَجدها: إعداداتُ الجوّال ← <b>Safari</b> ← '
+        + '<b>الميكروفون</b> ← <b>اسأل</b> أو <b>السماح</b>.',
+        'ثمّ أعِدْ تحميلَ الصفحة.'
+      ]);
+      return;
+    }
+
+    /* أندرويدُ والحاسوب: كروم وما بُني عليه */
+    steps([
+      'في أعلى المتصفّحِ المسِ <b>القُفلَ</b> (أو <b>ⓘ</b>) الذي على '
+      + 'يسارِ العنوان.',
+      'ثمّ <b>الأذونات</b> — أو <b>إعدادات الموقع</b> — '
+      + 'ثمّ <b>الميكروفون</b> ← <b>السماح</b>.',
+      'إن كان مكتوبًا «محظور» فاضغطه وبدِّلْه، ثمّ '
+      + '<b>أعِد تحميلَ الصفحة</b>.',
+      isAndroid
+        ? 'وإن كان كروم نفسُه ممنوعًا: إعداداتُ الجوّال ← <b>التطبيقات</b> '
+          + '← <b>Chrome</b> ← <b>الأذونات</b> ← <b>الميكروفون</b> ← السماح.'
+        : 'وتأكّدْ أنّ نظامَ التشغيلِ يَسمح للمتصفّحِ بالميكروفونِ أصلًا.'
+    ]);
+  }
+
+  document.getElementById('breload').onclick = function () { location.reload(); };
+  document.getElementById('bretry').onclick = function () {
+    log('retry pressed');
+    permState(showPerm);
+    b3.disabled = false;
+    b3.click();
+  };
+
   b3.onclick = function () {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       mark(3, 'bad', 'هذا المتصفّحُ لا يُعطي الميكروفونَ للصفحات.');
@@ -249,6 +437,9 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
       mark(3, null, 'فُتح الميكروفون' + (tr && tr.label ? ' (' + tr.label + ')' : '')
         + '. تكلّمِ الآن وانظر الشريط.');
       b3.disabled = true; b3x.disabled = false;
+      fix.hidden = true;
+      permState(showPerm);
+      listDevs();
 
       var AC = window.AudioContext || window.webkitAudioContext;
       ac = new AC();
@@ -272,12 +463,24 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
         raf = requestAnimationFrame(tick);
       })();
     }).catch(function (e) {
-      mark(3, 'bad', 'لم يُفتَح: ' + (e && e.name) + '. '
-        + (e && e.name === 'NotAllowedError'
-            ? 'أنت مَنعتَ الميكروفونَ لهذا الموقع. افتح إعداداتِ الموقعِ في المتصفّحِ وأذَنْ له.'
-            : e && e.name === 'NotFoundError' ? 'لا يُوجد ميكروفونٌ في الجهاز.'
-            : 'قد تَكون سمّاعةٌ موصولةٌ تَأخذ الصوت.'));
-      log('getUserMedia FAILED: ' + (e && e.name) + ' ' + (e && e.message));
+      var n = e && e.name;
+      log('getUserMedia FAILED: ' + n + ' ' + (e && e.message));
+      permState(showPerm);
+      if (n === 'NotAllowedError' || n === 'SecurityError') {
+        mark(3, 'bad', 'مَنَعَ الجهازُ الميكروفونَ لهذه الصفحة. '
+          + 'وتحتَ هذا طريقُ الإذنِ في جهازك — ثلاثُ لمسات.');
+        showFix('denied');
+      } else if (n === 'NotFoundError' || n === 'OverconstrainedError') {
+        mark(3, 'bad', 'لم يُعثَر على ميكروفونٍ متاح.');
+        showFix('nodevice');
+      } else if (n === 'NotReadableError' || n === 'AbortError') {
+        mark(3, 'bad', 'الميكروفونُ موجودٌ لكنّه مشغولٌ بتطبيقٍ آخر.');
+        showFix('nodevice');
+      } else {
+        mark(3, 'bad', 'لم يُفتَح: ' + (n || 'سببٌ غيرُ معروف') + '.');
+        showFix('denied');
+      }
+      b3.disabled = false; b3x.disabled = true;
     });
   };
   b3x.onclick = function () {
@@ -408,6 +611,8 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
         'network': 'التعرّفُ يَطلب شبكةً ولم يَصِل إليها.',
         'language-not-supported': 'العربيّةُ غيرُ مدعومةٍ ههنا.'
       }[k] || 'غيرُ معروف'));
+      if (k === 'not-allowed' || k === 'service-not-allowed') showFix('denied');
+      if (k === 'audio-capture') showFix('nodevice');
     };
     rec.onend = function () {
       log('event: end  (running=' + running + ')');
