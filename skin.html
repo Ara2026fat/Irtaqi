@@ -1618,6 +1618,18 @@ body.sheet-open #nav{ pointer-events:none; opacity:0 }
    الشعارُ يَبقى مُوسَّطًا على الشاشةِ لا على ما بقي منها، فالزرُّ
    مرفوعٌ من مجرى الصفِّ ومثبَّتٌ في الطرف. و‎inset-inline-end‎ هي
    اليسارُ في اتّجاهِ العربيّة، فلا يُكتَب ‎left‎ فيَنقلب في غيرها. */
+.brand-back{
+  position:absolute; inset-inline-start:0; top:50%;
+  translate:0 -50%;
+  width:var(--tap); height:var(--tap);
+  display:grid; place-items:center;
+  color:var(--ink-mut); border-radius:var(--r-sm);
+  transition:color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.brand-back:hover{ color:var(--ink); background:var(--hair-2) }
+.brand-back:active{ scale:.94 }
+.brand-back:focus-visible{ outline:2px solid var(--gold-lit); outline-offset:2px }
+
 .brand-set{
   position:absolute; inset-inline-end:0; top:50%;
   translate:0 -50%;
@@ -2274,11 +2286,40 @@ body::before{
 /* ── الورقة ──
    تَمتدّ إلى حافّتَي الشاشة: الحرفُ الكبيرُ يَحتاج كلَّ ما يَجده من
    عَرْض، وهامشٌ مزدوجٌ (حاشيةُ الصحيفةِ ثمّ حاشيةُ البطاقة) يَخنقه. */
+/* ══ الورقة ══════════════════════════════════════════════════════
+   «ما استخدمتَ مصحفًا — ورقةً خضراءَ أو بيج، وحولَ الصفحةِ إطارٌ
+   أخضر.» وكانت الورقةُ لونًا باهتًا يَمتدّ من حافّةٍ إلى حافّةٍ بلا
+   حدٍّ يُعرَف، فلا يَقع البصرُ على صفحةٍ وإنّما على خلفيّةٍ تغيّرت.
+
+   والإطارُ في المصاحفِ خطّان: غليظٌ خارجًا ودقيقٌ داخلًا، وبينهما
+   فُرجة. وهذا ما ههنا — بخطٍّ واحدٍ وظلٍّ داخليٍّ يَنوب عن الثاني،
+   فلا يَثقُل على شاشةٍ صغيرة. ولا يُطبَع على الورقةِ نقشٌ: المقروءُ
+   كلامُ الله، وما حولَه حاشيةٌ تَخدمه ولا تُزاحمه. */
 .qp-paper{
   margin-inline:calc(var(--pad) * -1);
   padding:20px 14px 24px;
   background:var(--qp-paper);
   border-block-end:1px solid var(--hair-2);
+}
+.qp-paper:has(.qp-madani){
+  margin-inline:0;
+  padding:16px 12px 20px;
+  background:var(--qp-sheet, var(--qp-paper));
+  border:1.5px solid var(--qp-rule, var(--accent));
+  border-radius:4px;
+  box-shadow:inset 0 0 0 1px var(--qp-sheet, var(--qp-paper)),
+             inset 0 0 0 2.5px color-mix(in srgb, var(--qp-rule, var(--accent)) 38%, transparent);
+}
+:root{
+  /* ورقةٌ بيج أدفأُ من سطحِ التطبيقِ بقليل، فتُقرَأ صفحةً لا خلفيّة */
+  --qp-sheet:color-mix(in srgb, #FFF8E6 72%, var(--surface));
+  --qp-rule:var(--accent);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --qp-sheet:color-mix(in srgb, var(--surface) 86%, #000);
+}}
+:root[data-theme="dark"]{
+  --qp-sheet:color-mix(in srgb, var(--surface) 86%, #000);
 }
 .qp-text{
   font-size:var(--qp-size);
@@ -2952,7 +2993,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.44",at:"2026-11-23T23:43:44+03:00"};</script>
+<script>window.__BUILD={v:"1.45",at:"2026-11-24T16:48:40+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -3140,8 +3181,51 @@ window.App = (function () {
     return !!(s && s.opts.sheet && !SOLO[name]);
   }
 
-  function go(name, p) {
+  /* ══ أثرُ الخطا ══════════════════════════════════════════════════
+     «إذا فتحتُ بعضَ الصفحاتِ ما في زرُّ رجوع، لا أستطيع الرجوعَ إلى
+     الصفحةِ التي كنتُ قبلها.»
+
+     وكان الرجوعُ قبلَ هذا ظنًّا لا عِلمًا: الصحيفةُ تُغلَق فتَظهر
+     الشاشةُ التي تحتها، وزرُّ «رجوع» في البُناةِ يُنادي ‎go('home')‎
+     — فمَن دخل البانيَ من «تقدُّمي» رجع إلى «اليوم» لا إلى حيث كان.
+     ومَن فتح الإعداداتِ من الشعارِ لم يَجد إلى موضعِه سبيلًا.
+
+     فصار للتطبيقِ أثرٌ يَحفظ خطاه. ولا يُمَسّ تاريخُ المتصفّحِ
+     ولا زرُّ الجهازِ الخلفيّ: تبديلُ ذاك يَمَسّ خروجَ القارئِ من
+     التطبيقِ كلِّه، وهو بابٌ لا يُفتَح لإصلاحِ زرّ. */
+  var hist = [];
+
+  function pushHist(e) {
+    if (!e || !e.name) return;
+    var last = hist[hist.length - 1];
+    if (last && last.name === e.name && !last.sheet === !e.sheet) hist.pop();
+    hist.push(e);
+    if (hist.length > 24) hist.shift();
+  }
+
+  /* يُرجِع ‎true‎ إن وُجد موضعٌ رُجع إليه */
+  function back() {
+    var e = hist.pop();
+    if (!e) {
+      if (sheetName) { closeSheet(); return true; }
+      if (current !== 'home') { go('home', null, true); return true; }
+      return false;
+    }
+    if (isSheet(e.name)) { openSheet(e.name, e.params); return true; }
+    if (sheetName) closeSheet(true);
+    current = e.name; params = e.params || null;
+    emit('route', { name: current, params: params });
+    draw();
+    return true;
+  }
+
+  function go(name, p, quiet) {
     if (!screens[name]) return;
+    if (!quiet) {
+      var cur = sheetName ? { name: sheetName, params: sheetParams, sheet: true }
+              : current   ? { name: current, params: params } : null;
+      if (cur && !(cur.name === name && !cur.sheet === !isSheet(name))) pushHist(cur);
+    }
     if (isSheet(name)) { openSheet(name, p); return; }
     /* الذهابُ إلى لسانٍ يُغلق الصحيفةَ المفتوحةَ: زرُّ «رجوع» داخلها
        ينادي go('home')، وهذا هو معنى الرجوع. */
@@ -3178,6 +3262,21 @@ window.App = (function () {
     var m = (A && A.mark) ? A.mark(72, 'brand-mk') : '';
     if (!m) return null;
     var d = el('div', 'brandbar');
+
+    /* الرجوعُ عن يمينِ الشعار، ولا يَظهر إلّا إذا كان ثَمّ موضعٌ
+       يُرجَع إليه. وموضعُه ههنا لا في كلِّ شاشةٍ على حِدَة: الإعداداتُ
+       تُفتَح من الشعارِ فلا لسانَ لها يَردّ، وما يُضاف غدًا من شاشةٍ
+       بلا لسانٍ يَرث المَخرجَ ولا يُنسى. */
+    if (hist.length) {
+      var bk = el('button', 'brand-back');
+      bk.type = 'button';
+      bk.innerHTML = icon('back', 21);
+      bk.setAttribute('aria-label', 'رجوع');
+      bk.title = 'رجوع';
+      bk.onclick = function () { back(); };
+      d.appendChild(bk);
+    }
+
     var logo = el('span', 'brand-logo');
     logo.setAttribute('aria-hidden', 'true');   /* الاسمُ في الصورةِ لا يُنطَق */
     logo.innerHTML = m;
@@ -3236,6 +3335,7 @@ window.App = (function () {
       var b = el('button', on ? 'on' : null,
         icon(t.icon, 23) + '<span>' + t.label + '</span>');
       b.type = 'button';
+      b.dataset.tab = t.name;   /* يُعرَف اللسانُ باسمِه لا بنصِّه */
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', on ? 'true' : 'false');
       /* غيرُ المختارِ يخرج من مسار Tab: الأسهمُ تنقّل بين الألسنة */
@@ -3410,7 +3510,12 @@ window.App = (function () {
     DAY_NAME: DAY_NAME, DAY_SHORT: DAY_SHORT, DAY_LETTER: DAY_LETTER,
     /* التنقّل */
     screen: screen, tab: tab, go: go, route: route, redraw: redraw,
+    /* أسماءُ الشاشاتِ كلِّها: يَحتاجها حارسُ المخارجِ ليَمشي عليها
+       واحدةً واحدة. ولو عُدَّت في الحارسِ يدًا لَنَسِيَ الجديدةَ
+       ومرَّ وهو كاذب. */
+    screenNames: function () { var a = [], k; for (k in screens) a.push(k); return a; },
     sheet: openSheet, closeSheet: closeSheet, isSheet: isSheet,
+    back: back, canBack: function () { return hist.length > 0; },
     /* الأيقونات والإشعار */
     defIcons: defIcons, icon: icon, toast: toast,
     /* الأحداث والهويّة */
@@ -9981,7 +10086,7 @@ App.mark = function (size, cls) {
        --kind فلا يُلوَّن كلُّ واحدٍ منها على حدة */
     var wrap = el('div', 'screen pln ' + P.kindCls(plan));
     if (!plan) {
-      wrap.appendChild(topBar('المنهج', function () { App.go('home'); }));
+      wrap.appendChild(topBar('المنهج', function () { App.back(); }));
       var m0 = el('section', 'sec card');
       m0.appendChild(el('p', 'small', 'لم نجد هذا المنهج؛ لعلّه حُذف.'));
       wrap.appendChild(m0);
@@ -9993,7 +10098,7 @@ App.mark = function (size, cls) {
     var finished = done >= total;
     var mnj = App.Manhaj ? App.Manhaj.ofPlan(plan) : null;
 
-    wrap.appendChild(topBar(K.t, function () { App.go('home'); }));
+    wrap.appendChild(topBar(K.t, function () { App.back(); }));
 
     /* العنوان: النوعُ والنطاقُ في سطرٍ واحدٍ يُعرَف به المنهج */
     var head = el('section', 'sec card kedge');
@@ -12140,6 +12245,213 @@ App.mark = function (size, cls) {
    الاستيرادُ بقائمتِه البيضاء — وكان يَسقط صامتًا في كلِّ استيراد. */
 if (window.App && window.App.ownState) window.App.ownState('slips');
 
+/* ══ 53-wird.js ══ */
+/* ══ 53-wird.js — إتمامُ الوِردِ حيث يَقع العمل ══════════════════
+   قال صاحبُ التطبيق: «سهلٌ أن يكون عند الواحدِ وِردُ تلاوةٍ يَبدأ
+   ويَنتهي. فإذا انتهى إلى الصفحةِ المحدّدة، يُعطيه زرَّ إتمامٍ فوق
+   فيُتمّ. ويكون عنده مجالٌ أن يَبدأ الوِردَ الذي بعده إن أراد.»
+
+   وكان التسجيلُ لا يَقع إلّا في الشاشةِ الرئيسة: يَقرأ الطالبُ
+   وِردَه في المصحف، ثمّ يُغلِق المصحفَ ويَرجع ويَبحث عن بطاقتِه
+   ويَضغط «أتممتُ». والعملُ قد تمّ قبل ذلك بدقيقة. فالإقرارُ
+   بعيدٌ عن الفعل، وبينهما رحلة.
+
+   فصار الإقرارُ حيثُ يَنتهي العمل:
+     · وأنت في أثناء الوِرد — سطرٌ هادئ: «الصفحةُ الثانيةُ من ثلاث».
+     · وفي آخرِ صفحةٍ منه — زرُّ «أتمَمتُ الوِرد» ظاهرٌ فوقَ النصّ.
+     · وبعدَ الإتمام — «ابدأ الذي بعده» إن بقي شيء.
+
+   ولا يُسجَّل شيءٌ بمجرّدِ بلوغِ الصفحة: البلوغُ ليس قراءةً،
+   والإقرارُ بيدِ صاحبه لا بيدِ العدّاد. */
+(function (App) {
+  'use strict';
+
+  var P = App.Plans;
+
+  /* المناهجُ التي تَشمل صفحةَ اليومِ هذه: أيُّ منهجٍ وِردُه اليومَ
+     يَمُرّ بهذه الصفحةِ بعينها. */
+  function plansAt(page) {
+    var out = [];
+    (App.state.plans || []).forEach(function (p) {
+      if (!P.isDueToday(p)) return;
+      var r = P.todayRange(p);
+      if (!r) return;
+      if (page >= r.from && page <= r.to) out.push({ p: p, r: r });
+    });
+    return out;
+  }
+
+  /* المنهجُ التالي الذي ينتظر عملًا اليوم، غيرَ هذا */
+  function nextDue(skipId) {
+    var hit = null;
+    (App.state.plans || []).forEach(function (p) {
+      if (hit || p.id === skipId) return;
+      if (!P.isDueToday(p)) return;
+      if (P.doneToday(p) > 0) return;
+      if (!P.todayRange(p)) return;
+      hit = p;
+    });
+    return hit;
+  }
+
+  function kindVerb(p) {
+    return p.kind === 'tilawa'  ? 'التلاوة'
+         : p.kind === 'review'  ? 'المراجعة'
+         : p.kind === 'tathbit' ? 'التثبيت'
+         : 'الحفظ';
+  }
+
+  function draw(slot, page) {
+    slot.textContent = '';
+    var hits = plansAt(page);
+    if (!hits.length) return;
+
+    hits.forEach(function (h) {
+      var p = h.p, r = h.r;
+      var at = page - r.from + 1;          /* ترتيبُ هذه الصفحةِ في الوِرد */
+      var last = page === r.to;
+      var did = P.doneToday(p) > 0;
+
+      var box = App.el('div', 'wd' + (last && !did ? ' wd-last' : '')
+        + (did ? ' wd-done' : ''));
+
+      var line = App.el('div', 'wd-line');
+      var ttl = App.el('b', 'wd-t');
+      ttl.textContent = 'وِردُ ' + kindVerb(p);
+      line.appendChild(ttl);
+      var pos = App.el('span', 'wd-pos');
+      pos.textContent = did ? 'سُجِّل اليوم'
+        : r.count === 1 ? 'صفحةٌ واحدة'
+        : 'الصفحة ' + App.ar(at) + ' من ' + App.ar(r.count);
+      line.appendChild(pos);
+      box.appendChild(line);
+
+      /* مِقياسٌ صغيرٌ يُري الطالبَ أين هو من وِردِه بلا رقم */
+      if (r.count > 1 && !did) {
+        var bar = App.el('div', 'wd-bar');
+        var fill = App.el('i');
+        fill.style.width = Math.round(at / r.count * 100) + '%';
+        bar.appendChild(fill);
+        box.appendChild(bar);
+      }
+
+      if (did) {
+        var nx = nextDue(p.id);
+        if (nx) box.appendChild(goNext(nx));
+      } else if (last) {
+        var b = App.el('button', 'btn btn-pri btn-block wd-go');
+        b.type = 'button';
+        b.textContent = 'أتمَمتُ الوِرد';
+        b.setAttribute('aria-label',
+          'أتمَمتُ وِردَ ' + kindVerb(p) + ' لهذا اليوم');
+        b.onclick = function () {
+          var n = P.markDone(p);
+          if (!n) return;
+          App.toast(App.Words && App.Words.done ? App.Words.done(p, n)
+                                                : 'تمّ، تقبّل الله.');
+          if (App.Joy) { try { App.Joy.mark(p, n); } catch (e) {} }
+          /* ولا تُعاد ‎draw‎: بعد التسجيلِ خرجت هذه الصفحةُ من وِردِ
+             اليومِ — فـ‎todayRange‎ صارت تُشير إلى الحصّةِ التالية —
+             فيَجدها الحسابُ خاليةً فيَمحو كلَّ شيءٍ ويَقف القارئُ
+             أمام فراغ. فيُرسَم ما بعدَ الإتمامِ صراحةً. */
+          after(slot, p, n);
+        };
+        box.appendChild(b);
+      }
+
+      slot.appendChild(box);
+    });
+
+    /* الوِردُ الذي بعده: يَظهر أيضًا لمن أتمّ قبلَ أن يَصل ههنا */
+    if (!slot.querySelector('.wd-next')) {
+      var any = hits.filter(function (h) { return P.doneToday(h.p) > 0; });
+      if (any.length === hits.length && hits.length) {
+        var n2 = nextDue(hits[0].p.id);
+        if (n2) slot.appendChild(goNext(n2));
+      }
+    }
+  }
+
+  /* ما بعدَ الإتمام: إقرارٌ، ثمّ بابٌ إلى ما بعده إن كان ثَمّ شيء.
+     و«الذي بعده» اثنان: وِردُ منهجٍ آخرَ ينتظر اليومَ — وهو أَولى —
+     فإن لم يَكن، فتَتمّةُ هذا المنهجِ نفسِه بين يدَي صاحبه، تُقرَأ
+     ولا تُسجَّل: الوِردُ وِردُ يومٍ، ولا يُستهلَك غدٌ بليلته. */
+  function after(slot, p, n) {
+    slot.textContent = '';
+    var box = App.el('div', 'wd wd-done');
+    var line = App.el('div', 'wd-line');
+    var t = App.el('b', 'wd-t');
+    t.textContent = 'تمّ وِردُ ' + kindVerb(p);
+    line.appendChild(t);
+    var s = App.el('span', 'wd-pos');
+    s.textContent = App.ar(n) + (n === 1 ? ' صفحة' : ' صفحات') + ' · سُجِّلت';
+    line.appendChild(s);
+    box.appendChild(line);
+
+    var nx = nextDue(p.id);
+    if (nx) box.appendChild(goNext(nx));
+    else {
+      var r = P.todayRange(p);
+      if (r) {
+        var b = App.el('button', 'btn btn-ghost btn-block wd-next');
+        b.type = 'button';
+        b.textContent = 'تابِعْ قراءةً — صفحة ' + App.ar(r.from);
+        b.setAttribute('aria-label', 'تابِعِ القراءةَ من صفحة ' + App.ar(r.from)
+          + '، ولا تُسجَّل في وِردِ اليوم');
+        b.onclick = function () { App.go('qpage', { p: r.from }); };
+        box.appendChild(b);
+      } else {
+        box.appendChild(App.el('p', 'wd-pos', 'واكتمل المنهجُ كلُّه. '
+          + 'تقبّل اللهُ منك.'));
+      }
+    }
+    slot.appendChild(box);
+  }
+
+  function goNext(p) {
+    var r = P.todayRange(p);
+    var b = App.el('button', 'btn btn-ghost btn-block wd-next');
+    b.type = 'button';
+    b.textContent = 'ابدأ وِردَ ' + kindVerb(p);
+    b.setAttribute('aria-label',
+      'ابدأ وِردَ ' + kindVerb(p) + ' من صفحة ' + App.ar(r.from));
+    b.onclick = function () { App.go('qpage', { p: r.from }); };
+    return b;
+  }
+
+  function styleOnce() {
+    if (document.getElementById('wd-css')) return;
+    var s = App.el('style');
+    s.id = 'wd-css';
+    s.textContent = [
+      '.qp-slot-top:not(:empty){display:flex;flex-direction:column;gap:8px;',
+      '  margin-block:2px 12px}',
+      '.wd{background:var(--surface-2);border-radius:14px;padding:11px 13px;',
+      '  display:flex;flex-direction:column;gap:9px}',
+      '.wd-last{background:var(--gold-soft)}',
+      '.wd-line{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}',
+      '.wd-t{font-size:15px;flex:0 0 auto}',
+      '.wd-pos{font-size:12.5px;font-weight:400;color:var(--ink-mut);',
+      '  flex:1 1 auto;min-width:0}',
+      '.wd-bar{height:5px;border-radius:999px;background:var(--hair);',
+      '  overflow:hidden}',
+      '.wd-bar>i{display:block;height:100%;background:var(--accent);',
+      '  border-radius:999px;transition:width var(--slow,.4s) var(--ease,ease)}',
+      '.wd-go{min-height:46px}',
+      '.wd-next{min-height:46px}',
+      '.wd-done .wd-t{color:var(--ink-mut)}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+  App.on_('qpage', function (d) {
+    if (!d || !d.top || !P) return;
+    styleOnce();
+    try { draw(d.top, d.p); } catch (e) {}
+  });
+
+}(window.App));
+
 /* ══ 55-murshid.js ══ */
 /* ══ 60-murshid.js — المُرشِد ═══════════════════════════════════
    وحدةٌ من التطبيق (جُرّبت في الكسوةِ فأُقِرّت).
@@ -13072,6 +13384,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   function applySize(node, i) {
     node.style.setProperty('--qp-size', SIZES[i] + 'px');
     node.style.setProperty('--qp-lead', String(LEADS[i]));
+    /* الرسمُ يُعاد قياسُه بعد كلِّ تكبير: الحدُّ الأعلى للحرفِ هو
+       عَرْضُ الشاشةِ لا رغبةُ القارئ. */
+    var md = node.querySelector && node.querySelector('.qp-madani');
+    if (md) setTimeout(function () { try { fit(md); } catch (e) {} }, 0);
     /* المدُّ بين الحافّتَين يَحسُن ما دام في السطر كلماتٌ
        تحمله. فإن كبُر الحرف حتّى لا يسع السطر إلّا ثلاثًا
        صار المدّ فُرَجًا تَشقّ الكتلة، فيُترَك الطرف الأيسر على
@@ -13215,7 +13531,48 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       });
       box.appendChild(row);
     });
+    fitSoon(box);
     return box;
+  }
+
+  /* ══ السطرُ يُقاس بالشاشةِ لا بالخطّ ═════════════════════════════
+     سطرُ مصحفِ المدينةِ ثابتُ الكلماتِ لا يَنكسر، فإن لم يَسَعه
+     العَرْضُ خرج عنه وقُصّ من طرفه. وقد كان: على شاشةِ ٣٩٠ كان
+     أعرضُ سطرٍ ٤٤٣ بكسلًا في صندوقٍ عَرْضُه ٣٦٢ — فأوّلُ كلِّ سطرٍ
+     يَظهر وآخرُه يُؤكَل، في كلِّ صفحةٍ من المصحف. وهذا — لا غيابُ
+     الرسمِ — ما يَجعل الصفحةَ لا تُشبِه المصحف.
+
+     والعلاجُ قياسٌ لا تخمين: يُقاس أعرضُ سطرٍ بعد نزولِ الخطّ،
+     ثمّ يُصغَّر الحرفُ بنسبةِ ما جاوز. ولا يُقاس قبلَ نزولِ الخطّ
+     لأنّ الرموزَ حينئذٍ مربّعاتٌ فارغةٌ عَرْضُها غيرُ عَرْضِها. */
+  function fit(box) {
+    if (!box || !box.isConnected) return;
+    var avail = box.clientWidth;
+    if (!avail) return;
+    box.style.fontSize = '';                 /* يُقاس على أصلِه */
+    var base = parseFloat(getComputedStyle(box).fontSize) || 20;
+    var rows = box.querySelectorAll('.qp-line'), widest = 0, i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].scrollWidth > widest) widest = rows[i].scrollWidth;
+    }
+    if (!widest || widest <= avail) return;
+    var px = Math.max(9, Math.floor(base * (avail / widest) * 100) / 100);
+    box.style.fontSize = px + 'px';
+  }
+
+  function fitSoon(box) {
+    var run = function () { try { fit(box); } catch (e) {} };
+    run();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+    setTimeout(run, 60);
+    setTimeout(run, 400);
+    if (!fitSoon.bound) {
+      fitSoon.bound = true;
+      window.addEventListener('resize', function () {
+        var b = document.querySelector('.qp-madani');
+        if (b) { try { fit(b); } catch (e) {} }
+      });
+    }
   }
 
   /* ── الحافّةُ العليا: أين أنا، وكيف أخرج، وبأيِّ حرفٍ أقرأ ──
@@ -13442,6 +13799,17 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     w.appendChild(topBar(p, verses));
 
+    /* ── مَشجبٌ فوقَ النصّ ──
+       للذي يَسبق القراءةَ أو يَختمها، لا للأدواتِ التي تُلازمها.
+       وأوّلُ نازلٍ فيه إتمامُ الوِرد: «إذا انتهى إلى الصفحةِ
+       المحدّدةِ يُعطيه زرَّ إتمامٍ فوق فيُتمّ». وكان التسجيلُ
+       لا يَقع إلّا في الشاشةِ الرئيسة، فيُغلِق القارئُ المصحفَ
+       ويَبحث عن بطاقتِه ليَقول «أتممتُ» — والعملُ قد تمّ. */
+    var topSlot = App.el('div', 'qp-slot-top');
+    topSlot.id = 'qp-slot-top';
+    topSlot.dataset.page = String(p);
+    w.appendChild(topSlot);
+
     /* الورقة: النصُّ في وسطِ الشاشةِ وحولَه بياض. والصندوقُ يَبقى
        هو هو حين يَحلّ الرسمُ محلَّ النصّ، فلا تَقفز الصفحةُ تحت العين. */
     var paper = App.el('div', 'qp-paper');
@@ -13461,7 +13829,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     slot.id = 'qp-slot';
     slot.dataset.page = String(p);
     foot.appendChild(slot);
-    App.emit('qpage', { p: p, slot: slot, verses: verses });
+    App.emit('qpage', { p: p, slot: slot, top: topSlot, verses: verses });
 
     var sb = shabihLine(verses, function () {
       /* المتشابهاتُ صحيفةٌ تَحلّ محلَّ هذه، فتُحفَظ الصفحةُ لنعودَ
@@ -13661,6 +14029,13 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
     var w = App.el('div', 'screen sh');
     var h = App.el('div', 'sh-top');
+    /* مَخرجٌ قبلَ عنوان — كما في «ابحث»، وللعلّةِ نفسِها */
+    var bk = App.el('button', 'btn btn-ghost sh-back');
+    bk.type = 'button';
+    bk.innerHTML = App.icon('back', 22);
+    bk.setAttribute('aria-label', 'رجوع');
+    bk.onclick = function () { App.back(); };
+    h.appendChild(bk);
     h.appendChild(App.el('b', 'h2', 'متشابهاتُ هذه الصفحة'));
     var sub = App.el('p', 'sh-sub');
     sub.textContent = 'قابِل بعينك قبل أن يَزِلّ لسانُك. المُعلَّمُ هو '
@@ -13689,7 +14064,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   }, { full: true });
 
   var CSS = [
-    '.sh-top{padding-block:2px 14px}',
+    '.sh-top{padding-block:2px 14px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 10px}',
+      '.sh-back{width:44px;height:44px;display:grid;place-items:center;padding:0;grid-row:1}',
+      '.sh-top .h2{grid-row:1}',
+      '.sh-sub{grid-column:1/-1;margin:0}',
     '.sh-sub{margin-top:6px;font-size:13px;line-height:1.8;color:var(--ink-mut)}',
     '.sh-g{margin-block-start:16px;padding:13px 14px;background:var(--surface);',
     '  border:1px solid var(--hair);border-radius:var(--r-lg)}',
@@ -13770,6 +14148,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var w = App.el('div', 'screen fd');
 
     var top = App.el('div', 'fd-top');
+    /* مَخرجٌ قبلَ عنوان: كانت هذه صحيفةً ملءَ الشاشةِ لا بابَ لها،
+       فمَن دخلها لم يَخرج إلّا بزرِّ الجهازِ الخلفيّ — وليس في
+       الآيفونِ زرٌّ خلفيّ. */
+    var bk = App.el('button', 'btn btn-ghost fd-back');
+    bk.type = 'button';
+    bk.innerHTML = App.icon('back', 22);
+    bk.setAttribute('aria-label', 'رجوع');
+    bk.onclick = function () { App.back(); };
+    top.appendChild(bk);
     top.appendChild(App.el('b', 'h2', 'ابحث في المصحف'));
     var sub = App.el('p', 'fd-sub');
     sub.textContent = 'اكتب ما تذكره من الآية — بلا تشكيلٍ إن شئت — '
@@ -13826,7 +14213,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   }, { full: true });
 
   var CSS = [
-    '.fd-top{padding-block:2px 12px}',
+    '.fd-top{padding-block:2px 12px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 10px}',
+      '.fd-back{width:44px;height:44px;display:grid;place-items:center;padding:0;grid-row:1}',
+      '.fd-top .h2{grid-row:1}',
+      '.fd-sub{grid-column:1/-1;margin:0}',
     '.fd-sub{margin-top:6px;font-size:13px;line-height:1.8;color:var(--ink-mut)}',
     '.fd-in{width:100%;min-height:48px;padding:11px 14px;',
     '  background:var(--surface);color:var(--ink);',
