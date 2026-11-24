@@ -2656,7 +2656,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:31:23+03:00"};</script>
+<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:36:03+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -21606,67 +21606,96 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     styleOnce();
     var w = App.el('div', 'stack-lg st');
 
-    var bar = App.el('div', 'bar');
+    /* ══ سؤالٌ في كلِّ شاشة ══════════════════════════════════════
+       «اجعلها تبويباتٍ وليست صفحةً طويلةً إلى الأسفل.»
+       وهو الصواب: الأسئلةُ الثلاثةُ مجموعةً في صفحةٍ واحدةٍ
+       تُرى كثرةً وإن كانت ثلاثًا، ويَجد الطالبُ نفسَه يَنزل
+       ويَصعد بين ما أجاب وما لم يُجِب. فواحدٌ في كلِّ مرّة،
+       والجوابُ نفسُه يَنقل إلى التالي — فلا زرَّ «التالي»
+       يُضاف إلى ما يُضغَط. */
+    var STEPS = [
+      { q: 'ما الذي تَحفظه؟',      list: WHAT, key: 'what' },
+      { q: 'كم تَحفظ في اليوم؟',  list: HOW,  key: 'how'  },
+      { q: 'وفي أيِّ الأيّام؟',    list: WHEN, key: 'when' }
+    ];
+    var at = 0;                       /* ٠..٢ أسئلة، و٣ هو العَرْض */
+
+    var bar = App.el('div', 'bar st-bar');
+    var back = App.el('button', 'st-back');
+    back.type = 'button';
+    back.innerHTML = App.icon('back', 21);
+    back.setAttribute('aria-label', 'السؤالُ السابق');
+    back.onclick = function () { if (at > 0) { at--; draw(); } };
+    bar.appendChild(back);
     bar.appendChild(App.el('h1', 'h1 bar-t', 'لنبدأ'));
+    var dots = App.el('div', 'st-dots');
+    dots.setAttribute('aria-hidden', 'true');
+    bar.appendChild(dots);
     w.appendChild(bar);
-    w.appendChild(App.el('p', 'body st-lead',
-      'ثلاثةُ أسئلة، ثمّ أُرتّب لك وِردَك. '
-      + 'ولا يَلزمك أن تَعرف شيئًا عن المناهج.'));
 
-    w.appendChild(step(1, 'ما الذي تَحفظه؟', WHAT, 'what'));
-    w.appendChild(step(2, 'كم تَحفظ في اليوم؟', HOW, 'how'));
-    w.appendChild(step(3, 'وفي أيِّ الأيّام؟', WHEN, 'when'));
+    var stage = App.el('div', 'st-stage');
+    stage.setAttribute('aria-live', 'polite');
+    w.appendChild(stage);
 
-    var out = App.el('section', 'card st-out');
-    out.hidden = true;
-    w.appendChild(out);
+    draw();
 
-    var go = App.el('button', 'btn btn-pri btn-block st-go');
-    go.type = 'button';
-    go.textContent = 'ابدأ';
-    go.disabled = true;
-    go.onclick = function () { build(); };
-    w.appendChild(go);
+    function draw() {
+      back.hidden = at === 0;
+      dots.textContent = '';
+      for (var i = 0; i < 4; i++) {
+        var d = App.el('i', 'st-dot' + (i === at ? ' on' : i < at ? ' done' : ''));
+        dots.appendChild(d);
+      }
+      stage.textContent = '';
+      stage.appendChild(at < 3 ? question(STEPS[at]) : summary());
+      stage.classList.remove('st-in');
+      void stage.offsetWidth;          /* يُعاد تشغيلُ الحركة */
+      stage.classList.add('st-in');
+      try { w.scrollIntoView({ block: 'start' }); } catch (e) {}
+    }
 
-    function step(n, q, list, key) {
-      var s = App.el('section', 'sec st-step');
-      var h = App.el('div', 'st-q');
-      h.appendChild(App.el('span', 'st-n', ar(n)));
-      h.appendChild(App.el('b', 'h2', q));
-      s.appendChild(h);
+    function question(s) {
+      var sec = App.el('section', 'sec st-step');
+      sec.appendChild(App.el('b', 'h1 st-qt', s.q));
+      sec.appendChild(App.el('p', 'small st-hint',
+        at === 0 ? 'ثلاثةُ أسئلة، ثمّ أُرتّب لك وِردَك.'
+      : at === 1 ? 'اختر ما تُطيقه كلَّ يوم، لا ما تُحبّه مرّةً.'
+      :            'يومٌ تَتركه خيرٌ من يومٍ تَكذِب فيه على نفسك.'));
       var box = App.el('div', 'st-opts');
-      list.forEach(function (o) {
-        var b = App.el('button', 'st-opt');
+      s.list.forEach(function (o) {
+        var b = App.el('button', 'st-opt' + (pick[s.key] === o ? ' on' : ''));
         b.type = 'button';
         b.appendChild(App.el('b', null, o.t));
         b.appendChild(App.el('span', 'small', o.s));
         b.onclick = function () {
-          pick[key] = o;
-          [].forEach.call(box.children, function (c) { c.classList.remove('on'); });
-          b.classList.add('on');
-          preview();
+          pick[s.key] = o;
+          at++;                        /* الجوابُ هو الانتقال */
+          draw();
         };
         box.appendChild(b);
       });
-      s.appendChild(box);
-      return s;
+      sec.appendChild(box);
+      return sec;
     }
 
-    function preview() {
-      var ready = pick.what && pick.how && pick.when;
-      go.disabled = !ready;
-      out.hidden = !ready;
-      if (!ready) return;
-      out.textContent = '';
-      out.appendChild(App.el('b', 'h2', 'هكذا يكون يومُك'));
+    function summary() {
+      var sec = App.el('section', 'sec st-step');
+      sec.appendChild(App.el('b', 'h1 st-qt', 'هكذا يكون يومُك'));
       var ul = App.el('div', 'st-prev');
       row(ul, 'احفظْ', pick.how.t + ' من ' + pick.what.t);
-      row(ul, 'راجِعْ', 'ما حَفِظتَه في الأيّامِ الماضية — يَتبعك وحدَه');
+      row(ul, 'راجِعْ', 'ما حَفِظتَه قريبًا — يَتبعك وحدَه');
       row(ul, 'ثبِّتْ', 'ما بَعُد عنك، يَدور عليك دورةً بعد دورة');
-      out.appendChild(ul);
-      out.appendChild(App.el('p', 'small st-note',
+      sec.appendChild(ul);
+      sec.appendChild(App.el('p', 'small st-note',
         'والمراجعةُ والتثبيتُ لا يَظهرانِ اليومَ: يَبدآنِ حين '
-        + 'يَكون عندك ما يُراجَع. فلا تَرى إلّا ما يَعنيك.'));
+        + 'يَكون عندك ما يُراجَع. فلا تَرى إلّا ما يَعنيك. '
+        + 'وكلُّ هذا يُبدَّل متى شئتَ من «مناهجي».'));
+      var go = App.el('button', 'btn btn-pri btn-block st-go');
+      go.type = 'button';
+      go.textContent = 'ابدأ';
+      go.onclick = function () { build(); };
+      sec.appendChild(go);
+      return sec;
     }
     function row(ul, verb, what) {
       var r = App.el('div', 'st-prow');
@@ -21721,12 +21750,25 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     var s = App.el('style');
     s.id = 'st-css';
     s.textContent = [
-      '.st-lead{margin-block:-4px 0}',
+      '.st-bar{display:flex;align-items:center;gap:10px}',
+      '.st-back{width:40px;height:40px;flex:0 0 auto;display:grid;',
+      '  place-items:center;background:none;border:0;color:var(--ink-mut);',
+      '  cursor:pointer;border-radius:var(--r-sm)}',
+      '.st-back[hidden]{display:none}',
+      '.st-bar .bar-t{flex:1 1 auto;min-width:0}',
+      '.st-dots{display:flex;gap:6px;flex:0 0 auto}',
+      '.st-dot{width:7px;height:7px;border-radius:50%;background:var(--hair);',
+      '  transition:background var(--fast) var(--ease),width var(--fast) var(--ease)}',
+      '.st-dot.done{background:var(--accent);opacity:.45}',
+      '.st-dot.on{background:var(--accent);width:18px;border-radius:999px}',
+      '.st-stage{min-height:58vh}',
+      '.st-in{animation:st-fade .22s var(--ease) both}',
+      '@keyframes st-fade{from{opacity:0;transform:translateY(6px)}',
+      '  to{opacity:1;transform:none}}',
+      '@media (prefers-reduced-motion:reduce){.st-in{animation:none}}',
       '.st-step{display:flex;flex-direction:column;gap:10px}',
-      '.st-q{display:flex;align-items:center;gap:9px}',
-      '.st-n{flex:0 0 auto;width:26px;height:26px;border-radius:50%;',
-      '  display:grid;place-items:center;font-size:13px;font-weight:700;',
-      '  background:var(--accent);color:var(--on-accent)}',
+      '.st-qt{margin:0;font-size:24px;line-height:1.45}',
+      '.st-hint{margin:-4px 0 6px;color:var(--ink-faint)}',
       '.st-opts{display:flex;flex-direction:column;gap:8px}',
       '.st-opt{display:flex;flex-direction:column;gap:3px;align-items:flex-start;',
       '  text-align:start;width:100%;min-height:60px;padding:11px 14px;',
