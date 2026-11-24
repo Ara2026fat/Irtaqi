@@ -41,8 +41,7 @@
 <!-- ألوانُ الـmanifest ليست تزيينًا: هي شاشةُ الإقلاعِ وشريطُ
      النظامِ عند التثبيت. كانت ليلًا (‎#08181A‎) وقد صار النهارُ
      هو المبدئيّ، فيُومض التطبيقُ أسودَ قبل أن يَفتح على الورق. -->
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22short_name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22display%22%3A%22standalone%22%2C%22dir%22%3A%22rtl%22%2C%22lang%22%3A%22ar%22%2C%22background_color%22%3A%22%23F8F4EC%22%2C%22theme_color%22%3A%22%23F8F4EC%22%7D'>
 <style>
 /* ══ 15-theme.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -2652,393 +2651,12 @@ body::before{
 
 /* سطرُ الاقتراحِ في لوحِ «اختباري»: نصٌّ لا بطاقة. */
 .ex-hint{ margin-block:6px 12px; color:var(--ink-mut) }
-
-/* ══ 31-ward.css ══ */
-/* ═══════════════════════════════════════════════════════════════════
-   الوِرد — زينةُ شاشتِه وحدَها
-   ───────────────────────────────────────────────────────────────────
-   كلُّ صنفٍ هنا بسابقةِ ‎w-‎، فلا يُزاحم صنفًا عامًّا في ‎20-shell.css‎
-   ولا صنفًا خاصًّا بوحدةٍ أخرى. ولا لونَ حرفيًّا البتّة: رموزُ
-   ‎15-theme.css‎ وحدَها، فتَتبدّل الهويّةُ والسِّمةُ بلا سطرٍ ثانٍ هنا.
-
-   والمنازلُ الأربعُ تُلوَّن بألوانِ أنواعِ المناهجِ نفسِها
-   (‎--k-hifz‎ وأخواتُها في ‎15-theme.css‎): القارئُ تعوّد أنّ الأخضرَ
-   حفظٌ والأزرقَ مراجعة، فلا يُبدَّل عليه المعنى لأنّ المحرّكَ تبدّل.
-   ولا يُعوَّل على اللونِ وحدَه في موضعٍ واحد: مع كلِّ لونٍ اسمٌ
-   مكتوب.
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* ── الترويسة ──────────────────────────────────────────────────── */
-.w-head{ padding:6px 0 2px }
-.w-greet{ margin:0; font-size:25px; line-height:1.35; font-weight:700; color:var(--ink) }
-.w-date{ margin:7px 0 0; font-size:14px; color:var(--ink-mut); letter-spacing:.2px }
-
-.w-lede{ margin:0; font-size:15px; line-height:1.85; color:var(--ink-mut) }
-
-/* خبرُ التحويلِ وخبرُ الزلل: سطرٌ يَمُرّ مرّةً، لا تنبيهٌ يَصرخ. */
-.w-moved{
-  margin:0;
-  padding:11px 14px;
-  border-radius:var(--r-md);
-  background:var(--accent-soft);
-  color:var(--ink);
-  font-size:13.5px;
-  line-height:1.75;
-}
-.w-moved-warn{ background:var(--gold-soft) }
-
-/* ── بطاقةُ الوِرد ──────────────────────────────────────────────── */
-.w-card{ display:flex; flex-direction:column; gap:var(--gap) }
-.w-top{ display:flex; align-items:center; gap:var(--gap-sm) }
-.w-top .h2{ flex:1 1 auto; min-width:0 }
-
-/* السطرُ المحسوب: شاراتٌ مُتجاورةٌ يَفصلها الفراغُ والأرضيّة.
-   ولا حرفَ فاصلٍ بينها: «·» بجوارِ رقمٍ هنديٍّ يُقرأ صفرًا، فتَصير
-   «تثبيت ٣ · مراجعة ٥» في الأذن «ثلاثون». */
-.w-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0 }
-.w-chip{
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  min-height:32px;
-  padding:5px 12px;
-  border-radius:var(--r-pill);
-  background:var(--kind-dim, var(--surface-2));
-  color:var(--kind, var(--ink));
-  font-size:13.5px;
-  font-weight:700;
-  line-height:1;
-  box-shadow:inset 0 0 0 1px var(--kind-dim, var(--hair));
-}
-.w-chip .w-cn{
-  font-size:15px;
-  font-weight:800;
-  font-variant-numeric:tabular-nums;
-}
-/* المنازلُ وألوانُها — مُستعارةٌ من ألوانِ الأنواعِ لا مُختَرعة */
-.w-c-new{ --kind:var(--k-hifz);    --kind-dim:var(--k-hifz-dim) }
-.w-c-fix{ --kind:var(--k-tathbit); --kind-dim:var(--k-tathbit-dim) }
-.w-c-rev{ --kind:var(--k-review);  --kind-dim:var(--k-review-dim) }
-.w-c-cyc{ --kind:var(--k-tilawa);  --kind-dim:var(--k-tilawa-dim) }
-
-.w-late{
-  margin:0;
-  font-size:13px;
-  line-height:1.7;
-  color:var(--warn, var(--gold-lit));
-  font-weight:600;
-}
-
-/* ── المجموعات ─────────────────────────────────────────────────── */
-.w-body{ display:flex; flex-direction:column; gap:var(--gap-lg) }
-.w-grp{ display:flex; flex-direction:column; gap:var(--gap-sm) }
-.w-grp-h{ display:flex; align-items:baseline; gap:9px; flex-wrap:wrap }
-.w-grp-t{ margin:0; font-size:16px; font-weight:800; color:var(--ink) }
-.w-grp-s{ font-size:12.5px; color:var(--ink-mut) }
-
-/* صفُّ الصفحة: حافّةُ المنزلةِ على الجهةِ الأولى — علامةٌ ثانيةٌ مع
-   الاسمِ المكتوبِ في ترويسةِ المجموعة، فلا يُحمَّل اللونُ وحدَه
-   المعنى. والحدُّ يُكتب جهةً جهةً لا بالمختصرِ لئلّا يَمحو الحافّة. */
-.w-row{
-  display:flex;
-  align-items:center;
-  gap:var(--gap-sm);
-  min-height:60px;
-  padding:9px 12px;
-  border-radius:var(--r-md);
-  background:var(--surface-2);
-  border-block:1px solid var(--hair-2);
-  border-inline-end:1px solid var(--hair-2);
-  border-inline-start:3px solid var(--kind, var(--hair));
-}
-.w-k-new{ --kind:var(--k-hifz) }
-.w-k-fix{ --kind:var(--k-tathbit) }
-.w-k-rev{ --kind:var(--k-review) }
-.w-k-cyc{ --kind:var(--k-tilawa) }
-
-.w-mid{ flex:1 1 auto; min-width:0 }
-.w-nm{ font-size:15.5px; font-weight:700; color:var(--ink); line-height:1.35 }
-.w-sub{
-  margin-top:3px;
-  font-size:12.5px;
-  line-height:1.5;
-  color:var(--ink-mut);
-  overflow-wrap:anywhere;
-}
-
-.w-tools{ display:flex; align-items:center; gap:7px; flex:none }
-
-/* زرُّ الأيقونة: ٤٤ مربّعةً كاملةً مهما صَغُرت الأيقونة */
-.w-ib{
-  display:grid;
-  place-items:center;
-  flex:none;
-  width:var(--tap); height:var(--tap);
-  border-radius:var(--r-sm);
-  background:var(--surface);
-  border:1px solid var(--hair);
-  color:var(--ink);
-  cursor:pointer;
-}
-/* مُفرَّغٌ لا مملوء: المملوءُ يعني «تمّ» في كلِّ تطبيقٍ يَعرفه
-   القارئ، وهذا زرُّ دعوةٍ لِما لم يتمّ بعد. */
-.w-ib.w-yes{ border-color:var(--accent); border-width:2px; color:var(--accent); background:transparent }
-.w-ib.w-yes:hover{ background:var(--accent); color:var(--on-accent) }
-/* زرُّ الزلل: خافتٌ عمدًا — ليس عقوبةً ولا فعلًا يُغرى به، إنّما
-   بابٌ للصدق. وأيقونتُه رجوعٌ لأنّ أثرَه رجوعُ منزلة. */
-.w-ib.w-no{ color:var(--ink-mut) }
-.w-ib.w-no:hover{ color:var(--danger); border-color:var(--danger) }
-.w-ib svg{ width:21px; height:21px }
-
-/* حالةُ التمام: هدوءٌ وعلامة، بلا تهنئةٍ صاخبة */
-.w-done{
-  display:flex;
-  align-items:flex-start;
-  gap:12px;
-  padding:16px 15px;
-  border-radius:var(--r-md);
-  background:var(--gold-soft);
-  box-shadow:inset 0 0 0 1px var(--gold-soft);
-  color:var(--ink);
-}
-.w-done svg{ width:22px; height:22px; flex:none; color:var(--gold-lit); margin-top:1px }
-.w-done b{ display:block; font-size:15.5px; font-weight:700 }
-.w-done span{ display:block; margin-top:4px; font-size:13px; color:var(--ink-mut); line-height:1.7 }
-
-/* ── جاهزيّةُ الاختبار ──────────────────────────────────────────── */
-.w-ready{ display:flex; flex-direction:column; gap:var(--gap) }
-.w-note{ margin:0 }
-.w-jzs{ display:flex; flex-direction:column; gap:14px }
-.w-jz{ display:flex; flex-direction:column; gap:7px }
-.w-jz-h{ display:flex; align-items:baseline; gap:10px }
-.w-jz-h b{ flex:none; font-size:14.5px; font-weight:700; color:var(--ink) }
-.w-jz-n{
-  flex:1 1 auto;
-  text-align:end;
-  font-size:14px; font-weight:800;
-  color:var(--ink-mut);
-  font-variant-numeric:tabular-nums;
-}
-/* الضعيفُ يُعلَّم باللونِ وبالرقمِ المكتوبِ معًا، فلا يُفقَد المعنى
-   على مَن لا يُميّز الألوان. */
-.w-jz-n.w-low{ color:var(--danger) }
-.w-jz-s{ font-size:12px; color:var(--ink-faint) }
-.w-fill-low{ background:linear-gradient(90deg, var(--danger), var(--danger)) }
-.w-more{ align-self:flex-start }
-
-/* ── بطاقةُ المحفوظ ─────────────────────────────────────────────── */
-.w-inv{ display:flex; flex-direction:column; gap:var(--gap) }
-.w-inv-rows{ display:flex; flex-direction:column; gap:var(--gap) }
-.w-inv-r{
-  display:flex; flex-direction:column; gap:6px;
-  padding-bottom:var(--gap);
-  border-bottom:1px solid var(--hair-2);
-}
-.w-inv-r:last-child{ padding-bottom:0; border-bottom:0 }
-.w-inv-l{ font-size:12.5px; font-weight:600; color:var(--ink-mut) }
-.w-inv-v{ font-size:16px; font-weight:700; color:var(--ink); line-height:1.5 }
-.w-inv-s{ font-size:12.5px; color:var(--ink-mut); line-height:1.6 }
-.w-edit{ justify-content:center }
-
-/* ── الدخولُ الأوّل ──────────────────────────────────────────────── */
-.w-first{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
-  padding:26px 4px 10px;
-  text-align:center;
-}
-.w-first .h1{ margin:0 }
-.w-first .w-lede{ max-width:24em }
-.w-cta{ margin-top:4px }
-
-/* ── لوحُ الإعداد ────────────────────────────────────────────────── */
-.w-setup{ padding-bottom:10px }
-.w-form{ display:flex; flex-direction:column; gap:var(--gap-lg) }
-.w-fld{ display:flex; flex-direction:column; gap:8px }
-.w-fld-l{ font-size:14.5px; font-weight:700; color:var(--ink); line-height:1.5 }
-.w-fld-h{ font-size:12px; color:var(--ink-faint); margin-top:-4px }
-.w-opts{ display:flex; gap:8px; flex-wrap:wrap }
-/* ‎width:fit-content‎ وحدَه لا يَكفي داخلَ عمودٍ مرن: التمدُّدُ
-   العَرضيُّ يَسحبه إلى عرضِ البطاقةِ فيَبدو شريطًا لا مِقودَ عدد. */
-.w-step{ align-self:flex-start }
-.w-save{ justify-content:center }
-
-/* الحركةُ تُسمح حين لا يَطلب صاحبُ الجهازِ تهدئتَها؛ وهي مُلغاةٌ
-   أصلًا تحتَ ‎reduce‎ فلا يُحتاج إلى إلغاءٍ ثانٍ. */
-@media (prefers-reduced-motion:no-preference){
-  .w-ib,.w-chip{ transition:background var(--fast) var(--ease), color var(--fast) var(--ease) }
-  .w-ib:active{ scale:.94 }
-}
-
-/* البؤرةُ ظاهرةٌ دائمًا: التسجيلُ يتمّ بلوحةِ المفاتيحِ كما باللمس */
-.w-ib:focus-visible,.w-more:focus-visible,.w-edit:focus-visible,
-.w-save:focus-visible,.w-cta:focus-visible{
-  outline:2.5px solid var(--gold-lit);
-  outline-offset:2px;
-}
-
-/* حقلا الهدفِ معًا: يُخفَيان جملةً لمن أتمّ المصحف */
-.w-goal{ display:flex; flex-direction:column; gap:var(--gap-lg) }
-
-/* ═══════════════════════════════════════════════════════════════════
-   لوحُ الإعداد — داشبوردٌ لا استمارة
-   ───────────────────────────────────────────────────────────────────
-   لا حقلَ كتابةٍ فيه، فلا نمطَ ‎input‎ ولا ‎textarea‎ هنا البتّة.
-   وكلُّ ما يُلمَس أربعٌ وأربعون فأكثر، وشبكةُ الأجزاءِ أحوجُ ما في
-   الشاشةِ إلى هذا الحساب.
-   ═══════════════════════════════════════════════════════════════════ */
-
-/* ── البطاقة ───────────────────────────────────────────────────── */
-/* حشوةُ البطاقةِ تُنقَل إلى أبنائها: رأسُها زرٌّ يَملأ عرضَها فيُلمَس
-   من حافّةٍ إلى حافّة، لا مربّعٌ صغيرٌ في وسطها. */
-.w-pan{ padding:0; overflow:hidden }
-.w-pan-h{
-  display:flex; align-items:center; gap:var(--gap-sm);
-  width:100%; min-height:64px;
-  padding:13px var(--pad);
-  text-align:start; color:var(--ink); cursor:pointer;
-}
-.w-pan-t{ flex:1 1 auto; min-width:0; display:block }
-.w-pan-l{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-mut) }
-/* الجوابُ الحاليُّ في وجهِ البطاقة: تُقرأ الشاشةُ بلمحةٍ بلا فتح */
-.w-pan-v{
-  display:block; margin-top:3px;
-  font-size:15.5px; font-weight:700; line-height:1.5;
-  color:var(--ink); overflow-wrap:anywhere;
-}
-/* ما لم يُجَب عنه يُعلَّم بالذهبِ وبنصِّه معًا، لا باللونِ وحدَه */
-.w-pan-v.w-pan-warn{ color:var(--gold-lit); font-weight:600 }
-.w-pan-c{ flex:none; display:grid; place-items:center; color:var(--ink-faint) }
-/* مغلقةٌ: السهمُ لأسفلَ دعوةً للفتح. مفتوحةٌ: لأعلى. */
-.w-pan-c svg{ width:20px; height:20px; transform:rotate(90deg) }
-.w-pan-b{ padding:2px var(--pad) var(--pad) }
-.w-pan-in{ display:flex; flex-direction:column; gap:var(--gap) }
-.w-pan-h:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:-3px }
-
-@media (prefers-reduced-motion:no-preference){
-  .w-pan-c svg{ transition:transform var(--mid) var(--ease) }
-  .w-open .w-pan-c svg{ transform:rotate(-90deg) }
-}
-@media (prefers-reduced-motion:reduce){
-  .w-open .w-pan-c svg{ transform:rotate(-90deg) }
-}
-
-/* ── شبكةُ الأجزاء ──────────────────────────────────────────────
-   ستّةُ أعمدةٍ لا سبعة: على عرضِ ٣٦٠ تَبقى الخليّةُ ٤٤٫٧ بكسلًا مع
-   ستّة، وتَنزل إلى ٣٨ مع سبعة — وهو هدفُ لمسٍ مرفوض. */
-.w-gridwrap{ display:flex; flex-direction:column; gap:10px }
-.w-grid{
-  display:grid;
-  grid-template-columns:repeat(6, minmax(0, 1fr));
-  gap:4px;
-}
-.w-cell{
-  display:grid; place-items:center;
-  min-width:44px; min-height:46px;
-  border-radius:var(--r-sm);
-  background:var(--surface-2);
-  color:var(--ink);
-  font-size:15px; font-weight:700; line-height:1;
-  font-variant-numeric:tabular-nums;
-  cursor:pointer;
-  box-shadow:inset 0 0 0 1px var(--hair-2);
-}
-/* المختارُ يُعلَّم باللونِ وبالإطارِ معًا: اللونُ وحدَه لا يَكفي */
-.w-cell.w-c-on{
-  background:var(--accent);
-  color:var(--on-accent);
-  box-shadow:inset 0 0 0 1.5px var(--accent);
-}
-/* المِرساة: طرفٌ ثُبّت وينتظر طرفَه الآخر */
-.w-cell.w-c-anchor{
-  background:var(--gold-soft);
-  color:var(--ink);
-  box-shadow:inset 0 0 0 2.5px var(--gold-lit);
-}
-/* ما يُمكن بلوغُه من المِرساة: تلميحٌ خافتٌ لا إعلان */
-.w-cell.w-c-reach{ box-shadow:inset 0 0 0 1px var(--gold-soft) }
-/* المحجوزُ: مُعتَّمٌ ومخطوطٌ ومعطَّلٌ — ثلاثُ علاماتٍ لا لونٌ واحد */
-.w-cell.w-c-block{
-  background:var(--hair-2);
-  color:var(--ink-faint);
-  text-decoration:line-through;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-.w-cell[disabled]:not(.w-c-block){ opacity:.4; cursor:not-allowed }
-.w-cell:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:2px }
-.w-ghint{ margin:0; font-size:12.5px; line-height:1.7; color:var(--ink-mut) }
-
-/* على الشاشاتِ الضيّقةِ جدًّا تُفكّ الشبكةُ من حشوةِ البطاقةِ قليلًا
-   كي لا تَنزل الخليّةُ تحتَ أربعٍ وأربعين. */
-@media (max-width:359px){
-  .w-grid{ margin-inline:-10px }
-}
-
-/* ── نطاقاتٌ مُضافة ─────────────────────────────────────────────── */
-.w-rchips{ display:flex; flex-direction:column; gap:8px }
-.w-rempty{ margin:0; font-size:13px; color:var(--ink-faint) }
-.w-rchip{
-  display:flex; align-items:center; gap:8px;
-  min-height:48px;
-  padding:5px 6px 5px 14px;
-  border-radius:var(--r-md);
-  background:var(--accent-soft);
-  color:var(--ink);
-}
-.w-rchip-t{ flex:1 1 auto; min-width:0; font-size:14px; font-weight:700; line-height:1.5 }
-.w-rchip-x{
-  flex:none; display:grid; place-items:center;
-  width:var(--tap); height:var(--tap);
-  border-radius:var(--r-sm);
-  color:var(--ink-mut); cursor:pointer;
-}
-.w-rchip-x:hover{ color:var(--danger) }
-.w-rchip-x:focus-visible{ outline:2.5px solid var(--gold-lit); outline-offset:-2px }
-
-/* ── خياراتٌ ومفاتيح ────────────────────────────────────────────── */
-.w-opts-col{ flex-direction:column; align-items:stretch }
-.w-opts-col .chip{ justify-content:center }
-.w-wide{ width:100% }
-.w-num{ min-width:56px; justify-content:center; font-variant-numeric:tabular-nums }
-.w-none{ align-self:flex-start }
-.w-sug{ margin:0; font-size:12.5px; line-height:1.8; color:var(--ink-mut) }
-
-/* سطرُ الخصوصيّة: خبرٌ يُطمئن، لا تحذير */
-.w-priv{
-  display:flex; align-items:flex-start; gap:9px;
-  margin:4px 0 0; padding:11px 13px;
-  border-radius:var(--r-md);
-  background:var(--surface-2);
-  font-size:12.5px; line-height:1.75; color:var(--ink-mut);
-}
-.w-priv svg{ flex:none; width:16px; height:16px; margin-top:2px; color:var(--ink-mut) }
-
-/* ── الخلاصةُ الحيّة ────────────────────────────────────────────── */
-.w-sum{ display:flex; flex-direction:column; gap:12px }
-.w-sum-t{ margin:0; font-size:16px; font-weight:800; color:var(--ink) }
-.w-sum-l{ display:flex; flex-direction:column; gap:10px }
-.w-sum-r{ display:flex; align-items:baseline; gap:12px }
-.w-sum-k{ flex:none; min-width:6.5em; font-size:12.5px; font-weight:600; color:var(--ink-mut) }
-.w-sum-v{ flex:1 1 auto; font-size:14.5px; font-weight:700; color:var(--ink); line-height:1.5 }
-.w-sum-warn .w-sum-v{ color:var(--gold-lit) }
-
-/* زرُّ الإثباتِ الناقص: يَبقى ملموسًا ويقول سببَه، ولا يُعطَّل تعطيلًا
-   صامتًا يَترك القارئَ يَنقره ولا يَفهم لِمَ لا يَستجيب. */
-.w-dim{ opacity:.55 }
-
-/* أرقامُ المقدار: صفٌّ واحدٌ لا صفٌّ ونصف. ستُّ خانات كشبكةِ
-   الأجزاءِ نفسِها، فتَبقى الخانةُ فوقَ ٤٤ على عرضِ ٣٦٠. */
-.w-nums{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:6px }
-.w-nums .chip{ min-width:0; padding-inline:0; justify-content:center }
 </style>
 </head>
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.49",at:"2026-11-24T19:56:35+03:00"};</script>
+<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:31:23+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -21885,1949 +21503,251 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 /* نمطُ الشعارِ كلُّه في ‎.appmark‎ بـ‎20-shell‎ — موضعٌ واحدٌ
    لهيئتِه أينما وقع، فلا تُعاد هنا. */
 
-/* ══ 30-ward.js ══ */
-/* ═══════════════════════════════════════════════════════════════════
-   الوِرد — محرِّكُ الحفظِ الواحد
-   ───────────────────────────────────────────────────────────────────
-   ملفُّ تجربةٍ في طبقةِ ‎skin/‎، يُضاف بعدَ ‎src/‎ فيُعيد تعريفَ شاشةِ
-   «اليوم» ولا يَمَسّ وحدةً من وحداتِها.
+/* ══ 20-start.js ══ */
+/* ══ skin/20-start.js — البدايةُ السهلة ═══════════════════════════
+   مقترَحٌ في الكسوةِ لا في التطبيق، حتّى نَتّفق.
 
-   ■ العلّة
-   كان الحفظُ والتثبيتُ والمراجعةُ ثلاثةَ أنواعِ مناهجَ يُنشئها القارئُ
-   ويَختار بينها. وهذا قلبٌ للأمر: في الحلقةِ الوِردُ واحدٌ وفيه
-   حركات — يُسمَّع الجديدُ، ثمّ يُثبَّت، ثمّ يُراجَع قريبًا، ثمّ
-   بعيدًا. فالقارئُ لم يكن يُسأل «كم تَحفظ اليوم؟» بل «أيَّ منهجٍ
-   أفتح؟» — وهو سؤالٌ لا يَملك جوابَه ولا ينبغي أن يُحمَّله.
+   قال صاحبُ التطبيق: «ما زلتُ كطالبٍ إذا دخلتُ أحتار بين وِردي
+   ومناهجي، وحفظٍ وتثبيتٍ ومراجعة — كلُّها تُشوّش عليّ، لا أدري
+   ماذا أختار. وهي في الحقيقةِ أوضحت لي طرقًا للحفظِ لم تَكن
+   عندي؛ نحن نَعرف: احفظْ وسمِّعْ وفقط. لكنّها تُشوّش على الطالبِ
+   من ناحيةِ أنّه يَتوه بين الأيقونات.»
 
-   ■ النموذج
-   جردٌ يُسأل عنه مرّةً (محفوظُ السنينِ الماضية + هدفُ هذا العام)،
-   ثمّ صفحاتٌ تَمشي في منازلَ بنفسها، ثمّ سطرٌ واحدٌ محسوبٌ كلَّ صباح.
+   وهذا تشخيصٌ لا شكوى. فالثلاثُ — حفظٌ ثمّ مراجعةٌ ثمّ تثبيت —
+   طريقةٌ صحيحةٌ يُعلّمها أهلُ الإقراء، والخطأُ ليس فيها بل في
+   موضعِ السؤال: التطبيقُ يَسأل الطالبَ أن يَختارها **قبل** أن
+   يَحفظ شيئًا، بمصطلحاتٍ لم يَسمع بها بعد. فجَعلناه مُصمِّمَ
+   منهجٍ لنفسِه وهو إنّما جاء ليَحفظ.
 
-   ■ لماذا لا ‎SM-2‎
-   المقروءُ صفحةُ مصحفٍ لا بطاقةُ مفردات، وفرقُهما ثلاثةُ أشياء:
-   ١) الصفحةُ لا تُنسى كلُّها، إنّما تُنسى مَفاصلُها — المتشابهاتُ
-      ومَطالعُ الآيات. فالزللُ حدثٌ موضعيٌّ لا سقوطُ بطاقة.
-   ٢) جارتُها تُذكّرها: صفحةٌ في سياقِ جزئها أيسرُ من بطاقةٍ معزولة،
-      فالفواصلُ تَطول أسرعَ ممّا تَطول في البطاقات.
-   ٣) وهو الأهمّ: معاملُ السهولةِ في ‎SM-2‎ يُعطي كلَّ بطاقةٍ موعدًا
-      مختلفًا، فيُصبح حِملُ اليومِ رقمًا لا يَعرفه القارئُ قبل أن
-      يَستيقظ. والحلقةُ تَعيش على ضدِّ ذلك: الواجبُ يوميٌّ والقريبُ
-      أسبوعيٌّ والبعيدُ شهريٌّ — إيقاعٌ ثابتٌ يُحفَظ في الصدر. وهذا
-      الثباتُ ليس نقصًا في الخوارزميّة، هو الميزةُ نفسُها، وهو عينُ
-      ما شكا منه صاحبُ التطبيق حين قال «حتّى لا يتشتّت».
-   فالسلّمُ هنا ثابتُ الفواصل، والتسريعُ يقع في عددِ الإتقاناتِ
-   المطلوبةِ للصعودِ لا في طولِ الفاصل.
-   ═══════════════════════════════════════════════════════════════════ */
+   والعلاجُ ليس حذفَ الثلاث — بل نقلَها من «قائمةٍ تُختار» إلى
+   «عملٍ يُفعَل»:
+
+     · يُسأل الطالبُ عمّا يَعرفه: ماذا تَحفظ؟ وكم في اليوم؟
+       وأيَّ الأيّام؟ ثلاثةُ أسئلةٍ لا مصطلحَ في واحدٍ منها.
+     · ثمّ يَبني التطبيقُ الثلاثةَ عنه: حفظٌ يَمشي، ومراجعةٌ
+       تَتبعه بما حَفِظ قريبًا، وتثبيتٌ يَدور على ما بَعُد.
+     · فيَرى في «اليوم» ثلاثةَ أسطرٍ بأفعالٍ صريحة: احفظْ،
+       راجِعْ، ثبِّتْ. فيَتعلّم الطريقةَ بعملِها لا بتعريفها —
+       وهكذا تُعلَّم.
+
+   وأمّا «وِردي» و«مناهجي» فاسمان لشيءٍ واحد، وشاشتُهما واحدةٌ
+   حرفًا بحرف. يَبقى واحد. */
 (function (App) {
   'use strict';
 
-  var Q = App.Quran;
-  var ar = App.ar;
+  var P = App.Plans, Q = App.Quran, ar = App.ar;
 
-  function vg(m, f) {
-    return (App.Words && App.Words.vg) ? App.Words.vg(m, f) : m;
-  }
+  /* ── ١ · الوِردُ التابع ──────────────────────────────────────
+     المراجعةُ والتثبيتُ لا مدًى ثابتٌ لهما: مَداهما ما حَفِظه
+     الطالبُ إلى اليوم. فالخُطّةُ تَتبع أختَها ولا تُكتَب بيدٍ.
+     وهذا هو الذي كان يُلقى على الطالبِ فيَعجز عنه — أن يَحسب
+     كلَّ أسبوعٍ ما الذي يُراجعه وما الذي يُثبّته. */
+  var baseRange = P.todayRange;
 
-  /* ── صِيَغُ العدد ──
-     «٢ صفحة» ركيكةٌ و«صفحتان» صواب. والصيغُ في ‎35-words.js‎ مُغلقةٌ
-     على وحدتِها فلا تُستعار، وتكرارُ ستّةِ أسطرٍ أهونُ من فتحِ ملفٍّ
-     ليس لي. */
-  function nPages(n) {
-    if (!n) return 'لا صفحة';
-    if (n === 1) return 'صفحةٌ واحدة';
-    if (n === 2) return 'صفحتان';
-    if (n % 100 >= 3 && n % 100 <= 10) return ar(n) + ' صفحات';
-    return ar(n) + ' صفحة';
-  }
-  function nPagesAcc(n) {
-    if (n === 1) return 'صفحةً واحدة';
-    if (n === 2) return 'صفحتَين';
-    if (n % 100 >= 3 && n % 100 <= 10) return ar(n) + ' صفحات';
-    return ar(n) + ' صفحة';
-  }
-  function nJuz(n) {
-    if (!n) return 'لا جزء';
-    if (n === 1) return 'جزءٌ واحد';
-    if (n === 2) return 'جزءان';
-    if (n % 100 >= 3 && n % 100 <= 10) return ar(n) + ' أجزاء';
-    return ar(n) + ' جزءًا';
-  }
-  function nJuzAcc(n) {
-    if (n === 1) return 'جزءًا واحدًا';
-    if (n === 2) return 'جزأَين';
-    if (n % 100 >= 3 && n % 100 <= 10) return ar(n) + ' أجزاء';
-    return ar(n) + ' جزءًا';
-  }
-  function nDays(n) {
-    if (n === 1) return 'يومٍ واحد';
-    if (n === 2) return 'يومَين';
-    if (n % 100 >= 3 && n % 100 <= 10) return ar(n) + ' أيّام';
-    return ar(n) + ' يومًا';
-  }
-
-  /* ════ ١ · المنازلُ وفواصلُها ═══════════════════════════════════
-     المنزلةُ رقمٌ لا نصّ، فالمقارنةُ والصعودُ والنزولُ حسابٌ واحد.
-
-       ٠ جديد            — لم تُحفَظ بعد؛ منزلةٌ عابرةٌ تُغادَر يومَ تُحفَظ
-       ١ تثبيت    يومٌ     × ٣ إتقانات  = ٣ أيّام
-       ٢ قريبة    ٧ أيّام  × ٢ إتقانَين = ١٤ يومًا
-       ٣ بعيدة    ٣٠ يومًا × ٢ إتقانَين = ٦٠ يومًا
-       ٤ ثابت     بلا موعدٍ — تَبلغه دورةُ القديم
-
-     ولماذا هذه الأرقامُ بعينها:
-     · «يومٌ ثلاثَ مرّات» هو واجبُ الحلقةِ كما يُمارَس: ما حُفظ أمسِ
-       يُسمَّع اليومَ وغدًا وبعدَه، ثمّ يُسلَّم إلى الوردِ القريب.
-     · «سبعةٌ مرّتَين» هو الوردُ القريبُ الأسبوعيّ: مرورانِ في أسبوعَين
-       يَكفيان لنقلِها إلى الشهريّ، وزيادتُهما تَحبِس الصفحةَ في
-       حِملٍ يوميٍّ لا تَحتاجه.
-     · «ثلاثون مرّتَين» هو الوردُ الشهريّ. ومجموعُ السلّمِ من أوّلِه
-       إلى «ثابت» ثمانيةٌ وسبعون يومًا — فصلٌ دراسيٌّ تقريبًا؛ فصفحةُ
-       أوّلِ العامِ ثابتةٌ قبل الامتحانِ بأشهر، وصفحةُ آخرِه ما زالت
-       في الوردِ القريبِ يومَ الامتحان، وهذا صوابٌ لا عيب.
-     · و«ثابت» بلا موعدٍ عمدًا: لو أُعطي موعدًا لَوقع على الصفحةِ
-       جدولانِ — جدولُها ودورةُ القديم — فيُسأل عنها مرّتَين. الدورةُ
-       وحدَها تَبلغها، وهي مضمونةُ الطوافِ بحسابِها. */
-  var FIX = 1, NEAR = 2, FAR = 3, SOLID = 4;
-  var STAGE_KEY  = ['new', 'fix', 'near', 'far', 'solid'];
-  var STAGE_NAME = ['جديدة', 'تثبيت', 'مراجعةٌ قريبة', 'مراجعةٌ بعيدة', 'ثابتة'];
-  var STEP = [0, 1, 7, 30, 0];     /* فاصلُ كلِّ منزلةٍ بالأيّام */
-  var NEED = [1, 3, 2, 2, 0];      /* إتقاناتٌ مطلوبةٌ للصعودِ منها */
-
-  /* سقفُ حِملِ اليومِ من السلّم. لا يُقطَع به ما وجب — يُستعمَل عند
-     جدولةِ الموعدِ الجديد: إن كان اليومُ المقصودُ مُثقَلًا دُفع
-     الموعدُ يومًا. فالحِملُ يَستوي من أصلِ البناءِ لا بإخفاءِ
-     المتأخّر. والمتأخّرُ يُعرَض كما هو ويُقال عددُه. */
-  var LOAD = 14;
-
-  /* ════ ٢ · الحالة ══════════════════════════════════════════════
-     ‎state.hifz‎ مفتاحٌ أعلى، فيُسجَّل في النواةِ وإلّا حَذفه
-     الاستيرادُ صامتًا (انظر ‎ownState‎ في ‎00-core.js‎). */
-  if (App.ownState) App.ownState('hifz');
-
-  function today() { return App.dateKey(); }
-
-  function dayAdd(key, n) {
-    var p = String(key).split('-');
-    var d = new Date(+p[0], +p[1] - 1, +p[2], 12, 0, 0, 0);
-    d.setDate(d.getDate() + n);
-    return App.dateKey(d);
-  }
-  function dayDiff(a, b) {           /* ‎b - a‎ بالأيّام */
-    var x = String(a).split('-'), y = String(b).split('-');
-    var da = Date.UTC(+x[0], +x[1] - 1, +x[2]);
-    var db = Date.UTC(+y[0], +y[1] - 1, +y[2]);
-    return Math.round((db - da) / 86400000);
-  }
-  function isKey(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
-
-  function blank() {
-    return {
-      v: 1,
-      old: [],            /* [{from,to}] نطاقاتُ محفوظِ السنينِ الماضية */
-      goal: null,         /* {from,to} هدفُ هذا العام */
-      rate: 1,            /* صفحاتُ الجديدِ في اليوم */
-      days: [0, 1, 2, 3, 4],
-      cyc: 0,             /* صفراً = يُحسَب وحدَه (انظر cycRate) */
-      cp: 0,              /* آخرُ صفحةٍ مرَّت بها الدورة */
-      cd: '', cnt: 0,     /* يومُ آخرِ دورةٍ وعددُ ما مَرّ فيه */
-      cat: '',            /* آخرُ يومٍ مَشت فيه الدورة */
-      st: {},             /* صفحة ← {s,k,z,due,at} */
-      sl: {},             /* زلّاتٌ هُضمت من ‎state.slips‎ — كي لا تُعاد */
-      log: {},            /* يوم ← {n,r} جديدٌ ومُراجَع */
-      since: '',          /* يومُ التأسيسِ — سَنَدُ الطزاجةِ لِما لا تاريخَ له */
-      startedAt: ''
-    };
-  }
-
-  function has() {
-    var h = App.state && App.state.hifz;
-    return !!(h && typeof h === 'object' && h.v === 1);
-  }
-
-  function ensure() {
-    var S = App.state;
-    if (!has()) {
-      S.hifz = blank();
-      S.hifz.startedAt = today();
-      S.hifz.since = today();
-    }
-    var h = S.hifz;
-    /* حقولٌ قد تَسقط من ملفٍّ مستورَدٍ قديم: تُستكمَل ولا تُمحى */
-    if (!h.st || typeof h.st !== 'object') h.st = {};
-    if (!h.sl || typeof h.sl !== 'object') h.sl = {};
-    if (!h.log || typeof h.log !== 'object') h.log = {};
-    if (!(h.old instanceof Array)) h.old = [];
-    /* أيّامُ الأسبوعِ لا بدّ أن تكون قائمةَ أرقام: نصٌّ في موضعها
-       يَمُرّ من ‎indexOf‎ بلا خطأٍ ويُسقط الوِردَ صامتًا كلَّ يوم. */
-    if (!(h.days instanceof Array)) h.days = [0, 1, 2, 3, 4];
-    else {
-      h.days = h.days.filter(function (d) {
-        return d === Math.round(+d) && d >= 0 && d <= 6;
-      }).map(Number);
-      if (!h.days.length) h.days = [0, 1, 2, 3, 4];
-    }
-    if (!isKey(h.since)) h.since = h.startedAt || today();
-    if (!isKey(h.startedAt)) h.startedAt = h.since;
-    return h;
-  }
-
-  /* ════ ٣ · الجرد ═══════════════════════════════════════════════ */
-
-  function clampPage(v) {
-    v = Math.round(+v);
-    return (isFinite(v) && v >= 1 && v <= Q.PAGES) ? v : 0;
-  }
-
-  /* نطاقاتُ القديمِ مُسوّاةً: تُرتَّب وتُدمَج المتداخلةُ منها، فلا
-     تُعَدّ صفحةٌ مرّتَين في الجردِ ولا في الدورة. */
-  function oldRanges() {
-    var h = ensure(), raw = h.old || [], out = [], i, a, b, r;
-    var list = [];
-    for (i = 0; i < raw.length; i++) {
-      a = clampPage(raw[i] && raw[i].from);
-      b = clampPage(raw[i] && raw[i].to);
-      if (!a || !b) continue;
-      list.push({ from: Math.min(a, b), to: Math.max(a, b) });
-    }
-    list.sort(function (x, y) { return x.from - y.from; });
-    for (i = 0; i < list.length; i++) {
-      r = list[i];
-      if (out.length && r.from <= out[out.length - 1].to + 1) {
-        out[out.length - 1].to = Math.max(out[out.length - 1].to, r.to);
-      } else out.push({ from: r.from, to: r.to });
-    }
-    return out;
-  }
-
-  function goalRange() {
-    var h = ensure(), g = h.goal;
-    if (!g) return null;
-    var a = clampPage(g.from), b = clampPage(g.to);
-    if (!a || !b) return null;
-    return { from: Math.min(a, b), to: Math.max(a, b) };
-  }
-
-  function inOld(pg) {
-    var r = oldRanges(), i;
-    for (i = 0; i < r.length; i++) if (pg >= r[i].from && pg <= r[i].to) return true;
-    return false;
-  }
-  function inGoal(pg) {
-    var g = goalRange();
-    return !!(g && pg >= g.from && pg <= g.to);
-  }
-
-  /* صفحاتُ القديمِ مَبسوطةً بترتيبِ المصحف — عليها تَطوف الدورة */
-  function oldPages() {
-    var r = oldRanges(), out = [], i, p;
-    for (i = 0; i < r.length; i++) {
-      for (p = r[i].from; p <= r[i].to; p++) out.push(p);
-    }
-    return out;
-  }
-
-  /* منزلةُ صفحةٍ: سجلُّها إن كان، وإلّا فـ«ثابتة» إن كانت من القديمِ
-     غيرَ ممسوسة، وإلّا فلا شيءَ — ‎null‎ تعني «ليست من محفوظك». */
-  function stageOf(page) {
-    var pg = clampPage(page);
-    if (!pg) return null;
-    var h = ensure(), r = h.st[String(pg)];
-    if (r && typeof r === 'object') {
-      var s = Math.round(+r.s);
-      if (!(s >= 0 && s <= SOLID)) s = FIX;
-      return STAGE_KEY[s];
-    }
-    if (inOld(pg)) return 'solid';
+  function byId(id) {
+    var a = App.state.plans || [], i;
+    for (i = 0; i < a.length; i++) if (a[i].id === id) return a[i];
     return null;
   }
 
-  /* أرقامُ الصفحاتِ المحفوظةِ كلِّها: القديمُ وما أُنجز من هدفِ العام */
-  function memorizedPages() {
-    var h = ensure(), seen = {}, out = [], list = oldPages(), i, k, pg;
-    for (i = 0; i < list.length; i++) seen[list[i]] = 1;
-    for (k in h.st) {
-      if (!h.st.hasOwnProperty(k)) continue;
-      /* سجلٌّ فاسدٌ لا يُعَدّ حفظًا: مفتاحٌ قيمتُه ‎null‎ كان يُدخل
-         صفحتَه في الجردِ بينما ‎stageOf‎ تُنكرها — فيَختلف العقدُ على
-         نفسِه، ويَبني عليه وكيلُ الاختبارِ سؤالًا في غيرِ محفوظ. */
-      if (!h.st[k] || typeof h.st[k] !== 'object') continue;
-      pg = clampPage(k);
-      if (pg) seen[pg] = 1;
+  function followRange(p) {
+    var lead = byId(p.follows);
+    if (!lead) return null;
+    var got = lead.done || 0;
+    if (got < 1) return null;              /* لا شيءَ بعدُ يُراجَع */
+
+    var lastP = lead.from + got - 1;
+    var win = p.window || 7;
+    var lo, hi;
+
+    if (p.kind === 'review') {             /* القريبُ الطريّ */
+      lo = Math.max(lead.from, lastP - win + 1);
+      hi = lastP;
+    } else {                               /* تثبيتٌ: ما بَعُد وبَرَد */
+      lo = lead.from;
+      hi = lastP - win;
+      if (hi < lo) return null;            /* لم يَبلُغْ ما يُثبَّت */
     }
-    for (k in seen) if (seen.hasOwnProperty(k)) out.push(+k);
-    out.sort(function (a, b) { return a - b; });
-    return out;
+
+    var span = hi - lo + 1;
+    var rate = Math.min(p.rate || 1, span);
+    var cyc = ((p.done || 0) % span + span) % span;
+    var from = lo + cyc;
+    var to = Math.min(hi, from + rate - 1);
+    return { from: from, to: to, count: to - from + 1 };
   }
 
-  function inventory() {
-    return { old: oldRanges(), goal: goalRange(), pages: memorizedPages() };
-  }
+  P.todayRange = function (p) {
+    if (p && p.follows) { try { return followRange(p); } catch (e) { return null; } }
+    return baseRange(p);
+  };
 
-  /* ════ ٤ · السلّم ══════════════════════════════════════════════ */
-
-  /* عددُ الصفحاتِ المُستحقّةِ في يومٍ بعينه — لتُوزَّع المواعيدُ ولا
-     تَتكدّس. يُحسَب على السلّمِ وحدَه: «الثابتة» لا موعدَ لها. */
-  function loadOn(key) {
-    var h = ensure(), n = 0, k, r;
-    for (k in h.st) {
-      if (!h.st.hasOwnProperty(k)) continue;
-      r = h.st[k];
-      if (r && r.s >= FIX && r.s <= FAR && r.due === key) n++;
-    }
-    return n;
-  }
-
-  /* أوّلُ يومٍ من ‎want‎ فصاعدًا لم يَبلغ سقفَه. والبحثُ محدودٌ بستّين
-     يومًا: لو امتلأت كلُّها فالدفعُ عبثٌ، والأولى أن يَقع الحِملُ
-     ويُرى. */
-  function pickDue(want) {
-    var d = want, i;
-    for (i = 0; i < 60; i++) {
-      if (loadOn(d) < LOAD) return d;
-      d = dayAdd(d, 1);
-    }
-    return want;
-  }
-
-  function rec(page) {
-    var h = ensure(), k = String(page), r = h.st[k];
-    if (r && typeof r === 'object') {
-      if (!(r.s >= 0 && r.s <= SOLID)) r.s = FIX;
-      if (!(r.k >= 0)) r.k = 0;
-      if (!(r.z >= 0)) r.z = 0;
-      return r;
-    }
-    /* صفحةٌ من القديمِ تُلمَس أوّلَ مرّةٍ تَدخل السجلَّ «ثابتةً» لا
-       «جديدة»: هي محفوظةٌ منذ سنين، وبدءُها من الصفرِ يُكذّب الجرد
-       ويُعيدها إلى حِملٍ يوميٍّ لا تَستحقّه. */
-    r = { s: inOld(page) ? SOLID : 0, k: 0, z: 0, due: today(), at: '' };
-    h.st[k] = r;
-    return r;
-  }
-
-  /* تُستدعى بعد كلِّ سؤال: الإتقانُ يَرفع، والزللُ يُنزِل منزلةً.
-     ولا يَنزل تحتَ «تثبيت» أبدًا — النزولُ إلى «جديدة» يعني «لم
-     تُحفَظ»، فتَعود الصفحةُ إلى طابورِ الحفظِ الجديدِ وتَكذب على
-     الجرد. والزللُ نسيانُ مَفصلٍ لا سقوطُ حفظ. */
-  function noteResult(page, ok) {
-    var pg = clampPage(page);
-    if (!pg) return null;
-    /* لا يُحكَم على صفحةٍ ليست من المحفوظ: لو قُبِل الحكمُ عليها
-       لَأدخلها أوّلُ زلّةٍ في الجردِ وادّعت الحالةُ حفظَ ما لم
-       يُحفَظ. والاختبارُ لا يَقع إلّا في المحفوظِ أصلًا. */
-    if (!stageOf(pg)) return null;
-    var h = ensure(), r = rec(pg), t = today();
-    r.at = t;
-    if (ok) {
-      /* إصابةٌ تُكفّر زلّةً واحدةً ولا تَمحو السجلَّ: موضعٌ زُلّ فيه
-         ثلاثًا يُطلَب له ثلاثُ إصابات — وهي قاعدةُ ‎68-tasmee.js‎
-         نفسُها، فلا يَختلف المعنى بين شاشتَين. */
-      if (r.z > 0) r.z--;
-      r.k = (r.k || 0) + 1;
-      if (r.s < SOLID && r.k >= NEED[r.s]) { r.s++; r.k = 0; }
-      /* «الثابتة» بلا موعد: الدورةُ تَبلغها، ولو أُعطيت موعدًا
-         لَوقع عليها جدولان فسُئلت مرّتَين. */
-      r.due = (r.s >= FIX && r.s <= FAR) ? pickDue(dayAdd(t, STEP[r.s])) : '';
-    } else {
-      r.z = Math.min(9, (r.z || 0) + 1);
-      r.k = 0;
-      if (r.s > FIX) r.s--;
-      else r.s = FIX;
-      /* ما زُلّ فيه يُعاد غدًا مهما كانت منزلتُه، ثمّ يَمشي على
-         فاصلِ منزلتِه الجديدة. ولو أُعطي فاصلَ منزلتِه فورًا لَانتظرت
-         صفحةٌ ثابتةٌ سقَط حفظُها اليومَ ثلاثين يومًا قبل أن تُسأل —
-         وهذا ضدُّ ما يَفعله المُقرِئ: «زَلِلتَ فيها؟ أعِدها غدًا». */
-      r.due = pickDue(dayAdd(t, 1));
-    }
-    App.save();
-    return STAGE_KEY[r.s];
-  }
-
-  /* ════ ٥ · هضمُ الزلل ══════════════════════════════════════════
-     ‎state.slips‎ قائمٌ في التطبيقِ ويَكتب فيه ‎68-tasmee.js‎ ولا
-     يَقرؤه أحدٌ ليُغيّر به شيئًا. وهذا موضعُه: كلُّ زلّةٍ جديدةٍ
-     تُنزِل صفحتَها منزلةً.
-
-     ولا يُكتَب في ‎state.slips‎ حرفٌ من هنا: صيغتُه ليست لنا —
-     ‎68-tasmee.js‎ يَفهرسه بـ«سورة:آية» و‎52-partial.js‎ يَقرؤه
-     بأرقامِ الصفحات، وهما يَتعايشان لأنّ كلًّا منهما يَتخطّى ما لا
-     يَعرف. فلو كتبتُ فيه بصيغتي لأفسدتُ على أحدِهما سجلَّه. فيُقرأ
-     على وجهَيه، ويُحفَظ أثرُ ما هُضم في ‎hifz.sl‎ وحدَها. */
-  function pageOfSlip(key, val) {
-    var m = /^(\d+):(\d+)$/.exec(String(key));
-    if (m) {
-      var v = null;
-      try { v = Q.verse(+m[1], +m[2]); } catch (e) { v = null; }
-      return v ? clampPage(v.p) : 0;
-    }
-    var pg = clampPage(key);
-    if (pg) return pg;
-    if (val && typeof val === 'object') return clampPage(val.page || val.p || val.pg);
-    return 0;
-  }
-
-  function absorbSlips() {
-    var raw = App.state && App.state.slips;
-    if (!raw || typeof raw !== 'object') return 0;
-    var h = ensure(), n = 0, keys, i, k, v, at, pg;
-    keys = (raw instanceof Array) ? null : Object.keys(raw);
-    if (!keys) return 0;                      /* صيغةُ القائمةِ: لا مفاتيحَ تُتابَع */
-    for (i = 0; i < keys.length && i < 2000; i++) {
-      k = keys[i];
-      if (k === '_veil' || k === '__proto__') continue;
-      v = raw[k];
-      if (!v) continue;
-      at = (typeof v === 'object' && isKey(v.at)) ? v.at : '0000-00-00';
-      /* البصمةُ يومُ الزلّةِ وعددُها: لو زَلّ في الموضعِ نفسِه ثانيةً
-         تَغيّر العددُ فتُهضَم الزلّةُ الجديدةُ ولا تُعاد الأولى. */
-      var cnt = (typeof v === 'object') ? (+v.n || 1) : (+v || 1);
-      var tag = at + '#' + cnt;
-      if (h.sl[k] === tag) continue;
-      pg = pageOfSlip(k, v);
-      h.sl[k] = tag;
-      if (!pg) continue;
-      if (!stageOf(pg)) continue;             /* زلّةٌ في غيرِ محفوظك: تُسجَّل ولا تُنزِل */
-      noteResult(pg, false);
-      n++;
-    }
-    if (n) App.save();
-    return n;
-  }
-
-  /* ════ ٦ · وِردُ اليوم ═════════════════════════════════════════ */
-
-  function isWorkDay(d) {
-    var h = ensure(), days = h.days || [];
-    return days.indexOf((d || new Date()).getDay()) >= 0;
-  }
-
-  /* ما حُفظ اليومَ من الجديد: المقدارُ اليوميُّ حدٌّ يَنفد، لا نافذةٌ
-     تَنزلق كلّما سُجّلت صفحة. ولولا هذا لَبقي السطرُ يقول «جديدة ١»
-     بعد العاشرةِ كما قالها قبل الأولى. */
-  function learnedToday() {
-    var h = ensure(), g = h.log[today()];
-    return (g && Math.max(0, Math.round(+g.n) || 0)) || 0;
-  }
-
-  /* الصفحاتُ التالياتُ من هدفِ العامِ ممّا لم يُحفَظ بعد */
-  function nextNew(n) {
-    var g = goalRange(), h = ensure(), out = [], pg;
-    if (!g || n <= 0) return out;
-    for (pg = g.from; pg <= g.to && out.length < n; pg++) {
-      if (!h.st[String(pg)]) out.push(pg);
-    }
-    return out;
-  }
-
-  function goalDone() {
-    var g = goalRange(), h = ensure(), n = 0, pg;
-    if (!g) return 0;
-    for (pg = g.from; pg <= g.to; pg++) if (h.st[String(pg)]) n++;
-    return n;
-  }
-
-  /* المستحقُّ من السلّم، الأحقُّ أوّلًا: المنزلةُ الدنيا تُقدَّم (فما
-     في «التثبيت» يَضيع إن تأخّر يومًا، وما في «البعيدة» لا يَضيع)،
-     ثمّ الأكثرُ زللًا، ثمّ الأقدمُ موعدًا. */
-  function dueList(upto) {
-    var h = ensure(), t = upto || today(), out = [], k, r, pg;
-    for (k in h.st) {
-      if (!h.st.hasOwnProperty(k)) continue;
-      r = h.st[k];
-      pg = clampPage(k);
-      if (!pg || !r || r.s < FIX || r.s > FAR) continue;
-      if (!isKey(r.due) || dayDiff(r.due, t) < 0) continue;
-      out.push({ page: pg, s: r.s, z: r.z || 0, due: r.due,
-                 late: Math.max(0, dayDiff(r.due, t)) });
-    }
-    out.sort(function (a, b) {
-      return (a.s - b.s) || (b.z - a.z) || (a.due < b.due ? -1 : a.due > b.due ? 1 : a.page - b.page);
-    });
-    return out;
-  }
-
-  /* دورةُ القديم: تَطوف على كلِّ صفحةٍ «ثابتةٍ» بترتيبِ المصحفِ ولا
-     تَقف عند موعد.
-
-     ولماذا «كلُّ ثابتة» لا «نطاقاتُ القديمِ» وحدَها: صاحبُ التطبيقِ
-     قال إنّ ما تَمّ من هذا العامِ يَنضمّ إلى القديمِ آخرَ العام —
-     وهذا صوابٌ في مآله، خطأٌ في وقته: صفحةٌ ثَبتت في الشهرِ الثاني
-     تَبقى عشرةَ أشهرٍ بلا مرورٍ ثمّ يُمتحَن فيها. فالانضمامُ يقع
-     صفحةً صفحةً ساعةَ تَبلغ «ثابتًا»، لا دفعةً في آخرِ العام. وبهذا
-     لا تَخرج صفحةٌ من كلِّ جدولٍ ساعةً واحدة.
-
-     ولماذا دورةٌ لا سلّم: الامتحانُ السنويُّ في المحفوظِ كلِّه، فلا
-     بدّ من طوافٍ مضمونِ الأجَل — «أمُرّ على محفوظي كلِّه في ستّين
-     يومًا» خبرٌ يَطمئنّ إليه القارئ، و«كلُّ صفحةٍ في موعدها» لا
-     يُعطيه هذا الخبر. وما زَلّ فيه خرج من الدورةِ ودخل السلّمَ
-     فعاد إليه سريعًا — فالضعفُ يُلتقَط باللفِّ السريعِ لا بالبطيء. */
-  function cyclePages() {
-    var list = memorizedPages(), out = [], i;
-    for (i = 0; i < list.length; i++) {
-      if (stageOf(list[i]) === 'solid') out.push(list[i]);
-    }
-    return out;
-  }
-
-  /* المؤشّرُ رقمُ صفحةٍ لا موضعٌ في قائمة: القائمةُ تَنمو كلّما ثَبتت
-     صفحةٌ جديدة، فموضعُ العاشرةِ اليومَ هو موضعُ التاسعةِ غدًا —
-     ومؤشّرٌ بالموضعِ يَقفز فوق صفحةٍ أو يُعيد أخرى كلّما نَمت. */
-  /* مقدارُ الدورةِ اليوميُّ لا يَسأل عنه القارئ: يُحسَب من جسمِ
-     الثابتِ ليَتمّ الطوافُ في ستّين يومًا. ولو تُرك رقمًا ثابتًا
-     يَختاره، لَطالت دورتُه كلّما كَبُر محفوظُه — فمَن حفظ خمسةَ
-     أجزاءٍ ومَرّ عليها في شهرَين صار بعد عامَين يَمُرّ عليها في
-     سبعةِ أشهر، وهو لا يَدري لِمَ ضَعُف. فالثابتُ هنا طولُ الدورةِ
-     لا مقدارُ اليوم. وستّون: شهران — أطولُ ما يَحتمله حافظٌ
-     يُمتحَن في محفوظه كلِّه مرّةً في العام. */
-  var CYCLE_DAYS = 60;
-
-  function cycRate() {
-    var h = ensure(), set = Math.round(+h.cyc) || 0;
-    if (set > 0) return set;
-    return Math.max(1, Math.ceil(cyclePages().length / CYCLE_DAYS));
-  }
-
-  /* ما مَرّ من الدورةِ اليوم. ولولاه لَما تمَّت الدورةُ أبدًا: كلّما
-     مرَّت صفحةٌ تقدّم المؤشّرُ فظَهرت التي بعدها، فالسطرُ يقول
-     «دورةُ القديم ٤» ثمّ لا يَنفد — ومَن لا يَرى وِردَه يَنتهي لا
-     يَعرف متى يَقوم. فالمقدارُ اليوميُّ حدٌّ لا نافذةٌ متحرّكة. */
-  function cycDoneToday() {
-    var h = ensure();
-    return (h.cd === today()) ? Math.max(0, Math.round(+h.cnt) || 0) : 0;
-  }
-
-  function cycleToday() {
-    var h = ensure(), all = cyclePages(), out = [], i, at = -1, n;
-    if (!all.length) return out;
-    n = cycRate() - cycDoneToday();
-    if (n <= 0) return out;
-    for (i = 0; i < all.length; i++) {
-      if (all[i] > (+h.cp || 0)) { at = i; break; }
-    }
-    if (at < 0) at = 0;                       /* بلغ آخرَ المصحفِ فيَلُفّ */
-    for (i = 0; i < n && i < all.length; i++) out.push(all[(at + i) % all.length]);
-    return out;
-  }
-
-  function cycleDays() {
-    var all = cyclePages().length;
-    return all ? Math.ceil(all / cycRate()) : 0;
-  }
-
-  function ward() {
-    var h = ensure(), t = today();
-    var all = dueList(t);
-    var fix = [], rev = [], i;
-    for (i = 0; i < all.length; i++) {
-      if (all[i].s === FIX) fix.push(all[i]); else rev.push(all[i]);
-    }
-    return {
-      date: t,
-      workday: isWorkDay(),
-      fresh: isWorkDay() ? nextNew(Math.max(0, (Math.round(+h.rate) || 0) - learnedToday())) : [],
-      fix: fix,
-      rev: rev,
-      cycle: cycleToday(),
-      late: (function () { var n = 0, j; for (j = 0; j < all.length; j++) if (all[j].late > 0) n++; return n; })()
-    };
-  }
-
-  /* ════ ٧ · جاهزيّةُ الاختبار ═══════════════════════════════════
-     «يَختبرون في محفوظهم كاملًا» — فالدورةُ ليست ترفًا، والقارئُ
-     يَحتاج أن يَعرف أين يَضعف قبل أن يُسأل. والجاهزيّةُ حاصلُ
-     ثلاثةٍ: رسوخِ المنزلة، وقُربِ العهدِ بالصفحة، وما عليها من زلل. */
-  var BASE = [0.20, 0.45, 0.70, 0.85, 1.00];
-
-  function pageScore(pg) {
-    var h = ensure(), r = h.st[String(pg)], t = today();
-    var s = r ? Math.max(0, Math.min(SOLID, Math.round(+r.s))) : (inOld(pg) ? SOLID : 0);
-    /* العهدُ يَبلى في مئةٍ وعشرين يومًا فيَنزل أثرُه إلى أدناه: أربعةُ
-       أشهرٍ بلا مرورٍ على صفحةٍ قدرٌ يُحسّه كلُّ حافظ.
-
-       وصفحةٌ لم تُمَسّ في التطبيقِ قطُّ — قديمٌ أقرّ به صاحبُه ولم
-       تَبلغه الدورةُ بعدُ — لا يُعرَف عهدُها. فلا تُعطى طزاجةً
-       كاملةً ولا تُحرَم: نصفٌ. وإعطاؤها الكمالَ كان يَرفع عشرةَ
-       أجزاءٍ إلى «مئةٍ في المئة» يومَ التحويلِ وهي لم تُقرأ حرفًا —
-       وهو عينُ ما تُحارِبه هذه البطاقة: أن يَدخل الامتحانَ واثقًا
-       بما لم يُقِسه. */
-    var known = !!(r && isKey(r.at));
-    var days = Math.max(0, dayDiff(known ? r.at : (isKey(h.since) ? h.since : t), t));
-    var fresh = known ? Math.max(0, 1 - days / 120) : 0.5;
-    var v = BASE[s] * (0.55 + 0.45 * fresh);
-    v -= 0.12 * ((r && +r.z) || 0);
-    return Math.max(0, Math.min(1, v));
-  }
-
-  function weakJuz() {
-    var pages = memorizedPages(), bag = {}, out = [], i, j, k;
-    for (i = 0; i < pages.length; i++) {
-      j = Q.juzOf(pages[i]);
-      if (!bag[j]) bag[j] = { n: 0, sum: 0 };
-      bag[j].n++;
-      bag[j].sum += pageScore(pages[i]);
-    }
-    for (k in bag) {
-      if (!bag.hasOwnProperty(k)) continue;
-      out.push({ juz: +k, score: bag[k].sum / bag[k].n, pages: bag[k].n });
-    }
-    out.sort(function (a, b) { return (a.score - b.score) || (a.juz - b.juz); });
-    return out;
-  }
-
-  /* ════ ٨ · التسجيل ═════════════════════════════════════════════ */
-
-  function bump(field, n) {
-    var h = ensure(), t = today();
-    var g = h.log[t] || (h.log[t] = { n: 0, r: 0 });
-    g[field] = (g[field] || 0) + (n || 1);
-  }
-
-  /* صفحةٌ جديدةٌ حُفظت: تَدخل السجلَّ ثمّ تَصعد إلى «التثبيت» فورًا */
-  function learn(page) {
-    var pg = clampPage(page);
-    if (!pg) return;
-    var h = ensure(), r = rec(pg);
-    r.s = FIX; r.k = 0; r.at = today();
-    r.due = pickDue(dayAdd(today(), STEP[FIX]));
-    bump('n', 1);
-    if (!isKey(h.startedAt)) h.startedAt = today();
-    App.save();
-  }
-
-  /* صفحةٌ من الدورةِ مَرّت: المؤشّرُ يَتقدّم، والعهدُ يُجدَّد، ولا
-     تَدخل السلّم — وإلّا لَانقلبت الدورةُ إلى جدولٍ ثانٍ يُزاحمها. */
-  function cyclePass(page, ok) {
-    var pg = clampPage(page);
-    if (!pg) return;
-    var h = ensure();
-    if (ok === false) { noteResult(pg, false); }
-    else {
-      var r = rec(pg);
-      r.at = today();
-      if (r.z > 0) r.z--;
-    }
-    h.cp = pg;                       /* المؤشّرُ عند آخرِ صفحةٍ مرَّت */
-    if (h.cd !== today()) { h.cd = today(); h.cnt = 0; }
-    h.cnt = (+h.cnt || 0) + 1;
-    h.cat = today();
-    bump('r', 1);
-    App.save();
-  }
-
-  function reviewPass(page, ok) {
-    noteResult(page, ok);
-    bump('r', 1);
-  }
-
-  /* ════ ٩ · التحويلُ من المناهجِ القديمة ════════════════════════
-     لا يُطلَب من القارئِ أن يُدخل شيئًا مرّتَين، ولا يَضيع له شيء.
-     والمناهجُ نفسُها تَبقى في ‎state.plans‎ كما هي: «تقدُّمي»
-     و«حلقتي» يَقرآنها، وحذفُها إتلافُ تاريخٍ لا تحويل.
-
-       حفظ   — المُنجَزُ منه محفوظٌ فعلًا، وتُؤرَّخ كلُّ صفحةٍ من
-                سجلِّه فتَنزل في منزلةٍ تُناسب عُمرَها. وبقيّتُه هي
-                هدفُ العام.
-       تثبيت — نطاقُه كلُّه محفوظٌ (لا يُثبَّت ما لم يُحفَظ): المُنجَزُ
-                «قريبةٌ» وما بقي «تثبيت».
-       مراجعة — نطاقُه كلُّه محفوظٌ من قبل: يَلحق بالقديمِ وتَطوف عليه
-                الدورة، والمؤشّرُ يَبدأ حيث انتهى.
-       تلاوة  — ليست حفظًا، فلا تَدخل الجردَ ولا تُحذَف. */
-  function seedFromAge(stObj, pg, when, t) {
-    var k = String(pg);
-    if (stObj[k]) return;
-    var age = Math.max(0, dayDiff(isKey(when) ? when : t, t));
-    var s = age <= 3 ? FIX : age <= 14 ? NEAR : age <= 60 ? FAR : SOLID;
-    stObj[k] = { s: s, k: 0, z: 0, at: isKey(when) ? when : t, due: '' };
-  }
-
-  function convert() {
-    var plans = (App.state && App.state.plans) || [];
-    if (!plans.length) return null;
-    var t = today(), st = {}, old = [], gFrom = 0, gTo = 0;
-    var rate = 0, days = {}, cp = 0, any = false;
-
-    plans.forEach(function (p) {
-      var from = clampPage(p && p.from), to = clampPage(p && p.to);
-      if (!from || !to) return;
-      if (to < from) { var sw = from; from = to; to = sw; }
-      var done = Math.max(0, Math.min(to - from + 1, Math.round(+p.done) || 0));
-      var kind = p.kind || 'hifz';
-      var pg, i;
-
-      if (kind === 'tilawa') return;
-      any = true;
-
-      if (kind === 'hifz') {
-        /* تأريخُ الصفحاتِ من سجلِّ المنهج: الصفحةُ التي حُفظت في
-           رمضانَ ليست كالتي حُفظت أمسِ، ولو سُوّيتا لَوقع محفوظُ
-           سنةٍ كاملةٍ في «التثبيت» دفعةً — حِملٌ كاذبٌ يُيئِس. */
-        var keys = [], kk;
-        for (kk in (p.log || {})) if (p.log.hasOwnProperty(kk) && isKey(kk)) keys.push(kk);
-        keys.sort();
-        var cur = from, cap = from + done - 1;
-        keys.forEach(function (d) {
-          var n = Math.max(0, Math.round(+p.log[d]) || 0);
-          for (i = 0; i < n && cur <= cap; i++) seedFromAge(st, cur++, d, t);
-        });
-        /* ما زاد على السجلِّ (منهجٌ استُورد بلا سجلّ) يُؤرَّخ ببدايته */
-        while (cur <= cap) seedFromAge(st, cur++, p.startedAt, t);
-
-        if (!gFrom || from < gFrom) gFrom = from;
-        if (to > gTo) gTo = to;
-        rate = Math.max(rate, Math.round(+p.rate) || 1);
-        (p.days || []).forEach(function (d) { if (d >= 0 && d <= 6) days[d] = 1; });
-        return;
-      }
-
-      if (kind === 'tathbit') {
-        for (pg = from; pg <= to; pg++) {
-          st[String(pg)] = {
-            s: (pg < from + done) ? NEAR : FIX, k: 0, z: 0,
-            at: isKey(p.startedAt) ? p.startedAt : t, due: ''
-          };
-        }
-        return;
-      }
-
-      /* مراجعة */
-      old.push({ from: from, to: to });
-      /* منهجُ المراجعةِ قطَع ‎done‎ صفحةً من نطاقه، فتَبدأ الدورةُ
-         بعدها لا من أوّلِ المصحفِ ثانية. */
-      if (!cp && done) cp = Math.min(to, from + done - 1);
-    });
-
-    if (!any) return null;
-
-    var h = blank();
-    h.st = st;
-    h.old = old;
-    h.goal = gFrom ? { from: gFrom, to: gTo } : null;
-    h.rate = rate || 1;
-    h.days = (function () {
-      var out = [], d;
-      for (d = 0; d <= 6; d++) if (days[d]) out.push(d);
-      return out.length ? out : [0, 1, 2, 3, 4];
-    })();
-    h.since = t;
-    h.startedAt = t;
-    App.state.hifz = h;
-    /* نطاقُ الهدفِ قد يَبتلع صفحاتٍ من القديم (منهجُ حفظٍ فوق منهجِ
-       مراجعة): تُطرَح من القديمِ فلا تُسأل مرّتَين. */
-    h.old = subtract(oldRanges(), goalRange());
-    h.cyc = 0;                 /* يُحسَب وحدَه، فلا يَشيخ بكِبَر المحفوظ */
-    h.cp = clampPage(cp);
-    /* مواعيدُ السلّمِ تُوزَّع بعد اكتمالِ السجلِّ كلِّه: لو وُزّعت أثناءَ
-       البذرِ لَما عَرَف أوّلُها كم سيَأتي بعده فتكدّس الجميعُ على غد. */
-    spread();
-    App.save();
-    return h;
-  }
-
-  /* يَطرح نطاقًا من نطاقات */
-  function subtract(list, cut) {
-    if (!cut) return list;
-    var out = [], i, r;
-    for (i = 0; i < list.length; i++) {
-      r = list[i];
-      if (r.to < cut.from || r.from > cut.to) { out.push(r); continue; }
-      if (r.from < cut.from) out.push({ from: r.from, to: cut.from - 1 });
-      if (r.to > cut.to) out.push({ from: cut.to + 1, to: r.to });
-    }
-    return out;
-  }
-
-  /* يُعطي كلَّ صفحةٍ في السلّمِ موعدًا، ويُوزّعها على الأيّامِ بسقفِ
-     ‎LOAD‎: الأحقُّ أوّلًا (المنزلةُ الدنيا ثمّ الأقدمُ عهدًا). */
-  function spread() {
-    var h = ensure(), t = today(), list = [], k, r;
-    for (k in h.st) {
-      if (!h.st.hasOwnProperty(k)) continue;
-      r = h.st[k];
-      if (!r || r.s < FIX || r.s > FAR) { if (r) r.due = ''; continue; }
-      list.push({ k: k, r: r });
-    }
-    list.sort(function (a, b) {
-      return (a.r.s - b.r.s) ||
-             (String(a.r.at) < String(b.r.at) ? -1 : String(a.r.at) > String(b.r.at) ? 1 : +a.k - +b.k);
-    });
-    list.forEach(function (it) { it.r.due = ''; });
-    list.forEach(function (it) {
-      var want = isKey(it.r.at) ? dayAdd(it.r.at, STEP[it.r.s]) : t;
-      if (dayDiff(want, t) > 0) want = t;        /* ما فات موعدُه يَبدأ من اليوم */
-      it.r.due = pickDue(want);
-    });
-  }
-
-  /* ════ ١٠ · الإعداد ════════════════════════════════════════════ */
-
-  /* «كم جزءًا حفظتَ في السنين الماضية؟» — والجوابُ نطاقٌ لا عدد:
-     مَن حفظ عشرةً من آخرِ المصحفِ ليس كمَن حفظ عشرةً من أوّله. */
-  function setup(opt, keep) {
-    var h = blank(), t = today(), prev = keep && has() ? App.state.hifz : null;
-    /* المحفوظُ نطاقاتٌ لا عدد: أكثرُ الحفّاظِ عندهم أوّلُ المصحفِ
-       وآخرُه ولا شيءَ بينهما — «عشرةُ أجزاء» وحدَها لا تَدلّ على
-       أيِّ عشرة، والجردُ يَقوم على مواضعِ الصفحاتِ لا على عددها.
-       و‎oldJuz/fromEnd‎ تُقبَلان لنطاقٍ واحدٍ متّصلٍ من طرفٍ إن
-       نادى المحرِّكَ أحدٌ بالصيغةِ الأولى. */
-    if (opt.ranges && opt.ranges.length) {
-      h.old = opt.ranges.map(function (r) {
-        return { from: clampPage(r.from), to: clampPage(r.to) };
-      }).filter(function (r) { return r.from && r.to; });
-    } else {
-      var n = Math.max(0, Math.min(30, Math.round(+opt.oldJuz) || 0));
-      if (n) {
-        h.old = (opt.fromEnd !== false)
-          ? [{ from: Q.juzStart(31 - n), to: Q.PAGES }]
-          : [{ from: 1, to: Q.juzEnd(n) }];
-      }
-    }
-    if (opt.goalFrom && opt.goalTo) {
-      h.goal = { from: Q.juzStart(Math.min(opt.goalFrom, opt.goalTo)),
-                 to: Q.juzEnd(Math.max(opt.goalFrom, opt.goalTo)) };
-    }
-    h.rate = Math.max(1, Math.min(20, Math.round(+opt.rate) || 1));
-    h.days = (opt.days && opt.days.length) ? opt.days.slice().sort() : [0, 1, 2, 3, 4];
-    h.since = t; h.startedAt = t;
-    /* التعديلُ لا يَمحو تاريخًا: مَن بدّل هدفَه في منتصفِ العامِ لا
-       يَخسر منازلَ ما حفظ ولا سجلَّ أيّامه ولا موضعَ دورته. */
-    if (prev) {
-      h.st = prev.st || {};
-      h.sl = prev.sl || {};
-      h.log = prev.log || {};
-      h.cp = clampPage(prev.cp) || 0;
-      h.cat = prev.cat || '';
-      h.cd = prev.cd || '';
-      h.cnt = Math.max(0, Math.round(+prev.cnt) || 0);
-      h.since = isKey(prev.since) ? prev.since : t;
-      h.startedAt = isKey(prev.startedAt) ? prev.startedAt : t;
-    }
-    App.state.hifz = h;
-    h.old = subtract(oldRanges(), goalRange());
-    h.cyc = Math.max(0, Math.round(+opt.cyc) || 0);
-    App.save();
-    return h;
-  }
-
-  /* ════ ١٢ · الفئةُ العمريّة ════════════════════════════════════
-     ‼ لا تُكتَب في ‎App.state‎ أبدًا، ولا في شيءٍ يُشتَقّ منها ‼
-
-     السببُ ليس احتياطًا نظريًّا: ‎95-settings.js‎ يَرفع الحالةَ كلَّها
-     إلى ‎/api/sync‎ بعد ختمِها (‎App.Seal.seal(JSON.stringify(App.state))‎)،
-     ويُصدّرها كاملةً في ملفِّ النسخِ الاحتياطيّ. فلو وُضعت الفئةُ في
-     ‎state.hifz‎ لَخرجت من الجهازِ في أوّلِ مزامنةٍ وفي أوّلِ تصدير.
-     ويَستعمل هذا التطبيقَ قاصرون، وسنُّ القاصرِ ليست ممّا يُرفَع إلى
-     خادمٍ لأنّه مُتاح.
-
-     فموضعُها مفتاحٌ مستقلٌّ في ‎localStorage‎ لا تَعرفه النواةُ ولا
-     يَمسّه الاستيرادُ ولا التصدير. ومَن جاء بعدي: إن احتجتَ الفئةَ
-     فاقرأها من ‎App.Hifz.age()‎ ولا تَنسخها إلى الحالةِ ولا إلى أيِّ
-     حمولةِ طلب. والغرضُ منها واحدٌ: تهيئةُ ما يُناسب سنَّ القارئ على
-     جهازه. ولذلك فئاتٌ لا رقمٌ ولا تاريخُ ميلاد — الفئةُ تَكفي
-     للغرضِ ولا تَحمل ما لا يُحتاج. */
-  var AGE_KEY = 'irtaqi.age';
-
-  /* المقترَحُ من السنّ: الحِملُ الحقيقيَّ ليس «الجديد» وحدَه، فكلُّ
-     صفحةٍ جديدةٍ تَجُرّ خلفها ثلاثَ جلساتِ تثبيتٍ ثمّ مراجعتَين —
-     فصفحةٌ في اليومِ تَصير نحوَ خمسِ صفحاتٍ من العملِ حين يَستقرّ
-     السلّم. ولهذا لا يُقترَح على ابنِ التاسعةِ ما يُقترَح على ابنِ
-     العشرين، ولا يُقترَح لأحدٍ أكثرُ من صفحتَين: الثالثةُ تَرفع
-     الوِردَ اليوميَّ فوقَ ثلاثَ عشرةَ صفحةً وهو ما يَنقطع دونه
-     أكثرُ الناس. والجمعةُ تُترَك في المقترَحِ لكلِّ سنّ. */
-  var AGES = [
-    { k: 'u10',   t: 'أقلّ من ١٠ سنوات', rate: 1, days: [0, 1, 2, 3, 4] },
-    { k: '10_12', t: '١٠ إلى ١٢ سنة',    rate: 1, days: [0, 1, 2, 3, 4] },
-    { k: '13_15', t: '١٣ إلى ١٥ سنة',    rate: 1, days: [0, 1, 2, 3, 4, 6] },
-    { k: '16_18', t: '١٦ إلى ١٨ سنة',    rate: 2, days: [0, 1, 2, 3, 4, 6] },
-    { k: 'o18',   t: 'أكبر من ١٨ سنة',   rate: 2, days: [0, 1, 2, 3, 4, 6] }
+  /* ── ٢ · ما يُسأل عنه الطالب ───────────────────────────────── */
+  var WHAT = [
+    { k: 'amma',  t: 'جزء عمّ',        s: 'من سورة النبأ إلى الناس',  from: 582, to: 604 },
+    { k: 'tabark',t: 'جزء تبارك',     s: 'من سورة الملك إلى المرسلات', from: 562, to: 581 },
+    { k: 'all',   t: 'المصحف من أوّله', s: 'من الفاتحة، صفحةً صفحة',  from: 1,   to: 604 }
+  ];
+  var HOW = [
+    { k: 'half', t: 'وجه',     s: 'نصفُ صفحةٍ في اليوم', rate: 1, soft: true },
+    { k: 'page', t: 'صفحة',    s: 'صفحةٌ كاملةٌ في اليوم', rate: 1 },
+    { k: 'two',  t: 'صفحتان',  s: 'لمن عنده وقتٌ وهِمّة', rate: 2 }
+  ];
+  var WHEN = [
+    { k: 'daily', t: 'كلَّ يوم',       s: 'سبعةُ أيّام', days: [0,1,2,3,4,5,6] },
+    { k: 'work',  t: 'أيّامَ الدوام',  s: 'الأحد إلى الخميس', days: [0,1,2,3,4] },
+    { k: 'five',  t: 'خمسةُ أيّام',    s: 'ويومانِ راحةٌ في آخرِ الأسبوع', days: [0,1,2,3,6] }
   ];
 
-  function ageBand(k) {
-    var i;
-    for (i = 0; i < AGES.length; i++) if (AGES[i].k === k) return AGES[i];
-    return null;
-  }
+  /* ── ٣ · الشاشة ───────────────────────────────────────────── */
+  var pick = { what: null, how: null, when: null };
 
-  /* القراءةُ والكتابةُ محروستان: في النافذةِ الخاصّةِ أو مع خزنٍ
-     مَمنوعٍ تَرمي ‎localStorage‎، والشاشةُ لا تَسقط لأجلِ تفضيل. */
-  function age() {
-    try { return ageBand(localStorage.getItem(AGE_KEY)) ? localStorage.getItem(AGE_KEY) : null; }
-    catch (e) { return null; }
-  }
-  function setAge(k) {
-    try {
-      if (ageBand(k)) localStorage.setItem(AGE_KEY, k);
-      else localStorage.removeItem(AGE_KEY);
-    } catch (e) {}
-  }
-  function suggest() {
-    var b = ageBand(age());
-    return b ? { rate: b.rate, days: b.days.slice() }
-             : { rate: 1, days: [0, 1, 2, 3, 4] };
-  }
+  App.screen('start', function () {
+    styleOnce();
+    var w = App.el('div', 'stack-lg st');
 
-  /* الوِردُ اليوميُّ حين يَستقرّ السلّم — تقديرٌ يُقال للقارئِ قبل أن
-     يَلتزم: «صفحةٌ في اليوم» وحدَها تُخفي أنّ خلفها مراجعاتِها. */
-  function dailyLoad(rate) {
-    var r = Math.max(0, Math.round(+rate) || 0);
-    var n = r * (1 + NEED[FIX] + NEED[NEAR] / STEP[NEAR] + NEED[FAR] / STEP[FAR]);
-    return Math.max(r, Math.round(n + cycRate()));
-  }
+    var bar = App.el('div', 'bar');
+    bar.appendChild(App.el('h1', 'h1 bar-t', 'لنبدأ'));
+    w.appendChild(bar);
+    w.appendChild(App.el('p', 'body st-lead',
+      'ثلاثةُ أسئلة، ثمّ أُرتّب لك وِردَك. '
+      + 'ولا يَلزمك أن تَعرف شيئًا عن المناهج.'));
 
-  /* ════ العقدُ المُعلَن ═════════════════════════════════════════ */
-  App.Hifz = {
-    age: age, setAge: setAge, AGES: AGES, suggest: suggest, dailyLoad: dailyLoad,
-    inventory: inventory,
-    stageOf: stageOf,
-    weakJuz: weakJuz,
-    noteResult: noteResult,
-    /* وما بعدَه للواجهةِ ولمن أراد أن يَبني عليها */
-    has: has, ensure: ensure, blank: blank, setup: setup, convert: convert,
-    ward: ward, learn: learn, reviewPass: reviewPass, cyclePass: cyclePass,
-    cyclePages: cyclePages, cycRate: cycRate,
-    absorbSlips: absorbSlips, spread: spread, cycleDays: cycleDays,
-    goalDone: goalDone, oldPages: oldPages, pageScore: pageScore,
-    STAGE_NAME: STAGE_NAME, STAGE_KEY: STAGE_KEY, STEP: STEP, NEED: NEED,
-    words: { pages: nPages, pagesAcc: nPagesAcc, juz: nJuz, juzAcc: nJuzAcc, days: nDays }
-  };
+    w.appendChild(step(1, 'ما الذي تَحفظه؟', WHAT, 'what'));
+    w.appendChild(step(2, 'كم تَحفظ في اليوم؟', HOW, 'how'));
+    w.appendChild(step(3, 'وفي أيِّ الأيّام؟', WHEN, 'when'));
 
-  /* ════ ١١ · وصلُ ما كان يَقرأ المناهج ═════════════════════════
-     «تقدُّمي» و«حلقتي» تَقرآن ‎App.Plans‎، فلو تُرك الأمرُ لَجمَدَتا
-     يومَ التحويل: المواظبةُ تَنكسر وعددُ صفحاتِ الحلقةِ يَقف عند
-     رقمٍ لا يَزيد — والقارئُ يَعمل كلَّ يومٍ ويَرى عملَه يَختفي.
+    var out = App.el('section', 'card st-out');
+    out.hidden = true;
+    w.appendChild(out);
 
-     ولا تُفتَح وحدةٌ ليست لي: طبقةُ ‎skin‎ تُضاف بعدَ ‎src‎، فتُعاد
-     الدالّتان هنا وتُستبقى الأصلُ فيُنادَى حين لا يكون للقارئِ
-     محرِّكُ وِردٍ بعد. والقديمُ يُجمَع مع الجديدِ لا يُستبدَل به،
-     فلا تَنكسر سلسلةُ أيّامٍ وقعت قبل التحويل. */
-  var P = App.Plans, oldCovered = P.coveredPages, oldStreak = P.streak;
+    var go = App.el('button', 'btn btn-pri btn-block st-go');
+    go.type = 'button';
+    go.textContent = 'ابدأ';
+    go.disabled = true;
+    go.onclick = function () { build(); };
+    w.appendChild(go);
 
-  P.coveredPages = function () {
-    var s = oldCovered.call(P);
-    if (!has()) return s;
-    var pages = memorizedPages(), i;
-    for (i = 0; i < pages.length; i++) s.add(pages[i]);
-    return s;
-  };
-
-  P.streak = function () {
-    if (!has()) return oldStreak.call(P);
-    var days = {}, h = ensure(), k, g;
-    (App.state.plans || []).forEach(function (p) {
-      for (var j in (p.log || {})) if (p.log[j] > 0) days[j] = 1;
-    });
-    for (k in h.log) {
-      if (!h.log.hasOwnProperty(k)) continue;
-      g = h.log[k];
-      if (g && ((+g.n || 0) + (+g.r || 0)) > 0) days[k] = 1;
+    function step(n, q, list, key) {
+      var s = App.el('section', 'sec st-step');
+      var h = App.el('div', 'st-q');
+      h.appendChild(App.el('span', 'st-n', ar(n)));
+      h.appendChild(App.el('b', 'h2', q));
+      s.appendChild(h);
+      var box = App.el('div', 'st-opts');
+      list.forEach(function (o) {
+        var b = App.el('button', 'st-opt');
+        b.type = 'button';
+        b.appendChild(App.el('b', null, o.t));
+        b.appendChild(App.el('span', 'small', o.s));
+        b.onclick = function () {
+          pick[key] = o;
+          [].forEach.call(box.children, function (c) { c.classList.remove('on'); });
+          b.classList.add('on');
+          preview();
+        };
+        box.appendChild(b);
+      });
+      s.appendChild(box);
+      return s;
     }
-    var d = new Date(); d.setHours(12, 0, 0, 0);
-    if (!days[App.dateKey(d)]) d.setDate(d.getDate() - 1);
-    var n = 0, guard = 0;
-    while (days[App.dateKey(d)] && guard++ < 4000) { n++; d.setDate(d.getDate() - 1); }
-    return n;
-  };
 
-}(window.App));
+    function preview() {
+      var ready = pick.what && pick.how && pick.when;
+      go.disabled = !ready;
+      out.hidden = !ready;
+      if (!ready) return;
+      out.textContent = '';
+      out.appendChild(App.el('b', 'h2', 'هكذا يكون يومُك'));
+      var ul = App.el('div', 'st-prev');
+      row(ul, 'احفظْ', pick.how.t + ' من ' + pick.what.t);
+      row(ul, 'راجِعْ', 'ما حَفِظتَه في الأيّامِ الماضية — يَتبعك وحدَه');
+      row(ul, 'ثبِّتْ', 'ما بَعُد عنك، يَدور عليك دورةً بعد دورة');
+      out.appendChild(ul);
+      out.appendChild(App.el('p', 'small st-note',
+        'والمراجعةُ والتثبيتُ لا يَظهرانِ اليومَ: يَبدآنِ حين '
+        + 'يَكون عندك ما يُراجَع. فلا تَرى إلّا ما يَعنيك.'));
+    }
+    function row(ul, verb, what) {
+      var r = App.el('div', 'st-prow');
+      r.appendChild(App.el('b', 'st-verb', verb));
+      r.appendChild(App.el('span', 'small', what));
+      ul.appendChild(r);
+    }
 
-/* ═══════════════════════════════════════════════════════════════════
-   الوِرد — الشاشة
-   ───────────────────────────────────────────────────────────────────
-   سطرٌ واحدٌ محسوبٌ بدل أربعِ بطاقاتٍ تَتنافس. ولا اختيارَ في الشاشة
-   البتّة: ما يُضبَط مرّةً يُضبَط في «المحفوظ والهدف»، وما عدا ذلك
-   فِعلٌ لا قرار.
+    function build() {
+      var W = pick.what, H = pick.how, D = pick.when;
+      var today = App.dateKey();
+      var lead = {
+        id: 'p' + Date.now(), kind: 'hifz', scope: 'page',
+        from: W.from, to: W.to, rate: H.rate, days: D.days,
+        startedAt: today, done: 0, log: {}, title: 'حفظ'
+      };
+      var rev = {
+        id: 'p' + (Date.now() + 1), kind: 'review', scope: 'page',
+        from: 1, to: 604, rate: Math.max(1, H.rate * 2), days: D.days,
+        startedAt: today, done: 0, log: {}, title: 'مراجعة',
+        follows: lead.id, window: 7
+      };
+      var fix = {
+        id: 'p' + (Date.now() + 2), kind: 'tathbit', scope: 'page',
+        from: 1, to: 604, rate: Math.max(1, H.rate), days: D.days,
+        startedAt: today, done: 0, log: {}, title: 'تثبيت',
+        follows: lead.id, window: 7
+      };
+      App.state.plans = (App.state.plans || []).concat([lead, rev, fix]);
+      App.save();
+      App.toast('رُتِّب وِردُك. ابدأ باسمِ الله.');
+      App.go('home');
+    }
 
-   وتُسجَّل ‎home‎ من جديدٍ فوقَ تسجيلِ ‎50-today.js‎: النواةُ تَكتب
-   ‎screens[name]‎ إسنادًا، وطبقةُ ‎skin‎ تُضاف بعدَ ‎src‎، فآخرُ
-   تسجيلٍ هو الظاهر. ولا يُمَسّ ملفُّ «اليوم» بحرف.
-   ═══════════════════════════════════════════════════════════════════ */
-(function (App) {
-  'use strict';
-
-  var H = App.Hifz, Q = App.Quran, ar = App.ar;
-  var w = H.words;
-  function vg(m, f) {
-    return (App.Words && App.Words.vg) ? App.Words.vg(m, f) : m;
-  }
-
-  function el(t, c, h) { return App.el(t, c, h); }
-  function btn(cls, html, label, fn) {
-    var b = el('button', cls, html);
-    b.type = 'button';
-    if (label) b.setAttribute('aria-label', label);
-    if (fn) b.onclick = fn;
-    return b;
-  }
-
-  /* موضعُ البؤرةِ يَضيع عند إعادةِ الرسمِ فيَتوه مَن يَعمل بلوحةِ
-     المفاتيح. فيُعلَّم الزرُّ التالي ويُستردَّ إليه التركيز. */
-  var FK = null;
-  function redraw(k) { FK = k || null; App.redraw(); }
-  App.on_('drawn', function (e) {
-    if (!FK || !e || e.name !== 'home') { FK = null; return; }
-    /* الزرُّ الذي ضُغط يَزول غالبًا: الصفحةُ التي أُتقنت تَخرج من
-       وِردِ اليوم. فإن لم يُوجَد مَوضعُه حطَّت البؤرةُ على أوّلِ فعلٍ
-       باقٍ في الوِرد — فمَن يَعمل بلوحةِ المفاتيحِ يُتمّ وِردَه
-       بضغطاتٍ متتاليةٍ ولا يُرَدّ إلى أوّلِ الصفحةِ في كلِّ مرّة. */
-    var n = App.$('[data-wk="' + FK + '"]') || App.$('.w-card .w-ib');
-    FK = null;
-    if (n) { try { n.focus({ preventScroll: true }); } catch (_) { n.focus(); } }
+    return w;
   });
 
-  function pageLine(pg) {
-    var s = Q.surahOf(pg);
-    return 'سورة ' + Q.surahName(s) + '  ·  الجزء ' + ar(Q.juzOf(pg));
+  /* ── ٤ · البابُ الواحد ─────────────────────────────────────── */
+  var baseGo = App.go;
+  App.go = function (name, p, quiet) {
+    /* مَن لا منهجَ له لا يُرسَل إلى بانٍ يَسأله عن مصطلحاتٍ لم
+       يَسمع بها. يُرسَل إلى ثلاثةِ أسئلةٍ يَعرف جوابها. */
+    if ((name === 'builder' || name === 'manhaj')
+        && !(App.state.plans || []).length) {
+      return baseGo('start', null, quiet);
+    }
+    return baseGo(name, p, quiet);
+  };
+
+  function styleOnce() {
+    if (document.getElementById('st-css')) return;
+    var s = App.el('style');
+    s.id = 'st-css';
+    s.textContent = [
+      '.st-lead{margin-block:-4px 0}',
+      '.st-step{display:flex;flex-direction:column;gap:10px}',
+      '.st-q{display:flex;align-items:center;gap:9px}',
+      '.st-n{flex:0 0 auto;width:26px;height:26px;border-radius:50%;',
+      '  display:grid;place-items:center;font-size:13px;font-weight:700;',
+      '  background:var(--accent);color:var(--on-accent)}',
+      '.st-opts{display:flex;flex-direction:column;gap:8px}',
+      '.st-opt{display:flex;flex-direction:column;gap:3px;align-items:flex-start;',
+      '  text-align:start;width:100%;min-height:60px;padding:11px 14px;',
+      '  border:1.5px solid var(--hair);border-radius:14px;background:var(--surface);',
+      '  color:var(--ink);font:inherit;font-weight:700;cursor:pointer;',
+      '  transition:border-color var(--fast) var(--ease),background var(--fast) var(--ease)}',
+      '.st-opt .small{font-weight:400;color:var(--ink-mut)}',
+      '.st-opt:hover{border-color:var(--accent)}',
+      '.st-opt.on{border-color:var(--accent);background:var(--gold-soft)}',
+      '.st-opt.on .small{color:var(--ink)}',
+      '.st-opt:focus-visible{outline:2px solid var(--gold-lit);outline-offset:2px}',
+      '.st-out{display:flex;flex-direction:column;gap:10px}',
+      '.st-prev{display:flex;flex-direction:column;gap:9px}',
+      '.st-prow{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}',
+      '.st-verb{flex:0 0 auto;min-width:52px;color:var(--accent)}',
+      '.st-prow .small{flex:1 1 140px;min-width:0;color:var(--ink-mut)}',
+      '.st-note{margin:0;color:var(--ink-faint)}',
+      '.st-go{min-height:52px}'
+    ].join('\n');
+    document.head.appendChild(s);
   }
-
-  /* ── الترويسة ─────────────────────────────────────────────────── */
-  function header() {
-    var nm = (App.state.profile && App.state.profile.name) || '';
-    var h = el('header', 'w-head');
-    var t = el('div', 'w-htxt');
-    var g = el('h1', 'w-greet');
-    g.textContent = (App.Words && App.Words.greet) ? App.Words.greet(nm)
-                                                   : (nm ? 'أهلًا، ' + nm : 'أهلًا');
-    var d = el('p', 'w-date');
-    d.textContent = App.DAY_NAME[new Date().getDay()] + '  —  ' + App.hijri(new Date());
-    t.appendChild(g); t.appendChild(d);
-    h.appendChild(t);
-    return h;
-  }
-
-  /* ── سطرُ الوِرد ───────────────────────────────────────────────
-     شاراتٌ مُتجاورةٌ بلا فاصلةٍ بينها: الفاصلةُ «·» بجوارِ رقمٍ هنديٍّ
-     تُقرأ صفرًا — «تثبيت ٣ · مراجعة» تُسمع «ثلاثون». فالفصلُ
-     بالفراغِ والأرضيّةِ لا بحرف. */
-  function chip(kind, label, n) {
-    var c = el('span', 'w-chip w-c-' + kind);
-    var l = el('span', 'w-cl');
-    l.textContent = label;
-    var b = el('b', 'w-cn');
-    b.textContent = ar(n);
-    c.appendChild(l); c.appendChild(b);
-    c.setAttribute('aria-label', label + ' ' + w.pages(n));
-    return c;
-  }
-
-  function chips(d) {
-    var r = el('div', 'w-chips');
-    r.setAttribute('role', 'list');
-    var any = false;
-    function add(k, t, n) {
-      if (!n) return;
-      var c = chip(k, t, n);
-      c.setAttribute('role', 'listitem');
-      r.appendChild(c);
-      any = true;
-    }
-    add('new', 'جديدة', d.fresh.length);
-    add('fix', 'تثبيت', d.fix.length);
-    add('rev', 'مراجعة', d.rev.length);
-    add('cyc', 'دورةُ القديم', d.cycle.length);
-    return any ? r : null;
-  }
-
-  /* ── صفُّ صفحةٍ ───────────────────────────────────────────────── */
-  function pageRow(pg, kindCls, sub, acts) {
-    var row = el('div', 'w-row w-k-' + kindCls);
-    var mid = el('div', 'w-mid');
-    var nm = el('div', 'w-nm');
-    nm.textContent = 'صفحة ' + ar(pg);
-    var sb = el('div', 'w-sub');
-    sb.textContent = sub;
-    mid.appendChild(nm); mid.appendChild(sb);
-    row.appendChild(mid);
-    var tools = el('div', 'w-tools');
-    acts.forEach(function (a) {
-      var b = btn('w-ib ' + (a.cls || ''), App.icon(a.icon, 21), a.label, a.fn);
-      b.setAttribute('data-wk', a.key);
-      tools.appendChild(b);
-    });
-    row.appendChild(tools);
-    return row;
-  }
-
-  /* الصفوفُ المعروضةُ من كلِّ مجموعةٍ قبل الطيّ. والعددُ الصادقُ في
-     الشارةِ أعلاه دائمًا: مَن غاب عشرين يومًا يَجد «مراجعة ٥٧» فلا
-     يُكذَب عليه، ولا يُلقى عليه سبعةٌ وخمسون صفًّا في شاشةٍ واحدة.
-     والطيُّ يُفتَح بلمسةٍ ويَذكر عددَ الباقي. */
-  var PEEK = 8;
-  var OPEN = {};
-
-  function group(key, title, hint, rows) {
-    var g = el('section', 'w-grp');
-    var h = el('div', 'w-grp-h');
-    var t = el('h2', 'w-grp-t');
-    t.textContent = title;
-    h.appendChild(t);
-    if (hint) {
-      var s = el('span', 'w-grp-s');
-      s.textContent = hint;
-      h.appendChild(s);
-    }
-    g.appendChild(h);
-    var open = !!OPEN[key], shown = open ? rows : rows.slice(0, PEEK);
-    shown.forEach(function (r) { g.appendChild(r); });
-    if (rows.length > PEEK) {
-      g.appendChild(btn('btn btn-quiet btn-sm w-more',
-        open ? 'اطوِ' : 'اعرض الباقيةَ — ' + w.pagesAcc(rows.length - PEEK),
-        null, function () { OPEN[key] = !open; redraw(); }));
-    }
-    return g;
-  }
-
-  /* ── بطاقةُ الوِرد ─────────────────────────────────────────────── */
-  function wardCard() {
-    var d = H.ward();
-    var card = el('section', 'card w-card');
-    var top = el('div', 'w-top');
-    var t = el('h2', 'h2');
-    t.textContent = 'وِردُك اليوم';
-    top.appendChild(t);
-    card.appendChild(top);
-
-    var cs = chips(d);
-    if (cs) card.appendChild(cs);
-
-    if (d.late) {
-      var lt = el('p', 'w-late');
-      /* بعد «منها» مبتدأٌ مرفوع: «منها صفحتان»، لا «منها صفحتَين» */
-      lt.textContent = 'منها ' + w.pages(d.late) + ' فات موعدُها. ابدأ بها.';
-      card.appendChild(lt);
-    }
-
-    var body = el('div', 'w-body');
-    var empty = true;
-
-    if (d.fresh.length) {
-      empty = false;
-      body.appendChild(group('new', 'جديدة', 'تُحفَظ اليوم', d.fresh.map(function (pg) {
-        return pageRow(pg, 'new', pageLine(pg), [
-          { key: 'n' + pg, icon: 'check', cls: 'w-yes', label: 'حفِظتُ صفحةَ ' + ar(pg),
-            fn: function () { H.learn(pg); App.toast('سُجّلت صفحةُ ' + ar(pg)); redraw('n' + pg); } }
-        ]);
-      })));
-    }
-
-    function revRows(list, cls) {
-      return list.map(function (it) {
-        var sub = pageLine(it.page);
-        if (it.late > 0) sub += '  —  متأخّرةٌ ' + w.days(it.late);
-        else if (it.z > 0) sub += '  —  زَلَلٌ لم يُكفَّر';
-        return pageRow(it.page, cls, sub, [
-          { key: 'y' + it.page, icon: 'check', cls: 'w-yes', label: 'أتقنتُ صفحةَ ' + ar(it.page),
-            fn: function () {
-              var s = H.reviewPass(it.page, true);
-              App.toast(s === 'solid' ? 'ثبَتت صفحةُ ' + ar(it.page) : 'أُتقنت صفحةُ ' + ar(it.page));
-              redraw('y' + it.page);
-            } },
-          { key: 'z' + it.page, icon: 'undo', cls: 'w-no', label: 'زَلِلتُ في صفحةِ ' + ar(it.page),
-            fn: function () {
-              H.reviewPass(it.page, false);
-              App.toast('رجَعت صفحةُ ' + ar(it.page) + ' منزلةً');
-              redraw('z' + it.page);
-            } }
-        ]);
-      });
-    }
-
-    if (d.fix.length) {
-      empty = false;
-      body.appendChild(group('fix', 'تثبيت', 'ما حُفظ قريبًا', revRows(d.fix, 'fix')));
-    }
-    if (d.rev.length) {
-      empty = false;
-      body.appendChild(group('rev', 'مراجعة', 'قريبةٌ وبعيدة', revRows(d.rev, 'rev')));
-    }
-    if (d.cycle.length) {
-      empty = false;
-      body.appendChild(group('cyc', 'دورةُ القديم',
-        H.cycleDays() ? 'تَتمّ في ' + w.days(H.cycleDays()) : '',
-        d.cycle.map(function (pg) {
-          return pageRow(pg, 'cyc', pageLine(pg), [
-            { key: 'c' + pg, icon: 'check', cls: 'w-yes', label: 'مرَّت صفحةُ ' + ar(pg),
-              fn: function () { H.cyclePass(pg, true); redraw('c' + pg); } },
-            { key: 'q' + pg, icon: 'undo', cls: 'w-no', label: 'زَلِلتُ في صفحةِ ' + ar(pg),
-              fn: function () {
-                H.cyclePass(pg, false);
-                App.toast('دخلت صفحةُ ' + ar(pg) + ' المراجعةَ القريبة');
-                redraw('q' + pg);
-              } }
-          ]);
-        })));
-    }
-
-    if (empty) {
-      var ok = el('div', 'w-done');
-      ok.innerHTML = App.icon('check', 22);
-      var tx = el('div');
-      var b1 = el('b');
-      b1.textContent = d.workday ? vg('أتممتَ وِردَ اليوم', 'أتممتِ وِردَ اليوم')
-                                 : 'لا وِردَ عليك اليوم';
-      var s1 = el('span');
-      s1.textContent = d.workday ? 'عُد غدًا، والطريقُ حيث تركتَه.'
-                                 : 'يومُ راحةٍ باختيارك.';
-      tx.appendChild(b1); tx.appendChild(s1);
-      ok.appendChild(tx);
-      body.appendChild(ok);
-    }
-
-    card.appendChild(body);
-    return card;
-  }
-
-  /* ── جاهزيّةُ الاختبار ─────────────────────────────────────────── */
-  var SHOW_ALL = false;
-
-  function readyCard() {
-    var list = H.weakJuz();
-    if (!list.length) return null;
-    var card = el('section', 'card w-ready');
-    var h = el('div', 'w-top');
-    var t = el('h2', 'h2');
-    t.textContent = 'جاهزيّةُ الاختبار';
-    h.appendChild(t);
-    card.appendChild(h);
-
-    var p = el('p', 'small w-note');
-    p.textContent = 'الاختبارُ في محفوظك كلِّه. هذه الأجزاءُ مرتّبةٌ من أضعفِها، '
-                  + 'تُقاس بمنزلةِ صفحاتها وقُربِ العهدِ بها وما عليها من زلل.';
-    card.appendChild(p);
-
-    /* حدُّ الضعف: دونَ خمسةٍ وستّين. وليس خمسين — جزءٌ عند النصفِ
-       كارثةٌ لا تنبيه، والحدُّ ينبغي أن يُنبّه قبل الكارثةِ لا بعدَها.
-       وخمسةٌ وستّون هي ما دونه صفحاتٌ لم تُمَسّ منذ شهرَين أو عليها
-       زلَلٌ لم يُكفَّر. */
-    var LOW = 65;
-    var shown = SHOW_ALL ? list : list.slice(0, 5);
-    var box = el('div', 'w-jzs');
-    shown.forEach(function (j) {
-      var pct = Math.round(j.score * 100);
-      var low = pct < LOW;
-      var row = el('div', 'w-jz');
-      var hd = el('div', 'w-jz-h');
-      var nm = el('b');
-      nm.textContent = 'الجزء ' + ar(j.juz);
-      var vn = el('span', 'w-jz-n' + (low ? ' w-low' : ''));
-      /* اللونُ لا يَحمل الخبرَ وحدَه: كلمةٌ معه لمن لا يُميّز الألوان */
-      vn.textContent = ar(pct) + '٪' + (low ? '  يَحتاج مراجعة' : '');
-      hd.appendChild(nm); hd.appendChild(vn);
-      row.appendChild(hd);
-      var bar = el('div', 'progress');
-      bar.setAttribute('role', 'progressbar');
-      bar.setAttribute('aria-valuemin', '0');
-      bar.setAttribute('aria-valuemax', '100');
-      bar.setAttribute('aria-valuenow', String(pct));
-      bar.setAttribute('aria-label', 'جاهزيّةُ الجزء ' + ar(j.juz));
-      var fill = el('div', 'progress-fill' + (low ? ' w-fill-low' : ''));
-      fill.style.width = pct + '%';
-      bar.appendChild(fill);
-      row.appendChild(bar);
-      var sub = el('div', 'w-jz-s');
-      sub.textContent = 'محفوظٌ منه ' + w.pages(j.pages);
-      row.appendChild(sub);
-      box.appendChild(row);
-    });
-    card.appendChild(box);
-
-    if (list.length > 5) {
-      /* بلا قوسَين حولَ العدد: القوسُ محايدُ الاتّجاه فيَنقلب في سطرٍ
-         عربيٍّ ينتهي برقمٍ هنديّ، فيُقرأ «كلَّها )٨(». والعددُ
-         يُذكَر بلا قوسٍ أو لا يُذكَر. */
-      card.appendChild(btn('btn btn-quiet btn-sm w-more',
-        SHOW_ALL ? 'اعرض الأضعفَ وحدَه'
-                 : 'اعرض الأجزاءَ كلَّها — ' + w.juzAcc(list.length),
-        null, function () { SHOW_ALL = !SHOW_ALL; redraw(); }));
-    }
-    return card;
-  }
-
-  /* ── بطاقةُ المحفوظ ───────────────────────────────────────────── */
-  function rangeText(r) {
-    var a = Q.juzOf(r.from), b = Q.juzOf(r.to);
-    return a === b ? 'الجزء ' + ar(a) : 'من الجزء ' + ar(a) + ' إلى الجزء ' + ar(b);
-  }
-
-  function invCard() {
-    var inv = H.inventory();
-    var card = el('section', 'card w-inv');
-    var h = el('div', 'w-top');
-    var t = el('h2', 'h2');
-    t.textContent = 'المحفوظ';
-    h.appendChild(t);
-    card.appendChild(h);
-
-    var rows = el('div', 'w-inv-rows');
-
-    var oldPgs = H.oldPages();
-    var oldN = oldPgs.length;
-    /* عددُ الأجزاءِ يُعَدّ عدًّا لا يُقسَم على عشرين: الأجزاءُ تتفاوت
-       في عددِ صفحاتها، والقسمةُ تُخطئ جزءًا كلَّما طال النطاق. */
-    var oldJuz = (function () {
-      var seen = {}, n = 0, i, j;
-      for (i = 0; i < oldPgs.length; i++) {
-        j = Q.juzOf(oldPgs[i]);
-        if (!seen[j]) { seen[j] = 1; n++; }
-      }
-      return n;
-    })();
-    var r1 = el('div', 'w-inv-r');
-    var l1 = el('div', 'w-inv-l');
-    l1.textContent = 'محفوظُ السنينِ الماضية';
-    var v1 = el('div', 'w-inv-v');
-    v1.textContent = oldN ? w.juz(oldJuz) + '  —  ' + w.pages(oldN)
-                          : 'لم يُسجَّل بعد';
-    r1.appendChild(l1); r1.appendChild(v1);
-    if (inv.old.length) {
-      var s1 = el('div', 'w-inv-s');
-      s1.textContent = inv.old.map(rangeText).join('، ');
-      r1.appendChild(s1);
-    }
-    rows.appendChild(r1);
-
-    if (inv.goal) {
-      var tot = inv.goal.to - inv.goal.from + 1;
-      var done = H.goalDone();
-      var pct = tot ? Math.round(done / tot * 100) : 0;
-      var r2 = el('div', 'w-inv-r');
-      var l2 = el('div', 'w-inv-l');
-      l2.textContent = 'هدفُ هذا العام';
-      var v2 = el('div', 'w-inv-v');
-      v2.textContent = rangeText(inv.goal);
-      r2.appendChild(l2); r2.appendChild(v2);
-      var bar = el('div', 'progress progress-gold');
-      bar.setAttribute('role', 'progressbar');
-      bar.setAttribute('aria-valuemin', '0');
-      bar.setAttribute('aria-valuemax', '100');
-      bar.setAttribute('aria-valuenow', String(pct));
-      bar.setAttribute('aria-label', 'ما أُنجز من هدفِ العام');
-      var f = el('div', 'progress-fill');
-      f.style.width = pct + '%';
-      bar.appendChild(f);
-      r2.appendChild(bar);
-      var s2 = el('div', 'w-inv-s');
-      /* نائبُ فاعلٍ مرفوع: «أُنجزت صفحتان» لا «صفحتَين» */
-      s2.textContent = 'أُنجزت ' + w.pages(done) + ' من ' + w.pages(tot);
-      r2.appendChild(s2);
-      rows.appendChild(r2);
-    }
-
-    var cycN = H.cyclePages().length;
-    if (cycN) {
-      var r3 = el('div', 'w-inv-r');
-      var l3 = el('div', 'w-inv-l');
-      l3.textContent = 'دورةُ القديم';
-      var v3 = el('div', 'w-inv-v');
-      v3.textContent = 'تَمُرّ على الثابتِ كلِّه في ' + w.days(H.cycleDays());
-      r3.appendChild(l3); r3.appendChild(v3);
-      var s3 = el('div', 'w-inv-s');
-      /* عددُ الثابتِ يُقال صراحةً: هو مقياسُ ما يُمتحَن فيه، ويَكبُر
-         كلّما ثَبتت صفحةٌ من هدفِ العام — فيَرى القارئُ جسمَه يَنمو. */
-      s3.textContent = 'الثابتُ اليومَ ' + w.pages(cycN)
-                     + (cycN > oldN ? '، منها ' + w.pages(cycN - oldN) + ' من حَصادِ هذا العام' : '');
-      r3.appendChild(s3);
-      rows.appendChild(r3);
-    }
-
-    card.appendChild(rows);
-    card.appendChild(btn('btn btn-ghost btn-block w-edit',
-      App.icon('edit', 19) + '<span>تعديلُ المحفوظِ والهدف</span>', null,
-      function () { App.go('hifz-setup'); }));
-    return card;
-  }
-
-  /* ── لوحُ الإعداد — داشبوردٌ لا استمارة ────────────────────────
-     لا حقلَ كتابةٍ واحدًا في الشاشةِ كلِّها: لا نصًّا ولا رقمًا ولا
-     لوحةَ مفاتيحَ تُفتَح. كلُّ جوابٍ لمسة.
-
-     والسؤالُ عن المحفوظِ سؤالٌ واحدٌ لا ثلاثة. طلبَ صاحبُ التطبيقِ
-     «كم تحفظ جزءًا» و«كم عددُ الأجزاء» و«من أيِّ جزءٍ إلى أيِّ جزء»،
-     وهذه الثلاثةُ سؤالٌ واحدٌ عن شيءٍ واحد: مَن يُجيب عنها مرّتَين
-     يَتناقض، ثمّ لا يَدري التطبيقُ أيَّ الجوابَين يُصدّق. فيُحدَّد
-     النطاقُ باللمسِ ويُحسَب العددُ لحظةً بلحظة — وهو نصُّ طلبِه
-     الأخير: «إذا حدّد تُحسب أوتوماتيك».
-
-     والبطاقةُ تَعرض جوابَها الحاليَّ في وجهها، فتُقرأ الشاشةُ
-     بلمحةٍ بلا فتحِ شيء، ولا يُفتَح إلّا ما يُراد تبديلُه. */
-
-  /* المعجمُ لا يَحمل علامةَ نقصٍ، وعلامةُ الإغلاقِ ‎close‎ ليست
-     بديلًا عنها: «×» في زرِّ عَدَدٍ تُقرأ حذفًا لا إنقاصًا. فتُسجَّل
-     بسابقةٍ خاصّةٍ لئلّا تُزاحم مفتاحًا في ‎10-icons.js‎. */
-  App.defIcons({
-    'w-minus': '<path d="M5 12h14"/>',
-    'w-plus': '<path d="M12 5v14M5 12h14"/>',
-    'w-lock': '<path d="M6 10V8a6 6 0 0 1 12 0v2"/>'
-      + '<rect x="4" y="10" width="16" height="11" rx="2.5"/>'
-  });
-
-  /* ── مُعِيناتُ النطاقات ──────────────────────────────────────── */
-
-  /* نطاقاتٌ بالأجزاءِ تُسوّى: تُرتَّب ويُدمَج المتجاورُ والمتداخل،
-     فعشرةُ لمساتٍ لا تُنتج عشرةَ نطاقاتٍ متلاصقة. */
-  function tidy(list) {
-    var out = [], i, r, s = list.slice();
-    s.sort(function (a, b) { return a.from - b.from; });
-    for (i = 0; i < s.length; i++) {
-      r = { from: Math.max(1, Math.min(30, s[i].from)),
-            to: Math.max(1, Math.min(30, s[i].to)) };
-      if (r.to < r.from) { var x = r.from; r.from = r.to; r.to = x; }
-      if (out.length && r.from <= out[out.length - 1].to + 1) {
-        out[out.length - 1].to = Math.max(out[out.length - 1].to, r.to);
-      } else out.push(r);
-    }
-    return out;
-  }
-  function inList(list, j) {
-    var i;
-    for (i = 0; i < list.length; i++) if (j >= list[i].from && j <= list[i].to) return true;
-    return false;
-  }
-  function countJuz(list) {
-    var n = 0, i;
-    for (i = 0; i < list.length; i++) n += list[i].to - list[i].from + 1;
-    return n;
-  }
-  function pagesOf(list) {
-    var n = 0, i;
-    for (i = 0; i < list.length; i++) {
-      n += Q.juzEnd(list[i].to) - Q.juzStart(list[i].from) + 1;
-    }
-    return n;
-  }
-  function rangeLabel(r) {
-    return r.from === r.to ? 'الجزء ' + ar(r.from)
-                           : 'من الجزء ' + ar(r.from) + ' إلى الجزء ' + ar(r.to);
-  }
-  function listLabel(list) {
-    if (!list.length) return 'لم يُحدَّد بعد';
-    return list.map(rangeLabel).join('، ');
-  }
-
-  /* ── شبكةُ الأجزاء ───────────────────────────────────────────
-     ثلاثون خليّةً في ستّةِ أعمدة: ستٌّ هي أكبرُ عددٍ يُبقي الخليّةَ
-     فوقَ أربعٍ وأربعين على عرضِ ٣٦٠ — وسبعةٌ تُنزلها إلى ثمانٍ
-     وثلاثين، وهو هدفُ لمسٍ لا يُقبَل.
-
-     واللمستان: الأولى تُثبّت الطرفَ الأوّل، والثانيةُ تُغلق النطاق.
-     ولمسُ الخليّةِ نفسِها مرّتَين يُعطي جزءًا واحدًا. ولا رسالةَ خطأٍ
-     بعد اللمس: ما لا يَصحّ يُمنَع قبله — الخلايا المحجوزةُ معطَّلةٌ
-     أصلًا، وإذا ثُبّت طرفٌ عُطّل كلُّ ما وراءَ محجوزٍ فلا يُمكن أن
-     يُرسَم نطاقٌ يَقفز فوقَ محفوظ. */
-  function juzGrid(opt) {
-    var box = el('div', 'w-gridwrap');
-    var hint = el('p', 'w-ghint');
-    var grid = el('div', 'w-grid');
-    grid.setAttribute('role', 'group');
-    grid.setAttribute('aria-label', opt.label || 'أجزاءُ المصحف');
-    var cells = [], anchor = null;
-
-    function blocked(j) { return !!(opt.blocked && opt.blocked(j)); }
-    function chosen(j) { return !!(opt.chosen && opt.chosen(j)); }
-
-    /* المدى المسموحُ من المِرساة: أقربُ محجوزٍ يَمينًا وشمالًا */
-    function reach(a) {
-      var lo = a, hi = a, j;
-      for (j = a - 1; j >= 1; j--) { if (blocked(j)) break; lo = j; }
-      for (j = a + 1; j <= 30; j++) { if (blocked(j)) break; hi = j; }
-      return { lo: lo, hi: hi };
-    }
-
-    function paint() {
-      var rg = anchor ? reach(anchor) : null;
-      cells.forEach(function (b, i) {
-        var j = i + 1, bl = blocked(j), ch = chosen(j);
-        var within = rg && j >= rg.lo && j <= rg.hi;
-        b.disabled = bl || (!!anchor && !within);
-        b.className = 'w-cell'
-          + (bl ? ' w-c-block' : '')
-          + (ch && !bl ? ' w-c-on' : '')
-          + (anchor === j ? ' w-c-anchor' : '')
-          + (anchor && within && anchor !== j ? ' w-c-reach' : '');
-        b.setAttribute('aria-pressed', ch ? 'true' : 'false');
-        b.setAttribute('aria-label', 'الجزء ' + ar(j)
-          + (bl ? ' — محجوزٌ لمحفوظك' : anchor === j ? ' — بدايةُ النطاق' : ''));
-      });
-      hint.textContent = anchor
-        ? 'المِس آخرَ الجزء. وإن أردتَ جزءًا واحدًا فالمِس الجزءَ ' + ar(anchor) + ' نفسَه.'
-        : (opt.hint || 'المِس أوّلَ الجزءِ ثمّ آخرَه.');
-    }
-
-    (function () {
-      var j;
-      for (j = 1; j <= 30; j++) {
-        (function (n) {
-          var b = btn('w-cell', ar(n));
-          b.setAttribute('data-wk', (opt.key || 'g') + n);
-          b.onclick = function () {
-            if (anchor === null) { anchor = n; paint(); return; }
-            var from = Math.min(anchor, n), to = Math.max(anchor, n);
-            anchor = null;
-            opt.onPick(from, to);
-          };
-          cells.push(b);
-          grid.appendChild(b);
-        })(j);
-      }
-    })();
-
-    box.appendChild(grid);
-    box.appendChild(hint);
-    box.repaint = paint;
-    box.reset = function () { anchor = null; paint(); };
-    paint();
-    return box;
-  }
-
-  /* ── البطاقة: عنوانٌ وجوابٌ ظاهرٌ، وتُفتَح باللمس ──────────────
-     واحدةٌ مفتوحةٌ في كلِّ مرّة: المفتوحاتُ كلُّها تُعيد الاستمارةَ
-     التي هَربنا منها. */
-  function panel(opt) {
-    var sec = el('section', 'card w-pan');
-    var head = btn('w-pan-h', '');
-    head.setAttribute('aria-expanded', 'false');
-    var txt = el('span', 'w-pan-t');
-    var ttl = el('span', 'w-pan-l');
-    ttl.textContent = opt.title;
-    var val = el('span', 'w-pan-v');
-    txt.appendChild(ttl); txt.appendChild(val);
-    var chev = el('span', 'w-pan-c');
-    chev.innerHTML = App.icon('chevron', 20);
-    head.appendChild(txt); head.appendChild(chev);
-    sec.appendChild(head);
-    var body = el('div', 'w-pan-b');
-    /* ‎aria-controls‎ يَصِل الرأسَ بجسمه: ‎aria-expanded‎ وحدَها تقول
-       «مفتوحةٌ» ولا تقول ماذا فُتح. */
-    body.id = 'wp-' + App.uid();
-    head.setAttribute('aria-controls', body.id);
-    sec.appendChild(body);
-    body.appendChild(opt.build());
-    sec.setValue = function (s, warn) {
-      val.textContent = s;
-      val.className = 'w-pan-v' + (warn ? ' w-pan-warn' : '');
-    };
-    sec.setOpen = function (on) {
-      sec.classList.toggle('w-open', on);
-      head.setAttribute('aria-expanded', on ? 'true' : 'false');
-      body.hidden = !on;
-    };
-    head.onclick = function () { opt.onToggle(); };
-    sec.setOpen(false);
-    return sec;
-  }
-
-  /* ── الشاشة ──────────────────────────────────────────────────── */
-  function setupPane() {
-    var cur = H.has() ? App.state.hifz : null;
-    var inv = cur ? H.inventory() : { old: [], goal: null };
-
-    /* النطاقاتُ تُترجَم إلى أجزاءٍ عند الفتحِ وتُعاد صفحاتٍ عند
-       الحفظ: الشبكةُ تَتكلّم بالأجزاءِ والمحرّكُ يَعمل بالصفحات. */
-    var oldR = tidy(inv.old.map(function (r) {
-      return { from: Q.juzOf(r.from), to: Q.juzOf(r.to) };
-    }));
-    var goalR = inv.goal ? { from: Q.juzOf(inv.goal.from), to: Q.juzOf(inv.goal.to) } : null;
-
-    var sug = H.suggest();
-    var band = H.age();
-    var rate = cur ? (cur.rate || sug.rate) : sug.rate;
-    var days = cur ? (cur.days || []).slice() : sug.days.slice();
-    /* المقترَحُ يَتبع السنَّ ما لم يَلمس القارئُ المقدارَ بنفسه */
-    var rateTouched = !!cur, daysTouched = !!cur;
-
-    var open = null, parts = [], paints = [];
-    function sync() { paints.forEach(function (f) { f(); }); }
-    function toggle(k) {
-      open = (open === k) ? null : k;
-      parts.forEach(function (p) { p.setOpen(p.pkey === open); });
-    }
-
-    var wrap = el('div', 'screen w-setup');
-
-    var head = el('div', 'bar');
-    var ht = el('div', 'bar-t');
-    var h1 = el('h1', 'h1');
-    h1.textContent = 'المحفوظُ والهدف';
-    ht.appendChild(h1);
-    head.appendChild(ht);
-    head.appendChild(btn('iconbtn bar-end', App.icon('close', 20), 'إغلاق',
-      function () { App.closeSheet(); }));
-    wrap.appendChild(head);
-
-    var lede = el('p', 'w-lede');
-    lede.textContent = 'كلُّ شيءٍ هنا لمسةٌ، ولا كتابةَ فيه. '
-                     + 'يُسأل مرّةً ثمّ يَمشي الوِردُ وحدَه، وما تُبدّله بعدُ لا يَمحو ما سجّلتَه.';
-    wrap.appendChild(lede);
-
-    /* ══ ١ · الفئةُ العمريّة ══ */
-    var pAge = panel({
-      title: 'الفئةُ العمريّة',
-      onToggle: function () { toggle('age'); },
-      build: function () {
-        var box = el('div', 'w-opts w-opts-col');
-        AGES().forEach(function (a) {
-          var b = btn('chip w-wide', a.t);
-          b.setAttribute('data-wk', 'age' + a.k);
-          b.onclick = function () {
-            band = (band === a.k) ? null : a.k;
-            H.setAge(band);
-            /* أوّلُ نفعٍ للسنّ: المقدارُ المقترَحُ يَتبدّل فورًا — ما
-               لم يكن القارئُ قد اختار مقدارَه بنفسه، فاختيارُه أعلى
-               من اقتراحنا. */
-            var s = H.suggest();
-            if (!rateTouched) rate = s.rate;
-            if (!daysTouched) days = s.days.slice();
-            sync();
-          };
-          box.appendChild(b);
-          paints.push(function () {
-            b.setAttribute('aria-pressed', band === a.k ? 'true' : 'false');
-          });
-        });
-        var note = el('p', 'w-priv');
-        note.innerHTML = App.icon('w-lock', 16);
-        var sp = el('span');
-        sp.textContent = 'تَبقى في جهازك وحدَه. لا تُرسَل إلى أيِّ خادم، '
-                       + 'ولا تَدخل النسخةَ الاحتياطيّةَ ولا المزامنة.';
-        note.appendChild(sp);
-        box.appendChild(note);
-        return box;
-      }
-    });
-    pAge.pkey = 'age';
-    paints.push(function () {
-      var b = ageBandOf(band);
-      pAge.setValue(b ? b.t : 'اختر فئتَك — يُضبَط بها المقترَح', !b);
-    });
-    parts.push(pAge);
-    wrap.appendChild(pAge);
-
-    /* ══ ٢ · المحفوظُ السابق ══ */
-    var oldGrid, oldChips;
-    var pOld = panel({
-      title: 'محفوظُك من السنين الماضية',
-      onToggle: function () { toggle('old'); },
-      build: function () {
-        var box = el('div', 'w-pan-in');
-        oldChips = el('div', 'w-rchips');
-        box.appendChild(oldChips);
-        oldGrid = juzGrid({
-          key: 'o',
-          label: 'أجزاءُ محفوظك السابق',
-          hint: 'المِس أوّلَ الجزءِ ثمّ آخرَه. ويُمكنك إضافةُ أكثرَ من نطاق.',
-          chosen: function (j) { return inList(oldR, j); },
-          blocked: function (j) { return !!goalR && j >= goalR.from && j <= goalR.to; },
-          onPick: function (from, to) {
-            oldR = tidy(oldR.concat([{ from: from, to: to }]));
-            sync();
-          }
-        });
-        box.appendChild(oldGrid);
-        var none = btn('btn btn-quiet btn-sm w-none', 'لم أحفظ شيئًا من قبل', null,
-          function () { oldR = []; sync(); });
-        box.appendChild(none);
-        return box;
-      }
-    });
-    pOld.pkey = 'old';
-    paints.push(function () {
-      var n = countJuz(oldR);
-      pOld.setValue(n ? w.juz(n) + '  —  ' + listLabel(oldR) : 'لم يُحدَّد بعد', !n);
-      if (oldGrid) oldGrid.repaint();
-      if (!oldChips) return;
-      oldChips.innerHTML = '';
-      if (!oldR.length) {
-        var e = el('p', 'w-rempty');
-        e.textContent = 'لا نطاقَ بعد.';
-        oldChips.appendChild(e);
-        return;
-      }
-      oldR.forEach(function (r, i) {
-        var c = el('span', 'w-rchip');
-        var t = el('span', 'w-rchip-t');
-        t.textContent = rangeLabel(r) + '  —  ' + w.juz(r.to - r.from + 1);
-        c.appendChild(t);
-        c.appendChild(btn('w-rchip-x', App.icon('close', 18),
-          'احذف ' + rangeLabel(r), function () {
-            oldR.splice(i, 1);
-            if (oldGrid) oldGrid.reset();
-            sync();
-          }));
-        oldChips.appendChild(c);
-      });
-    });
-    parts.push(pOld);
-    wrap.appendChild(pOld);
-
-    /* ══ ٣ · هدفُ هذا العام ══ */
-    var goalGrid;
-    var pGoal = panel({
-      title: 'ما ستَحفظه هذا العام',
-      onToggle: function () { toggle('goal'); },
-      build: function () {
-        var box = el('div', 'w-pan-in');
-        goalGrid = juzGrid({
-          key: 'n',
-          label: 'أجزاءُ هدفِ هذا العام',
-          hint: 'المِس أوّلَ الجزءِ ثمّ آخرَه. والمُعتَّمُ محفوظُك، فلا يُحفَظ مرّتَين.',
-          chosen: function (j) { return !!goalR && j >= goalR.from && j <= goalR.to; },
-          blocked: function (j) { return inList(oldR, j); },
-          onPick: function (from, to) { goalR = { from: from, to: to }; sync(); }
-        });
-        box.appendChild(goalGrid);
-        box.appendChild(btn('btn btn-quiet btn-sm w-none', 'لا جديدَ هذا العام — مراجعةٌ فقط',
-          null, function () { goalR = null; sync(); }));
-        return box;
-      }
-    });
-    pGoal.pkey = 'goal';
-    paints.push(function () {
-      if (goalR && inList(oldR, goalR.from)) goalR = null;   /* ابتلعه المحفوظ */
-      var full = countJuz(oldR) >= 30;
-      pGoal.style.display = full ? 'none' : '';
-      pGoal.setValue(goalR
-        ? w.juz(goalR.to - goalR.from + 1) + '  —  ' + rangeLabel(goalR)
-        : (full ? 'حفظتَ المصحفَ كلَّه' : 'لم يُحدَّد بعد'), !goalR && !full);
-      if (goalGrid) goalGrid.repaint();
-    });
-    parts.push(pGoal);
-    wrap.appendChild(pGoal);
-
-    /* ══ ٤ · مقدارُ الجديدِ في اليوم ══ */
-    var pRate = panel({
-      title: 'مقدارُ الجديدِ في اليوم',
-      onToggle: function () { toggle('rate'); },
-      build: function () {
-        var box = el('div', 'w-pan-in');
-        var row = el('div', 'w-nums');
-        var i;
-        for (i = 1; i <= 6; i++) {
-          (function (n) {
-            var b = btn('chip w-num', ar(n));
-            b.setAttribute('aria-label', w.pages(n) + ' في اليوم');
-            b.onclick = function () { rate = n; rateTouched = true; sync(); };
-            row.appendChild(b);
-            paints.push(function () {
-              b.setAttribute('aria-pressed', rate === n ? 'true' : 'false');
-            });
-          })(i);
-        }
-        box.appendChild(row);
-        var sg = el('p', 'w-sug');
-        box.appendChild(sg);
-        paints.push(function () {
-          var b = ageBandOf(band);
-          sg.textContent = b
-            ? 'المقترَحُ لفئتِك: ' + w.pages(b.rate) + '. ووِردُك اليوميُّ كلُّه '
-              + 'يَصير نحوَ ' + w.pages(H.dailyLoad(rate)) + ' بعد أن يَستقرّ السلّم.'
-            : 'وِردُك اليوميُّ كلُّه نحوَ ' + w.pages(H.dailyLoad(rate))
-              + ' بعد أن يَستقرّ السلّم — فكلُّ جديدةٍ تَجُرّ مراجعاتِها.';
-        });
-        return box;
-      }
-    });
-    pRate.pkey = 'rate';
-    paints.push(function () { pRate.setValue(w.pages(rate) + ' في اليوم'); });
-    parts.push(pRate);
-    wrap.appendChild(pRate);
-
-    /* ══ ٥ · أيّامُ الأسبوع ══ */
-    var pDays = panel({
-      title: 'أيّامُ الأسبوع',
-      onToggle: function () { toggle('days'); },
-      build: function () {
-        var box = el('div', 'w-pan-in');
-        var dp = el('div', 'daypicker');
-        var i;
-        for (i = 0; i < 7; i++) {
-          (function (d) {
-            var b = btn('', App.DAY_SHORT[d], App.DAY_NAME[d]);
-            b.onclick = function () {
-              var at = days.indexOf(d);
-              if (at >= 0) days.splice(at, 1); else days.push(d);
-              daysTouched = true;
-              sync();
-            };
-            dp.appendChild(b);
-            paints.push(function () {
-              b.setAttribute('aria-pressed', days.indexOf(d) >= 0 ? 'true' : 'false');
-            });
-          })(i);
-        }
-        box.appendChild(dp);
-        var quick = el('div', 'w-opts');
-        [{ t: 'كلَّ يوم', d: [0, 1, 2, 3, 4, 5, 6] },
-         { t: 'أيّامَ الدراسة', d: [0, 1, 2, 3, 4] },
-         { t: 'ما عدا الجمعة', d: [0, 1, 2, 3, 4, 6] }].forEach(function (q) {
-          quick.appendChild(btn('chip', q.t, null, function () {
-            days = q.d.slice(); daysTouched = true; sync();
-          }));
-        });
-        box.appendChild(quick);
-        return box;
-      }
-    });
-    pDays.pkey = 'days';
-    paints.push(function () {
-      pDays.setValue(days.length === 7 ? 'كلَّ يوم'
-        : days.length ? days.slice().sort().map(function (d) { return App.DAY_NAME[d]; }).join('، ')
-        : 'لم يُختَر يوم', !days.length);
-    });
-    parts.push(pDays);
-    wrap.appendChild(pDays);
-
-    /* ══ الخلاصةُ الحيّة ══
-       تَتحدّث مع كلِّ لمسة. وأسطرٌ لا سطرٌ واحد: الفاصلةُ «·» بجوارِ
-       رقمٍ هنديٍّ تُقرأ صفرًا، فيَصير «هدفُك ٥ · صفحة» في الأذن
-       «خمسون». فالفصلُ بالأسطرِ لا بحرف. */
-    var sum = el('section', 'card w-sum');
-    var sumT = el('h2', 'w-sum-t');
-    sumT.textContent = 'الخلاصة';
-    sum.appendChild(sumT);
-    var sumL = el('div', 'w-sum-l');
-    sum.appendChild(sumL);
-    paints.push(function () {
-      sumL.innerHTML = '';
-      function line(k, v, warn) {
-        var r = el('div', 'w-sum-r' + (warn ? ' w-sum-warn' : ''));
-        var a = el('span', 'w-sum-k'); a.textContent = k;
-        var b2 = el('span', 'w-sum-v'); b2.textContent = v;
-        r.appendChild(a); r.appendChild(b2);
-        sumL.appendChild(r);
-      }
-      var nOld = countJuz(oldR), nGoal = goalR ? goalR.to - goalR.from + 1 : 0;
-      /* بلا قوسَين حولَ العدد: القوسُ محايدُ الاتّجاه فيَنقلب في سطرٍ
-         عربيٍّ ملآنَ بالأرقامِ الهنديّة، فيُقرأ «٨ أجزاء ) ١٦٤ صفحة(».
-         والشَّرطةُ الطويلةُ تَفصل ولا تَنقلب. */
-      line('تحفظ', nOld ? w.juz(nOld) + '  —  ' + w.pages(pagesOf(oldR)) : 'لا شيءَ بعد');
-      line('هدفُك', nGoal ? w.juz(nGoal) + '  —  ' + w.pages(pagesOf([goalR]))
-                          : 'مراجعةٌ بلا جديد');
-      /* سطران لا سطر: «صفحتان جديدةً» لحنٌ، والوصفُ يُرفَع مع موصوفه.
-         والفصلُ يُغني عن الوصفِ أصلًا ويُقرأ أسرع. */
-      line('جديدٌ كلَّ يوم', w.pages(rate));
-      line('الوِردُ كلُّه', 'نحوَ ' + w.pages(H.dailyLoad(rate)) + ' بالمراجعة');
-      if (!days.length) line('الأيّام', 'اختر يومًا واحدًا على الأقلّ', true);
-      else if (nGoal) {
-        var fin = finish(pagesOf([goalR]), rate, days);
-        line('تَنتهي في', fin ? fin.hij : 'لا يُحسَب');
-        if (fin) line('بعد', w.days(fin.days));
-      }
-    });
-    wrap.appendChild(sum);
-
-    var save = btn('btn btn-pri btn-block w-save',
-      App.icon('check', 20) + '<span>' + vg('أثبِت', 'أثبِتي') + '</span>', null,
-      function () {
-        if (!days.length) { App.toast('اختر يومًا واحدًا على الأقلّ'); toggle('days'); return; }
-        if (!oldR.length && !goalR) { App.toast('حدِّد محفوظَك أو هدفَك'); toggle('old'); return; }
-        H.setup({
-          ranges: oldR.map(function (r) {
-            return { from: Q.juzStart(r.from), to: Q.juzEnd(r.to) };
-          }),
-          goalFrom: goalR ? goalR.from : 0,
-          goalTo: goalR ? goalR.to : 0,
-          rate: rate, days: days
-        }, true);
-        App.closeSheet();
-        App.go('home');
-      });
-    wrap.appendChild(save);
-    paints.push(function () {
-      var bad = !days.length || (!oldR.length && !goalR);
-      save.setAttribute('aria-disabled', bad ? 'true' : 'false');
-      save.classList.toggle('w-dim', bad);
-    });
-
-    sync();
-    return wrap;
-  }
-
-  /* متى يَنتهي الهدفُ على هذه الوتيرة — يومًا بيومٍ لا بقسمةٍ على
-     سبعة: الأسبوعُ لا يَبدأ من يومِ اليوم، فالقسمةُ تُخطئ بأيّامٍ
-     كلّما ضاقت أيّامُ الأسبوع. */
-  function finish(pages, rate, days) {
-    if (!pages || !rate || !days.length) return null;
-    var d = new Date(); d.setHours(12, 0, 0, 0);
-    var rem = pages, guard = 0;
-    while (rem > 0 && guard++ < 6000) {
-      d.setDate(d.getDate() + 1);
-      if (days.indexOf(d.getDay()) >= 0) rem -= rate;
-    }
-    if (rem > 0) return null;
-    return { hij: App.hijri(d), days: Math.max(1, Math.round((d - Date.now()) / 86400000)) };
-  }
-
-  function AGES() { return H.AGES; }
-  function ageBandOf(k) {
-    var a = H.AGES, i;
-    for (i = 0; i < a.length; i++) if (a[i].k === k) return a[i];
-    return null;
-  }
-
-  App.screen('hifz-setup', setupPane, { full: true });
-  App.screen('hifz-setup', setupPane, { full: true });
-
-  /* ── الدخولُ الأوّل ────────────────────────────────────────────── */
-  function firstRun() {
-    var s = el('div', 'w-first');
-    var em = el('div', 'emblem emblem-lg emblem-gold');
-    em.innerHTML = App.icon('hifz', 30);
-    s.appendChild(em);
-    var t = el('h1', 'h1');
-    t.textContent = 'ابدأ من محفوظك';
-    s.appendChild(t);
-    var p = el('p', 'w-lede');
-    /* لا يُشرَح للطالبِ كيف بُني التطبيق: «عملٌ واحدٌ لا ثلاثة»
-       قرارٌ يُعمَل به خلفَ الكواليسِ ولا يُقرأ على الشاشة. ويَبقى ما
-       يُطلَب منه وما سيَجده. */
-    p.textContent = 'قُل ما حفظتَه وما تَقصده هذا العام، '
-                  + 'ويأتيك وردُ كلِّ يومٍ جاهزًا.';
-    s.appendChild(p);
-    s.appendChild(btn('btn btn-pri w-cta',
-      App.icon('add', 20) + '<span>' + vg('ابدأ', 'ابدئي') + '</span>', null,
-      function () { App.go('hifz-setup'); }));
-    return s;
-  }
-
-  /* ── الشاشة ───────────────────────────────────────────────────── */
-  var NOTED = false;
-
-  App.screen('home', function () {
-    /* التحويلُ يقع مرّةً وبلا سؤال: مَن له مناهجُ على النظامِ القديمِ
-       لا يُطلَب منه أن يُدخلها ثانية. */
-    var converted = false;
-    if (!H.has() && (App.state.plans || []).length) {
-      converted = !!H.convert();
-    }
-    /* الزللُ المُسجَّلُ في التسميعِ يُهضَم قبل حسابِ الوِرد، فتَنزل
-       صفحاتُه منازلَها قبل أن يُعرَض السطر. */
-    var fell = H.has() ? H.absorbSlips() : 0;
-
-    var wrap = el('div', 'screen w-screen');
-    wrap.appendChild(header());
-
-    if (!H.has()) {
-      wrap.appendChild(firstRun());
-      return wrap;
-    }
-
-    if (converted && !NOTED) {
-      NOTED = true;
-      var n = el('p', 'w-moved');
-      n.textContent = 'حُوِّلت مناهجُك إلى وِردٍ واحد. ما أنجزتَه محفوظٌ كما هو، '
-                    + 'ومناهجُك القديمةُ باقيةٌ في «تقدُّمي».';
-      wrap.appendChild(n);
-    }
-    if (fell) {
-      var f = el('p', 'w-moved w-moved-warn');
-      f.textContent = 'نزلت ' + w.pages(fell) + ' منزلةً بسببِ زللٍ سُجّل في التسميع.';
-      wrap.appendChild(f);
-    }
-
-    wrap.appendChild(wardCard());
-    var rc = readyCard();
-    if (rc) wrap.appendChild(rc);
-    wrap.appendChild(invCard());
-    return wrap;
-  });
 
 }(window.App));
 
@@ -24162,15 +22082,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 <script>
 /* الإقلاعُ آخرَ شيء: كلُّ الوحدات سجّلت شاشاتِها وتبويباتِها قبله. */
 App.boot(document.getElementById('app'), document.getElementById('nav'));
-</script>
-<script>
-/* عاملُ الخدمة — للعملِ دون اتصالٍ وقَبولِ التثبيت. يُضيفه deploy.py، وليس
-   في الملفِّ القائمِ بنفسه لأنّ file:// لا يَسمح بعاملِ خدمةٍ أصلًا. */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
-  });
-}
 </script>
 </body>
 </html>
