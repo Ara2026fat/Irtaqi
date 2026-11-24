@@ -2656,7 +2656,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:36:03+03:00"};</script>
+<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:41:02+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -21745,6 +21745,10 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     return baseGo(name, p, quiet);
   };
 
+  /* تُشارِكها «دَورةُ المراجعة»: شاشةٌ أخرى بالبناءِ نفسِه، فلو
+     لم تُحقَن أنماطُها قبلها خرجت عاريةً من كلِّ تنسيق. */
+  App._stCss = styleOnce;
+
   function styleOnce() {
     if (document.getElementById('st-css')) return;
     var s = App.el('style');
@@ -21788,6 +21792,251 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       '.st-note{margin:0;color:var(--ink-faint)}',
       '.st-go{min-height:52px}'
     ].join('\n');
+    document.head.appendChild(s);
+  }
+
+}(window.App));
+
+/* ══ 22-dawra.js ══ */
+/* ══ skin/22-dawra.js — دَورةُ المراجعة ═══════════════════════════
+   مقترَحٌ في الكسوةِ لا في التطبيق.
+
+   قال صاحبُ التطبيق: «أحيانًا يكون عند الطالبِ مراجعةٌ طويلة —
+   ثلاثةُ أجزاءٍ أو خمسةٌ أو عشرة — ويُريد أن يُوزّعها على عشرةِ
+   أيّام، ويُوزّع نصيبَ اليومِ على ثلاثِ مراحلَ في اليوم. هل هذا
+   ممكن؟ نُسمّيها المراجعاتِ الطويلةَ أو تَختار لها اسمًا.»
+
+   والاسمُ موجودٌ في لسانِ أهلِ القرآنِ ولا يُخترَع: **دَورة**.
+   يقول الحافظ: «أعمل دورةً في عشرةِ أيّام» — أي يَمُرّ على
+   محفوظِه كلِّه في مدّةٍ مضروبة. وما داخلَ اليومِ **جَلَسات**:
+   «ثلاثُ جلساتٍ في اليوم». فلا نُسمّيها «مراجعاتٍ طويلة» وهو
+   وصفٌ، والعربُ تُسمّي الشيءَ باسمِه.
+
+   والفرقُ بينها وبين وِردِ المراجعةِ العاديِّ فرقٌ في النيّة:
+     · الوِردُ يَمشي بلا نهايةٍ معلومة — كم في اليوم؟
+     · والدَّورةُ لها طرفانِ وأجَلٌ — كم في كم؟ والمقدارُ
+       يُحسَب ولا يُسأل عنه: ثلاثةُ أجزاءٍ في عشرةِ أيّامٍ =
+       ستُّ صفحاتٍ في اليوم، جلستانِ أو ثلاث.
+
+   وهذا هو موضعُ الحاجةِ حقًّا: الطالبُ يَعرف ما يُريد مراجعتَه
+   ومتى، ولا يُحسِن أن يَقسِمه — فيَبدأ بحماسةٍ ويَنقطع. فليَكن
+   القسمةُ على الآلةِ والعملُ عليه. */
+(function (App) {
+  'use strict';
+
+  var P = App.Plans, Q = App.Quran, ar = App.ar;
+
+  /* ── ١ · مدى الدَّورة ───────────────────────────────────────── */
+  function juzRange(a, b) {
+    return { from: Q.juzStart(a), to: Q.juzEnd(b) };
+  }
+
+  /* ── ٢ · نصيبُ الجلسةِ من اليوم ─────────────────────────────
+     الدَّورةُ تَعرف ثلاثةَ أعداد: ما بقي من الصفحات، وما بقي من
+     الأيّام، وعددُ الجلسات. فنصيبُ اليومِ خارجُ القسمةِ الأولى،
+     ونصيبُ الجلسةِ خارجُ الثانية — ويُجبَر الكسرُ إلى الأعلى
+     لئلّا يَبقى في آخرِ الأجلِ بقيّةٌ لا يومَ لها. */
+  function dawraRange(p) {
+    var total = p.to - p.from + 1;
+    var got = p.done || 0;
+    if (got >= total) return null;                 /* تمّت الدَّورة */
+
+    /* نصيبُ اليومِ إذا تمّ وقف: الدَّورةُ وِردٌ لا رحًى. ومَن أراد
+       الزيادةَ فبابُها المصحفُ لا بطاقةُ الوِرد. */
+    if (P.doneToday(p) >= perDay(p)) return null;
+
+    var dayIx = Math.floor(got / perDay(p));       /* اليومُ الذي نحن فيه */
+    var dayFrom = p.from + dayIx * perDay(p);
+    var dayTo = Math.min(p.to, dayFrom + perDay(p) - 1);
+
+    var inDay = got - dayIx * perDay(p);           /* ما أُنجز من نصيبِ اليوم */
+    var per = perSit(p);
+    var from = dayFrom + inDay;
+    if (from > dayTo) return null;                 /* فرغ نصيبُ اليوم */
+    var to = Math.min(dayTo, from + per - 1);
+
+    /* عنوانُ البطاقةِ يُحدَّث في الذاكرةِ وحدَها ليَرى الطالبُ
+       أين هو من جلساتِ يومِه. وفي التطبيقِ يُرسَم سطرًا مستقلًّا
+       لا يُحشَر في الاسم. */
+    p.title = 'دَورة · الجلسة ' + ar(Math.floor(inDay / per) + 1)
+            + ' من ' + ar(p.sittings || 1);
+    return { from: from, to: to, count: to - from + 1 };
+  }
+
+  function perDay(p) {
+    var total = p.to - p.from + 1;
+    return Math.max(1, Math.ceil(total / Math.max(1, p.over || 10)));
+  }
+  function perSit(p) {
+    return Math.max(1, Math.ceil(perDay(p) / Math.max(1, p.sittings || 1)));
+  }
+
+  var prev = P.todayRange;
+  P.todayRange = function (p) {
+    if (p && p.dawra) { try { return dawraRange(p); } catch (e) { return null; } }
+    return prev(p);
+  };
+
+  /* ── ٣ · الشاشة: سؤالٌ في كلِّ مرّة ────────────────────────── */
+  var WHAT = [
+    { t: 'آخرُ ثلاثةِ أجزاء',  s: 'ما قَرُب عهدُك به',     j: [28, 30] },
+    { t: 'خمسةُ أجزاء',        s: 'من الجزء السادسِ والعشرين', j: [26, 30] },
+    { t: 'عشرةُ أجزاء',        s: 'من الجزء الحادي والعشرين',  j: [21, 30] },
+    { t: 'المصحفُ كلُّه',      s: 'ثلاثون جزءًا',          j: [1, 30] }
+  ];
+  var OVER = [
+    { t: 'ثلاثةُ أيّام',  s: 'دَورةٌ سريعةٌ قبل اختبار', n: 3 },
+    { t: 'سبعةُ أيّام',   s: 'أسبوعٌ واحد',              n: 7 },
+    { t: 'عشرةُ أيّام',   s: 'المعتاد',                  n: 10 },
+    { t: 'ثلاثون يومًا', s: 'شهرٌ، على مَهَل',           n: 30 }
+  ];
+  var SITS = [
+    { t: 'جلسةٌ واحدة', s: 'نصيبُ اليومِ مرّةً واحدة', n: 1 },
+    { t: 'جلستان',      s: 'صباحًا ومساءً',            n: 2 },
+    { t: 'ثلاثُ جلسات', s: 'يُوزَّع على يومك',          n: 3 }
+  ];
+
+  var pick = { what: null, over: null, sits: null };
+
+  App.screen('dawra', function () {
+    styleOnce();
+    var w = App.el('div', 'stack-lg st');
+    var STEPS = [
+      { q: 'ما الذي تُراجعه؟',      list: WHAT, key: 'what' },
+      { q: 'في كم يومٍ تَختمه؟',    list: OVER, key: 'over' },
+      { q: 'وكم جلسةً في اليوم؟',   list: SITS, key: 'sits' }
+    ];
+    var at = 0;
+
+    var bar = App.el('div', 'bar st-bar');
+    var back = App.el('button', 'st-back');
+    back.type = 'button';
+    back.innerHTML = App.icon('back', 21);
+    back.setAttribute('aria-label', 'السؤالُ السابق');
+    back.onclick = function () { if (at > 0) { at--; draw(); } else App.back(); };
+    bar.appendChild(back);
+    bar.appendChild(App.el('h1', 'h1 bar-t', 'دَورةُ مراجعة'));
+    var dots = App.el('div', 'st-dots');
+    dots.setAttribute('aria-hidden', 'true');
+    bar.appendChild(dots);
+    w.appendChild(bar);
+
+    var stage = App.el('div', 'st-stage');
+    stage.setAttribute('aria-live', 'polite');
+    w.appendChild(stage);
+    draw();
+
+    function draw() {
+      back.hidden = false;
+      dots.textContent = '';
+      for (var i = 0; i < 4; i++) {
+        dots.appendChild(App.el('i',
+          'st-dot' + (i === at ? ' on' : i < at ? ' done' : '')));
+      }
+      stage.textContent = '';
+      stage.appendChild(at < 3 ? question(STEPS[at]) : summary());
+      stage.classList.remove('st-in'); void stage.offsetWidth;
+      stage.classList.add('st-in');
+    }
+
+    function question(s) {
+      var sec = App.el('section', 'sec st-step');
+      sec.appendChild(App.el('b', 'h1 st-qt', s.q));
+      sec.appendChild(App.el('p', 'small st-hint',
+        at === 0 ? 'الدَّورةُ مرورٌ على محفوظك في أجَلٍ مضروب.'
+      : at === 1 ? 'المقدارُ يُحسَب عنك — لا تَقسِمْه بنفسك.'
+      :            'الجلسةُ نصيبٌ من نصيب: تُفتَح الثانيةُ إذا تمّت الأولى.'));
+      var box = App.el('div', 'st-opts');
+      s.list.forEach(function (o) {
+        var b = App.el('button', 'st-opt' + (pick[s.key] === o ? ' on' : ''));
+        b.type = 'button';
+        b.appendChild(App.el('b', null, o.t));
+        b.appendChild(App.el('span', 'small', o.s));
+        b.onclick = function () { pick[s.key] = o; at++; draw(); };
+        box.appendChild(b);
+      });
+      sec.appendChild(box);
+      return sec;
+    }
+
+    function summary() {
+      var r = juzRange(pick.what.j[0], pick.what.j[1]);
+      var total = r.to - r.from + 1;
+      var pd = Math.max(1, Math.ceil(total / pick.over.n));
+      var ps = Math.max(1, Math.ceil(pd / pick.sits.n));
+
+      var sec = App.el('section', 'sec st-step');
+      sec.appendChild(App.el('b', 'h1 st-qt', 'هكذا تُقسَم'));
+      var ul = App.el('div', 'st-prev');
+      line(ul, 'الجملة', ar(total) + ' صفحة · ' + pick.what.t);
+      line(ul, 'الأجَل', pick.over.t);
+      line(ul, 'في اليوم', ar(pd) + (pd === 1 ? ' صفحة' : ' صفحات'));
+      line(ul, 'في الجلسة', ar(ps) + (ps === 1 ? ' صفحة' : ' صفحات')
+        + ' · ' + pick.sits.t);
+      sec.appendChild(ul);
+      sec.appendChild(App.el('p', 'small st-note',
+        'وإن تخلّفتَ يومًا لم يَضِعْ: الدَّورةُ تُحسَب بما أتممتَ '
+        + 'لا بما مضى من الأيّام.'));
+
+      var go = App.el('button', 'btn btn-pri btn-block st-go');
+      go.type = 'button';
+      go.textContent = 'ابدأ الدَّورة';
+      go.onclick = function () {
+        App.state.plans = (App.state.plans || []).concat([{
+          id: 'd' + Date.now(), kind: 'review', scope: 'page',
+          from: r.from, to: r.to, rate: ps, days: [0,1,2,3,4,5,6],
+          startedAt: App.dateKey(), done: 0, log: {},
+          title: 'دَورة', dawra: true, over: pick.over.n, sittings: pick.sits.n
+        }]);
+        App.save();
+        App.toast('بدأت الدَّورة. ' + ar(ps) + ' في الجلسة.');
+        App.go('home');
+      };
+      sec.appendChild(go);
+      return sec;
+    }
+    function line(ul, k, v) {
+      var r2 = App.el('div', 'st-prow');
+      r2.appendChild(App.el('b', 'st-verb', k));
+      r2.appendChild(App.el('span', 'small', v));
+      ul.appendChild(r2);
+    }
+    return w;
+  });
+
+  /* ── ٤ · البابُ إليها ──────────────────────────────────────
+     تُعرَض على مَن عنده محفوظٌ يُراجعه، لا على المبتدئ. وفي
+     التطبيقِ تَنزل في «مناهجي» بابًا خامسًا؛ وههنا تُلحَق
+     بالشاشةِ بعد رسمِها لأنّ الكسوةَ لا تَملك أن تُعيد بناءَها. */
+  var baseGo = App.go;
+  App.go = function (name, p, quiet) {
+    var r = baseGo(name, p, quiet);
+    if ((name === 'builder' || name === 'manhaj')
+        && (App.state.plans || []).length) {
+      setTimeout(inject, 40);
+    }
+    return r;
+  };
+
+  function inject() {
+    var host = document.querySelector('#sheet.on') || document.querySelector('#pane');
+    if (!host || host.querySelector('.dw-entry')) return;
+    styleOnce();
+    var b = App.el('button', 'st-opt dw-entry');
+    b.type = 'button';
+    b.appendChild(App.el('b', null, 'دَورةُ مراجعة'));
+    b.appendChild(App.el('span', 'small',
+      'تَمُرّ على محفوظك في أجَلٍ مضروب — والمقدارُ يُحسَب عنك'));
+    b.onclick = function () { App.go('dawra'); };
+    host.appendChild(b);
+  }
+
+  function styleOnce() {
+    if (App._stCss) App._stCss();     /* الأنماطُ المشتركةُ أوّلًا */
+    if (document.getElementById('dw-css')) return;
+    var s = App.el('style');
+    s.id = 'dw-css';
+    s.textContent = '.dw-entry{margin-block-start:12px}';
     document.head.appendChild(s);
   }
 
