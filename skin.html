@@ -2656,7 +2656,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:41:02+03:00"};</script>
+<script>window.__BUILD={v:"1.49",at:"2026-11-25T00:43:54+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -21797,8 +21797,8 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
 }(window.App));
 
-/* ══ 22-dawra.js ══ */
-/* ══ skin/22-dawra.js — دَورةُ المراجعة ═══════════════════════════
+/* ══ 22-barnamij.js ══ */
+/* ══ skin/22-barnamij.js — برنامجُ المراجعة ═══════════════════════════
    مقترَحٌ في الكسوةِ لا في التطبيق.
 
    قال صاحبُ التطبيق: «أحيانًا يكون عند الطالبِ مراجعةٌ طويلة —
@@ -21814,7 +21814,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
    والفرقُ بينها وبين وِردِ المراجعةِ العاديِّ فرقٌ في النيّة:
      · الوِردُ يَمشي بلا نهايةٍ معلومة — كم في اليوم؟
-     · والدَّورةُ لها طرفانِ وأجَلٌ — كم في كم؟ والمقدارُ
+     · والبرنامجُ له طرفانِ وأجَلٌ — كم في كم؟ والمقدارُ
        يُحسَب ولا يُسأل عنه: ثلاثةُ أجزاءٍ في عشرةِ أيّامٍ =
        ستُّ صفحاتٍ في اليوم، جلستانِ أو ثلاث.
 
@@ -21826,7 +21826,16 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
   var P = App.Plans, Q = App.Quran, ar = App.ar;
 
-  /* ── ١ · مدى الدَّورة ───────────────────────────────────────── */
+  /* ── ١ · مدى البرنامج ───────────────────────────────────────── */
+  /* العددُ والمعدود: ما بين الثلاثةِ والعشرةِ جمعٌ، وما جاوزها
+     مفرَدٌ منصوب. فـ«٢١ صفحات» لحنٌ، والصوابُ «٢١ صفحة». */
+  function pages(n) {
+    return n === 1 ? 'صفحة'
+         : n === 2 ? 'صفحتان'
+         : n <= 10 ? ar(n) + ' صفحات'
+         : ar(n) + ' صفحة';
+  }
+
   function juzRange(a, b) {
     return { from: Q.juzStart(a), to: Q.juzEnd(b) };
   }
@@ -21836,12 +21845,12 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
      الأيّام، وعددُ الجلسات. فنصيبُ اليومِ خارجُ القسمةِ الأولى،
      ونصيبُ الجلسةِ خارجُ الثانية — ويُجبَر الكسرُ إلى الأعلى
      لئلّا يَبقى في آخرِ الأجلِ بقيّةٌ لا يومَ لها. */
-  function dawraRange(p) {
+  function barRange(p) {
     var total = p.to - p.from + 1;
     var got = p.done || 0;
-    if (got >= total) return null;                 /* تمّت الدَّورة */
+    if (got >= total) return null;                 /* تمّ البرنامج */
 
-    /* نصيبُ اليومِ إذا تمّ وقف: الدَّورةُ وِردٌ لا رحًى. ومَن أراد
+    /* نصيبُ اليومِ إذا تمّ وقف: البرنامجُ وِردٌ لا رحًى. ومَن أراد
        الزيادةَ فبابُها المصحفُ لا بطاقةُ الوِرد. */
     if (P.doneToday(p) >= perDay(p)) return null;
 
@@ -21858,7 +21867,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     /* عنوانُ البطاقةِ يُحدَّث في الذاكرةِ وحدَها ليَرى الطالبُ
        أين هو من جلساتِ يومِه. وفي التطبيقِ يُرسَم سطرًا مستقلًّا
        لا يُحشَر في الاسم. */
-    p.title = 'دَورة · الجلسة ' + ar(Math.floor(inDay / per) + 1)
+    p.title = 'برنامج · الجلسة ' + ar(Math.floor(inDay / per) + 1)
             + ' من ' + ar(p.sittings || 1);
     return { from: from, to: to, count: to - from + 1 };
   }
@@ -21873,7 +21882,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
   var prev = P.todayRange;
   P.todayRange = function (p) {
-    if (p && p.dawra) { try { return dawraRange(p); } catch (e) { return null; } }
+    if (p && p.bar) { try { return barRange(p); } catch (e) { return null; } }
     return prev(p);
   };
 
@@ -21885,7 +21894,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     { t: 'المصحفُ كلُّه',      s: 'ثلاثون جزءًا',          j: [1, 30] }
   ];
   var OVER = [
-    { t: 'ثلاثةُ أيّام',  s: 'دَورةٌ سريعةٌ قبل اختبار', n: 3 },
+    { t: 'ثلاثةُ أيّام',  s: 'برنامجٌ سريعٌ قبل اختبار', n: 3 },
     { t: 'سبعةُ أيّام',   s: 'أسبوعٌ واحد',              n: 7 },
     { t: 'عشرةُ أيّام',   s: 'المعتاد',                  n: 10 },
     { t: 'ثلاثون يومًا', s: 'شهرٌ، على مَهَل',           n: 30 }
@@ -21898,7 +21907,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
   var pick = { what: null, over: null, sits: null };
 
-  App.screen('dawra', function () {
+  App.screen('barnamij', function () {
     styleOnce();
     var w = App.el('div', 'stack-lg st');
     var STEPS = [
@@ -21915,7 +21924,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     back.setAttribute('aria-label', 'السؤالُ السابق');
     back.onclick = function () { if (at > 0) { at--; draw(); } else App.back(); };
     bar.appendChild(back);
-    bar.appendChild(App.el('h1', 'h1 bar-t', 'دَورةُ مراجعة'));
+    bar.appendChild(App.el('h1', 'h1 bar-t', 'برنامجُ مراجعة'));
     var dots = App.el('div', 'st-dots');
     dots.setAttribute('aria-hidden', 'true');
     bar.appendChild(dots);
@@ -21943,7 +21952,7 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       var sec = App.el('section', 'sec st-step');
       sec.appendChild(App.el('b', 'h1 st-qt', s.q));
       sec.appendChild(App.el('p', 'small st-hint',
-        at === 0 ? 'الدَّورةُ مرورٌ على محفوظك في أجَلٍ مضروب.'
+        at === 0 ? 'البرنامجُ مرورٌ على محفوظك في أجَلٍ مضروب.'
       : at === 1 ? 'المقدارُ يُحسَب عنك — لا تَقسِمْه بنفسك.'
       :            'الجلسةُ نصيبٌ من نصيب: تُفتَح الثانيةُ إذا تمّت الأولى.'));
       var box = App.el('div', 'st-opts');
@@ -21968,28 +21977,27 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
       var sec = App.el('section', 'sec st-step');
       sec.appendChild(App.el('b', 'h1 st-qt', 'هكذا تُقسَم'));
       var ul = App.el('div', 'st-prev');
-      line(ul, 'الجملة', ar(total) + ' صفحة · ' + pick.what.t);
+      line(ul, 'الجملة', pages(total) + ' · ' + pick.what.t);
       line(ul, 'الأجَل', pick.over.t);
-      line(ul, 'في اليوم', ar(pd) + (pd === 1 ? ' صفحة' : ' صفحات'));
-      line(ul, 'في الجلسة', ar(ps) + (ps === 1 ? ' صفحة' : ' صفحات')
-        + ' · ' + pick.sits.t);
+      line(ul, 'في اليوم', pages(pd));
+      line(ul, 'في الجلسة', pages(ps) + ' · ' + pick.sits.t);
       sec.appendChild(ul);
       sec.appendChild(App.el('p', 'small st-note',
-        'وإن تخلّفتَ يومًا لم يَضِعْ: الدَّورةُ تُحسَب بما أتممتَ '
+        'وإن تخلّفتَ يومًا لم يَضِعْ: البرنامجُ يُحسَب بما أتممتَ '
         + 'لا بما مضى من الأيّام.'));
 
       var go = App.el('button', 'btn btn-pri btn-block st-go');
       go.type = 'button';
-      go.textContent = 'ابدأ الدَّورة';
+      go.textContent = 'ابدأ البرنامج';
       go.onclick = function () {
         App.state.plans = (App.state.plans || []).concat([{
           id: 'd' + Date.now(), kind: 'review', scope: 'page',
           from: r.from, to: r.to, rate: ps, days: [0,1,2,3,4,5,6],
           startedAt: App.dateKey(), done: 0, log: {},
-          title: 'دَورة', dawra: true, over: pick.over.n, sittings: pick.sits.n
+          title: 'برنامج', bar: true, over: pick.over.n, sittings: pick.sits.n
         }]);
         App.save();
-        App.toast('بدأت الدَّورة. ' + ar(ps) + ' في الجلسة.');
+        App.toast('بدأ البرنامج. ' + pages(ps) + ' في الجلسة.');
         App.go('home');
       };
       sec.appendChild(go);
@@ -22024,10 +22032,10 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
     styleOnce();
     var b = App.el('button', 'st-opt dw-entry');
     b.type = 'button';
-    b.appendChild(App.el('b', null, 'دَورةُ مراجعة'));
+    b.appendChild(App.el('b', null, 'برنامجُ مراجعة'));
     b.appendChild(App.el('span', 'small',
       'تَمُرّ على محفوظك في أجَلٍ مضروب — والمقدارُ يُحسَب عنك'));
-    b.onclick = function () { App.go('dawra'); };
+    b.onclick = function () { App.go('barnamij'); };
     host.appendChild(b);
   }
 
