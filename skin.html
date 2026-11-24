@@ -2323,6 +2323,10 @@ body::before{
   padding:20px 14px 24px;
   background:var(--qp-paper);
   border-block-end:1px solid var(--hair-2);
+  /* الرأسيُّ للمتصفّحِ والأفقيُّ لنا: بغيرِ هذا يَبتلع المتصفّحُ
+     السحبَ الأفقيَّ أحيانًا ويُلغي الإشارةَ قبل أن تَتمّ. */
+  touch-action:pan-y;
+  will-change:transform;
 }
 .qp-paper:has(.qp-madani){
   margin-inline:0;
@@ -2394,6 +2398,24 @@ body::before{
 .qp-foot{ margin-block-start:16px }
 .qp-slot{ margin-block-end:14px }
 .qp-slot:empty{ display:none }
+
+/* الدُّرجُ وزرُّه: صفٌّ هادئٌ لا يُزاحم الزرَّ الذي فوقه */
+.qp-more{
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; min-height:44px; margin-block-start:8px;
+  background:none; border:0; color:var(--ink-mut);
+  font:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+}
+.qp-more:hover{ color:var(--ink) }
+.qp-more:focus-visible{ outline:2px solid var(--gold-lit); outline-offset:2px;
+  border-radius:var(--r-sm) }
+.qp-more-c{ display:inline-flex; line-height:0;
+  transform:rotate(90deg); transition:transform var(--mid) var(--ease) }
+.qp-more-c.is-up{ transform:rotate(-90deg) }
+.qp-drawer{ display:flex; flex-direction:column; gap:9px; margin-block-start:4px }
+/* ‎display:flex‎ يَغلِب ‎[hidden]‎ عند المتصفّح، فيَبقى الدُّرجُ
+   مفتوحًا وهو يُعلَن مغلقًا — ويُقاس الذيلُ كما كان. */
+.qp-drawer[hidden]{ display:none }
 
 .qp-shabih{
   display:flex; align-items:center; gap:9px; width:100%;
@@ -3016,7 +3038,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.46",at:"2026-11-24T16:55:52+03:00"};</script>
+<script>window.__BUILD={v:"1.47",at:"2026-11-24T17:49:29+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13608,6 +13630,65 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     }
   }
 
+  /* ══ رفُّ الأدوات ════════════════════════════════════════════════
+     «تحتَ الصفحةِ أدواتٌ كثيرةٌ جدًّا… لا أريد أن تَكون الأدواتُ
+     كثيرةً جدًّا وتَكون الصفحةُ نزولًا إلى الأسفلِ كثيرًا.»
+
+     وقِيسَ فصَدَق: الورقةُ ٤٤١ بكسلًا وما تحتها ٦٣١ — فالمقروءُ
+     أقلُّ من آلتِه. وسببُ ذلك أنّ كلَّ وحدةٍ تُعلّق أداتَها في
+     المَشجبِ بعرضِ الصفحةِ كاملًا، ولا وحدةَ منها تَرى ما عَلّقته
+     أختُها، فتَراكمت ثلاثُ لوحاتٍ طوليّةٍ بلا قصد.
+
+     فصار الظاهرُ واحدًا — التسميعُ، وهو ما جاء له القارئُ — وما
+     سواه في دُرجٍ يُفتَح بلمسةٍ ويَبقى مفتوحًا لمن فتحه. ولا
+     تُحذَف أداةٌ ولا تُنقَل وحدةٌ من موضعها: الرفُّ يُرتّب ما
+     وَجَد، فمَن أضاف أداةً غدًا نزلت في الدُّرجِ ولم تُطِل
+     الصفحة. */
+  var shelfOpen = false;
+
+  function shelve(slot, foot) {
+    var kids = [].slice.call(slot.children);
+    if (kids.length < 2) return;            /* أداةٌ واحدةٌ لا تَحتاج رفًّا */
+
+    /* الأوّلُ بقاءً: التسميع. فإن غاب فأوّلُ ما عُلِّق. */
+    var keep = slot.querySelector('.tm-entry') || kids[0];
+
+    var drawer = App.el('div', 'qp-drawer');
+    drawer.id = 'qp-drawer';
+    drawer.hidden = !shelfOpen;
+
+    var n = 0;
+    kids.forEach(function (k) {
+      if (k === keep) return;
+      drawer.appendChild(k);
+      n++;
+    });
+    if (!n) return;
+
+    var tog = App.el('button', 'qp-more');
+    tog.type = 'button';
+    tog.setAttribute('aria-controls', 'qp-drawer');
+    tog.setAttribute('aria-expanded', shelfOpen ? 'true' : 'false');
+    function label() {
+      tog.innerHTML = '';
+      tog.appendChild(App.el('span', 'qp-more-t',
+        shelfOpen ? 'أخفِ أدواتِ الصفحة' : 'أدواتُ الصفحة'));
+      var ch = App.el('span', 'qp-more-c' + (shelfOpen ? ' is-up' : ''));
+      ch.innerHTML = App.icon('chevron', 18);
+      tog.appendChild(ch);
+    }
+    label();
+    tog.onclick = function () {
+      shelfOpen = !shelfOpen;
+      drawer.hidden = !shelfOpen;
+      tog.setAttribute('aria-expanded', shelfOpen ? 'true' : 'false');
+      label();
+    };
+
+    slot.appendChild(tog);
+    slot.appendChild(drawer);
+  }
+
   /* ── الحافّةُ العليا: أين أنا، وكيف أخرج، وبأيِّ حرفٍ أقرأ ──
      ثلاثةُ أشياءَ لا رابع: ما سوى ذلك يَنزل إلى الذيل. */
   function topBar(p, verses) {
@@ -13764,23 +13845,77 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      لمسةٌ على النصِّ تُسكن الحافّةَ وتُعيدها. ولا تُحسَب اللمسةُ إن
      كان القارئُ يُظلّل نصًّا أو يُقلّب بإصبعه — وإلّا بدا التطبيقُ
      يُومض كلّما مرّت يدُه. */
+  /* ══ التقليبُ بالإبهام ═══════════════════════════════════════════
+     «الانتقالُ من صفحةٍ إلى صفحةٍ يجب أن يكون بالإبهام: أُحرّك
+     الصفحةَ يمينًا ويسارًا.»
+
+     وكان التقليبُ موجودًا — ولم يَكن يُعرَف. وذلك لعلّتَين:
+
+     الأولى أنّه أعمى: لا يَتحرّك تحت الإصبعِ شيءٌ حتّى يَرفعه،
+     فإمّا أن تَقفز الصفحةُ فجأةً وإمّا ألّا يَقع شيء، ولا يَعلم
+     أكان سحبُه مقبولًا أم مردودًا. واليدُ لا تَتعلّم ما لا تَراه.
+
+     والثانية أنّ شروطَه ضيّقة: ٨٠٠ جزءٍ من الثانيةِ لا غير —
+     والإبهامُ المتمهّلُ يَتجاوزها — واثنانِ وستّون بكسلًا، وأن
+     يَغلِب الأفقيُّ الرأسيَّ بمرّةٍ وسبعةِ أعشار. وقوسُ الإبهامِ
+     في طبعه مائلٌ لا مستقيم، فيَسقط بالنسبةِ وهو يُريد التقليب.
+
+     فصارت الورقةُ تَتبع الإصبعَ ما دام عليها، وتَرتدّ إن لم يَبلُغ
+     الحدَّ — فيَتعلّم أنّ ثَمّ شيئًا ههنا بغير أن يُقال له. */
   function bindPaper(paper) {
-    var x0 = 0, y0 = 0, t0 = 0, moved = false;
+    var x0 = 0, y0 = 0, t0 = 0, moved = false, drag = false, id = 0;
+    var W = function () { return paper.getBoundingClientRect().width || 320; };
+
+    function slide(dx) {
+      paper.style.transition = 'none';
+      paper.style.transform = 'translateX(' + dx + 'px)';
+      paper.style.opacity = String(Math.max(.45, 1 - Math.abs(dx) / (W() * 1.6)));
+    }
+    function settle() {
+      paper.style.transition = 'transform .22s var(--ease, ease), opacity .22s var(--ease, ease)';
+      paper.style.transform = '';
+      paper.style.opacity = '';
+    }
 
     paper.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      x0 = e.clientX; y0 = e.clientY; t0 = Date.now(); moved = false;
+      x0 = e.clientX; y0 = e.clientY; t0 = Date.now();
+      moved = false; drag = false; id = e.pointerId;
     });
 
-    paper.addEventListener('pointerup', function (e) {
-      if (!t0) return;
-      var dx = e.clientX - x0, dy = e.clientY - y0, dt = Date.now() - t0;
-      t0 = 0;
+    paper.addEventListener('pointermove', function (e) {
+      if (!t0 || e.pointerId !== id) return;
+      var dx = e.clientX - x0, dy = e.clientY - y0;
       if (Math.abs(dx) > 8 || Math.abs(dy) > 8) moved = true;
-      /* تقليبٌ بالإصبع: أفقيٌّ غالبٌ على الرأسيّ وفي نَفَسٍ قصير */
-      if (dt < 800 && Math.abs(dx) > 62 && Math.abs(dx) > Math.abs(dy) * 1.7) {
-        turn(dx < 0 ? 1 : -1);
+      /* لا تُؤخَذ الإشارةُ إلّا إذا بان أنّها أفقيّة، فلا يُسرَق
+         التمريرُ الرأسيُّ من القارئ. */
+      if (!drag) {
+        if (Math.abs(dx) < 14 || Math.abs(dx) < Math.abs(dy)) return;
+        drag = true;
+        try { paper.setPointerCapture(id); } catch (_) {}
       }
+      e.preventDefault();
+      /* عند الطرفَين تَثقُل الورقةُ ولا تَنفتح على فراغ */
+      var edge = (dx < 0 && curP >= Q.TOTAL_PAGES) || (dx > 0 && curP <= 1);
+      slide(edge ? dx * .22 : dx);
+    }, { passive: false });
+
+    function end(e) {
+      if (!t0 || (id && e.pointerId !== id)) return;
+      var dx = e.clientX - x0, dy = e.clientY - y0;
+      t0 = 0;
+      try { paper.releasePointerCapture(id); } catch (_) {}
+      id = 0;
+      var far = Math.abs(dx) > Math.min(72, W() * .22);
+      var flat = Math.abs(dx) > Math.abs(dy) * 1.1;
+      settle();
+      if (drag && far && flat) { drag = false; turn(dx < 0 ? 1 : -1); return; }
+      drag = false;
+    }
+    paper.addEventListener('pointerup', end);
+    paper.addEventListener('pointercancel', function (e) {
+      if (id && e.pointerId !== id) return;
+      t0 = 0; id = 0; drag = false; settle();
     });
 
     paper.addEventListener('click', function (e) {
@@ -13863,6 +13998,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     slot.dataset.page = String(p);
     foot.appendChild(slot);
     App.emit('qpage', { p: p, slot: slot, top: topSlot, verses: verses });
+    shelve(slot, foot);
 
     var sb = shabihLine(verses, function () {
       /* المتشابهاتُ صحيفةٌ تَحلّ محلَّ هذه، فتُحفَظ الصفحةُ لنعودَ
