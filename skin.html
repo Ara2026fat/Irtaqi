@@ -3038,7 +3038,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.47",at:"2026-11-24T17:49:29+03:00"};</script>
+<script>window.__BUILD={v:"1.48",at:"2026-11-24T19:27:23+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -15583,13 +15583,29 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       }
     }
 
-    function reset() { ptr = 0; paint(); }
+    function reset() { ptr = 0; base = 0; paint(); }
     reset();
 
     /* ── المطابقة ────────────────────────────────────────────── */
+    /* ══ من أين تُستأنَف المطابقة ═══════════════════════════════════
+       كان المَبدأُ صفرًا دائمًا: يُعاد مطابقةُ كلِّ ما سُمع من أوّلِ
+       الصفحة. وهذا صحيحٌ لو كان المسموعُ كلَّه في يدِنا — وليس كذلك.
+
+       فالتعرُّفُ في الجوّالِ يُغلِق جلستَه عند كلِّ وقفةٍ ويَبدأ
+       أخرى، و‎ev.results‎ تُفرَغ مع كلِّ جلسة. فإن تلا القارئُ
+       الفاتحةَ كلَّها ثمّ وَصلت آخرُ جملةٍ وحدَها — «عليهم غير
+       المغضوب عليهم ولا الضالين» — قُوبِلت بـ«بسم»، فلم تُطابِقْ
+       شيئًا، ورجع المؤشّرُ إلى الصفر. وهو ما وقع: تِسعٌ وعشرون
+       كلمةً مستورةٌ والقارئُ قد قرأها كلَّها.
+
+       فصار لكلِّ جلسةٍ مَبدأٌ هو موضعُ القارئِ حين بدأت: ما قبلَه
+       مَقروءٌ لا يُعاد، وما بعدَه يُقابَل بما يَسمع. فلا تَرجع
+       الصفحةُ إلى الوراء بانقطاعِ جلسةٍ لا يَد للقارئِ فيها. */
+    var base = 0;
+
     function advance(heard) {
       var toks = norm(heard).split(' ').filter(Boolean);
-      var i = 0, j = 0;
+      var i = 0, j = base;
       while (i < toks.length && j < words.length) {
         if (near(toks[i], words[j].n) || near(toks[i], words[j].n2)) { j++; i++; }
         else i++;          /* يُطرَح المسموعُ، ولا تُطرَح كلمةُ المصحف */
@@ -15637,7 +15653,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         advance(all);
         var tail = all.trim().split(/\s+/).slice(-6).join(' ');
         if (ptr > before) say('سُمع: ' + tail, 0);
-        else say('سُمع: ' + tail + ' — ولم تُطابِق الكلمةَ المنتظَرة.', 2);
+        else {
+          /* ولا تُسمَّى الكلمةُ المنتظَرة. قال صاحبُ التطبيق:
+             «ولا يَفتح عليّ، حتّى إذا أخطأتُ يَقف.» فالوقوفُ
+             يُقال، والموضعُ يُعرَف من العدّاد، والكلمةُ تَبقى
+             في سترها — وإلّا صارت الآلةُ تُلقّن. */
+          say('سُمع: ' + tail + ' — ولم تُطابِق. الصفحةُ واقفةٌ عند '
+            + 'الكلمة ' + ar(ptr + 1) + '.', 2);
+        }
       };
       rec.onerror = function (e) {
         var k = e && e.error;
@@ -15665,6 +15688,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
           spin = quick ? spin + 1 : 0;
           if (spin < 6) {
             startedAt = Date.now();
+            /* الجلسةُ الجديدةُ تَبدأ من موضعِ القارئِ لا من أوّلِ
+               الصفحة: ‎ev.results‎ تُفرَغ معها، فما سُمع قبلها لا
+               يَعود. */
+            base = ptr;
             try { rec.start(); return; } catch (e) {}
           } else {
             say('انقطع السماعُ مرّاتٍ متتابعة. '
@@ -15679,6 +15706,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       };
       spin = 0;
       gotAny = false;
+      base = ptr;          /* يُستأنَف من حيث وقف، لا من أوّلِ الصفحة */
       startedAt = Date.now();
       try { rec.start(); } catch (e) { say('تعذّر فتحُ الميكروفون.', 1); return; }
       running = true;

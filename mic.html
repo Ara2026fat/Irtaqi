@@ -627,6 +627,9 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
   }
 
   var words = [], spans = [], ptr = 0;
+  /* مَبدأُ المطابقةِ لهذه الجلسة: التعرُّفُ يُفرِغ نتائجَه عند كلِّ
+     انقطاع، فلو قُوبِل ما بعدَه بأوّلِ الصفحةِ رجع المؤشّرُ صفرًا. */
+  var base = 0;
   var pageEl = document.getElementById('page'), countEl = document.getElementById('count');
   SURA.forEach(function (v, vi) {
     v.split(/\s+/).filter(Boolean).forEach(function (raw, wi) {
@@ -650,7 +653,7 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
   }
   function advance(heard) {
     var toks = norm(heard).split(' ').filter(Boolean);
-    var i = 0, j = 0;
+    var i = 0, j = base;
     while (i < toks.length && j < words.length) {
       if (near(toks[i], words[j].n) || near(toks[i], words[j].n2)) { j++; i++; }
       else i++;
@@ -658,7 +661,7 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
     if (j !== ptr) { ptr = j; paint(); }
   }
   document.getElementById('b5').onclick = function () {
-    ptr = 0; paint(); mark(5, null, 'هذه الفاتحة. لن تَظهر كلمةٌ حتّى تَقولها.');
+    ptr = 0; base = 0; paint(); mark(5, null, 'هذه الفاتحة. لن تَظهر كلمةٌ حتّى تَقولها.');
     log('board reset');
   };
   paint();
@@ -714,7 +717,7 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
     };
     rec.onend = function () {
       log('event: end  (running=' + running + ')');
-      if (running) { try { rec.start(); log('restart'); return; } catch (e) { log('restart failed'); } }
+      if (running) { base = ptr; try { rec.start(); log('restart'); return; } catch (e) { log('restart failed'); } }
       running = false; b4.disabled = false; b4x.disabled = true;
     };
 
@@ -729,7 +732,7 @@ label.opt input{ margin-top:5px; width:18px; height:18px; flex:0 0 auto }
       return;
     }
 
-    running = true; gotText = false;
+    running = true; gotText = false; base = ptr;
     b4.disabled = true; b4x.disabled = false;
     mark(4, null, 'يَستمع… اقرأ الفاتحة.');
     clearTimeout(deaf);
