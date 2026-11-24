@@ -2657,7 +2657,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.48",at:"2026-11-24T19:27:23+03:00"};</script>
+<script>window.__BUILD={v:"1.49",at:"2026-11-24T19:56:35+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -15270,15 +15270,22 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         clearTimeout(deaf);
         var before = ptr;
         advance(all);
-        var tail = all.trim().split(/\s+/).slice(-6).join(' ');
-        if (ptr > before) say('سُمع: ' + tail, 0);
+        /* كان يُعرَض آخرُ ستِّ كلماتٍ فقط، فظَننتُ أنا أنّ التعرّفَ
+           لم يُرسِل إلّا آخرَ آية — وإنّما أنا الذي حَجبتُ سائرَه.
+           فصار يُعرَض ما سُمع كلُّه، وأمامَه عددُ ما طُوبِق: فإن
+           كَثُر المسموعُ وبقي العددُ صفرًا فالعلّةُ في المطابقةِ
+           وحدَها، ولا يَبقى للظنِّ موضع. */
+        var tail = all.trim().split(/\s+/).slice(-28).join(' ');
+        if (ptr > before) say('طُوبِق ' + ar(ptr) + ' من ' + ar(words.length)
+          + ' · سُمع: ' + tail, 0);
         else {
           /* ولا تُسمَّى الكلمةُ المنتظَرة. قال صاحبُ التطبيق:
              «ولا يَفتح عليّ، حتّى إذا أخطأتُ يَقف.» فالوقوفُ
              يُقال، والموضعُ يُعرَف من العدّاد، والكلمةُ تَبقى
              في سترها — وإلّا صارت الآلةُ تُلقّن. */
-          say('سُمع: ' + tail + ' — ولم تُطابِق. الصفحةُ واقفةٌ عند '
-            + 'الكلمة ' + ar(ptr + 1) + '.', 2);
+          say('طُوبِق ' + ar(ptr) + ' من ' + ar(words.length)
+            + ' — واقفةٌ عند الكلمة ' + ar(ptr + 1)
+            + ' · سُمع: ' + tail, 2);
         }
       };
       rec.onerror = function (e) {
@@ -15408,8 +15415,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       '.sa-note{font-size:12.5px;color:var(--ink-faint);line-height:1.8;',
       '  margin-block-start:12px}',
       /* سطرُ الحالِ فوقَ اللوح: يُقرَأ ولا يَصيح، ويَتلوّن عند العطل */
+      /* «السطرُ يَنحرف يمينًا إلى أقصى شيء»: السطرُ الواحدُ يَطول
+         بطولِ التلاوة، فيَنساق خارجَ الشاشةِ ولا يُرى منه إلّا
+         طرفُه. فيُجعَل لوحًا يَلتفّ ويَسقُف نفسَه بأربعةِ أسطر،
+         ويُمرَّر إن زاد. و‎min-width:0‎ لأنّ أباه صفٌّ مرنٌ لا
+         يَضغط ابنَه ما لم يُؤذَن له. */
       '.sa-state{font-size:12.5px;line-height:1.8;color:var(--ink-mut);',
-      '  margin:0 0 10px;min-height:1.8em;overflow-wrap:break-word}',
+      '  margin:0 0 10px;min-height:1.8em;min-width:0;',
+      '  max-height:7.4em;overflow-y:auto;overflow-x:hidden;',
+      '  overflow-wrap:anywhere;word-break:break-word;white-space:normal}',
       '.sa-state.sa-bad{color:var(--danger,#a33);font-weight:700}',
       '.sa-state.sa-warn-l{color:var(--gold-lit)}',
       '.sa-entry{margin-block-start:10px}'
