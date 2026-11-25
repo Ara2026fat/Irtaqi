@@ -41,8 +41,7 @@
 <!-- ألوانُ الـmanifest ليست تزيينًا: هي شاشةُ الإقلاعِ وشريطُ
      النظامِ عند التثبيت. كانت ليلًا (‎#08181A‎) وقد صار النهارُ
      هو المبدئيّ، فيُومض التطبيقُ أسودَ قبل أن يَفتح على الورق. -->
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22short_name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22display%22%3A%22standalone%22%2C%22dir%22%3A%22rtl%22%2C%22lang%22%3A%22ar%22%2C%22background_color%22%3A%22%23F8F4EC%22%2C%22theme_color%22%3A%22%23F8F4EC%22%7D'>
 <style>
 /* ══ 15-theme.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -2657,7 +2656,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.51",at:"2026-11-25T08:56:49+03:00"};</script>
+<script>window.__BUILD={v:"1.51",at:"2026-11-25T17:43:04+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -22265,6 +22264,235 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
 }(window.App));
 
+/* ══ 23-wahid.js ══ */
+/* ══ skin/23-wahid.js — وِردٌ واحدٌ بثلاثِ مراحل ═══════════════════
+   مقترَحٌ في الكسوةِ لا في التطبيق.
+
+   قال صاحبُ التطبيق: «أريد أن أُزيل كلَّ ما يُشكِل على الطالبِ
+   ويُشتّته، وأيَّ أيقونةٍ لها نفسُ الوظيفة. الحفظُ والتثبيتُ
+   والمراجعةُ كلُّها تَدخل في هدفٍ واحدٍ وهو حفظُ القرآن — فلماذا
+   لكلِّ واحدٍ منها أيقونة؟ ولماذا لكلِّ واحدٍ منها منهج؟ لماذا لا
+   يكونون كلُّهم داخلين في بروسِس واحد؟»
+
+   وهو الصواب، وفي شاشتِه أربعةُ مناهجَ وأربعُ بطاقاتٍ وأربعةُ
+   ألوانٍ وأربعُ حَلَقاتِ نسبةٍ وستّةَ عشرَ زرًّا — لعملٍ واحدٍ
+   اسمُه: احفظِ القرآن.
+
+   والعلّةُ في البنية: جُعل كلُّ نوعٍ «منهجًا» قائمًا بذاته، له
+   مداه وأيّامُه ونسبتُه. وهذا صحيحٌ في الحساب، غلطٌ في العرض:
+   الحافظُ لا يَفتح التطبيقَ ليُدير ثلاثةَ مشاريع، بل ليَجلس
+   جِلسةً واحدةً فيها ثلاثُ حركاتٍ على ترتيبٍ لا يَتغيّر:
+
+       ١ · الجديد  — ما يَحفظه اليوم.
+       ٢ · القريب  — ما حَفِظه قريبًا، يُثبّته قبل أن يَبرد.
+       ٣ · البعيد  — ما بَعُد عنه، يَدور عليه دورةً بعد دورة.
+
+   فهذه ليست ثلاثةَ مناهج، بل ثلاثُ مراحلَ من وِردٍ واحد. وأسماؤها
+   بهذا الوضعِ تُعلّم الطريقةَ بنفسِها: الطالبُ يَرى «الجديد ثمّ
+   القريب ثمّ البعيد» فيَفهم المنهجَ في ثانيةٍ بلا أن يُشرَح له
+   مصطلحٌ واحد.
+
+   ولا تُقفَل المرحلةُ على الطالب: تُعرَض مرتَّبةً، والتاليةُ
+   مُبرَزةٌ — والاختيارُ له. فالوِردُ عبادةٌ لا لعبةُ مستويات. */
+(function (App) {
+  'use strict';
+
+  var P = App.Plans, Q = App.Quran, ar = App.ar;
+
+  /* ترتيبُ المراحلِ ثابتٌ، وكلُّ منهجٍ يَنزل في مرحلتِه بنوعِه */
+  var STAGES = [
+    { k: 'hifz',    t: 'الجديد', s: 'ما تَحفظه اليوم' },
+    { k: 'tathbit', t: 'القريب', s: 'ما حَفِظتَه قريبًا — قبل أن يَبرد' },
+    { k: 'review',  t: 'البعيد', s: 'ما بَعُد عنك — يَدور عليك' },
+    { k: 'tilawa',  t: 'التلاوة', s: 'قراءةٌ متّصلةٌ بلا حفظ' }
+  ];
+
+  function stageOf(kind) {
+    for (var i = 0; i < STAGES.length; i++) if (STAGES[i].k === kind) return i;
+    return 0;
+  }
+
+  /* المناهجُ تُجمَع على مراحلها: مَن له منهجا حفظٍ رآهما سطرًا
+     واحدًا اسمُه «الجديد»، لا بطاقتَين متنافستَين. */
+  function today() {
+    var out = [[], [], [], []];
+    (App.state.plans || []).forEach(function (p) {
+      if (!P.isDueToday(p)) return;
+      var r = P.todayRange(p);
+      var did = P.doneToday(p) > 0;
+      if (!r && !did) return;
+      out[stageOf(p.kind)].push({ p: p, r: r, did: did });
+    });
+    return out;
+  }
+
+  /* الجمعُ لا يَكذِب: منهجا حفظٍ أحدُهما في الصفحةِ الثانيةِ
+     والآخرُ في الثانيةِ والعشرين ليسا «من ٢ إلى ٢٢» — بينهما
+     عشرون صفحةً ليست من وِردِ اليوم. فإن اتّصل الطرفانِ قيل
+     المدى، وإلّا قيل العددُ وفُتح أوّلُه. */
+  function portion(items) {
+    var parts = [];
+    items.forEach(function (it) { if (it.r) parts.push(it.r); });
+    if (!parts.length) return null;
+    parts.sort(function (a, b) { return a.from - b.from; });
+    var lo = parts[0].from, hi = 0, n = 0;
+    parts.forEach(function (r) { n += r.count; if (r.to > hi) hi = r.to; });
+    return { from: lo, to: hi, n: n, parts: parts,
+             solid: (hi - lo + 1) === n };
+  }
+
+  function pagesWord(n) {
+    return n === 1 ? 'صفحةٌ واحدة' : n === 2 ? 'صفحتان'
+         : n <= 10 ? ar(n) + ' صفحات' : ar(n) + ' صفحة';
+  }
+
+  /* ── الشاشة ──────────────────────────────────────────────────── */
+  App.screen('home', function () {
+    styleOnce();
+    var w = App.el('div', 'stack-lg wh');
+
+    var d = new Date();
+    var hd = App.el('header', 'wh-head');
+    hd.appendChild(App.el('h1', 'h1 wh-greet',
+      App.Words && App.Words.greet ? App.Words.greet(App.state.profile &&
+        App.state.profile.name) : 'على بركةِ الله'));
+    hd.appendChild(App.el('p', 'small wh-date',
+      App.DAY_NAME[d.getDay()] + '، ' + ar(App.hijri(d))));
+    w.appendChild(hd);
+
+    var st = today();
+    var any = st.some(function (a) { return a.length; });
+
+    if (!any) {
+      var inv = App.el('section', 'card wh-card');
+      inv.appendChild(App.el('b', 'h2', 'لم يُرتَّب وِردُك بعد'));
+      inv.appendChild(App.el('p', 'small',
+        'ثلاثةُ أسئلةٍ ثمّ تَبدأ. ولا يَلزمك أن تَعرف شيئًا عن المناهج.'));
+      var b0 = App.el('button', 'btn btn-pri btn-block');
+      b0.type = 'button';
+      b0.textContent = 'رتِّبْ وِردي';
+      b0.onclick = function () { App.go('start'); };
+      inv.appendChild(b0);
+      w.appendChild(inv);
+      return w;
+    }
+
+    var card = App.el('section', 'card wh-card');
+    var top = App.el('div', 'wh-top');
+    top.appendChild(App.el('b', 'h2', 'وِردُ اليوم'));
+
+    /* ثلاثُ نقاطٍ تَقول كم مرحلةً تمّت — لا نسبةٌ مئويّةٌ عن
+       مشروعٍ يَنتهي بعد سنة. اليومُ هو المقياس. */
+    var done = 0, total = 0;
+    st.forEach(function (items) {
+      if (!items.length) return;
+      total++;
+      if (items.every(function (it) { return it.did; })) done++;
+    });
+    var dots = App.el('div', 'wh-dots');
+    dots.setAttribute('aria-label', 'تمّ ' + ar(done) + ' من ' + ar(total));
+    for (var i = 0; i < total; i++) {
+      dots.appendChild(App.el('i', 'wh-dot' + (i < done ? ' on' : '')));
+    }
+    top.appendChild(dots);
+    card.appendChild(top);
+
+    var first = true;
+    STAGES.forEach(function (S, ix) {
+      var items = st[ix];
+      if (!items.length) return;
+      var por = portion(items);
+      var allDone = items.every(function (it) { return it.did; });
+      var next = !allDone && first;
+      if (!allDone) first = false;
+
+      var row = App.el('button', 'wh-row'
+        + (allDone ? ' is-done' : '') + (next ? ' is-next' : ''));
+      row.type = 'button';
+
+      var mk = App.el('span', 'wh-mk');
+      mk.textContent = allDone ? '✓' : ar(ix + 1);
+      row.appendChild(mk);
+
+      var tx = App.el('span', 'wh-tx');
+      tx.appendChild(App.el('b', 'wh-t', S.t));
+      tx.appendChild(App.el('span', 'small wh-s',
+        allDone ? 'تمّ اليوم'
+        : !por ? S.s
+        : por.n === 1 ? 'صفحة ' + ar(por.from)
+        : por.solid ? 'صفحة ' + ar(por.from) + ' إلى ' + ar(por.to)
+        : pagesWord(por.n) + ' · تَبدأ من ' + ar(por.from)));
+      row.appendChild(tx);
+
+      if (!allDone && por) {
+        var go = App.el('span', 'wh-go');
+        go.innerHTML = App.icon('chevron', 18);
+        row.appendChild(go);
+        row.onclick = function () {
+          /* المتفرّقُ يُفتَح على أوّلِ قطعةٍ منه بمداها وحدَها،
+             فلا يَمشي القارئُ في صفحاتٍ ليست من وِرده. */
+          var r0 = por.solid ? por : por.parts[0];
+          App.go('qpage', { p: r0.from, from: r0.from, to: r0.to });
+        };
+      } else {
+        row.disabled = true;
+      }
+      card.appendChild(row);
+    });
+
+    w.appendChild(card);
+
+    /* بابٌ واحدٌ هادئٌ إلى الإعداد، لا لسانٌ يُزاحم الوِرد */
+    var tune = App.el('button', 'btn btn-ghost btn-block wh-tune');
+    tune.type = 'button';
+    tune.textContent = 'إعدادُ الوِرد';
+    tune.onclick = function () { App.go('manhaj'); };
+    w.appendChild(tune);
+
+    return w;
+  });
+
+  function styleOnce() {
+    if (document.getElementById('wh-css')) return;
+    var s = App.el('style');
+    s.id = 'wh-css';
+    s.textContent = [
+      '.wh-head{display:flex;flex-direction:column;gap:3px}',
+      '.wh-greet{margin:0}',
+      '.wh-date{margin:0;color:var(--ink-mut)}',
+      '.wh-card{display:flex;flex-direction:column;gap:4px}',
+      '.wh-top{display:flex;align-items:center;gap:10px;',
+      '  margin-block-end:6px}',
+      '.wh-top .h2{flex:1 1 auto;min-width:0;margin:0}',
+      '.wh-dots{display:flex;gap:5px;flex:0 0 auto}',
+      '.wh-dot{width:8px;height:8px;border-radius:50%;background:var(--hair)}',
+      '.wh-dot.on{background:var(--accent)}',
+      /* الصفُّ هو الوِرد: لا حافّةَ ملوّنةٌ ولا حَلْقةُ نسبةٍ ولا
+         وسْمُ نوعٍ يُكرّر العنوان. ثلاثةُ أسطرٍ تَتشابه عمدًا،
+         فما يُفرّق بينها رقمُها واسمُها لا زينتُها. */
+      '.wh-row{display:flex;align-items:center;gap:12px;width:100%;',
+      '  min-height:60px;padding:10px 4px;background:none;border:0;',
+      '  border-block-start:1px solid var(--hair);',
+      '  font:inherit;color:var(--ink);text-align:start;cursor:pointer}',
+      '.wh-row:first-of-type{border-block-start:0}',
+      '.wh-row[disabled]{cursor:default}',
+      '.wh-mk{flex:0 0 auto;width:30px;height:30px;border-radius:50%;',
+      '  display:grid;place-items:center;font-size:14px;font-weight:700;',
+      '  background:var(--surface-2);color:var(--ink-mut)}',
+      '.wh-row.is-next .wh-mk{background:var(--accent);color:var(--on-accent)}',
+      '.wh-row.is-done .wh-mk{background:var(--gold-soft);color:var(--gold-lit)}',
+      '.wh-tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}',
+      '.wh-t{font-size:16px}',
+      '.wh-s{color:var(--ink-mut)}',
+      '.wh-row.is-done .wh-t,.wh-row.is-done .wh-s{color:var(--ink-faint)}',
+      '.wh-go{flex:0 0 auto;line-height:0;color:var(--ink-faint)}',
+      '.wh-tune{min-height:46px}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+}(window.App));
+
 /* ══ 50-voice.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
    بابُ الاقتراح — يَصل صوتُهم ولا تَصل أسماؤهم
@@ -22596,15 +22824,6 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 <script>
 /* الإقلاعُ آخرَ شيء: كلُّ الوحدات سجّلت شاشاتِها وتبويباتِها قبله. */
 App.boot(document.getElementById('app'), document.getElementById('nav'));
-</script>
-<script>
-/* عاملُ الخدمة — للعملِ دون اتصالٍ وقَبولِ التثبيت. يُضيفه deploy.py، وليس
-   في الملفِّ القائمِ بنفسه لأنّ file:// لا يَسمح بعاملِ خدمةٍ أصلًا. */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
-  });
-}
 </script>
 </body>
 </html>
