@@ -2657,7 +2657,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.50",at:"2026-11-25T00:48:18+03:00"};</script>
+<script>window.__BUILD={v:"1.51",at:"2026-11-25T08:56:49+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14122,33 +14122,139 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     w.appendChild(bar);
 
     w.appendChild(App.el('p', 'body sm-lead',
-      'من حفظك، بلا منهجٍ ولا موعد. اختر موضعًا، ثمّ اختر كيف تُسمِّعه.'));
+      'من حفظك، بلا منهجٍ ولا موعد. اختر مدًى، ثمّ اختر كيف تُسمِّعه.'));
 
-    /* ما يُسمَّع الآن: صفحةٌ واحدةٌ، تُنتقى سورةً ثمّ صفحةً منها */
+    /* ══ المدى ════════════════════════════════════════════════════
+       «نريد أن نُطوّر أيقونةَ سماع: لا تكون صفحةً واحدةً فقط، بل
+       مِن صفحةِ كذا إلى صفحةِ كذا، أو من الآيةِ كذا إلى الآية،
+       أو جزءِ كذا.»
+
+       وأربعةُ أبوابٍ تُغني عن ذلك كلِّه، وكلُّها تَؤول إلى طرفَين:
+       أوّلِ صفحةٍ وآخرِها. وما دقَّ عن الصفحةِ — الآيتان — فطرفانِ
+       داخلَ السورة، يُرشَّح بهما أوّلُ المدى وآخرُه.
+
+       ولا رقمَ لاتينيًّا في قائمة: الصفحاتُ والآياتُ تُعرَض
+       أسماءً مرقومةً بالهنديّة. */
     var cur = lastPage() || 1;
+    var mode = 'page';
+    var R = { from: cur, to: cur, s: 0, a1: 0, a2: 0 };
 
     var card = App.el('section', 'card sm-pick');
 
-    var sSel = App.el('select', 'inp sm-sel');
-    sSel.id = 'sm-surah';
-    var names = Q.names();
-    for (var i = 0; i < names.length; i++) {
-      var o = document.createElement('option');
-      o.value = String(names[i].s);
-      o.textContent = names[i].name;
-      sSel.appendChild(o);
-    }
-    card.appendChild(field('السورة', sSel));
+    var tabs = App.el('div', 'sm-tabs');
+    tabs.setAttribute('role', 'tablist');
+    [['page', 'صفحة'], ['span', 'مدى صفحات'],
+     ['surah', 'سورة'], ['juz', 'جزء']].forEach(function (t) {
+      var b = App.el('button', 'sm-tab' + (t[0] === mode ? ' on' : ''));
+      b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.textContent = t[1];
+      b.onclick = function () {
+        mode = t[0];
+        [].forEach.call(tabs.children, function (c) { c.classList.remove('on'); });
+        b.classList.add('on');
+        fields();
+      };
+      tabs.appendChild(b);
+    });
+    card.appendChild(tabs);
 
-    var pSel = App.el('select', 'inp sm-sel');
-    pSel.id = 'sm-page';
-    card.appendChild(field('الصفحة', pSel));
+    var rows = App.el('div', 'sm-rows');
+    card.appendChild(rows);
 
     var place = App.el('p', 'small sm-place');
     place.setAttribute('aria-live', 'polite');
     card.appendChild(place);
 
     w.appendChild(card);
+
+    /* ── بناءُ الحقولِ على حسبِ الباب ───────────────────────────── */
+    function sel(id, items, val, onch) {
+      var s = App.el('select', 'inp sm-sel');
+      s.id = id;
+      items.forEach(function (it) {
+        var o = document.createElement('option');
+        o.value = String(it.v); o.textContent = it.t;
+        s.appendChild(o);
+      });
+      s.value = String(val);
+      s.onchange = function () { onch(+s.value); };
+      return s;
+    }
+    function pageItems(lo, hi) {
+      var a = [];
+      for (var i = lo; i <= hi; i++) a.push({ v: i, t: 'صفحة ' + ar(i) });
+      return a;
+    }
+    function surahItems() {
+      return Q.names().map(function (n) { return { v: n.s, t: n.name }; });
+    }
+
+    function fields() {
+      rows.textContent = '';
+      if (mode === 'page') {
+        R.s = 0; R.a1 = 0; R.a2 = 0;
+        rows.appendChild(field('الصفحة',
+          sel('sm-p', pageItems(1, Q.TOTAL_PAGES), R.from, function (v) {
+            R.from = R.to = v; paint();
+          })));
+      } else if (mode === 'span') {
+        R.s = 0; R.a1 = 0; R.a2 = 0;
+        if (R.to <= R.from) R.to = Math.min(Q.TOTAL_PAGES, R.from + 4);
+        rows.appendChild(field('مِن',
+          sel('sm-f', pageItems(1, Q.TOTAL_PAGES), R.from, function (v) {
+            R.from = v; if (R.to < v) R.to = v; fields();
+          })));
+        rows.appendChild(field('إلى',
+          sel('sm-t', pageItems(R.from, Q.TOTAL_PAGES), R.to, function (v) {
+            R.to = v; paint();
+          })));
+      } else if (mode === 'surah') {
+        var s = R.s || Q.surahOf(R.from);
+        R.s = s;
+        var vs = Q.surah(s) || [];
+        var n = vs.length;
+        if (!R.a1 || R.a1 > n) R.a1 = 1;
+        if (!R.a2 || R.a2 > n || R.a2 < R.a1) R.a2 = n;
+        rows.appendChild(field('السورة',
+          sel('sm-s', surahItems(), s, function (v) {
+            R.s = v; R.a1 = 0; R.a2 = 0; fields();
+          })));
+        var ay = function (lo, hi) {
+          var a = [];
+          for (var i = lo; i <= hi; i++) a.push({ v: i, t: 'آية ' + ar(i) });
+          return a;
+        };
+        rows.appendChild(field('من آية',
+          sel('sm-a1', ay(1, n), R.a1, function (v) {
+            R.a1 = v; if (R.a2 < v) R.a2 = v; fields();
+          })));
+        rows.appendChild(field('إلى آية',
+          sel('sm-a2', ay(R.a1, n), R.a2, function (v) { R.a2 = v; span(); })));
+        span();
+
+        /* طرفا المدى في بابِ السورةِ يُؤخَذانِ من صفحتَي الآيتَين
+           لا ممّا بقي من البابِ السابق — وإلّا بقي «صفحة ١ إلى ٥»
+           وقد اختار القارئُ سورةَ الملك. */
+        function span() {
+          var f = vs[R.a1 - 1], t = vs[R.a2 - 1];
+          if (f) R.from = f.p;
+          if (t) R.to = Math.max(R.from, t.p);
+          paint();
+        }
+      } else {
+        var j = Q.juzOf(R.from) || 1;
+        var items = [];
+        for (var k = 1; k <= 30; k++) items.push({ v: k, t: 'الجزء ' + ar(k) });
+        R.s = 0; R.a1 = 0; R.a2 = 0;
+        rows.appendChild(field('الجزء',
+          sel('sm-j', items, j, function (v) {
+            R.from = Q.juzStart(v); R.to = Q.juzEnd(v); paint();
+          })));
+        R.from = Q.juzStart(j); R.to = Q.juzEnd(j);
+      }
+      paint();
+    }
 
     /* الطريقتان: اليدُ أوّلًا لأنّها تَعمل في كلِّ جهاز، والصوتُ
        بعدَها لأنّه يَطلب ميكروفونًا وإذنًا وقد لا يُتاحان. */
@@ -14158,7 +14264,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     bTas.type = 'button';
     bTas.innerHTML = App.icon('tm-veil', 19);
     bTas.appendChild(App.el('span', null, 'سمِّع بالستر والكشف'));
-    bTas.onclick = function () { remember(cur); App.go('tasmee', { p: cur }); };
+    bTas.onclick = function () {
+      remember(R.from);
+      App.go('tasmee', { p: R.from, from: R.from, to: R.to,
+                         s: R.s, a1: R.a1, a2: R.a2 });
+    };
     acts.appendChild(bTas);
 
     var bSam = null;
@@ -14166,7 +14276,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       bSam = App.el('button', 'btn btn-ghost btn-block');
       bSam.type = 'button';
       bSam.textContent = 'اسرُدْ بصوتك، والصفحةُ تَتبعك';
-      bSam.onclick = function () { remember(cur); App.go('sama', { p: cur }); };
+      bSam.onclick = function () {
+        remember(R.from);
+        App.go('sama', { p: R.from, from: R.from, to: R.to });
+      };
       acts.appendChild(bSam);
     }
     w.appendChild(acts);
@@ -14207,32 +14320,31 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       w.appendChild(sec);
     }
 
-    /* ── الربط ─────────────────────────────────────────────────
-       الاختياران مَشهدان لموضعٍ واحد: تبديلُ السورةِ يَبني صفحاتِها
-       ويَقف على أوّلها، وتبديلُ الصفحةِ يُبقي السورةَ كما هي. */
-    function fillPages(s, want) {
-      var ps = pagesOf(s);
-      pSel.textContent = '';
-      for (var j = 0; j < ps.length; j++) {
-        var o = document.createElement('option');
-        o.value = String(ps[j]);
-        o.textContent = 'صفحة ' + ar(ps[j]);
-        pSel.appendChild(o);
-      }
-      cur = (want && ps.indexOf(want) >= 0) ? want : (ps[0] || 1);
-      pSel.value = String(cur);
-      paint();
-    }
+    /* ── ما يُقال للقارئ عن مداه ──
+       لا أرقامَ مجرّدة: كم صفحةً، وأينَ هي من المصحف. فإن كان
+       المدى سورةً بآياتٍ مخصوصةٍ قيل ذلك صريحًا. */
     function paint() {
-      place.textContent = placeLine(cur);
-      bTas.setAttribute('aria-label', 'سمِّع صفحة ' + ar(cur) + ' بالستر والكشف');
-      if (bSam) bSam.setAttribute('aria-label', 'اسرُدْ صفحة ' + ar(cur) + ' بصوتك');
-    }
-    sSel.onchange = function () { fillPages(+sSel.value, 0); };
-    pSel.onchange = function () { cur = +pSel.value; paint(); };
+      if (R.to < R.from) R.to = R.from;
+      var n = R.to - R.from + 1;
+      var head = mode === 'surah' && R.s
+        ? 'سورة ' + Q.name(R.s) + ' · من آية ' + ar(R.a1) + ' إلى ' + ar(R.a2)
+        : n === 1 ? 'صفحةٌ واحدة'
+        : n === 2 ? 'صفحتان'
+        : n <= 10 ? ar(n) + ' صفحات' : ar(n) + ' صفحة';
+      var tail = n === 1 ? placeLine(R.from)
+        : 'صفحة ' + ar(R.from) + ' إلى ' + ar(R.to);
+      place.textContent = head + ' · ' + tail;
 
-    sSel.value = String(Q.surahOf(cur));
-    fillPages(Q.surahOf(cur), cur);
+      var lbl = n === 1 ? 'صفحة ' + ar(R.from)
+                        : 'الصفحات ' + ar(R.from) + ' إلى ' + ar(R.to);
+      bTas.setAttribute('aria-label', 'سمِّع ' + lbl + ' بالستر والكشف');
+      if (bSam) bSam.setAttribute('aria-label', 'اسرُدْ ' + lbl + ' بصوتك');
+    }
+
+    /* السورةُ تُرجَّح من آخرِ موضعٍ سُمِّع، فيَفتح الطالبُ على
+       موضعِه لا على أوّلِ المصحف. */
+    R.s = Q.surahOf(cur);
+    fields();
 
     return w;
   });
@@ -14253,6 +14365,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     el.textContent = [
       '.sm-lead{margin-block:-4px 0}',
       '.sm-pick{display:flex;flex-direction:column;gap:12px}',
+      '.sm-tabs{display:flex;gap:6px;flex-wrap:wrap}',
+      '.sm-tab{flex:1 1 auto;min-height:44px;padding:8px 10px;border:0;',
+      '  border-radius:999px;background:var(--surface-2);color:var(--ink-mut);',
+      '  font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;',
+      '  transition:background var(--fast) var(--ease),color var(--fast) var(--ease)}',
+      '.sm-tab.on{background:var(--accent);color:var(--on-accent)}',
+      '.sm-tab:focus-visible{outline:2px solid var(--gold-lit);outline-offset:2px}',
+      '.sm-rows{display:flex;flex-direction:column;gap:9px}',
       '.sm-field{display:flex;align-items:center;gap:10px}',
       '.sm-lbl{flex:0 0 58px;font-size:13.5px;font-weight:700;color:var(--ink-mut)}',
       '.sm-sel{flex:1 1 auto;min-width:0}',
@@ -14523,7 +14643,32 @@ if (window.App && window.App.ownState) window.App.ownState('samme');
     var p = Math.max(1, Math.min(Q.TOTAL_PAGES, (params && +params.p) || 1));
     var all = Q.page(p);
     var only = !!(params && params.only === 'slips');
+    /* ══ المدى ════════════════════════════════════════════════════
+       «نريد أن نُطوّر أيقونةَ سماع: لا تكون صفحةً واحدةً فقط، بل
+       مِن صفحةِ كذا إلى صفحةِ كذا، أو من الآيةِ كذا إلى الآية،
+       أو جزءِ كذا.»
+
+       والتسميعُ يَبقى صفحةً صفحة — فهكذا يُسمَّع — وإنّما يُحمَل
+       معه طرفُ المدى، فإذا تمّت صفحةٌ عُرض ما بعدَها من المدى
+       لا صفحةٌ مجرّدةٌ ولا رجوعٌ إلى أوّل الطريق.
+
+       والآيتانِ طرفانِ داخلَ المدى: تُرشَّح بهما آياتُ الصفحةِ
+       الأولى والأخيرة، فمَن قال «من آية ٥ إلى ٢٠» لم يُسمَّعْ
+       ما قبلَ الخامسةِ ولا ما بعدَ العشرين. */
+    var to = Math.max(p, Math.min(Q.TOTAL_PAGES, (params && +params.to) || p));
+    var a1 = (params && +params.a1) || 0;
+    var a2 = (params && +params.a2) || 0;
+    var sIn = (params && +params.s) || 0;
+
     var list = only ? slipsIn(all) : all.slice();
+    if (!only && sIn && (a1 || a2)) {
+      list = list.filter(function (v) {
+        if (v.s !== sIn) return false;
+        if (a1 && v.a < a1) return false;
+        if (a2 && v.a > a2) return false;
+        return true;
+      });
+    }
     /* الحارسُ يَزور كلَّ شاشةٍ بلا وسائطَ، وقد تُطلَب «ما زُلّ فيه»
        وقد كُفّر: فلا تُترك الجلسةُ فارغةً — تُفتح الصفحةُ كلُّها. */
     if (!list.length) { list = all.slice(); only = false; }
@@ -14542,7 +14687,11 @@ if (window.App && window.App.ownState) window.App.ownState('samme');
     var t2 = App.el('div', 'tm-meta');
     /* يُقدَّم اسمُ الفعلِ على الموضع: الصفحةُ معلومةٌ ممّا جاء منه،
        والذي يُسأل عنه عندَ النظرةِ الأولى «ما هذه الشاشة؟» */
-    t2.textContent = App.join(only ? 'ما زُلّ فيه' : 'تسميع', 'صفحة ' + ar(p));
+    /* موضعُك من المدى يُقال، فلا تَضيع في وسطِ جزءٍ لا تَعرف كم
+       بقي منه. ويُحمَل أوّلُ المدى معه لأجلِ هذا السطرِ وحدَه. */
+    var from0 = Math.min(p, (params && +params.from) || p);
+    t2.textContent = App.join(only ? 'ما زُلّ فيه' : 'تسميع',
+      'صفحة ' + ar(p) + (to > from0 ? ' من ' + ar(from0) + '–' + ar(to) : ''));
     tt.appendChild(t2);
     top.appendChild(tt);
     var quit = App.el('button', 'btn btn-quiet btn-sm tm-quit');
@@ -14782,7 +14931,19 @@ if (window.App && window.App.ownState) window.App.ownState('samme');
         acts.appendChild(act('أعِد الصفحة', 'btn-pri',
           function () { App.go('tasmee', { p: p }); }));
       }
-      if (p < Q.TOTAL_PAGES) {
+      /* فإن كان المدى أوسعَ من هذه الصفحةِ فالمتابعةُ هي الأصل:
+         مَن اختار جزءًا لا يُقال له «الصفحةُ التالية» كأنّه ضَلّ
+         الطريق، بل «بقيت كذا صفحة». */
+      if (p < to) {
+        var left = to - p;
+        acts.appendChild(act('تابِعِ المدى · بقي '
+          + (left === 1 ? 'صفحةٌ واحدة' : left === 2 ? 'صفحتان'
+             : left <= 10 ? ar(left) + ' صفحات' : ar(left) + ' صفحة'),
+          slips.length ? 'btn-ghost' : 'btn-pri', function () {
+            App.go('tasmee', { p: p + 1, from: from0, to: to,
+                               s: sIn, a1: 0, a2: a2 });
+          }));
+      } else if (p < Q.TOTAL_PAGES) {
         acts.appendChild(act('سمِّع الصفحةَ التالية', 'btn-ghost', function () {
           App.go('tasmee', { p: p + 1 });
         }));
@@ -15074,6 +15235,12 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
   App.screen('sama', function (params) {
     styleOnce();
     var p = +(params && params.p) || 1;
+    /* ══ المدى ════════════════════════════════════════════════════
+       السردُ أيضًا يَمشي صفحةً صفحة، ويَحمل طرفَ المدى: فإذا
+       انكشفت الصفحةُ كلُّها لم يَقف القارئُ على بابٍ مغلق، بل
+       وَجد التاليةَ بين يدَيه وقد بقي من مداه كذا. */
+    var toP = Math.max(p, Math.min(604, +(params && params.to) || p));
+    var fromP = Math.min(p, +(params && params.from) || p);
     var pg = pageWords(p);
     var words = pg.words;
     var wrap = App.el('section', 'screen sa-wrap');
@@ -15086,6 +15253,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* الفاصلةُ المنقوطةُ وسطَ السطرِ تُشبِه الصفرَ العربيَّ إذا جاورت
        رقمًا: «صفحة ١ · لا» تُقرَأ «صفحة ١٠ لا». فالشَّرطةُ أسلم. */
     ht.appendChild(App.el('p', 'sa-sub', 'صفحة ' + ar(p)
+      + (toP > fromP ? ' من ' + ar(fromP) + '–' + ar(toP) : '')
       + ' — لا تَتقدّم كلمةً حتّى تَقولها'));
     h.appendChild(ht);
     var quit = App.el('button', 'btn btn-quiet btn-sm sa-quit');
@@ -15179,6 +15347,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     go.textContent = 'ابدأ السرد';
     foot.appendChild(go);
 
+    var nextBtn = App.el('button', 'btn btn-pri btn-block sa-next');
+    nextBtn.type = 'button';
+    nextBtn.hidden = true;
+    nextBtn.onclick = function () {
+      running = false;
+      if (rec) { try { rec.stop(); } catch (e) {} }
+      App.go('sama', { p: p + 1, from: fromP, to: toP });
+    };
+    foot.appendChild(nextBtn);
+
     var again = App.el('button', 'btn btn-ghost btn-block sa-again');
     again.type = 'button';
     again.textContent = 'من أوّل الصفحة';
@@ -15212,6 +15390,16 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       if (ptr < spans.length && running) {
         try { spans[ptr].scrollIntoView({ block: 'center', behavior: 'smooth' }); }
         catch (e) {}
+      }
+      /* تمّت الصفحةُ وفي المدى بقيّة: يُعرَض البابُ ولا يُفتَح
+         من تلقاءِ نفسِه — فالقارئُ قد يُريد أن يُعيد. */
+      nextBtn.hidden = !(ptr >= words.length && p < toP);
+      if (!nextBtn.hidden) {
+        var left = toP - p;
+        nextBtn.textContent = 'تابِعِ المدى — صفحة ' + ar(p + 1)
+          + ' (بقي ' + (left === 1 ? 'صفحةٌ واحدة'
+            : left === 2 ? 'صفحتان'
+            : left <= 10 ? ar(left) + ' صفحات' : ar(left) + ' صفحة') + ')';
       }
     }
 
@@ -15425,6 +15613,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       '  margin-block-start:10px;background:var(--surface);',
       '  box-shadow:0 -10px 16px -12px rgba(0,0,0,.28)}',
       '.sa-again{min-height:44px}',
+      /* ‎display‎ في ‎btn-block‎ يَغلِب ‎[hidden]‎، فيَظهر زرُّ
+         المتابعةِ وهو يُعلَن مخفيًّا. وقد وقعت هذه من قبلُ في
+         دُرجِ أدواتِ الصفحة. */
+      '.sa-next[hidden]{display:none}',
       '.sa-bar{display:flex;justify-content:flex-end;margin:0 2px}',
       '.sa-pos{font-size:12px;color:var(--ink-faint)}',
       '.sa-go.sa-live{background:var(--danger,#a33)}',
