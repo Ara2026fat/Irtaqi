@@ -41,7 +41,8 @@
 <!-- ألوانُ الـmanifest ليست تزيينًا: هي شاشةُ الإقلاعِ وشريطُ
      النظامِ عند التثبيت. كانت ليلًا (‎#08181A‎) وقد صار النهارُ
      هو المبدئيّ، فيُومض التطبيقُ أسودَ قبل أن يَفتح على الورق. -->
-<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22short_name%22%3A%22%D8%A7%D8%B1%D8%AA%D9%82%D9%90%22%2C%22display%22%3A%22standalone%22%2C%22dir%22%3A%22rtl%22%2C%22lang%22%3A%22ar%22%2C%22background_color%22%3A%22%23F8F4EC%22%2C%22theme_color%22%3A%22%23F8F4EC%22%7D'>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 /* ══ 15-theme.css ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -2656,7 +2657,7 @@ body::before{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.51",at:"2026-11-25T17:43:04+03:00"};</script>
+<script>window.__BUILD={v:"1.51",at:"2026-11-25T18:26:50+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -22824,6 +22825,15 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 <script>
 /* الإقلاعُ آخرَ شيء: كلُّ الوحدات سجّلت شاشاتِها وتبويباتِها قبله. */
 App.boot(document.getElementById('app'), document.getElementById('nav'));
+</script>
+<script>
+/* عاملُ الخدمة — للعملِ دون اتصالٍ وقَبولِ التثبيت. يُضيفه deploy.py، وليس
+   في الملفِّ القائمِ بنفسه لأنّ file:// لا يَسمح بعاملِ خدمةٍ أصلًا. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
 </script>
 </body>
 </html>
