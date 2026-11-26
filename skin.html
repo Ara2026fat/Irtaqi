@@ -3057,7 +3057,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.66",at:"2026-11-26T23:09:32+03:00"};</script>
+<script>window.__BUILD={v:"1.67",at:"2026-11-26T23:32:38+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14977,7 +14977,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       }
       e.preventDefault();
       /* عند الطرفَين تَثقُل الورقةُ ولا تَنفتح على فراغ */
-      var edge = (dx < 0 && curP >= Q.TOTAL_PAGES) || (dx > 0 && curP <= 1);
+      /* جهةُ السحبِ جهةُ اليد: المصحفُ كَعبُه عن اليمين، فتُمسَك
+         الورقةُ من حافّتها اليسرى وتُساق إلى اليمين لتَنكشف التالية.
+         فالسحبُ إلى اليمين يُقدِّم، وإلى اليسار يُؤخِّر — وكان
+         معكوسًا. */
+      var edge = (dx > 0 && curP >= Q.TOTAL_PAGES) || (dx < 0 && curP <= 1);
       slide(edge ? dx * .22 : dx);
     }, { passive: false });
 
@@ -14990,7 +14994,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var far = Math.abs(dx) > Math.min(72, W() * .22);
       var flat = Math.abs(dx) > Math.abs(dy) * 1.1;
       settle();
-      if (drag && far && flat) { drag = false; turn(dx < 0 ? 1 : -1); return; }
+      if (drag && far && flat) { drag = false; turn(dx > 0 ? 1 : -1); return; }
       drag = false;
     }
     paper.addEventListener('pointerup', end);
