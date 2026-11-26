@@ -2997,7 +2997,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.61",at:"2026-11-25T20:24:27+03:00"};</script>
+<script>window.__BUILD={v:"1.62",at:"2026-11-26T17:08:50+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13654,6 +13654,152 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 
 }(window.App));
 
+/* ══ 58-mark.js ══ */
+/* ══ العلامة — شريطةٌ واحدةٌ تَنتقل ═══════════════════════════════
+   قال صاحبُ التطبيق: «أريد أن أضع علامةً على الصفحةِ التي توقّفتُ
+   عندها، حتّى لو لم أصِلْ إلى ختامِ الوِرد. وإذا انتقلتُ صفحةً أو
+   صفحتَين أو عشرًا ووضعتُ علامةً أخرى، تَختفي السابقةُ وتَبقى هذه
+   آخرَ علامةٍ وصلتُ إليها.»
+
+   وهذا وصفُ الشريطةِ في المصحفِ الورقيِّ بعينِه: خيطٌ واحدٌ لا
+   خيوط. فمن وضعه في موضعٍ رفعه عمّا قبله بغيرِ أن يَصنع شيئًا —
+   ليس في المصحفِ زرُّ «احذف العلامةَ القديمة».
+
+   فالبنيةُ تَحكي هذا المعنى ولا تُحاكيه: مفتاحٌ واحدٌ في الحالةِ لا
+   قائمة. والكتابةُ فيه تَمحو ما كان ضرورةً لا اختيارًا، فيَستحيل أن
+   تَجتمع علامتان ولو أراد الكودُ ذلك.
+
+   وهي مفصولةٌ عن الوِردِ وعن الإتمام: يَضعها مَن له وِردٌ ومَن لا
+   وِردَ له، في منتصفِ الورقةِ ومنتهاها — فهي خبرٌ عن موضعِ القارئ،
+   لا إقرارٌ بإنجاز. */
+(function (App) {
+  'use strict';
+
+  function get() {
+    var m = App.state.mark;
+    return (m && isFinite(+m.p) && +m.p >= 1 && +m.p <= 604) ? m : null;
+  }
+
+  function at(p) {
+    var m = get();
+    return !!m && +m.p === +p;
+  }
+
+  /* وضعُها في موضعٍ هو رفعُها عمّا قبله: مفتاحٌ واحدٌ يُكتَب فوقه */
+  function set(p) {
+    p = +p;
+    if (!isFinite(p) || p < 1 || p > 604) return null;
+    App.state.mark = { p: p, at: App.dateKey() };
+    App.save();
+    App.emit('mark', App.state.mark);
+    return App.state.mark;
+  }
+
+  function clear() {
+    if (!App.state.mark) return;
+    delete App.state.mark;
+    App.save();
+    App.emit('mark', null);
+  }
+
+  /* «اقرأ من حيث وقفتَ»: العلامةُ أوّلًا، فإن لم تكن فآخرُ ما فُتح،
+     فإن لم يكن فأوّلُ المصحف. ولا يُسأل القارئُ عن شيء. */
+  function resume() {
+    var m = get();
+    if (m) return m.p;
+    var s = App.state.samme;
+    if (s && isFinite(+s.p) && +s.p >= 1 && +s.p <= 604) return +s.p;
+    return 1;
+  }
+
+  App.Mark = { get: get, at: at, set: set, clear: clear, resume: resume };
+
+})(window.App);
+
+/* ══ 59-ribbon.js ══ */
+/* ══ الشريطة — العلامةُ في صفحةِ المصحف ═══════════════════════════
+   زرٌّ واحدٌ في صدرِ الصفحة، على هيئةِ شريطةِ المصحفِ المشقوقةِ
+   الطرف. وله ثلاثةُ أحوال:
+
+     · لا علامةَ لك        → «ضَعْ علامة»
+     · علامتُك في صفحةٍ أخرى → «ضَعْ علامة»، وعند الوضعِ يُقال من أينَ
+                              انتقلت، فيَرى القارئُ بعينِه أنّ
+                              السابقةَ رُفعت ولم تَجتمعا.
+     · علامتُك هنا          → شريطةٌ مملوءةٌ، ولمسُها يَرفعها — وهو
+                              البابُ الوحيدُ للتراجُعِ عن وضعٍ بالخطأ.
+
+   ولا تُضاف أداةٌ في ذيلِ الصفحة: الشكوى كانت من كثرةِ الأدواتِ
+   تحتَ المصحفِ وطولِ النزول. والعلامةُ تُوضَع وأنت في أعلى الصفحةِ
+   أو أسفلِها — فموضعُها الصدرُ حيث لا يُنزَل إليه. */
+(function (App) {
+  'use strict';
+
+  App.on_('qpage', function (d) {
+    if (!d || !d.top || !App.Mark) return;
+    styleOnce();
+    d.top.appendChild(ribbon(d.p));
+  });
+
+  function ribbon(p) {
+    var b = App.el('button', 'rb');
+    b.type = 'button';
+    paint();
+
+    b.onclick = function () {
+      if (App.Mark.at(p)) {
+        App.Mark.clear();
+        App.toast('رُفعت علامتُك.');
+      } else {
+        var was = App.Mark.get();
+        App.Mark.set(p);
+        App.toast(was
+          ? 'انتقلت علامتُك من صفحة ' + App.ar(was.p) + ' إلى ' + App.ar(p) + '.'
+          : 'وُضعت علامتُك عند صفحة ' + App.ar(p) + '.');
+      }
+      paint();
+    };
+
+    function paint() {
+      var on = App.Mark.at(p);
+      b.className = 'rb' + (on ? ' on' : '');
+      b.innerHTML = '';
+      b.appendChild(App.el('i', 'rb-f'));
+      b.appendChild(App.el('span', 'rb-t', on ? 'علامتُك هنا' : 'ضَعْ علامة'));
+      /* لقارئِ الشاشةِ الخبرُ كاملًا: أين هي الآن وما الذي ستَفعله */
+      var m = App.Mark.get();
+      b.setAttribute('aria-label', on
+        ? 'علامتُك عند هذه الصفحة — المسْ لرفعها'
+        : m ? 'ضَعْ علامتَك هنا، وتُرفَع من صفحة ' + App.ar(m.p)
+            : 'ضَعْ علامتَك عند صفحة ' + App.ar(p));
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    return b;
+  }
+
+  function styleOnce() {
+    if (document.getElementById('rb-css')) return;
+    var s = App.el('style');
+    s.id = 'rb-css';
+    s.textContent = [
+      '.rb{display:inline-flex;align-items:center;gap:8px;',
+      '  min-height:44px;padding:0 14px 0 10px;border:0;cursor:pointer;',
+      '  background:none;font:inherit;font-size:14px;font-weight:600;',
+      '  color:var(--ink-mut);-webkit-tap-highlight-color:transparent}',
+      '.rb.on{color:var(--gold)}',
+      /* الشريطةُ: مستطيلٌ مشقوقُ الذيلِ كشريطةِ المصحف، لا أيقونةَ
+         «حفظ» المألوفة. فارغةٌ بحدٍّ، ومملوءةٌ إن كانت هنا. */
+      '.rb-f{width:13px;height:21px;flex:0 0 auto;display:block;',
+      '  background:var(--rule-2);',
+      '  clip-path:polygon(0 0,100% 0,100% 100%,50% 72%,0 100%)}',
+      '.rb.on .rb-f{background:var(--gold)}',
+      '.rb:focus-visible{outline:2px solid var(--accent);outline-offset:3px;',
+      '  border-radius:var(--r-sm)}'
+    ].join('\n');
+    document.head.appendChild(s);
+  }
+
+})(window.App);
+
 /* ══ 60-mushaf.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
    خريطةُ المصحف — الرحلةُ كلُّها في نظرةٍ واحدة
@@ -13734,7 +13880,15 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* لوحةُ التفصيل تحت الحلقة */
     '.mk-det{display:flex;align-items:center;gap:10px;margin-top:14px;' +
       'border:1px solid var(--hair);border-radius:var(--r-md);padding:8px 10px}',
-    '.mk-det .mk-body{flex:1;min-width:0}',
+    /* صار الجسمُ زرًّا، فيُنزَع عنه ثوبُ الأزرارِ ويَبقى نصًّا يُلمَس */
+    '.mk-det .mk-body{flex:1;min-width:0;background:none;border:0;padding:6px 2px;' +
+      'font:inherit;color:inherit;text-align:start;cursor:pointer;' +
+      'min-height:var(--tap);-webkit-tap-highlight-color:transparent}',
+    '.mk-det .mk-body:focus-visible{outline:2px solid var(--accent);' +
+      'outline-offset:2px;border-radius:var(--r-sm)}',
+    /* زرُّ القراءةِ في صدرِ الشاشةِ وسطرُه تحته */
+    '.mk-open{margin-block-start:4px}',
+    '.mk-open-s{color:var(--ink-mut);text-align:center;margin-block:6px 2px}',
     '.mk-nm{font-size:15px;font-weight:700;color:var(--ink);line-height:1.5}',
     '.mk-sub{font-size:13px;color:var(--ink-mut);line-height:1.6}',
     '.mk-sub>span{display:block}',
@@ -13766,6 +13920,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     '.mk-c.band{box-shadow:inset 0 0 0 1px var(--gold)}',
     '.mk-c.on.band{box-shadow:0 0 0 1px var(--gold)}',
     '.mk-c.pick{outline:2px solid var(--ink);outline-offset:1px;position:relative;z-index:1}',
+    /* العلامةُ تُرى في الخريطةِ كما تُرى الشريطةُ ناتئةً من المصحف
+       المُغلَق — وإلّا كانت حالةً مخزونةً لا يَعرف القارئُ أين هي. */
+    '.mk-c.mark{background:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}',
     '.mk-lg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}',
     '.mk-sw{width:11px;height:11px;border-radius:3px;display:inline-block}',
     '.mk-sw.a{background:var(--accent)}',
@@ -13849,6 +14006,31 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     bar.appendChild(App.el('h1', 'h1 bar-t', 'المصحف'));
     wrap.appendChild(bar);
 
+    /* ═══ ٠ · البابُ إلى النصّ ═══
+       قال صاحبُ التطبيق: «أريد أن أذهب إلى القرآن، أريد أن أقرأ ولو
+       لم يكن عندي وقت — القرآنُ لحالَه غيرُ موجود».
+
+       وكان صادقًا. لسانٌ اسمُه «المصحف» وخلفَه تقريرٌ عن المصحف:
+       حَلْقةُ نسبةٍ تقول «المقروء ٠٪»، وأربعةُ أبواب، وفي الذيلِ
+       دعوةٌ إلى بناءِ منهج. والنصُّ نفسُه خلفَ أربعِ لَمَساتٍ لا
+       يَدلّ عليها دالّ: لسانُ الخريطة، ثمّ خليّةٌ لا يَبين أنّها
+       تُلمَس، ثمّ زرٌّ لا يَظهر إلّا بعد لمسِها.
+
+       فالقراءةُ تَتقدّم على قياسِها. ومَن فتح «المصحف» جاء يَقرأ،
+       لا يَرى نسبتَه. */
+    if (App.Mark) {
+      var rp = App.Mark.resume();
+      var mk = App.Mark.get();
+      var open_ = App.el('button', 'btn btn-pri btn-block mk-open');
+      open_.type = 'button';
+      open_.textContent = mk ? 'اقرأْ من حيثُ وقفت' : 'افتحِ المصحف';
+      open_.onclick = function () { App.go('qpage', { p: rp }); };
+      wrap.appendChild(open_);
+      wrap.appendChild(App.el('p', 'small mk-open-s',
+        (mk ? 'علامتُك عند صفحة ' : 'تَفتح عند صفحة ') + App.ar(rp)
+        + ' — ' + Q.surahName(Q.surahOf(rp))));
+    }
+
     /* ═══ ١ · حلقةُ الأجزاء ═══ */
     /* لا عنوانَ ثانيًا فوقَ اللسان: اللسانُ يقول «الأجزاء» فعنوانٌ يقول
        «حلقةُ الأجزاء» تكرارٌ يأكل سطرَين من شاشةٍ واحدة. يبقى السطرُ
@@ -13911,9 +14093,17 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var det = App.el('div', 'mk-det');
     var prev = App.el('button', 'mk-step', App.icon('chevron', 20));
     prev.type = 'button'; prev.setAttribute('aria-label', 'الجزء السابق');
-    var body = App.el('div', 'mk-body');
+    /* الجزءُ المُنتقى كان خبرًا يُقرأ ولا يُدخَل: اسمُه ومداه ونسبتُه
+       بين سهمَين، وليس فيه بابٌ إلى صفحةٍ واحدةٍ من صفحاتِه. فصار
+       زرًّا يَفتح أوّلَ صفحةٍ منه. */
+    var body = App.el('button', 'mk-body');
+    body.type = 'button';
     var nm = App.el('div', 'mk-nm'), sub = App.el('div', 'mk-sub');
     body.appendChild(nm); body.appendChild(sub);
+    body.onclick = function () {
+      var d = info[selJ - 1];
+      if (d) App.go('qpage', { p: d.from, from: d.from, to: d.to });
+    };
     var next = App.el('button', 'mk-step', App.icon('chevron', 20, 'ico nx'));
     next.type = 'button'; next.setAttribute('aria-label', 'الجزء التالي');
     det.appendChild(next); det.appendChild(body); det.appendChild(prev);
@@ -13933,7 +14123,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ═══ ٢ · خريطةُ المصحف ═══ */
     var s2 = App.el('section', 'sec');
     var h2 = App.el('div', 'sec-h');
-    h2.appendChild(App.el('p', 'small', 'المسْ خليّةً لتعرف موضعها.'));
+    h2.appendChild(App.el('p', 'small', 'المسْ خليّةً لتفتحَ صفحتَها.'));
     s2.appendChild(h2);
 
     var card2 = App.el('div', 'card');
@@ -13960,7 +14150,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var mfrag = document.createDocumentFragment();
     for (var p = 1; p <= all; p++) {
       var c = document.createElement('i');
-      c.className = 'mk-c' + (cov.has(p) ? ' on' : '') + (front.has(p) ? ' now' : '');
+      c.className = 'mk-c' + (cov.has(p) ? ' on' : '') + (front.has(p) ? ' now' : '')
+        + (App.Mark && App.Mark.at(p) ? ' mark' : '');
       c.dataset.p = p;
       cells[p] = c;
       mfrag.appendChild(c);
