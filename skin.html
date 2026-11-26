@@ -2439,15 +2439,45 @@ body::after{
 
 /* ── الذيل: ما يُحتاج بعد الفراغِ من الصفحة ── */
 .qp-foot{ margin-block-start:16px }
+/* ولا يُترَك شريطٌ فارغٌ فوق النصّ متى خلا المَشجبُ العلويّ */
+.qp-slot-top:empty{ display:none }
 .qp-slot{ margin-block-end:14px }
 .qp-slot:empty{ display:none }
 
-/* الدُّرجُ وزرُّه: صفٌّ هادئٌ لا يُزاحم الزرَّ الذي فوقه */
+/* ── الشريطُ الواحد ──
+   كان تحت الورقةِ أربعةُ صفوف، فصارت سطرًا واحدًا لاصقًا بأسفلِ
+   الشاشةِ لا يُنزَل إليه: فاتحُ الدُّرجِ وتقليبٌ ورقمُ الصفحة.
+   وهو يَسكُن مع الحافّةِ متى طُلب تجريدُ النصّ. */
+.qp-bar{
+  /* مثبّتٌ بالشاشةِ لا بالمحتوى: الصفحةُ أطولُ من الشاشة، فلو كان
+     لاصقًا بذيلِ المحتوى لَما رآه القارئُ حتّى يَنزل — وهو جاء
+     ليَقرأ لا ليَنزل. */
+  position:fixed; inset-inline:0; inset-block-end:0; z-index:5;
+  display:flex; align-items:center; gap:8px;
+  margin-block-start:14px;
+  padding:8px max(14px, env(safe-area-inset-left, 0px))
+          calc(8px + env(safe-area-inset-bottom, 0px))
+          max(14px, env(safe-area-inset-right, 0px));
+  background:var(--surface);
+  border-block-start:1px solid var(--hair-2);
+}
+/* فراغٌ في ذيلِ النصِّ بقَدرِ الشريطِ فلا يَستر آخرَ سطر */
+.qp-foot{ padding-block-end:74px }
+.qp-bar .qp-b{ flex:1 1 0; min-height:46px }
+.qp-n{
+  flex:0 0 auto; min-width:40px; text-align:center;
+  font-size:15px; font-weight:700; color:var(--ink-mut);
+}
+.qp-bare .qp-bar{ opacity:0; pointer-events:none }
+.qp-bare .qp-bar:focus-within{ opacity:1; pointer-events:auto }
+
+/* فاتحُ الدُّرجِ أيقونةٌ في الشريطِ لا سطرٌ بعرضِ الشاشة */
 .qp-more{
-  display:flex; align-items:center; justify-content:center; gap:7px;
-  width:100%; min-height:44px; margin-block-start:8px;
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center;
+  width:46px; min-height:46px;
   background:none; border:0; color:var(--ink-mut);
-  font:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
+  font:inherit; cursor:pointer;
 }
 .qp-more:hover{ color:var(--ink) }
 .qp-more:focus-visible{ outline:2px solid var(--gold-lit); outline-offset:2px;
@@ -2455,7 +2485,7 @@ body::after{
 .qp-more-c{ display:inline-flex; line-height:0;
   transform:rotate(90deg); transition:transform var(--mid) var(--ease) }
 .qp-more-c.is-up{ transform:rotate(-90deg) }
-.qp-drawer{ display:flex; flex-direction:column; gap:9px; margin-block-start:4px }
+.qp-drawer{ display:flex; flex-direction:column; gap:9px; margin-block:4px 2px }
 /* ‎display:flex‎ يَغلِب ‎[hidden]‎ عند المتصفّح، فيَبقى الدُّرجُ
    مفتوحًا وهو يُعلَن مغلقًا — ويُقاس الذيلُ كما كان. */
 .qp-drawer[hidden]{ display:none }
@@ -2469,7 +2499,6 @@ body::after{
 }
 .qp-shabih .ico{ color:var(--warn); flex:0 0 auto }
 
-.qp-turn{ display:flex; gap:10px; margin-block-start:14px }
 .qp-nb{
   flex:1 1 0; display:flex; align-items:center; justify-content:center; gap:7px;
   min-height:50px; background:none; color:var(--ink);
@@ -2479,7 +2508,6 @@ body::after{
 .qp-nb[disabled]{ opacity:.38; cursor:default }
 .qp-nb.qp-next .ico{ transform:scaleX(-1) }
 
-.qp-mark{ margin:12px 0 0; text-align:center; font-size:12px; color:var(--ink-faint) }
 .qp-wait{ margin:10px 2px 0; text-align:center; font-size:12px; color:var(--ink-faint) }
 
 /* الحركةُ كلُّها مشروطةٌ بألّا يُطلَب تقليلُها: سكونُ الحافّةِ يَقع
@@ -3029,7 +3057,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.65",at:"2026-11-26T22:33:47+03:00"};</script>
+<script>window.__BUILD={v:"1.66",at:"2026-11-26T23:09:32+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13830,10 +13858,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
 (function (App) {
   'use strict';
 
+  /* موضعُها الشريطُ الواحدُ أسفلَ الشاشة، لا بندًا فوق النصّ:
+     طُلب أن تكون أدواتُ الصفحةِ في شريطٍ واحد. */
   App.on_('qpage', function (d) {
-    if (!d || !d.top || !App.Mark) return;
+    if (!d || !App.Mark) return;
+    var host = d.bar || d.top;
+    if (!host) return;
     styleOnce();
-    d.top.appendChild(ribbon(d.p));
+    host.appendChild(ribbon(d.p));
   });
 
   function ribbon(p) {
@@ -13860,7 +13892,6 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       b.className = 'rb' + (on ? ' on' : '');
       b.innerHTML = '';
       b.appendChild(App.el('i', 'rb-f'));
-      b.appendChild(App.el('span', 'rb-t', on ? 'علامتُك هنا' : 'ضَعْ علامة'));
       /* لقارئِ الشاشةِ الخبرُ كاملًا: أين هي الآن وما الذي ستَفعله */
       var m = App.Mark.get();
       b.setAttribute('aria-label', on
@@ -13877,8 +13908,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     var s = App.el('style');
     s.id = 'rb-css';
     s.textContent = [
-      '.rb{display:inline-flex;align-items:center;gap:8px;',
-      '  min-height:44px;padding:0 14px 0 10px;border:0;cursor:pointer;',
+      '.rb{display:inline-flex;align-items:center;justify-content:center;',
+      '  flex:0 0 auto;width:46px;min-height:46px;border:0;cursor:pointer;',
       '  background:none;font:inherit;font-size:14px;font-weight:600;',
       '  color:var(--ink-mut);-webkit-tap-highlight-color:transparent}',
       '.rb.on{color:var(--gold)}',
@@ -14693,12 +14724,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      الصفحة. */
   var shelfOpen = false;
 
-  function shelve(slot, foot) {
+  function shelve(slot, foot, bar) {
     var kids = [].slice.call(slot.children);
-    if (kids.length < 2) return;            /* أداةٌ واحدةٌ لا تَحتاج رفًّا */
+    if (!kids.length) return;
 
-    /* الأوّلُ بقاءً: التسميع. فإن غاب فأوّلُ ما عُلِّق. */
-    var keep = slot.querySelector('.tm-entry') || kids[0];
+    /* ولا يُستبقى شيءٌ ظاهرًا: كان التسميعُ يَبقى زرًّا أخضرَ بعرضِ
+       الشاشةِ تحت كلِّ صفحة، والتلاوةُ لا شأنَ لها بالتسميع. فالكلُّ
+       في الدُّرجِ يُفتَح عند الحاجةِ من الشريط. */
+    var keep = null;
 
     var drawer = App.el('div', 'qp-drawer');
     drawer.id = 'qp-drawer';
@@ -14718,11 +14751,11 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     tog.setAttribute('aria-expanded', shelfOpen ? 'true' : 'false');
     function label() {
       tog.innerHTML = '';
-      tog.appendChild(App.el('span', 'qp-more-t',
-        shelfOpen ? 'أخفِ أدواتِ الصفحة' : 'أدواتُ الصفحة'));
       var ch = App.el('span', 'qp-more-c' + (shelfOpen ? ' is-up' : ''));
-      ch.innerHTML = App.icon('chevron', 18);
+      ch.innerHTML = App.icon('chevron', 20);
       tog.appendChild(ch);
+      tog.setAttribute('aria-label',
+        shelfOpen ? 'أخفِ أدواتِ الصفحة' : 'أدواتُ الصفحة');
     }
     label();
     tog.onclick = function () {
@@ -14732,7 +14765,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       label();
     };
 
-    slot.appendChild(tog);
+    /* الفاتحُ في الشريطِ لا في مكانِ الأدواتِ نفسِه، والدُّرجُ تحتَه */
+    (bar || slot).appendChild(tog);
     slot.appendChild(drawer);
   }
 
@@ -14965,12 +14999,21 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       t0 = 0; id = 0; drag = false; settle();
     });
 
+    /* اللمسُ على الورقةِ يُقلّب: «إذا ضغطتُ على الصفحةِ نفسِها أستطيع
+       أن أنتقل للصفحةِ التاليةِ أو السابقة». والجهةُ جهةُ الكتاب —
+       اليسارُ يُقدِّم واليمينُ يُؤخِّر، كما يُقلَّب المصحفُ باليد.
+       والثلثُ الأوسطُ متروكٌ لإخفاءِ الحافّةِ وإظهارِها، فلا يُقلَّب
+       على مَن أراد أن يُوسّع النصّ. */
     paper.addEventListener('click', function (e) {
       if (moved) { moved = false; return; }
       if (e.target.closest('button,a,input,[role="button"]')) return;
       var sel = window.getSelection();
       if (sel && String(sel)) return;
-      setBare(!bare);
+      var r = paper.getBoundingClientRect();
+      var f = (e.clientX - r.left) / (r.width || 1);
+      if (f <= .32) turn(1);
+      else if (f >= .68) turn(-1);
+      else setBare(!bare);
     });
   }
 
@@ -15044,8 +15087,29 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     slot.id = 'qp-slot';
     slot.dataset.page = String(p);
     foot.appendChild(slot);
-    App.emit('qpage', { p: p, slot: slot, top: topSlot, verses: verses });
-    shelve(slot, foot);
+
+    /* ── شريطٌ واحدٌ لا أربعةُ صفوف ──
+       قال صاحبُ التطبيق: «أريد التلاوةَ أن تكون مصحفًا، تلاوةً فقط.
+       أُقلّل الأدواتِ أو أضعها في شريطٍ واحد».
+       وكان تحت الورقةِ أربعةُ صفوفٍ متتابعة: زرُّ تسميعٍ أخضرُ
+       بعرضِ الشاشة، ثمّ فاتحُ الأدوات، ثمّ «السابقة/التالية»، ثمّ
+       «صفحة ٣ من ٦٠٤» — فتَصير الصفحةُ شاشتَين، ويُطلَب من القارئِ
+       أن يَنزل ليُقلّب.
+       فصار الكلُّ سطرًا واحدًا لاصقًا بأسفلِ الشاشة: فاتحُ الأدواتِ
+       وعلامةٌ وتقليبٌ ورقمُ الصفحة. وما عدا ذلك يَنزل في الدُّرج. */
+    var bar = App.el('div', 'qp-bar');
+    App.emit('qpage', { p: p, slot: slot, top: topSlot, bar: bar, verses: verses });
+    shelve(slot, foot, bar);
+
+    var prev = navBtn(-1, 'السابقة', p > 1);
+    var next = navBtn(1, 'التالية', p < Q.TOTAL_PAGES);
+    prev.classList.add('qp-b');
+    next.classList.add('qp-b');
+    var num = App.el('span', 'qp-n', App.ar(p));
+    num.setAttribute('aria-label', 'صفحة ' + App.ar(p) + ' من ' + App.ar(Q.TOTAL_PAGES));
+    bar.appendChild(prev);
+    bar.appendChild(num);
+    bar.appendChild(next);
 
     var sb = shabihLine(verses, function () {
       /* المتشابهاتُ صحيفةٌ تَحلّ محلَّ هذه، فتُحفَظ الصفحةُ لنعودَ
@@ -15056,14 +15120,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     });
     if (sb) foot.appendChild(sb);
 
-    var nav = App.el('div', 'qp-turn');
-    nav.appendChild(navBtn(-1, 'السابقة', p > 1));
-    nav.appendChild(navBtn(1, 'التالية', p < Q.TOTAL_PAGES));
-    foot.appendChild(nav);
-
-    var mark = App.el('p', 'qp-mark');
-    mark.textContent = 'صفحة ' + App.ar(p) + ' من ' + App.ar(Q.TOTAL_PAGES);
-    foot.appendChild(mark);
+    foot.appendChild(bar);
 
     /* رسمُ المدينةِ يَحلّ محلَّ النصِّ متى نزل خطُّه — ولا يُنتظر */
     if (App.QFont && App.QFont.enabled() && App.Layout) {
