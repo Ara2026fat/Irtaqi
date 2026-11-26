@@ -2997,7 +2997,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.62",at:"2026-11-26T17:08:50+03:00"};</script>
+<script>window.__BUILD={v:"1.63",at:"2026-11-26T22:03:25+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -3814,13 +3814,16 @@ App.mark = function (size, cls) {
      و«برنامجُ المراجعة» خُطّةٌ لها طرفانِ وأجَلٌ وجَلَسات:
      المقدارُ يُحسَب ولا يُسأل عنه — عشرةُ أجزاءٍ في عشرةِ أيّامٍ
      على ثلاثِ جلساتٍ = سبعُ صفحاتٍ في الجلسة. */
-  function followRange(p) {
+  /* طرفا ما يُراجَع اليوم. والقَصُّ عند ‎lead.to‎ لازمٌ: منهجٌ عُدِّل
+     مداه بعد التقدّمِ أو جاء من ملفٍّ مستورَدٍ كان يُخرج الوِردَ عن
+     المصحف، فيُطبَع على الشاشة «القريب · صفحة ٦٠٩ إلى ٦١٠». */
+  function followBounds(p) {
     var lead = byId(p.follows);
     if (!lead) return null;
     var got = lead.done || 0;
     if (got < 1) return null;              /* لا شيءَ بعدُ يُراجَع */
 
-    var lastP = lead.from + got - 1;
+    var lastP = Math.min(lead.from + got - 1, lead.to);
     var win = p.window || 7;
     var lo, hi;
     if (p.kind === 'tathbit') {            /* القريبُ الطريّ */
@@ -3828,15 +3831,46 @@ App.mark = function (size, cls) {
       hi = lastP;
     } else {                               /* البعيدُ الذي بَرَد */
       lo = lead.from;
-      hi = lastP - win;
+      /* ما دام يَحفظ فآخرُ النافذةِ مشغولٌ بالقريب. فإن أتمّ منهجَه
+         فلا جديدَ يُستثنى — وكان يَقف عند ‎lastP − 7‎ أبدًا، فتَبقى
+         آخرُ سبعِ صفحاتٍ من كلِّ منهجٍ مهجورةً هَجرًا دائمًا. */
+      hi = (got >= total(lead)) ? lastP : lastP - win;
       if (hi < lo) return null;            /* لم يَبلُغْ ما يُراجَع بعد */
     }
-    var span = hi - lo + 1;
-    var rate = Math.min(p.rate || 1, span);
-    var cyc = ((p.done || 0) % span + span) % span;
-    var from = lo + cyc;
-    return { from: from, to: Math.min(hi, from + rate - 1),
-             count: Math.min(hi, from + rate - 1) - from + 1 };
+    return { lo: lo, hi: hi, span: hi - lo + 1 };
+  }
+
+  /* المقدارُ يُشتقّ من المحفوظِ ولا يُثبَّت: دورةُ المراجعةِ تَتمّ في
+     أجَلٍ معلوم — والمعتادُ عند أهلِ الحلقاتِ المصحفُ في شهر — فمن
+     حَفِظ أكثرَ دار على أكثر. وكان المقدارُ ثابتًا ومحفوظُه يَنمو،
+     فتَطول الدورةُ حتّى تَبلغ سنةً ثمّ سنتَين. ولا يُنقَص عمّا
+     اختاره صاحبُه، إنّما يُزاد عليه عند الحاجة. */
+  function followRate(p, span) {
+    var cycle = Math.max(1, p.cycle || 30);
+    return Math.max(1, Math.min(span, Math.max(p.rate || 1, Math.ceil(span / cycle))));
+  }
+
+  function followRange(p) {
+    var bd = followBounds(p);
+    if (!bd) return null;
+
+    /* مؤشّرٌ صريحٌ يُحفَظ في الخطّة. وكان مُشتقًّا: ‎done % span‎ —
+       والعدّادُ ومداه يَنمُوانِ معًا بوتيرةٍ واحدةٍ كلَّ يوم، فيَبقى
+       الباقي صفرًا أو قريبًا منه أبدًا. فلا تَدور المراجعةُ، بل
+       تَمشي في إثرِ جبهةِ الحفظِ خطوةً واحدةً ولا تَرجع: تُراجَع
+       الصفحةُ في الأسبوعِ الذي يَلي حفظَها ثمّ لا تُزار الدهر.
+       (قِيس: ٣٩٢ يومًا على الصفحةِ الأولى من أربعِمئةِ يومِ حفظ.)
+
+       والمؤشّرُ صفحةٌ بعينِها لا إزاحةٌ عن أوّلِ المدى. والفرقُ يَظهر
+       في «القريب»: نافذتُه تَزحف صفحةً كلَّ يومٍ ومؤشّرُه يَمشي
+       صفحتَين، فلو كان إزاحةً تَخلّفت عن الزحفِ فسَقطت صفحاتٌ من
+       الطريّ بلا تثبيت. وهو مشدودٌ إلى الصفحةِ فإذا جاوزَته النافذةُ
+       رُدَّ إلى أوّلِها — فيَمشي على الأقدمِ أوّلًا ولا يُسقِط شيئًا. */
+    var rate = followRate(p, bd.span);
+    var from = +p.curP;
+    if (!isFinite(from) || from < bd.lo || from > bd.hi) from = bd.lo;
+    var to = Math.min(bd.hi, from + rate - 1);
+    return { from: from, to: to, count: to - from + 1 };
   }
 
   function barPerDay(p) {
@@ -3890,6 +3924,18 @@ App.mark = function (size, cls) {
     var r = todayRange(p);
     var n = Math.min(pages || (r && r.count) || p.rate, room);
     if (n <= 0) return 0;
+    /* التابعُ يُقدَّم مؤشّرُه بما رُوجع، ويُلَفُّ عند طرفِ المدى —
+       فتَتمّ الدورةُ ثمّ تُستأنف من أوّلِ المحفوظ. وهذا هو «الدوران»
+       الذي كان اسمًا بلا فعل. */
+    if (p.follows) {
+      var bd = followBounds(p);
+      if (bd) {
+        var cur = +p.curP;
+        if (!isFinite(cur) || cur < bd.lo || cur > bd.hi) cur = bd.lo;
+        cur += n;
+        p.curP = cur > bd.hi ? bd.lo : cur;
+      }
+    }
     p.done = (p.done || 0) + n;
     p.log = p.log || {};
     var k = App.dateKey();
@@ -3921,9 +3967,15 @@ App.mark = function (size, cls) {
     return n;
   }
 
+  /* ما بَلغه الطالبُ من المصحف. والتابعُ لا يُحتسَب هنا: عدّادُه
+     دورةٌ لا مدًى، فجمعُه مع الحفظِ كان يَنفخ الرقم — فيُقال لحافظِ
+     مئةِ صفحةٍ إنّه بَلغ مئةً وثلاثًا وتسعين، ثمّ يُشارَك هذا الرقمُ
+     في الحلقة. وأن يُقال لطالبٍ إنّه حَفِظ أكثرَ ممّا حَفِظ أخطرُ
+     من كلِّ خطأٍ في العرض. */
   function coveredPages() {
     var s = new Set();
     App.state.plans.forEach(function (p) {
+      if (p.follows || p.bar) return;
       var end = p.from + (p.done || 0) - 1;
       for (var i = p.from; i <= Math.min(end, p.to); i++) s.add(i);
     });
@@ -13107,12 +13159,24 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      تأنيبٌ على أيّامٍ لم يَكن له فيها وِردٌ أصلًا. */
   function begun(p, k) { return !p.startedAt || k >= p.startedAt; }
 
+  /* منهجٌ لم يَكتمل. وكان يُكتَب ‎!p.done‎ — و‎done‎ عددُ صفحاتٍ لا
+     قيمةُ صدقٍ وكذب. فمن سجّل صفحةً واحدةً في عمرِه صار الشرطُ
+     كاذبًا أبدًا، فسكتت عنه أربعُ قواعد: «تأخّرتَ عن وردك»، و«أتممتَ
+     ن يومًا»، و«لم تُخلِف يومًا في أسبوعَين»، وإذنُ الراحة. كان
+     المرشدُ أخرسَ عن كلِّ طالبٍ جادٍّ، ويَنطق للمُحدَثِ وحدَه.
+     والتابعُ دورةٌ لا تَنتهي، فهو حيٌّ دائمًا. */
+  function live(p) {
+    if (!p) return false;
+    if (p.follows) return true;
+    return (p.done || 0) < App.Plans.total(p);
+  }
+
   function recent(n) {
     var due = 0, met = 0, missRun = 0, run = 0, i, d, k, any;
     for (i = n; i >= 1; i--) {
       d = back(i); k = key(d);
       any = plans().some(function (p) {
-        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0
+        return live(p) && p.days && p.days.indexOf(d.getDay()) >= 0
             && begun(p, k);
       });
       if (!any) continue;
@@ -13130,7 +13194,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     for (i = 0; i < 120; i++) {
       d = back(i); k = key(d);
       var due = plans().some(function (p) {
-        return !p.done && p.days && p.days.indexOf(d.getDay()) >= 0
+        return live(p) && p.days && p.days.indexOf(d.getDay()) >= 0
             && begun(p, k);
       });
       if (!due) continue;
@@ -13238,7 +13302,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
      والشهادةُ قبل المرآة. */
   function rules() {
     var out = [];
-    var ps = plans().filter(function (p) { return !p.done; });
+    var ps = plans().filter(live);
     var r = recent(14);
     var today = doneOn(App.dateKey());
 
