@@ -2415,14 +2415,22 @@ body::after{
 
 /* اسمُ السورةِ حيث تَبدأ: في آخرِ المصحفِ ثلاثُ سورٍ في صفحةٍ واحدةٍ
    تَتوالى بلا فاصل، فيُقرأ آخِرُ هذه موصولًا بأوّلِ تلك. */
+/* ولوحٌ مملوءٌ لا خطّانِ: ترويسةُ السورةِ في المصحفِ المطبوع لوحٌ
+   مُزخرَفٌ له إطارٌ ذهبيٌّ واسمٌ بداخله — لا سطرٌ بين شَعرتَين.
+   وهي أظهرُ ما يَفصل سورةً عن سورة، وفي آخرِ المصحفِ ثلاثُ سورٍ
+   في صفحةٍ واحدة. */
 .qp-sura{
-  display:flex; align-items:center; gap:.7em;
-  margin-block:1.1em .7em;
-  color:var(--gold-lit);
-  font-size:.72em; font-weight:800; line-height:1.7;
-}
-.qp-sura::before, .qp-sura::after{
-  content:''; flex:1 1 0; height:1px; background:var(--gold-soft);
+  display:flex; align-items:center; justify-content:center;
+  margin-block:1.15em .8em;
+  padding:.42em .9em;
+  background:var(--accent);
+  color:var(--on-accent);
+  border-radius:3px;
+  box-shadow:0 0 0 1.5px var(--accent) inset,
+             0 0 0 3.5px var(--gold) inset,
+             0 0 0 5.5px var(--accent) inset;
+  font-size:.74em; font-weight:800; line-height:1.9;
+  letter-spacing:.02em;
 }
 .qp-sura > span{ flex:0 0 auto }
 .qp-text > .qp-sura:first-child{ margin-block-start:.1em }
@@ -3052,12 +3060,71 @@ html[data-mode="light"] .brandbar .appmark{
 @media (prefers-reduced-motion:reduce){
   .wh-mk,.t-dot,.wh-dot{ transition:none }
 }
+
+/* ══ 40-sahih.css ══ */
+/* ══ كسوةُ التجربة — أنماطُ ما يُجرَّب قبل أن يُنقَل ═════════════
+   هذا الملفُّ في ‎skin/‎ فلا يَدخل الحزمةَ المنشورة، إنّما ‎SKIN.html‎
+   وحدَه — وهو الملفُّ الذي يُفتَح ويُفحَص قبل أن يُؤخَذ شيءٌ منه. */
+
+/* «لا أعرف»: بابُ صدقٍ لا زرُّ فِعل. فلا يَلبس ثوبَ الأزرارِ ولا
+   يُزاحم الخيارات، ويَبقى هدفَ لمسٍ سليمًا. */
+.ex-dunno{
+  display:block; width:100%; min-height:46px; margin-block-start:14px;
+  background:none; border:0;
+  color:var(--ink-mut); font:inherit; font-size:14.5px; font-weight:700;
+  cursor:pointer; -webkit-tap-highlight-color:transparent;
+  text-decoration:underline; text-underline-offset:5px;
+  text-decoration-color:var(--hair);
+}
+.ex-dunno:hover{ color:var(--ink) }
+.ex-dunno:focus-visible{
+  outline:2px solid var(--accent); outline-offset:3px;
+  border-radius:var(--r-sm); text-decoration:none;
+}
+
+/* سطرُ قاعدةِ الدورة: خبرٌ عن المنهجِ لا زينة. */
+.cy-rule{
+  margin:10px 0 0; padding-block-start:10px;
+  border-block-start:1px solid var(--hair-2);
+  color:var(--ink-mut); font-size:13px; line-height:1.75;
+}
+.cy-rule b{ color:var(--ink); font-weight:700 }
+.cy-bar{
+  display:block; height:4px; margin-block-start:8px;
+  border-radius:2px; background:var(--hair);
+  overflow:hidden;
+}
+.cy-bar > i{ display:block; height:100%; background:var(--gold) }
+
+/* «أخطائي»: صفوفٌ مسطورةٌ كجردِ المناهج، لا بطاقاتٌ تَطفو. */
+.sl-row{
+  display:flex; align-items:center; gap:12px; width:100%;
+  min-height:60px; padding:10px 4px;
+  background:none; border:0;
+  border-block-start:1px solid var(--hair-2);
+  font:inherit; color:var(--ink); text-align:start; cursor:pointer;
+}
+.sl-row:first-of-type{ border-block-start:0 }
+.sl-n{
+  flex:0 0 auto; width:34px; height:34px;
+  display:grid; place-items:center;
+  background:var(--gold-soft); color:var(--gold);
+  font-size:13.5px; font-weight:700;
+  clip-path:polygon(50% 0%, 64.6% 14.6%, 85.4% 14.6%, 85.4% 35.4%, 100% 50%,
+    85.4% 64.6%, 85.4% 85.4%, 64.6% 85.4%, 50% 100%, 35.4% 85.4%,
+    14.6% 85.4%, 14.6% 64.6%, 0% 50%, 14.6% 35.4%, 14.6% 14.6%, 35.4% 14.6%);
+}
+.sl-tx{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:2px }
+.sl-t{ font-size:16px; font-weight:700 }
+.sl-s{ font-size:13.5px; color:var(--ink-mut) }
+.sl-go{ flex:0 0 auto; line-height:0; color:var(--ink-faint) }
+.sl-empty{ color:var(--ink-mut); line-height:1.9 }
 </style>
 </head>
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.67",at:"2026-11-26T23:32:38+03:00"};</script>
+<script>window.__BUILD={v:"1.67",at:"2026-11-27T22:33:10+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13698,6 +13765,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       card.appendChild(row);
     });
 
+    /* فتحةٌ لمن يُعلّق على البطاقةِ شيئًا بعد رسمِها، كسطرِ الدورة */
+    App.emit('home-drawn', { card: card, stages: st });
     w.appendChild(card);
 
     /* شريطُ المواظبة: سبعُ نقاطٍ وعددٌ موقَّر. لا يُحذَف لأنّ
@@ -15776,38 +15845,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ── ما زُلّ فيه ──
        أنفعُ ما في هذه الشاشة: موضعٌ أخطأتَ فيه مرّةً أحقُّ بوقتِك
        من موضعٍ لم تُخطئ فيه قطّ. ولا تَظهر إن لم يكن في السجلِّ شيء. */
-    var sl = slipPages();
-    if (sl.length) {
-      var sec = App.el('section', 'sec sm-slips');
-      var hd = App.el('div', 'sec-h');
-      hd.appendChild(App.el('h2', 'h2', 'ما زَلَلتُ فيه'));
-      hd.appendChild(App.el('p', 'small',
-        'مواضعُ لم تُكفِّرها إصابةٌ بعد. تُفتَح على آياتِها وحدَها.'));
-      sec.appendChild(hd);
-      var list = App.el('div', 'stack-sm');
-      sl.slice(0, 6).forEach(function (r) {
-        var b = App.el('button', 'listrow sm-slip');
-        b.type = 'button';
-        var tx = App.el('div', 'sm-slip-t');
-        tx.appendChild(App.el('b', null, 'صفحة ' + ar(r.p)));
-        /* العددُ أوّلًا لا آخرًا: «الجزء ٢٩ · آيتان» تُقرَأ
-           «الجزء ٢٩٠ آيتان» — الفاصلةُ الوسطى تُشبِه الصفرَ
-           العربيَّ متى جاورت رقمًا. */
-        tx.appendChild(App.el('span', 'small', ayaWord(r.n) + ' · ' + placeLine(r.p)));
-        b.appendChild(tx);
-        b.onclick = function () {
-          remember(r.p);
-          App.go('tasmee', { p: r.p, only: 'slips' });
-        };
-        list.appendChild(b);
-      });
-      sec.appendChild(list);
-      if (sl.length > 6) {
-        sec.appendChild(App.el('p', 'small sm-more',
-          'وفي المصحفِ ' + ar(sl.length - 6) + ' صفحةً أخرى فيها زلل.'));
-      }
-      w.appendChild(sec);
-    }
+    /* ── الزللُ خرج من هنا ──
+       كان يُعرَض في ذيلِ هذه الشاشةِ قسمٌ بالصفحاتِ مقصوصٌ عند ستّ،
+       فصار له بابُه («أخطائي») بلا قَصّ. ولا يُترَك له هنا سطرٌ
+       ثانٍ: بابانِ إلى موضعٍ واحدٍ في شاشةٍ واحدةٍ يُحسبان بابَين. */
 
     /* ── ما يُقال للقارئ عن مداه ──
        لا أرقامَ مجرّدة: كم صفحةً، وأينَ هي من المصحف. فإن كان
@@ -19854,7 +19895,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         }
         /* بعد الجواب: اللونُ وحدَه لا يَحمل المعنى — من لا يُفرّق
            الأخضرَ من الأحمرِ يَقرأ الكلمة. فتُلصَق سِمةٌ بالنصّ. */
-        if (chosen >= 0) {
+        if (chosen !== -1) {
           b.disabled = true;
           if (i === q.ok) { b.classList.add('is-ok'); b.appendChild(tag('الصواب')); }
           else if (i === chosen) { b.classList.add('is-no'); b.appendChild(tag(vg('اخترتَ هذا', 'اخترتِ هذا'))); }
@@ -19865,7 +19906,20 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       });
       body.appendChild(list);
 
-      if (chosen >= 0) body.appendChild(verdict(q));
+      if (chosen !== -1) body.appendChild(verdict(q));
+
+      /* ── «لا أعرف» ──
+         مَن لا يَعرف فيَحزر يُفسد القياسَ على نفسِه: يُحسَب له صوابٌ
+         لم يَعرفه، فلا يَعود الموضعُ في أسئلتِه وهو لا يَحفظه. فبابٌ
+         يَقول الصدقَ أنفعُ له من حَظٍّ يُجمّل الرقم. ويُحتسَب خطأً
+         في القياس، ولا يُقال له «أخطأت» — إنّما «لم تَعرفها بعد». */
+      if (chosen === -1) {
+        var dk = App.el('button', 'ex-dunno');
+        dk.type = 'button';
+        dk.textContent = 'لا أعرف';
+        dk.onclick = function () { answer(-2); };
+        body.appendChild(dk);
+      }
     }
 
     function tag(t) {
@@ -19877,7 +19931,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     function answer(i) {
       var q = ses.list[at];
       chosen = i;
-      var ok = i === q.ok;
+      var ok = (i >= 0) && (i === q.ok);
       if (ok) hits++; else miss.push(q);
       answered.push({ q: q, ok: ok });
       note(q, ok);
@@ -19896,7 +19950,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var miss = (q.type === 'wording' || q.type === 'shabihWhere')
         ? 'هذا لفظٌ صحيح، لكنّه في موضعٍ آخر. والمطلوبُ المُعلَّمُ أعلاه.'
         : 'ليس هذا. والصوابُ المُعلَّمُ أعلاه.';
-      t.textContent = chosen === q.ok ? vg('أصبتَ.', 'أصبتِ.') : miss;
+      t.textContent = chosen === q.ok ? vg('أصبتَ.', 'أصبتِ.')
+                    : chosen === -2 ? 'لم تَعرفها بعد. والصوابُ المُعلَّمُ أعلاه.'
+                    : miss;
       box.appendChild(t);
 
       var w = App.el('p', 'ex-verd-w');
@@ -23206,6 +23262,285 @@ if (window.App && window.App.ownState) window.App.ownState('exam');
 
 /* نمطُ الشعارِ كلُّه في ‎.appmark‎ بـ‎20-shell‎ — موضعٌ واحدٌ
    لهيئتِه أينما وقع، فلا تُعاد هنا. */
+
+/* ══ 41-cycle.js ══ */
+/* ══ سطرُ الدورة — أن يُقال للطالبِ ما يَفعله المنهج ══════════════
+   في التطبيقِ الآخرِ سطرٌ واحدٌ تحتَ المراجعة:
+     «ما فيه خطأٌ أوّلًا، ثمّ ما طال عهدُك به، فتَمرّ على حفظك كلِّه
+      كلَّ ١٤ يومًا»
+   ثمّ: «راجعتَ ٠ من ٤١ صفحةً في هذه الدورة».
+
+   ونحن نَفعل هذا منذ ١٫٦٣: «البعيد» يَدور على المحفوظِ كلِّه بأجَلٍ
+   شهر، ومؤشّرُه ‎curP‎ يَمشي ويَلتفّ. لكنّنا **لا نَقوله**. فالطالبُ
+   يَرى صفًّا اسمُه «البعيد» ولا يَدري أنّ وراءه عقلًا يَحسب، ولا
+   أين هو من دورتِه.
+
+   فهذا نقصُ كلامٍ لا نقصُ كود. وهذه الوحدةُ لا تُغيّر حسابًا ولا
+   تَكتب في الحالة — تَقرأ وتَقول. */
+(function (App) {
+  'use strict';
+
+  var P = App.Plans, ar = App.ar;
+
+  /* أينَ نحن من الدورة؟ المؤشّرُ صفحةٌ بعينِها في مدًى معلوم،
+     فموضعُه منه هو ما قُطع، وطولُه هو المدى. */
+  function cycle(p) {
+    if (!p || !p.follows) return null;
+    var lead = P.byId(p.follows);
+    if (!lead) return null;
+    var got = lead.done || 0;
+    if (got < 1) return null;
+    var lastP = Math.min(lead.from + got - 1, lead.to);
+    var win = p.window || 7;
+    var lo = lead.from;
+    var hi = (got >= P.total(lead)) ? lastP : lastP - win;
+    if (hi < lo) return null;
+    var span = hi - lo + 1;
+    var cur = +p.curP;
+    if (!isFinite(cur) || cur < lo || cur > hi) cur = lo;
+    return { span: span, done: cur - lo, days: Math.max(1, p.cycle || 30) };
+  }
+
+  function pagesWord(n) {
+    return n === 1 ? 'صفحةٍ واحدة' : n === 2 ? 'صفحتَين'
+         : n <= 10 ? ar(n) + ' صفحات' : ar(n) + ' صفحة';
+  }
+  function daysWord(n) {
+    return n === 1 ? 'كلَّ يوم' : n === 2 ? 'كلَّ يومَين'
+         : n <= 10 ? 'كلَّ ' + ar(n) + ' أيّام' : 'كلَّ ' + ar(n) + ' يومًا';
+  }
+
+  function line(p) {
+    var c = cycle(p);
+    if (!c) return null;
+    var w = App.el('div', 'cy-rule');
+    var t = App.el('p', '');
+    t.style.margin = '0';
+    t.innerHTML = '';
+    t.appendChild(document.createTextNode('تَمرّ على محفوظك كلِّه '));
+    var b = App.el('b', '', daysWord(c.days));
+    t.appendChild(b);
+    t.appendChild(document.createTextNode('. مَضى من هذه الدورة '
+      + pagesWord(c.done) + ' من ' + pagesWord(c.span) + '.'));
+    w.appendChild(t);
+
+    var bar = App.el('span', 'cy-bar');
+    var fill = App.el('i');
+    fill.style.width = Math.round(c.done / c.span * 100) + '%';
+    bar.appendChild(fill);
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label',
+      'مضى ' + ar(c.done) + ' من ' + ar(c.span) + ' في هذه الدورة');
+    w.appendChild(bar);
+    return w;
+  }
+
+  /* يُعلَّق على بطاقةِ وِردِ اليوم بعد رسمِها: الوحدةُ التي تَرسمها
+     لا تَعرف بهذه، فلا يُعدَّل فيها شيء. */
+  App.on_('home-drawn', function (d) {
+    if (!d || !d.card) return;
+    var far = (App.state.plans || []).filter(function (p) {
+      return p.follows && p.kind === 'review';
+    })[0];
+    var el = far && line(far);
+    if (el) d.card.appendChild(el);
+  });
+
+  App.Cycle = { of: cycle, line: line };
+
+}(window.App));
+
+/* ══ 42-slips.js ══ */
+/* ══ أخطائي — موضعُ الزللِ الواحد ═════════════════════════════════
+   كان الزللُ يُعرَض في موضعَين: قسمٌ في ذيلِ «سمِّع» بالصفحات، مقصوصٌ
+   عند ستٍّ، وشاشةٌ بالسورِ مع عددِ الزلّات. ورسمُ الشيءِ الواحدِ
+   مرّتَين بوحدتَين مختلفتَين أسوأُ من أن يُرسَم مرّة — فالقارئُ
+   يَحسبهما بابَين.
+
+   فصار بابًا واحدًا، ووحدتُه **الصفحة**: هي ما يُفتَح ويُسمَّع
+   ويُعلَّم في التطبيقِ كلِّه، والسورةُ قد تَمتدّ ثمانيًا وأربعين
+   صفحةً فلا يُعرَف منها موضعُ العمل. ولا قَصَّ عند ستّ.
+
+   والتطبيقُ يَحفظ الزللَ بالآيةِ وبالكلمةِ منذ زمن (‎state.slips‎)،
+   وبابُ تسميعِ المواضعِ الزَّلِقةِ وحدَها قائمٌ منذ البداية
+   (‎tasmee‎ بـ‎only:'slips'‎). فهذه الوحدةُ تَقرأ وتَعرض، ولا تَحسب
+   شيئًا جديدًا ولا تَكتب في الحالة. */
+(function (App) {
+  'use strict';
+
+  var Q = App.Quran, ar = App.ar;
+
+  /* الزللُ مفاتيحُه «سورة:آية»؛ يُجمَع على صفحاتِه */
+  function pages() {
+    var bag = App.state.slips || {}, by = {}, k, r, kk, v;
+    for (k in bag) {
+      if (!bag.hasOwnProperty(k) || k.indexOf(':') < 0) continue;
+      r = bag[k];
+      if (!r || !(+r.n > 0)) continue;
+      kk = String(k).split(':');
+      v = Q.verse(+kk[0], +kk[1]);
+      if (!v) continue;
+      if (!by[v.p]) by[v.p] = { p: v.p, v: 0, n: 0, at: '' };
+      by[v.p].v += 1;                        /* مواضعُ الصفحة */
+      by[v.p].n += +r.n;                     /* مجموعُ زلّاتها */
+      if (r.at && r.at > by[v.p].at) by[v.p].at = r.at;
+    }
+    var out = [], key;
+    for (key in by) if (by.hasOwnProperty(key)) out.push(by[key]);
+    out.sort(function (a, b) { return b.n - a.n || a.p - b.p; });
+    return out;
+  }
+
+  function ayaWord(n) {
+    return n === 1 ? 'موضعٌ واحد' : n === 2 ? 'موضعان'
+         : n <= 10 ? ar(n) + ' مواضع' : ar(n) + ' موضعًا';
+  }
+  function slipWord(n) {
+    return n === 1 ? 'زلّةٌ واحدة' : n === 2 ? 'زلّتان'
+         : n <= 10 ? ar(n) + ' زلّات' : ar(n) + ' زلّة';
+  }
+  function place(p) {
+    return 'سورة ' + Q.surahName(Q.surahOf(p)) + ' — الجزء ' + ar(Q.juzOf(p));
+  }
+
+  App.screen('slips', function () {
+    var w = App.el('div', 'stack-lg');
+
+    var hd = App.el('header', '');
+    hd.appendChild(App.el('h1', 'h1', 'أخطائي'));
+    hd.appendChild(App.el('p', 'small',
+      'تُجمَع من تسميعك. والموضعُ الذي زَلَلتَ فيه أحقُّ بوقتك '
+      + 'من موضعٍ تُحسِنه.'));
+    w.appendChild(hd);
+
+    var rows = pages();
+    var card = App.el('section', 'card');
+
+    if (!rows.length) {
+      card.appendChild(App.el('b', 'h2', 'لا زلَلَ مسجَّلًا بعد'));
+      card.appendChild(App.el('p', 'small sl-empty',
+        'يُكتَب هنا ما تَزِلّ فيه حين تُسمِّع، فتَعود إليه وحدَه. '
+        + 'والإصابةُ تَمحو زلّةً، فما أتقنتَه يَخرج من هذا الباب.'));
+      var go = App.el('button', 'btn btn-pri btn-block');
+      go.type = 'button';
+      go.textContent = 'ابدأِ التسميع';
+      go.onclick = function () { App.go('samme'); };
+      card.appendChild(go);
+      w.appendChild(card);
+      return w;
+    }
+
+    var tot = 0;
+    rows.forEach(function (r) { tot += r.n; });
+    card.appendChild(App.el('b', 'h2',
+      slipWord(tot) + ' لم تُكفِّرها إصابةٌ بعد'));
+
+    rows.forEach(function (r) {
+      var b = App.el('button', 'sl-row');
+      b.type = 'button';
+
+      var n = App.el('span', 'sl-n');
+      n.textContent = ar(r.n);
+      b.appendChild(n);
+
+      var tx = App.el('span', 'sl-tx');
+      tx.appendChild(App.el('b', 'sl-t', 'صفحة ' + ar(r.p)));
+      tx.appendChild(App.el('span', 'sl-s', ayaWord(r.v) + ' — ' + place(r.p)));
+      b.appendChild(tx);
+
+      var go2 = App.el('span', 'sl-go');
+      go2.innerHTML = App.icon('chevron', 18);
+      b.appendChild(go2);
+
+      b.setAttribute('aria-label', 'صفحة ' + ar(r.p) + '، ' + ayaWord(r.v)
+        + '؛ سمِّعْ ما زَلَلتَ فيه وحدَه');
+      b.onclick = function () { App.go('tasmee', { p: r.p, only: 'slips' }); };
+      card.appendChild(b);
+    });
+    w.appendChild(card);
+
+    /* والاختبارُ يَقبل سورةً أو جزءًا لا قائمةَ آيات، فيُسمَّى ما
+       يَقع فعلًا: جزءُ أكثرِ صفحاتك زللًا. */
+    var j = Q.juzOf(rows[0].p);
+    var ex = App.el('button', 'btn btn-ghost btn-block');
+    ex.type = 'button';
+    ex.textContent = 'اختبِرني في الجزء ' + ar(j);
+    ex.onclick = function () {
+      App.go('exam', { scope: { kind: 'juz', j: j }, go: 1 });
+    };
+    w.appendChild(ex);
+
+    return w;
+  });
+
+}(window.App));
+
+/* ══ 43-doors.js ══ */
+/* ══ بابانِ في «سمِّع» ════════════════════════════════════════════
+   «سمِّع» و«اختبِرني» نيّةٌ واحدة: أن أختبرَ حفظي. فلا يُزاد لسانٌ
+   سادسٌ في الشريط — الشريطُ خمسةٌ بشرطٍ قديم — إنّما يُفتَح في
+   «سمِّع» بابانِ إلى ما يُشبهها:
+
+     · اختبِرني بأسئلة  → المحرّكُ القائمُ بثمانيةِ أصنافٍ من الأسئلة.
+     · أخطائي           → ما زَلَلتُ فيه، مجموعًا من تسميعي.
+
+   ويُعلَّقان بعد رسمِ الشاشةِ لا بتعديلِها: فتحةُ ‎drawn‎ قائمةٌ في
+   الأساس، فلا تُمَسّ وحدةُ «سمِّع» بحرف. */
+(function (App) {
+  'use strict';
+
+  App.on_('drawn', function (d) {
+    if (!d || d.name !== 'samme') return;
+    /* الشاشةُ تُرسَم ابنًا مباشرًا لـ‎#pane‎ (أو للصحيفةِ إن فُتحت
+       صحيفةً)، ولا صنفَ ‎.screen‎ عليها. فيُؤخَذ الابنُ الأوّل. */
+    var sh = document.querySelector('#sheet.on');
+    var host = sh ? sh.querySelector('.stack-lg, .stack')
+                  : document.querySelector('#pane > *');
+    if (!host || host.querySelector('.dr-wrap')) return;
+
+    var w = App.el('div', 'card dr-wrap');
+    w.appendChild(App.el('b', 'h2', 'أو اختبِرْ نفسَك'));
+
+    door(w, 'اختبِرني بأسئلة',
+         'أسئلةٌ من محفوظك: إكمالُ الآية، وموضعُها، والمتشابهات',
+         'target', function () { App.go('exam'); });
+
+    var n = count();
+    door(w, 'أخطائي',
+         n ? 'تُجمَع من تسميعك — ' + App.ar(n) + ' موضعًا'
+           : 'تُجمَع من تسميعك',
+         'review', function () { App.go('slips'); });
+
+    host.appendChild(w);
+  });
+
+  function count() {
+    var bag = App.state.slips || {}, n = 0, k;
+    for (k in bag) {
+      if (k.indexOf(':') < 0) continue;
+      if (bag[k] && +bag[k].n > 0) n++;
+    }
+    return n;
+  }
+
+  function door(host, t, s, icon, fn) {
+    var b = App.el('button', 'sl-row');
+    b.type = 'button';
+    var i = App.el('span', 'sl-n');
+    i.innerHTML = App.icon(icon, 17);
+    b.appendChild(i);
+    var tx = App.el('span', 'sl-tx');
+    tx.appendChild(App.el('b', 'sl-t', t));
+    tx.appendChild(App.el('span', 'sl-s', s));
+    b.appendChild(tx);
+    var go = App.el('span', 'sl-go');
+    go.innerHTML = App.icon('chevron', 18);
+    b.appendChild(go);
+    b.onclick = fn;
+    host.appendChild(b);
+  }
+
+}(window.App));
 
 /* ══ 50-voice.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
