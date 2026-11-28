@@ -2415,14 +2415,22 @@ body::after{
 
 /* اسمُ السورةِ حيث تَبدأ: في آخرِ المصحفِ ثلاثُ سورٍ في صفحةٍ واحدةٍ
    تَتوالى بلا فاصل، فيُقرأ آخِرُ هذه موصولًا بأوّلِ تلك. */
+/* ولوحٌ مملوءٌ لا خطّانِ: ترويسةُ السورةِ في المصحفِ المطبوع لوحٌ
+   مُزخرَفٌ له إطارٌ ذهبيٌّ واسمٌ بداخله — لا سطرٌ بين شَعرتَين.
+   وهي أظهرُ ما يَفصل سورةً عن سورة، وفي آخرِ المصحفِ ثلاثُ سورٍ
+   في صفحةٍ واحدة. */
 .qp-sura{
-  display:flex; align-items:center; gap:.7em;
-  margin-block:1.1em .7em;
-  color:var(--gold-lit);
-  font-size:.72em; font-weight:800; line-height:1.7;
-}
-.qp-sura::before, .qp-sura::after{
-  content:''; flex:1 1 0; height:1px; background:var(--gold-soft);
+  display:flex; align-items:center; justify-content:center;
+  margin-block:1.15em .8em;
+  padding:.42em .9em;
+  background:var(--accent);
+  color:var(--on-accent);
+  border-radius:3px;
+  box-shadow:0 0 0 1.5px var(--accent) inset,
+             0 0 0 3.5px var(--gold) inset,
+             0 0 0 5.5px var(--accent) inset;
+  font-size:.74em; font-weight:800; line-height:1.9;
+  letter-spacing:.02em;
 }
 .qp-sura > span{ flex:0 0 auto }
 .qp-text > .qp-sura:first-child{ margin-block-start:.1em }
@@ -2436,6 +2444,8 @@ body::after{
 }
 .qp-line{ display:flex; justify-content:space-between; white-space:nowrap }
 .qp-line.qp-head{ justify-content:center; color:var(--gold-lit) }
+/* السطرُ القصيرُ يُركَّز بفُرجةٍ طبيعيّةٍ بدل بياضٍ مُمَطّ */
+.qp-line.qp-short{ justify-content:center; gap:.3em }
 
 /* ── الذيل: ما يُحتاج بعد الفراغِ من الصفحة ── */
 .qp-foot{ margin-block-start:16px }
@@ -3057,7 +3067,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.67",at:"2026-11-26T23:32:38+03:00"};</script>
+<script>window.__BUILD={v:"1.68",at:"2026-11-28T03:05:37+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -13698,6 +13708,8 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       card.appendChild(row);
     });
 
+    /* فتحةٌ لمن يُعلّق على البطاقةِ شيئًا بعد رسمِها، كسطرِ الدورة */
+    App.emit('home-drawn', { card: card, stages: st });
     w.appendChild(card);
 
     /* شريطُ المواظبة: سبعُ نقاطٍ وعددٌ موقَّر. لا يُحذَف لأنّ
@@ -14688,9 +14700,35 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     for (i = 0; i < rows.length; i++) {
       if (rows[i].scrollWidth > widest) widest = rows[i].scrollWidth;
     }
-    if (!widest || widest <= avail) return;
-    var px = Math.max(9, Math.floor(base * (avail / widest) * 100) / 100);
-    box.style.fontSize = px + 'px';
+    if (widest && widest > avail) {
+      var px = Math.max(9, Math.floor(base * (avail / widest) * 100) / 100);
+      box.style.fontSize = px + 'px';
+    }
+    spread(box, avail);
+  }
+
+  /* ══ السطرُ القصيرُ لا يُمَطّ ═════════════════════════════════════
+     سطورُ المصحفِ تُفرَد إلى حافّتَي الصفحة، وهذا صوابٌ في الصفحةِ
+     المملوءة: الزيادةُ تُقسَم على عشرينَ فُرجةً فلا تُحَسّ. أمّا في
+     الفاتحةِ وأوّلِ البقرةِ — وسطورُها ثلاثُ كلماتٍ وأربع — فتُقسَم
+     الزيادةُ نفسُها على فُرجتَين، فتَنفتح بياضاتٌ بين الكلمةِ
+     وأختِها تُفسِد الرسم. وهذا الذي رآه صاحبُ التطبيقِ في الصفحتَين
+     الأولى والثانية.
+
+     وفي المصحفِ المطبوعِ تُفرَد السطورُ بمَطِّ الحرفِ (الكَشيدة) لا
+     بتوسيعِ البياض — ونحن لا نَملك المَطّ، فالخطُّ يُعطي كلَّ كلمةٍ
+     رمزًا واحدًا لا يُمَدّ. فالصوابُ أن يُترَك السطرُ القصيرُ على
+     طبيعتِه مركَّزًا، ويُفرَد ما يَكاد يَملأ العَرْض. */
+  function spread(box, avail) {
+    var rows = box.querySelectorAll('.qp-line'), i, j, nat, kids;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].classList.contains('qp-head')) continue;
+      kids = rows[i].children;
+      nat = 0;
+      for (j = 0; j < kids.length; j++) nat += kids[j].getBoundingClientRect().width;
+      /* دونَ ثلاثةِ أرباعِ العَرْضِ: سطرٌ قصيرٌ يُركَّز ولا يُفرَد */
+      rows[i].classList.toggle('qp-short', nat > 0 && nat < avail * 0.76);
+    }
   }
 
   function fitSoon(box) {
@@ -15776,38 +15814,10 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     /* ── ما زُلّ فيه ──
        أنفعُ ما في هذه الشاشة: موضعٌ أخطأتَ فيه مرّةً أحقُّ بوقتِك
        من موضعٍ لم تُخطئ فيه قطّ. ولا تَظهر إن لم يكن في السجلِّ شيء. */
-    var sl = slipPages();
-    if (sl.length) {
-      var sec = App.el('section', 'sec sm-slips');
-      var hd = App.el('div', 'sec-h');
-      hd.appendChild(App.el('h2', 'h2', 'ما زَلَلتُ فيه'));
-      hd.appendChild(App.el('p', 'small',
-        'مواضعُ لم تُكفِّرها إصابةٌ بعد. تُفتَح على آياتِها وحدَها.'));
-      sec.appendChild(hd);
-      var list = App.el('div', 'stack-sm');
-      sl.slice(0, 6).forEach(function (r) {
-        var b = App.el('button', 'listrow sm-slip');
-        b.type = 'button';
-        var tx = App.el('div', 'sm-slip-t');
-        tx.appendChild(App.el('b', null, 'صفحة ' + ar(r.p)));
-        /* العددُ أوّلًا لا آخرًا: «الجزء ٢٩ · آيتان» تُقرَأ
-           «الجزء ٢٩٠ آيتان» — الفاصلةُ الوسطى تُشبِه الصفرَ
-           العربيَّ متى جاورت رقمًا. */
-        tx.appendChild(App.el('span', 'small', ayaWord(r.n) + ' · ' + placeLine(r.p)));
-        b.appendChild(tx);
-        b.onclick = function () {
-          remember(r.p);
-          App.go('tasmee', { p: r.p, only: 'slips' });
-        };
-        list.appendChild(b);
-      });
-      sec.appendChild(list);
-      if (sl.length > 6) {
-        sec.appendChild(App.el('p', 'small sm-more',
-          'وفي المصحفِ ' + ar(sl.length - 6) + ' صفحةً أخرى فيها زلل.'));
-      }
-      w.appendChild(sec);
-    }
+    /* ── الزللُ خرج من هنا ──
+       كان يُعرَض في ذيلِ هذه الشاشةِ قسمٌ بالصفحاتِ مقصوصٌ عند ستّ،
+       فصار له بابُه («أخطائي») بلا قَصّ. ولا يُترَك له هنا سطرٌ
+       ثانٍ: بابانِ إلى موضعٍ واحدٍ في شاشةٍ واحدةٍ يُحسبان بابَين. */
 
     /* ── ما يُقال للقارئ عن مداه ──
        لا أرقامَ مجرّدة: كم صفحةً، وأينَ هي من المصحف. فإن كان
@@ -19854,7 +19864,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
         }
         /* بعد الجواب: اللونُ وحدَه لا يَحمل المعنى — من لا يُفرّق
            الأخضرَ من الأحمرِ يَقرأ الكلمة. فتُلصَق سِمةٌ بالنصّ. */
-        if (chosen >= 0) {
+        if (chosen !== -1) {
           b.disabled = true;
           if (i === q.ok) { b.classList.add('is-ok'); b.appendChild(tag('الصواب')); }
           else if (i === chosen) { b.classList.add('is-no'); b.appendChild(tag(vg('اخترتَ هذا', 'اخترتِ هذا'))); }
@@ -19865,7 +19875,20 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       });
       body.appendChild(list);
 
-      if (chosen >= 0) body.appendChild(verdict(q));
+      if (chosen !== -1) body.appendChild(verdict(q));
+
+      /* ── «لا أعرف» ──
+         مَن لا يَعرف فيَحزر يُفسد القياسَ على نفسِه: يُحسَب له صوابٌ
+         لم يَعرفه، فلا يَعود الموضعُ في أسئلتِه وهو لا يَحفظه. فبابٌ
+         يَقول الصدقَ أنفعُ له من حَظٍّ يُجمّل الرقم. ويُحتسَب خطأً
+         في القياس، ولا يُقال له «أخطأت» — إنّما «لم تَعرفها بعد». */
+      if (chosen === -1) {
+        var dk = App.el('button', 'ex-dunno');
+        dk.type = 'button';
+        dk.textContent = 'لا أعرف';
+        dk.onclick = function () { answer(-2); };
+        body.appendChild(dk);
+      }
     }
 
     function tag(t) {
@@ -19877,7 +19900,7 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     function answer(i) {
       var q = ses.list[at];
       chosen = i;
-      var ok = i === q.ok;
+      var ok = (i >= 0) && (i === q.ok);
       if (ok) hits++; else miss.push(q);
       answered.push({ q: q, ok: ok });
       note(q, ok);
@@ -19896,7 +19919,9 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
       var miss = (q.type === 'wording' || q.type === 'shabihWhere')
         ? 'هذا لفظٌ صحيح، لكنّه في موضعٍ آخر. والمطلوبُ المُعلَّمُ أعلاه.'
         : 'ليس هذا. والصوابُ المُعلَّمُ أعلاه.';
-      t.textContent = chosen === q.ok ? vg('أصبتَ.', 'أصبتِ.') : miss;
+      t.textContent = chosen === q.ok ? vg('أصبتَ.', 'أصبتِ.')
+                    : chosen === -2 ? 'لم تَعرفها بعد. والصوابُ المُعلَّمُ أعلاه.'
+                    : miss;
       box.appendChild(t);
 
       var w = App.el('p', 'ex-verd-w');

@@ -2444,6 +2444,8 @@ body::after{
 }
 .qp-line{ display:flex; justify-content:space-between; white-space:nowrap }
 .qp-line.qp-head{ justify-content:center; color:var(--gold-lit) }
+/* السطرُ القصيرُ يُركَّز بفُرجةٍ طبيعيّةٍ بدل بياضٍ مُمَطّ */
+.qp-line.qp-short{ justify-content:center; gap:.3em }
 
 /* ── الذيل: ما يُحتاج بعد الفراغِ من الصفحة ── */
 .qp-foot{ margin-block-start:16px }
@@ -3124,7 +3126,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.67",at:"2026-11-27T22:33:10+03:00"};</script>
+<script>window.__BUILD={v:"1.68",at:"2026-11-28T03:05:37+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14757,9 +14759,35 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     for (i = 0; i < rows.length; i++) {
       if (rows[i].scrollWidth > widest) widest = rows[i].scrollWidth;
     }
-    if (!widest || widest <= avail) return;
-    var px = Math.max(9, Math.floor(base * (avail / widest) * 100) / 100);
-    box.style.fontSize = px + 'px';
+    if (widest && widest > avail) {
+      var px = Math.max(9, Math.floor(base * (avail / widest) * 100) / 100);
+      box.style.fontSize = px + 'px';
+    }
+    spread(box, avail);
+  }
+
+  /* ══ السطرُ القصيرُ لا يُمَطّ ═════════════════════════════════════
+     سطورُ المصحفِ تُفرَد إلى حافّتَي الصفحة، وهذا صوابٌ في الصفحةِ
+     المملوءة: الزيادةُ تُقسَم على عشرينَ فُرجةً فلا تُحَسّ. أمّا في
+     الفاتحةِ وأوّلِ البقرةِ — وسطورُها ثلاثُ كلماتٍ وأربع — فتُقسَم
+     الزيادةُ نفسُها على فُرجتَين، فتَنفتح بياضاتٌ بين الكلمةِ
+     وأختِها تُفسِد الرسم. وهذا الذي رآه صاحبُ التطبيقِ في الصفحتَين
+     الأولى والثانية.
+
+     وفي المصحفِ المطبوعِ تُفرَد السطورُ بمَطِّ الحرفِ (الكَشيدة) لا
+     بتوسيعِ البياض — ونحن لا نَملك المَطّ، فالخطُّ يُعطي كلَّ كلمةٍ
+     رمزًا واحدًا لا يُمَدّ. فالصوابُ أن يُترَك السطرُ القصيرُ على
+     طبيعتِه مركَّزًا، ويُفرَد ما يَكاد يَملأ العَرْض. */
+  function spread(box, avail) {
+    var rows = box.querySelectorAll('.qp-line'), i, j, nat, kids;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].classList.contains('qp-head')) continue;
+      kids = rows[i].children;
+      nat = 0;
+      for (j = 0; j < kids.length; j++) nat += kids[j].getBoundingClientRect().width;
+      /* دونَ ثلاثةِ أرباعِ العَرْضِ: سطرٌ قصيرٌ يُركَّز ولا يُفرَد */
+      rows[i].classList.toggle('qp-short', nat > 0 && nat < avail * 0.76);
+    }
   }
 
   function fitSoon(box) {
