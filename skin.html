@@ -3126,7 +3126,7 @@ html[data-mode="light"] .brandbar .appmark{
 <body>
 <main id="app" role="main"></main>
 <nav id="nav" aria-label="التنقّل الرئيس"></nav>
-<script>window.__BUILD={v:"1.68",at:"2026-11-28T03:05:37+03:00"};</script>
+<script>window.__BUILD={v:"1.69",at:"2026-11-28T03:21:27+03:00"};</script>
 <script>
 /* ══ 00-core.js ══ */
 /* ═══════════════════════════════════════════════════════════════════
@@ -14756,6 +14756,14 @@ if (window.App && window.App.ownState) window.App.ownState('slips');
     box.style.fontSize = '';                 /* يُقاس على أصلِه */
     var base = parseFloat(getComputedStyle(box).fontSize) || 20;
     var rows = box.querySelectorAll('.qp-line'), widest = 0, i;
+    /* يُنزَع التركيزُ قبل القياس، وإلّا كَذب القياس:
+       ‎scrollWidth‎ لا يَحسب فائضَ المُركَّزِ من ناحيةِ البداية. فلو
+       قِيس أوّلَ مرّةٍ والخطُّ لم يَصل بعدُ — والحروفُ حينئذٍ مربّعاتٌ
+       ضيّقة — وُسِمت السطورُ كلُّها «قصيرة»، فإذا وصل الخطُّ قِيست
+       مُركَّزةً فعادت بعَرْضِ الصندوقِ لا بعَرْضِها، فظُنّ أنّها
+       تَسَعه ولم يُصغَّر الحرف — فخرج النصُّ من الصفحةِ من ناحيتَيها.
+       وهذا ما رآه صاحبُ التطبيقِ في صفحتَي الفاتحةِ والبقرة. */
+    for (i = 0; i < rows.length; i++) rows[i].classList.remove('qp-short');
     for (i = 0; i < rows.length; i++) {
       if (rows[i].scrollWidth > widest) widest = rows[i].scrollWidth;
     }
